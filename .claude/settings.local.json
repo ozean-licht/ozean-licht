@@ -1,0 +1,7 @@
+{
+  "enabledMcpjsonServers": [
+    "task-master-ai",
+    "supabase"
+  ],
+  "enableAllProjectMcpServers": true
+}

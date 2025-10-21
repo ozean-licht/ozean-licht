@@ -1,0 +1,340 @@
+{
+  "version": "1.0.0",
+  "updated": "2025-10-20",
+  "services": {
+    "postgres": {
+      "name": "PostgreSQL MCP",
+      "description": "Database operations for kids-ascension and ozean-licht databases",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "list-tables",
+        "describe-table",
+        "query",
+        "schema-introspection",
+        "connection-stats"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-postgres [db] list tables",
+          "description": "List all tables in the specified database",
+          "example": "/mcp-postgres kids-ascension-db list tables"
+        },
+        {
+          "command": "/mcp-postgres [db] describe [table]",
+          "description": "Get schema information for a specific table",
+          "example": "/mcp-postgres kids-ascension-db describe users"
+        },
+        {
+          "command": "/mcp-postgres [db] query \"[sql]\"",
+          "description": "Execute a SQL query (read-only by default)",
+          "example": "/mcp-postgres ozean-licht-db query \"SELECT * FROM courses LIMIT 10\""
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 500,
+        "costPerCall": 0.0015,
+        "complexity": "medium"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 100,
+        "burstLimit": 20
+      }
+    },
+    "mem0": {
+      "name": "Mem0 MCP",
+      "description": "Persistent memory and context management",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "remember",
+        "search",
+        "get-context",
+        "list-memories",
+        "delete-memory"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-mem0 remember \"[content]\"",
+          "description": "Store a new memory",
+          "example": "/mcp-mem0 remember \"User prefers TypeScript for all new projects\""
+        },
+        {
+          "command": "/mcp-mem0 search \"[query]\"",
+          "description": "Search through stored memories",
+          "example": "/mcp-mem0 search \"programming preferences\""
+        },
+        {
+          "command": "/mcp-mem0 get-context [user_id]",
+          "description": "Retrieve all memories for a specific user",
+          "example": "/mcp-mem0 get-context agent_001"
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 200,
+        "costPerCall": 0.0006,
+        "complexity": "low"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 200,
+        "burstLimit": 50
+      }
+    },
+    "cloudflare": {
+      "name": "Cloudflare MCP",
+      "description": "Cloud infrastructure and CDN management",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "dns-management",
+        "stream-upload",
+        "stream-list",
+        "workers-deploy",
+        "cache-purge"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-cloudflare dns list-records [zone]",
+          "description": "List DNS records for a zone",
+          "example": "/mcp-cloudflare dns list-records ozean-licht.dev"
+        },
+        {
+          "command": "/mcp-cloudflare stream upload [path]",
+          "description": "Upload a video to Cloudflare Stream",
+          "example": "/mcp-cloudflare stream upload /videos/lesson1.mp4"
+        },
+        {
+          "command": "/mcp-cloudflare workers deploy [name]",
+          "description": "Deploy a Cloudflare Worker",
+          "example": "/mcp-cloudflare workers deploy api-gateway"
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 300,
+        "costPerCall": 0.0009,
+        "complexity": "medium"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 50,
+        "burstLimit": 10
+      }
+    },
+    "github": {
+      "name": "GitHub MCP",
+      "description": "Repository and code management",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "create-pr",
+        "list-issues",
+        "merge-pr",
+        "create-issue",
+        "list-workflows",
+        "trigger-workflow"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-github create-pr \"[title]\" \"[body]\"",
+          "description": "Create a new pull request",
+          "example": "/mcp-github create-pr \"feat: Add MCP Gateway\" \"Implements the MCP Gateway for agent tooling\""
+        },
+        {
+          "command": "/mcp-github list-issues --label=[label]",
+          "description": "List repository issues",
+          "example": "/mcp-github list-issues --label=bug"
+        },
+        {
+          "command": "/mcp-github merge-pr [number]",
+          "description": "Merge a pull request",
+          "example": "/mcp-github merge-pr 123"
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 400,
+        "costPerCall": 0.0012,
+        "complexity": "medium"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 60,
+        "burstLimit": 15
+      }
+    },
+    "n8n": {
+      "name": "N8N MCP",
+      "description": "Workflow automation and orchestration",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "execute-workflow",
+        "list-workflows",
+        "get-execution",
+        "create-webhook",
+        "test-workflow"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-n8n execute [workflow_id] {data}",
+          "description": "Execute a workflow with data",
+          "example": "/mcp-n8n execute wf_123 {\"email\": \"user@example.com\"}"
+        },
+        {
+          "command": "/mcp-n8n list-workflows",
+          "description": "List all available workflows",
+          "example": "/mcp-n8n list-workflows"
+        },
+        {
+          "command": "/mcp-n8n get-execution [id]",
+          "description": "Get workflow execution details",
+          "example": "/mcp-n8n get-execution exec_456"
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 250,
+        "costPerCall": 0.0008,
+        "complexity": "low"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 100,
+        "burstLimit": 25
+      }
+    },
+    "playwright": {
+      "name": "Playwright MCP",
+      "description": "Browser automation and testing",
+      "location": "local",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "navigate",
+        "screenshot",
+        "fill-form",
+        "click-element",
+        "extract-text"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-playwright navigate [url]",
+          "description": "Navigate to a URL",
+          "example": "/mcp-playwright navigate https://example.com"
+        },
+        {
+          "command": "/mcp-playwright screenshot [path]",
+          "description": "Take a screenshot",
+          "example": "/mcp-playwright screenshot /tmp/page.png"
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 1000,
+        "costPerCall": 0.003,
+        "complexity": "high"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 30,
+        "burstLimit": 5
+      }
+    },
+    "shadcn": {
+      "name": "ShadCN MCP",
+      "description": "UI component library integration",
+      "location": "local",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "add-component",
+        "list-components",
+        "customize-theme",
+        "generate-form"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-shadcn add [component]",
+          "description": "Add a ShadCN component",
+          "example": "/mcp-shadcn add button"
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 150,
+        "costPerCall": 0.0005,
+        "complexity": "low"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 100,
+        "burstLimit": 20
+      }
+    },
+    "magicui": {
+      "name": "MagicUI MCP",
+      "description": "Enhanced UI components",
+      "location": "local",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "add-component",
+        "list-components",
+        "generate-animation"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-magicui add [component]",
+          "description": "Add a MagicUI component",
+          "example": "/mcp-magicui add animated-card"
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 150,
+        "costPerCall": 0.0005,
+        "complexity": "low"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 100,
+        "burstLimit": 20
+      }
+    },
+    "taskmaster": {
+      "name": "Taskmaster MCP",
+      "description": "Task orchestration and management",
+      "location": "local",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "create-task",
+        "list-tasks",
+        "execute-task",
+        "task-status"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-taskmaster create \"[task]\"",
+          "description": "Create a new task",
+          "example": "/mcp-taskmaster create \"Implement user authentication\""
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 300,
+        "costPerCall": 0.0009,
+        "complexity": "medium"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 50,
+        "burstLimit": 10
+      }
+    }
+  },
+  "aggregates": {
+    "totalServices": 9,
+    "serverSideServices": 5,
+    "localServices": 4,
+    "averageTokenCost": 377,
+    "averageCostPerCall": 0.00113
+  },
+  "metadata": {
+    "lastUpdated": "2025-10-20T10:00:00Z",
+    "maintainer": "Ozean Licht Infrastructure Team",
+    "documentation": "/docs/mcp-catalog.md"
+  }
+}

@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  mcp-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-gateway
+    restart: unless-stopped
+    ports:
+      - "8100:8100"  # Main API port
+      - "9090:9090"  # Metrics port
+    environment:
+      # Server Configuration
+      NODE_ENV: production
+      PORT: 8100
+      HOST: 0.0.0.0
+
+      # PostgreSQL - Kids Ascension
+      POSTGRES_KA_HOST: host.docker.internal
+      POSTGRES_KA_PORT: 5432
+      POSTGRES_KA_DATABASE: kids-ascension
+      POSTGRES_KA_USER: postgres
+      POSTGRES_KA_PASSWORD: ${POSTGRES_KA_PASSWORD}
+
+      # PostgreSQL - Ozean Licht
+      POSTGRES_OL_HOST: host.docker.internal
+      POSTGRES_OL_PORT: 5432
+      POSTGRES_OL_DATABASE: ozean-licht
+      POSTGRES_OL_USER: postgres
+      POSTGRES_OL_PASSWORD: ${POSTGRES_OL_PASSWORD}
+
+      # Service URLs (use container names in production)
+      MEM0_API_URL: http://host.docker.internal:8090
+      N8N_API_URL: http://host.docker.internal:5678
+      N8N_API_KEY: ${N8N_API_KEY}
+
+      # Cloudflare
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
+      CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID}
+      CLOUDFLARE_ZONE_ID: ${CLOUDFLARE_ZONE_ID}
+
+      # GitHub
+      GITHUB_APP_ID: ${GITHUB_APP_ID}
+      GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY}
+      GITHUB_INSTALLATION_ID: ${GITHUB_INSTALLATION_ID}
+
+      # Security
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: 24h
+
+      # Rate Limiting
+      RATE_LIMIT_WINDOW_MS: 60000
+      RATE_LIMIT_MAX_REQUESTS: 100
+
+      # Monitoring
+      ENABLE_METRICS: true
+      METRICS_PORT: 9090
+
+      # Logging
+      LOG_LEVEL: info
+      LOG_FORMAT: json
+
+      # Database Pools
+      DB_POOL_MIN: 2
+      DB_POOL_MAX: 10
+      DB_IDLE_TIMEOUT_MS: 10000
+
+      # Timeouts
+      DEFAULT_TIMEOUT_MS: 30000
+      DB_QUERY_TIMEOUT_MS: 10000
+      HTTP_TIMEOUT_MS: 30000
+
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config:ro
+    networks:
+      - mcp-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8100/health', (r) => {r.statusCode === 200 ? process.exit(0) : process.exit(1)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # Optional: Redis for production rate limiting and caching
+  redis:
+    image: redis:7-alpine
+    container_name: mcp-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"  # Use different port to avoid conflicts
+    volumes:
+      - redis-data:/data
+    networks:
+      - mcp-network
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-defaultpass}
+
+networks:
+  mcp-network:
+    driver: bridge
+
+volumes:
+  redis-data:

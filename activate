@@ -1,0 +1,3 @@
+#!/bin/bash
+# Quick activation helper for Ozean Licht Ecosystem
+source scripts/activate_env.sh
