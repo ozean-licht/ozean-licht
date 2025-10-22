@@ -17,22 +17,22 @@ services:
       HOST: 0.0.0.0
 
       # PostgreSQL - Kids Ascension
-      POSTGRES_KA_HOST: host.docker.internal
-      POSTGRES_KA_PORT: 5432
-      POSTGRES_KA_DATABASE: kids-ascension
-      POSTGRES_KA_USER: postgres
+      POSTGRES_KA_HOST: ${POSTGRES_KA_HOST:-iccc0wo0wkgsws4cowk4440c}
+      POSTGRES_KA_PORT: ${POSTGRES_KA_PORT:-5432}
+      POSTGRES_KA_DATABASE: ${POSTGRES_KA_DATABASE:-kids-ascension}
+      POSTGRES_KA_USER: ${POSTGRES_KA_USER:-postgres}
       POSTGRES_KA_PASSWORD: ${POSTGRES_KA_PASSWORD}
 
       # PostgreSQL - Ozean Licht
-      POSTGRES_OL_HOST: host.docker.internal
-      POSTGRES_OL_PORT: 5432
-      POSTGRES_OL_DATABASE: ozean-licht
-      POSTGRES_OL_USER: postgres
+      POSTGRES_OL_HOST: ${POSTGRES_OL_HOST:-zo8g4ogg8g0gss0oswkcs84w}
+      POSTGRES_OL_PORT: ${POSTGRES_OL_PORT:-5432}
+      POSTGRES_OL_DATABASE: ${POSTGRES_OL_DATABASE:-ozean-licht}
+      POSTGRES_OL_USER: ${POSTGRES_OL_USER:-postgres}
       POSTGRES_OL_PASSWORD: ${POSTGRES_OL_PASSWORD}
 
-      # Service URLs (use container names in production)
-      MEM0_API_URL: http://host.docker.internal:8090
-      N8N_API_URL: http://host.docker.internal:5678
+      # Service URLs (use domains in Coolify, localhost in dev)
+      MEM0_API_URL: ${MEM0_API_URL:-http://mem0.ozean-licht.dev}
+      N8N_API_URL: ${N8N_API_URL:-http://n8n.ozean-licht.dev}
       N8N_API_KEY: ${N8N_API_KEY}
 
       # Cloudflare
