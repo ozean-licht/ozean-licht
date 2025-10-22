@@ -8,18 +8,18 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Install dependencies
-RUN npm ci --only=production && \
-    npm cache clean --force
+# Install all dependencies (needed for build)
+RUN npm ci
 
 # Copy source code
 COPY src ./src
 COPY config ./config
 
-# Install dev dependencies for building
-RUN npm ci && \
-    npm run build && \
-    npm prune --production
+# Build TypeScript to JavaScript
+RUN npm run build
+
+# Remove dev dependencies
+RUN npm prune --production
 
 # Production stage
 FROM node:20-alpine
@@ -38,7 +38,6 @@ WORKDIR /app
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
-COPY --chown=nodejs:nodejs config ./config
 
 # Create logs directory
 RUN mkdir -p logs && chown nodejs:nodejs logs
@@ -57,4 +56,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the application
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/src/server.js"]

@@ -121,11 +121,11 @@ async function initializeMem0(registry: MCPRegistry): Promise<void> {
 
 /**
  * Cloudflare MCP Initializer
- * To be implemented when setting up Cloudflare
  */
 async function initializeCloudflare(registry: MCPRegistry): Promise<void> {
-  // Placeholder - will be implemented when Cloudflare MCP is added
-  logger.info('Cloudflare MCP initialization pending - awaiting implementation');
+  const { CloudflareHandler } = await import('./handlers/cloudflare');
+
+  const handler = new CloudflareHandler();
 
   const serviceConfig = mcpCatalog.services.cloudflare;
   registry.registerService({
@@ -134,18 +134,17 @@ async function initializeCloudflare(registry: MCPRegistry): Promise<void> {
     description: serviceConfig.description,
     location: 'server',
     capabilities: serviceConfig.capabilities,
-    status: 'inactive',
-    errorMessage: 'Awaiting implementation',
-  });
+    status: 'active',
+  }, handler);
 }
 
 /**
  * GitHub MCP Initializer
- * To be implemented when setting up GitHub
  */
 async function initializeGitHub(registry: MCPRegistry): Promise<void> {
-  // Placeholder - will be implemented when GitHub MCP is added
-  logger.info('GitHub MCP initialization pending - awaiting implementation');
+  const { GitHubHandler } = await import('./handlers/github');
+
+  const handler = new GitHubHandler();
 
   const serviceConfig = mcpCatalog.services.github;
   registry.registerService({
@@ -154,9 +153,8 @@ async function initializeGitHub(registry: MCPRegistry): Promise<void> {
     description: serviceConfig.description,
     location: 'server',
     capabilities: serviceConfig.capabilities,
-    status: 'inactive',
-    errorMessage: 'Awaiting implementation',
-  });
+    status: 'active',
+  }, handler);
 }
 
 /**

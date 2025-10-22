@@ -23,6 +23,10 @@ export interface MCPOptions {
   format?: 'json' | 'table' | 'csv';
   limit?: number;
   offset?: number;
+  user_id?: string;
+  agent_id?: string;
+  metadata?: any;
+  [key: string]: any;
 }
 
 export interface MCPResponse {
@@ -48,6 +52,8 @@ export interface MCPMetadata {
   service: string;
   operation: string;
   timestamp: string;
+  database?: string;
+  [key: string]: any;
 }
 
 export interface MCPError {

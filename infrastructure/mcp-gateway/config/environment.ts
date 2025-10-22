@@ -1,9 +1,30 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 
-// Load environment variables
-dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+// Load environment variables from .env file if available (dev/local mode)
+// In production/Docker, environment variables are passed directly
+// Note: __dirname will be 'dist/config' when compiled, so we need to go up to mcp-gateway root
+const isCompiled = __dirname.includes('/dist/');
+const mcpGatewayRoot = isCompiled
+  ? path.resolve(__dirname, '../../')  // dist/config -> mcp-gateway/
+  : path.resolve(__dirname, '../');     // config/ -> mcp-gateway/
+
+const localEnvPath = path.join(mcpGatewayRoot, '.env');
+const rootEnvPath = path.resolve(mcpGatewayRoot, '../../.env');
+
+// Try local .env first, fallback to root .env, or use environment variables
+if (fs.existsSync(localEnvPath)) {
+  dotenv.config({ path: localEnvPath });
+  console.log(`✅ Loading environment from local: ${localEnvPath}`);
+} else if (fs.existsSync(rootEnvPath)) {
+  dotenv.config({ path: rootEnvPath });
+  console.log(`⚠️  Local .env not found, using root: ${rootEnvPath}`);
+} else {
+  // No .env file found - use environment variables directly (Docker/production mode)
+  console.log(`ℹ️  No .env file found, using environment variables`);
+}
 
 // Environment schema definition
 const envSchema = z.object({
@@ -13,19 +34,19 @@ const envSchema = z.object({
   HOST: z.string().default('0.0.0.0'),
 
   // Database Configuration
-  POSTGRES_KA_URL: z.string().url().optional(),
+  POSTGRES_KA_URL: z.string().optional(),
   POSTGRES_KA_HOST: z.string().default('localhost'),
   POSTGRES_KA_PORT: z.string().default('5432').transform(Number),
   POSTGRES_KA_DATABASE: z.string().default('kids-ascension'),
   POSTGRES_KA_USER: z.string().default('postgres'),
-  POSTGRES_KA_PASSWORD: z.string(),
+  POSTGRES_KA_PASSWORD: z.string().optional().default(''),
 
-  POSTGRES_OL_URL: z.string().url().optional(),
+  POSTGRES_OL_URL: z.string().optional(),
   POSTGRES_OL_HOST: z.string().default('localhost'),
   POSTGRES_OL_PORT: z.string().default('5432').transform(Number),
   POSTGRES_OL_DATABASE: z.string().default('ozean-licht'),
   POSTGRES_OL_USER: z.string().default('postgres'),
-  POSTGRES_OL_PASSWORD: z.string(),
+  POSTGRES_OL_PASSWORD: z.string().optional().default(''),
 
   // Service URLs
   MEM0_API_URL: z.string().url().default('http://mem0:8090'),
@@ -33,13 +54,15 @@ const envSchema = z.object({
   N8N_API_KEY: z.string().optional(),
 
   // External APIs
-  CLOUDFLARE_API_TOKEN: z.string(),
-  CLOUDFLARE_ACCOUNT_ID: z.string(),
+  CLOUDFLARE_API_TOKEN: z.string().optional(),
+  CLOUDFLARE_ACCOUNT_ID: z.string().optional(),
   CLOUDFLARE_ZONE_ID: z.string().optional(),
 
-  GITHUB_APP_ID: z.string(),
-  GITHUB_PRIVATE_KEY: z.string(),
-  GITHUB_INSTALLATION_ID: z.string(),
+  // GitHub - supports both PAT and App authentication
+  GITHUB_PAT: z.string().optional(),
+  GITHUB_APP_ID: z.string().optional(),
+  GITHUB_PRIVATE_KEY: z.string().optional(),
+  GITHUB_INSTALLATION_ID: z.string().optional(),
 
   // Security
   JWT_SECRET: z.string().min(32),

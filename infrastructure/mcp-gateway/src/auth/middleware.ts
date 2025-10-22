@@ -121,11 +121,15 @@ export function generateToken(
     expiresAt,
   };
 
-  return jwt.sign(payload, config.JWT_SECRET, {
-    expiresIn,
-    issuer: 'mcp-gateway',
-    subject: agentId,
-  });
+  return jwt.sign(
+    payload,
+    config.JWT_SECRET,
+    {
+      expiresIn: config.JWT_EXPIRES_IN as string,
+      issuer: 'mcp-gateway',
+      subject: agentId,
+    } as jwt.SignOptions
+  );
 }
 
 /**

@@ -150,6 +150,17 @@ export class MCPRegistry {
       const result = await handler.execute(params);
 
       // Add execution metadata
+      if (!result.metadata) {
+        result.metadata = {
+          executionTime: 0,
+          tokensUsed: 0,
+          cost: 0,
+          service: params.service,
+          operation: params.operation,
+          timestamp: new Date().toISOString(),
+        };
+      }
+
       result.metadata = {
         ...result.metadata,
         executionTime: Date.now() - startTime,
@@ -160,7 +171,7 @@ export class MCPRegistry {
 
       // Calculate token usage from catalog
       const serviceConfig = mcpCatalog.services[params.service as keyof typeof mcpCatalog.services];
-      if (serviceConfig) {
+      if (serviceConfig && result.metadata) {
         result.metadata.tokensUsed = result.metadata.tokensUsed || serviceConfig.tokenCost.avgTokensPerCall;
         result.metadata.cost = result.metadata.cost || serviceConfig.tokenCost.costPerCall;
       }
