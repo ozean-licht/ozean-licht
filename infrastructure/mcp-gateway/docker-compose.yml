@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mcp-gateway:
     build:
-      context: .
+      context: ./infrastructure/mcp-gateway
       dockerfile: Dockerfile
     container_name: mcp-gateway
     restart: unless-stopped
@@ -72,8 +72,8 @@ services:
       HTTP_TIMEOUT_MS: 30000
 
     volumes:
-      - ./logs:/app/logs
-      - ./config:/app/config:ro
+      - ./infrastructure/mcp-gateway/logs:/app/logs
+      - ./infrastructure/mcp-gateway/config:/app/config:ro
     networks:
       - mcp-network
     healthcheck:
@@ -91,7 +91,7 @@ services:
     ports:
       - "6380:6379"  # Use different port to avoid conflicts
     volumes:
-      - redis-data:/data
+      - mcp-gateway-redis-data:/data
     networks:
       - mcp-network
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-defaultpass}
@@ -101,4 +101,4 @@ networks:
     driver: bridge
 
 volumes:
-  redis-data:
+  mcp-gateway-redis-data:
