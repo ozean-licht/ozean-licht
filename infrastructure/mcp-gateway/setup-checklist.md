@@ -672,6 +672,112 @@ Complete monitoring and observability stack with comprehensive dashboards, alert
 
 ---
 
+### 2025-10-23 (Night) - Phase 8 DEPLOYED: Full Monitoring Stack Operational ✅
+
+**Complete end-to-end monitoring stack deployed and verified working in production:**
+
+1. **Prometheus Server Deployed** (`prometheus-o000okc80okco8s0sgcwwcwo`)
+   - Image: prom/prometheus:v2.48.1
+   - Port: 9091 (external), 9090 (internal)
+   - Configuration: Inline (no file mount dependency)
+   - Scraping: MCP Gateway metrics every 15s
+   - Storage: 30-day retention in persistent volume
+   - Status: ✅ Healthy and scraping 2 targets (mcp-gateway, prometheus)
+   - Location: `monitoring/prometheus/prometheus.yml`
+
+2. **Grafana Fully Operational** (`grafana-o000okc80okco8s0sgcwwcwo`)
+   - Image: grafana/grafana:10.2.3
+   - URL: https://grafana.ozean-licht.dev (via Traefik/Cloudflare)
+   - Authentication: admin / 13vRRL2hjTjFNd
+   - Datasource: Prometheus @ http://prometheus:9090 (✅ Connected)
+   - Status: ✅ Healthy, responding, dashboard loaded
+
+3. **MCP Gateway Dashboard Imported and Working**
+   - Dashboard ID: 1
+   - UID: mcp-gateway-overview
+   - URL: https://grafana.ozean-licht.dev/d/mcp-gateway-overview/mcp-gateway-overview
+   - **12 panels ALL showing live data:**
+     - ✅ HTTP Requests/sec stat panel
+     - ✅ MCP Operations/sec stat panel
+     - ✅ Errors/sec stat panel
+     - ✅ Active Requests stat panel
+     - ✅ HTTP Request Duration (p50, p95, p99) graph
+     - ✅ HTTP Request Rate by Service graph
+     - ✅ MCP Operation Duration (percentiles) graph
+     - ✅ MCP Operations Rate by Service graph
+     - ✅ Token Usage Rate by Service graph
+     - ✅ Database Connection Pool Status graph
+     - ✅ Rate Limit Hits by Agent graph
+     - ✅ Error Rate by Type and Service graph
+   - Import Method: API (bypassed Cloudflare timeout issues)
+   - Version: 6
+
+4. **Infrastructure Fixes Applied**
+   - Grafana alerting config: Fixed legacy/unified conflict
+   - Traefik labels: Added service port configuration
+   - Prometheus config: Inline YAML to avoid Coolify volume mount issues
+   - Datasource naming: Standardized to "Prometheus" (uppercase)
+   - Domain routing: grafana.ozean-licht.dev configured with SSL
+
+5. **Coolify Integration Established**
+   - API deployment command documented: `/coolify-deploy`
+   - Manual deployment working: `POST /api/v1/deploy?uuid=o000okc80okco8s0sgcwwcwo`
+   - API Token: Configured with full permissions (minus root/sensitive)
+   - Coolify MCP Server: Installed and configured in `.mcp.json`
+
+6. **Git Authentication Fixed**
+   - GitHub CLI authenticated for user `sergej`
+   - Git push working: `gh auth setup-git`
+   - All changes committed and pushed to main branch
+   - Auto-deploy on push: ⚠️ Still needs webhook configuration
+
+7. **Deployment Statistics**
+   - Total deployments during session: 6
+   - Services deployed: mcp-gateway, redis, grafana, prometheus
+   - Container recreations: Multiple (all successful)
+   - Final state: All services healthy
+
+**Access Points:**
+- **Grafana UI**: https://grafana.ozean-licht.dev
+- **Prometheus UI**: http://localhost:9091 (internal only)
+- **MCP Gateway Metrics**: http://localhost:9090/metrics (raw)
+- **MCP Gateway API**: http://localhost:8100 (internal only)
+
+**Known Issues Resolved:**
+1. ✅ Grafana crash loop (alerting config conflict) - FIXED
+2. ✅ Traefik 503 "no available server" - FIXED (added labels)
+3. ✅ Prometheus mount failure - FIXED (inline config)
+4. ✅ Grafana datasource mismatch - FIXED (renamed to Prometheus)
+5. ✅ Cloudflare 504 timeouts - BYPASSED (API import)
+6. ✅ Git permission errors - FIXED (ownership corrected)
+
+**Outstanding Items:**
+- [ ] Auto-deploy webhook (git push → Coolify deploy)
+- [ ] Alert notification channels (Slack/Discord/N8N)
+- [ ] Grafana OAuth integration (optional)
+- [ ] Long-term metrics storage (Prometheus persistent volume OK for 30 days)
+
+**Commands for Future Reference:**
+```bash
+# Deploy MCP Gateway
+curl -X POST -H "Authorization: Bearer <token>" \
+  "http://localhost:8000/api/v1/deploy?uuid=o000okc80okco8s0sgcwwcwo"
+
+# Check Prometheus targets
+curl -s "http://localhost:9091/api/v1/query?query=up"
+
+# Grafana health check
+curl -s http://localhost:3000/api/health
+
+# Monitor deployment
+docker ps --filter "name=o000okc80okco8s0sgcwwcwo"
+```
+
+**Phase 8 Achievement:**
+Complete production-ready monitoring and observability stack with real-time dashboards, metrics collection, and comprehensive alerting rules. All services deployed, tested, and verified operational.
+
+---
+
 ## Review Statement
 **MCP Gateway fully operational and validated!** All 8 MCPs tested successfully:
 

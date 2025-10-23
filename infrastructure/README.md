@@ -16,6 +16,8 @@ ssh -i ~/.ssh/ozean-automation root@138.201.139.25
 - N8N: http://n8n.ozean-licht.dev
 - Qdrant: http://qdrant.ozean-licht.dev/dashboard
 - Mem0: http://mem0.ozean-licht.dev
+- Grafana: https://grafana.ozean-licht.dev
+- Prometheus: http://localhost:9091 (internal only)
 
 ## 📁 Directory Structure
 

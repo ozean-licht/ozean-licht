@@ -77,6 +77,12 @@ ssh -i ~/.ssh/ozean-automation root@138.201.139.25
 | **Qdrant** | `qdrant-posgccgk4gw84ss8oockoksc` | 6333-6334 | http://qdrant.ozean-licht.dev | ✅ Running |
 | **Mem0** | `mem0-uo8gc0kc0gswcskk44gc8wks` | 8090 | http://mem0.ozean-licht.dev | ✅ Running |
 
+### Monitoring & Observability
+| Service | Container Name | Port | Domain | Status |
+|---------|---------------|------|--------|--------|
+| **Grafana** | `grafana-o000okc80okco8s0sgcwwcwo` | 3000 | https://grafana.ozean-licht.dev | ✅ Running |
+| **Prometheus** | `prometheus-o000okc80okco8s0sgcwwcwo` | 9091 (ext), 9090 (int) | Internal only | ✅ Running |
+
 ### Caching
 | Service | Container Name | Port | Purpose |
 |---------|---------------|------|---------|
@@ -92,6 +98,7 @@ ssh -i ~/.ssh/ozean-automation root@138.201.139.25
   - n8n.ozean-licht.dev → N8N Workflows
   - qdrant.ozean-licht.dev → Qdrant Vector DB
   - mem0.ozean-licht.dev → Mem0 AI Memory
+  - grafana.ozean-licht.dev → Grafana Monitoring Dashboard
 
 - **kids-ascension.dev** - Configured in Hostinger
   - app.kids-ascension.dev → (Ready for deployment)
