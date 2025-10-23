@@ -1,6 +1,6 @@
 # Ozean Licht Ecosystem - Server Architecture
 
-**Last Updated**: 2025-10-20
+**Last Updated**: 2025-10-23
 **Status**: OPERATIONAL ✅
 **Purpose**: Complete infrastructure documentation for autonomous agents
 
@@ -71,6 +71,7 @@ ssh -i ~/.ssh/ozean-automation root@138.201.139.25
 ### Automation & AI Services
 | Service | Container Name | Port | Domain | Status |
 |---------|---------------|------|--------|--------|
+| **MCP Gateway** | `mcp-gateway-o000okc80okco8s0sgcwwcwo` | 8100, 9090 | Internal only | ✅ Running |
 | **N8N** | `n8n-k088ko800k8wg0sc40sw8k4g` | 5678 | http://n8n.ozean-licht.dev | ✅ Running |
 | **N8N Worker** | `n8n-worker-k088ko800k8wg0sc40sw8k4g` | Internal | N/A | ✅ Running |
 | **Qdrant** | `qdrant-posgccgk4gw84ss8oockoksc` | 6333-6334 | http://qdrant.ozean-licht.dev | ✅ Running |
@@ -80,6 +81,7 @@ ssh -i ~/.ssh/ozean-automation root@138.201.139.25
 | Service | Container Name | Port | Purpose |
 |---------|---------------|------|---------|
 | **Redis (Main)** | `lw0ws0kwsw4ko4kg4o8o40os` | 6379 | Primary cache |
+| **Redis (MCP Gateway)** | `redis-o000okc80okco8s0sgcwwcwo` | Internal | MCP rate limiting |
 | **Redis (N8N)** | `redis-k088ko800k8wg0sc40sw8k4g` | Internal | N8N cache |
 
 ## Domain Configuration
