@@ -752,10 +752,18 @@ Complete monitoring and observability stack with comprehensive dashboards, alert
 6. ✅ Git permission errors - FIXED (ownership corrected)
 
 **Outstanding Items:**
-- [ ] Auto-deploy webhook (git push → Coolify deploy)
-- [ ] Alert notification channels (Slack/Discord/N8N)
-- [ ] Grafana OAuth integration (optional)
+- [x] Auto-deploy webhook - GitHub App integration configured (awaiting "Deploy on Push" toggle in Coolify UI)
+- [x] Telegram alert notifications - Contact points and policies configured (awaiting bot token and chat ID)
+- [ ] Grafana OAuth integration (optional - for team access)
 - [ ] Long-term metrics storage (Prometheus persistent volume OK for 30 days)
+
+**Configuration Files Created (2025-10-23 Evening):**
+- `infrastructure/mcp-gateway/WEBHOOK-SETUP.md` - Complete webhook documentation
+- `infrastructure/mcp-gateway/monitoring/TELEGRAM-SETUP.md` - Telegram bot setup guide
+- `infrastructure/mcp-gateway/monitoring/grafana/provisioning/alerting/contact-points.yml` - Telegram contact point
+- `infrastructure/mcp-gateway/monitoring/grafana/provisioning/alerting/notification-policies.yml` - Alert routing
+- Updated `docker-compose.yml` - Added TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID env vars
+- Updated `.env` - Added Telegram placeholders and Coolify variables
 
 **Commands for Future Reference:**
 ```bash

@@ -120,6 +120,10 @@ services:
       # Alerting (Grafana 10+ uses unified alerting only)
       GF_UNIFIED_ALERTING_ENABLED: "true"
 
+      # Telegram Alerts
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+
       # Logging
       GF_LOG_LEVEL: info
       GF_LOG_MODE: console

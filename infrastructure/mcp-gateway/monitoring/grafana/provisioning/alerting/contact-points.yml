@@ -1,0 +1,28 @@
+apiVersion: 1
+
+# Telegram Contact Point for MCP Gateway Alerts
+contactPoints:
+  - orgId: 1
+    name: Telegram - MCP Alerts
+    receivers:
+      - uid: telegram-mcp-alerts
+        type: telegram
+        settings:
+          bottoken: ${TELEGRAM_BOT_TOKEN}
+          chatid: ${TELEGRAM_CHAT_ID}
+          message: |
+            {{ if eq .Status "firing" }}🚨 <b>ALERT FIRING</b> 🔥{{ else }}✅ <b>RESOLVED</b>{{ end }}
+
+            <b>{{ .Labels.alertname }}</b>
+            Service: <code>{{ .Labels.service }}</code>
+            Severity: {{ if eq .Labels.severity "critical" }}🔴{{ else if eq .Labels.severity "warning" }}⚠️{{ else }}ℹ️{{ end }} <b>{{ .Labels.severity }}</b>
+
+            {{ .Annotations.description }}
+
+            {{ if .DashboardURL }}📊 <a href="{{ .DashboardURL }}">View Dashboard</a>{{ end }}
+            {{ if .PanelURL }}🔗 <a href="{{ .PanelURL }}">View Panel</a>{{ end }}
+
+            ⏰ {{ .StartsAt.Format "2006-01-02 15:04:05 MST" }}
+          parse_mode: HTML
+          disable_web_page_preview: true
+          disable_notifications: false
