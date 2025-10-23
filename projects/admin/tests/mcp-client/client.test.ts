@@ -3,7 +3,7 @@
  */
 
 import { MCPGatewayClient } from '../../lib/mcp-client/client';
-import { MCPValidationError, MCPConnectionError, MCPTimeoutError } from '../../lib/mcp-client/errors';
+import { MCPValidationError } from '../../lib/mcp-client/errors';
 
 describe('MCPGatewayClient', () => {
   describe('constructor', () => {

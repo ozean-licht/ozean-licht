@@ -17,7 +17,8 @@ module.exports = {
     }
   },
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1'
+    '^@/(.*)$': '<rootDir>/$1',
+    '^node-fetch$': '<rootDir>/tests/__mocks__/node-fetch.ts'
   },
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts']
 };
