@@ -157,14 +157,38 @@ services:
       - '--storage.tsdb.retention.time=30d'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
+    environment:
+      - PROMETHEUS_CONFIG=|
+        global:
+          scrape_interval: 15s
+        scrape_configs:
+          - job_name: 'mcp-gateway'
+            static_configs:
+              - targets: ['mcp-gateway:9090']
     volumes:
-      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - mcp-prometheus-data:/prometheus
     networks:
       - mcp-network
       - coolify
     depends_on:
       - mcp-gateway
+    entrypoint:
+      - sh
+      - -c
+      - |
+        cat > /etc/prometheus/prometheus.yml <<'EOF'
+        global:
+          scrape_interval: 15s
+          evaluation_interval: 15s
+        scrape_configs:
+          - job_name: 'mcp-gateway'
+            static_configs:
+              - targets: ['mcp-gateway:9090']
+          - job_name: 'prometheus'
+            static_configs:
+              - targets: ['localhost:9090']
+        EOF
+        /bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=30d --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
       interval: 30s
