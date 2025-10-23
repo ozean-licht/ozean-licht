@@ -8,6 +8,17 @@ A unified gateway for autonomous agents to access tools and services through the
 
 ---
 
+## 📚 Documentation
+
+- **[Setup Checklist](./setup-checklist.md)** - Complete setup progress and phase tracking
+- **[Guides](./docs/guides/)** - Configuration and deployment guides
+  - [Webhook Setup Guide](./docs/guides/WEBHOOK-SETUP.md) - GitHub auto-deploy configuration
+  - [Telegram Setup Guide](./monitoring/TELEGRAM-SETUP.md) - Alert notifications
+- **[Session Notes](./docs/sessions/)** - Development session summaries
+  - [Final Session Summary](./docs/sessions/FINAL-SESSION-SUMMARY.md) - Latest deployment status
+
+---
+
 ## Table of Contents
 
 1. [Overview](#overview)
