@@ -22,14 +22,18 @@ export async function authMiddleware(
   next: NextFunction
 ): Promise<void> {
   try {
-    // 1. Localhost Bypass - Trust requests from localhost (agents on same server)
+    // 1. Localhost Bypass - Trust requests from localhost and Docker network (internal)
     const clientIp = req.ip || req.socket.remoteAddress || '';
     const isLocalhost =
       clientIp === '127.0.0.1' ||
       clientIp === '::1' ||
       clientIp === '::ffff:127.0.0.1' ||
       clientIp.startsWith('127.') ||
-      clientIp === 'localhost';
+      clientIp === 'localhost' ||
+      // Docker network ranges (internal)
+      clientIp.startsWith('10.') ||
+      clientIp.startsWith('172.') ||
+      clientIp.startsWith('192.168.');
 
     if (isLocalhost) {
       req.agent = {
