@@ -59,9 +59,9 @@ Agent → Slash Command → MCP Gateway → Service Handler → Backend Service
 
 ### Core Capabilities
 
-✅ **9 MCP Services Integrated:**
+✅ **8 MCP Services Integrated:**
 - **Server-Side (Always Loaded):** PostgreSQL, Mem0, Cloudflare, GitHub, N8N
-- **Local (Agent-Side References):** Playwright, ShadCN, MagicUI, Taskmaster
+- **Local (Agent-Side References):** Playwright, ShadCN, MagicUI
 
 ✅ **Authentication & Security:**
 - JWT-based agent authentication
@@ -141,7 +141,6 @@ These services run locally on the agent's machine:
 - **Playwright:** Browser automation
 - **ShadCN:** UI component library
 - **MagicUI:** Enhanced UI components
-- **Taskmaster:** Task orchestration
 
 For detailed architecture information, see [`docs/architecture.md`](docs/architecture.md).
 
@@ -962,7 +961,7 @@ npm run type-check
 - ✅ **N8N MCP** - Workflow automation with execution tracking
 
 **Phase 4: Local MCP References**
-- ✅ Playwright, ShadCN, MagicUI, Taskmaster configured in registry
+- ✅ Playwright, ShadCN, MagicUI configured in registry
 
 **Phase 5: Deployment & Orchestration**
 - ✅ **Docker image built** - 221MB optimized multi-stage build
@@ -970,7 +969,7 @@ npm run type-check
 - ✅ **Environment loading** - Works with .env files and direct env vars
 - ✅ **Health checks verified** - Returns 200 OK
 - ✅ **Metrics verified** - Prometheus endpoint operational
-- ✅ **All 9 services initialized** - Tested in container
+- ✅ **All 8 services initialized** - Tested in container
 
 ### ⏳ Pending (Phases 6-10)
 
@@ -1097,7 +1096,7 @@ MIT
 
 ### v1.0.0 (2025-10-22)
 - ✅ Initial production release
-- ✅ 9 MCP services implemented (5 server-side, 4 local references)
+- ✅ 8 MCP services implemented (5 server-side, 3 local references)
 - ✅ Docker deployment tested and verified
 - ✅ Complete environment configuration
 - ✅ Prometheus metrics and health checks

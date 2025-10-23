@@ -71,7 +71,6 @@
 - [x] Playwright setup (registry configured)
 - [x] ShadCN configuration (registry configured)
 - [x] MagicUI integration (registry configured)
-- [x] Taskmaster connection (registry configured)
 
 ### ✅ PHASE 5: Deployment & Orchestration
 - [x] Docker container build
@@ -193,13 +192,13 @@ infrastructure/mcp-gateway/
 - ✅ Core server with TypeScript and Express
 - ✅ Authentication, rate limiting, and monitoring
 - ✅ **5 server-side MCPs implemented** (PostgreSQL, Mem0, Cloudflare, GitHub, N8N)
-- ✅ 4 local MCPs configured (Playwright, ShadCN, MagicUI, Taskmaster)
+- ✅ 3 local MCPs configured (Playwright, ShadCN, MagicUI)
 - ✅ **Dockerfile optimized** - Multi-stage build, 221MB final image
 - ✅ **Docker Compose tested** - All services starting correctly
 - ✅ **Environment loading fixed** - Works with both .env files and direct env vars
 - ✅ **Health endpoint verified** - Returns 200 OK
 - ✅ **Metrics endpoint verified** - Prometheus metrics available on :9090
-- ✅ **All 9 MCP services initialized** successfully in container
+- ✅ **All 8 MCP services initialized** successfully in container
 - 🚀 **READY FOR COOLIFY DEPLOYMENT**
 
 ### Implementation Highlights
@@ -229,14 +228,14 @@ infrastructure/mcp-gateway/
 ### 2025-10-23 - Production Deployment Complete 🚀
 - ✅ **Coolify Deployment** - Successfully deployed via Git repository integration
 - ✅ **Container Status** - Running and healthy (mcp-gateway-o000okc80okco8s0sgcwwcwo)
-- ✅ **All 9 MCP Services** - Initialized successfully:
+- ✅ **All 8 MCP Services** - Initialized successfully:
   - PostgreSQL (Kids Ascension DB: port 5432)
   - PostgreSQL (Ozean Licht DB: port 5431)
   - Mem0 (http://138.201.139.25:8090)
   - Cloudflare (Stream, DNS, Analytics)
   - GitHub (App authentication with repos/PRs/issues)
   - N8N (http://n8n.ozean-licht.dev:5678)
-  - + 4 local MCPs (Playwright, ShadCN, MagicUI, Taskmaster)
+  - + 3 local MCPs (Playwright, ShadCN, MagicUI)
 - ✅ **Health Endpoint** - http://localhost:8100/health → 200 OK
 - ✅ **Metrics Endpoint** - http://localhost:9090/metrics → Prometheus data
 - ✅ **Redis** - Dedicated instance running for rate limiting
@@ -338,4 +337,4 @@ curl -H "Content-Type: application/json" \
 - ✅ **N8N** - Workflow automation operations
 - ✅ **GitHub** - Repository management via GitHub App authentication
 
-**Status**: Production ready! Zero-friction authentication working perfectly for internal agents. All 9 MCP services operational (5 server-side + 4 local references).
+**Status**: Production ready! Zero-friction authentication working perfectly for internal agents. All 8 MCP services operational (5 server-side + 3 local references).

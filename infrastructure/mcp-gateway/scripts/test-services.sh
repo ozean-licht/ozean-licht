@@ -140,7 +140,7 @@ echo "----------------------------"
 test_endpoint "Playwright Service" "GET" "/mcp/service/playwright" "" "200"
 test_endpoint "ShadCN Service" "GET" "/mcp/service/shadcn" "" "200"
 test_endpoint "MagicUI Service" "GET" "/mcp/service/magicui" "" "200"
-test_endpoint "Taskmaster Service" "GET" "/mcp/service/taskmaster" "" "200"
+# Taskmaster removed - conflicts with ADW system
 
 echo ""
 echo -e "${YELLOW}🔐 Testing Authentication${NC}"

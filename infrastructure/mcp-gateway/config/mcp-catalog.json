@@ -294,43 +294,14 @@
         "requestsPerMinute": 100,
         "burstLimit": 20
       }
-    },
-    "taskmaster": {
-      "name": "Taskmaster MCP",
-      "description": "Task orchestration and management",
-      "location": "local",
-      "version": "1.0.0",
-      "status": "active",
-      "capabilities": [
-        "create-task",
-        "list-tasks",
-        "execute-task",
-        "task-status"
-      ],
-      "commands": [
-        {
-          "command": "/mcp-taskmaster create \"[task]\"",
-          "description": "Create a new task",
-          "example": "/mcp-taskmaster create \"Implement user authentication\""
-        }
-      ],
-      "tokenCost": {
-        "avgTokensPerCall": 300,
-        "costPerCall": 0.0009,
-        "complexity": "medium"
-      },
-      "rateLimit": {
-        "requestsPerMinute": 50,
-        "burstLimit": 10
-      }
     }
   },
   "aggregates": {
-    "totalServices": 9,
+    "totalServices": 8,
     "serverSideServices": 5,
-    "localServices": 4,
-    "averageTokenCost": 377,
-    "averageCostPerCall": 0.00113
+    "localServices": 3,
+    "averageTokenCost": 390,
+    "averageCostPerCall": 0.00117
   },
   "metadata": {
     "lastUpdated": "2025-10-20T10:00:00Z",

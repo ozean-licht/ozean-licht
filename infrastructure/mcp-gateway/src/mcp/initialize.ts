@@ -22,7 +22,7 @@ export async function initializeServices(registry: MCPRegistry): Promise<void> {
  * Register local MCP services that run on the agent's machine
  */
 function registerLocalServices(registry: MCPRegistry): void {
-  const localServices = ['playwright', 'shadcn', 'magicui', 'taskmaster'];
+  const localServices = ['playwright', 'shadcn', 'magicui'];
 
   for (const serviceName of localServices) {
     const serviceConfig = mcpCatalog.services[serviceName as keyof typeof mcpCatalog.services];

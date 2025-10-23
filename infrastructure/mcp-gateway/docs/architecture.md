@@ -49,7 +49,6 @@ These are executed locally on the agent's machine:
 - Playwright (browser automation)
 - ShadCN (UI components)
 - MagicUI (enhanced components)
-- Taskmaster (task orchestration)
 
 ## Data Flow
 
