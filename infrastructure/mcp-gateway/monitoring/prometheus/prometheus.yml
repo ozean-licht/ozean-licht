@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'mcp-gateway-monitor'
+
+# Alertmanager configuration (optional - for future use)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+# Load rules once and periodically evaluate them
+rule_files:
+  # - "alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # MCP Gateway metrics
+  - job_name: 'mcp-gateway'
+    static_configs:
+      - targets: ['mcp-gateway:9090']
+        labels:
+          service: 'mcp-gateway'
+          environment: 'production'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9091']
