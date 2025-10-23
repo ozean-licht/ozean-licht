@@ -22,59 +22,100 @@ export async function authMiddleware(
   next: NextFunction
 ): Promise<void> {
   try {
-    // Skip auth in development mode if configured
-    if (config.NODE_ENV === 'development' && !config.JWT_SECRET) {
+    // 1. Localhost Bypass - Trust requests from localhost (agents on same server)
+    const clientIp = req.ip || req.socket.remoteAddress || '';
+    const isLocalhost =
+      clientIp === '127.0.0.1' ||
+      clientIp === '::1' ||
+      clientIp === '::ffff:127.0.0.1' ||
+      clientIp.startsWith('127.') ||
+      clientIp === 'localhost';
+
+    if (isLocalhost) {
       req.agent = {
-        agentId: 'dev-agent',
-        name: 'Development Agent',
+        agentId: 'localhost-agent',
+        name: 'Local Agent',
         permissions: ['*'],
         expiresAt: Date.now() + 86400000,
       };
+      logger.debug('Localhost agent authenticated', { ip: clientIp });
       return next();
     }
 
-    // Extract token from header
+    // 2. API Key Authentication - Check for X-MCP-Key header
+    const apiKey = req.headers['x-mcp-key'] as string;
+    if (apiKey) {
+      const agent = await validateApiKey(apiKey);
+      if (agent) {
+        req.agent = agent;
+        logger.debug('API key authenticated', {
+          agentId: agent.agentId,
+          name: agent.name,
+        });
+        return next();
+      }
+      throw new AuthenticationError('Invalid API key');
+    }
+
+    // 3. JWT Bearer Token (legacy support)
     const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      throw new AuthenticationError('Authorization header required');
+    if (authHeader) {
+      const [bearer, token] = authHeader.split(' ');
+      if (bearer === 'Bearer' && token) {
+        try {
+          const decoded = jwt.verify(token, config.JWT_SECRET) as AgentToken;
+
+          // Check expiration
+          if (decoded.expiresAt && decoded.expiresAt < Date.now()) {
+            throw new AuthenticationError('Token has expired');
+          }
+
+          req.agent = decoded;
+          logger.debug('JWT authenticated', {
+            agentId: decoded.agentId,
+            name: decoded.name,
+          });
+          return next();
+        } catch (error) {
+          if (error instanceof jwt.JsonWebTokenError) {
+            throw new AuthenticationError('Invalid token');
+          }
+          if (error instanceof jwt.TokenExpiredError) {
+            throw new AuthenticationError('Token has expired');
+          }
+          throw error;
+        }
+      }
     }
 
-    const [bearer, token] = authHeader.split(' ');
-    if (bearer !== 'Bearer' || !token) {
-      throw new AuthenticationError('Invalid authorization format. Expected: Bearer <token>');
-    }
-
-    // Verify and decode token
-    try {
-      const decoded = jwt.verify(token, config.JWT_SECRET) as AgentToken;
-
-      // Check expiration
-      if (decoded.expiresAt && decoded.expiresAt < Date.now()) {
-        throw new AuthenticationError('Token has expired');
-      }
-
-      // Attach agent info to request
-      req.agent = decoded;
-
-      logger.debug('Agent authenticated', {
-        agentId: decoded.agentId,
-        name: decoded.name,
-        permissions: decoded.permissions,
-      });
-
-      next();
-    } catch (error) {
-      if (error instanceof jwt.JsonWebTokenError) {
-        throw new AuthenticationError('Invalid token');
-      }
-      if (error instanceof jwt.TokenExpiredError) {
-        throw new AuthenticationError('Token has expired');
-      }
-      throw error;
-    }
+    // No valid authentication found
+    throw new AuthenticationError('Authentication required. Use localhost, API key (X-MCP-Key), or Bearer token.');
   } catch (error) {
     next(error);
   }
+}
+
+/**
+ * Validate API key and return agent info
+ */
+async function validateApiKey(apiKey: string): Promise<AgentToken | null> {
+  // Simple API key validation
+  // In production, this would check against a database or key store
+  // Format: mcp_live_<random>
+  if (!apiKey.startsWith('mcp_')) {
+    return null;
+  }
+
+  // For now, accept any valid format key and assign full permissions
+  // TODO: Implement proper key management with per-key permissions
+  const keyId = apiKey.replace('mcp_live_', '').substring(0, 8);
+
+  return {
+    agentId: `api-key-${keyId}`,
+    name: `API Key Agent (${keyId})`,
+    permissions: ['*'],
+    expiresAt: Date.now() + (365 * 24 * 3600000), // 1 year
+  };
 }
 
 /**
@@ -130,6 +171,17 @@ export function generateToken(
       subject: agentId,
     } as jwt.SignOptions
   );
+}
+
+/**
+ * Generate an API key for remote agents
+ */
+export function generateApiKey(prefix: string = 'live'): string {
+  const randomBytes = Array.from({ length: 24 }, () =>
+    Math.floor(Math.random() * 36).toString(36)
+  ).join('');
+
+  return `mcp_${prefix}_${randomBytes}`;
 }
 
 /**
