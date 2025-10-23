@@ -76,6 +76,7 @@ services:
       - ./infrastructure/mcp-gateway/config:/app/config:ro
     networks:
       - mcp-network
+      - coolify
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:8100/health', (r) => {r.statusCode === 200 ? process.exit(0) : process.exit(1)})"]
       interval: 30s
@@ -99,6 +100,8 @@ services:
 networks:
   mcp-network:
     driver: bridge
+  coolify:
+    external: true
 
 volumes:
   mcp-gateway-redis-data:
