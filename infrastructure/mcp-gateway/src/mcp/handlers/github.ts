@@ -53,20 +53,37 @@ export class GitHubHandler implements MCPHandler {
       // Format private key - handle multiple formats:
       // 1. Literal \n strings: "-----BEGIN...\n...\n-----END..."
       // 2. Space-separated (Coolify multiline): "-----BEGIN... MIIEp... -----END..."
-      let privateKey = config.GITHUB_PRIVATE_KEY;
+      let privateKey = config.GITHUB_PRIVATE_KEY.trim();
+
+      // Remove surrounding quotes if present
+      if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+        privateKey = privateKey.slice(1, -1);
+      }
 
       // First, replace literal \n with actual newlines
       privateKey = privateKey.replace(/\\n/g, '\n');
 
       // If still no newlines (space-separated format), fix the formatting
       if (!privateKey.includes('\n')) {
-        // Split by BEGIN/END markers and reconstruct with proper newlines
-        privateKey = privateKey
-          .replace('-----BEGIN RSA PRIVATE KEY----- ', '-----BEGIN RSA PRIVATE KEY-----\n')
-          .replace(' -----END RSA PRIVATE KEY-----', '\n-----END RSA PRIVATE KEY-----')
-          .replace(/(.{64})/g, '$1\n') // Add newline every 64 chars for base64
-          .replace(/\n\n/g, '\n') // Remove double newlines
-          .trim();
+        logger.debug('Formatting space-separated private key');
+
+        // Extract the base64 content between headers
+        const beginMarker = '-----BEGIN RSA PRIVATE KEY-----';
+        const endMarker = '-----END RSA PRIVATE KEY-----';
+
+        const beginIndex = privateKey.indexOf(beginMarker);
+        const endIndex = privateKey.indexOf(endMarker);
+
+        if (beginIndex !== -1 && endIndex !== -1) {
+          const base64Content = privateKey
+            .substring(beginIndex + beginMarker.length, endIndex)
+            .replace(/\s+/g, ''); // Remove all spaces
+
+          // Format base64 in 64-char lines
+          const formattedBase64 = base64Content.match(/.{1,64}/g)?.join('\n') || base64Content;
+
+          privateKey = `${beginMarker}\n${formattedBase64}\n${endMarker}`;
+        }
       }
 
       this.octokit = new Octokit({
