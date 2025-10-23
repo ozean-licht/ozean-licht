@@ -117,8 +117,7 @@ services:
       # Enable provisioning
       GF_PATHS_PROVISIONING: /etc/grafana/provisioning
 
-      # Alerting
-      GF_ALERTING_ENABLED: "true"
+      # Alerting (Grafana 10+ uses unified alerting only)
       GF_UNIFIED_ALERTING_ENABLED: "true"
 
       # Logging
