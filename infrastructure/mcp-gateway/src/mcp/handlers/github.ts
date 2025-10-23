@@ -50,11 +50,30 @@ export class GitHubHandler implements MCPHandler {
       this.authMethod = 'pat';
       logger.info('GitHub handler initialized with PAT authentication');
     } else if (config.GITHUB_APP_ID && config.GITHUB_PRIVATE_KEY && config.GITHUB_INSTALLATION_ID) {
+      // Format private key - handle multiple formats:
+      // 1. Literal \n strings: "-----BEGIN...\n...\n-----END..."
+      // 2. Space-separated (Coolify multiline): "-----BEGIN... MIIEp... -----END..."
+      let privateKey = config.GITHUB_PRIVATE_KEY;
+
+      // First, replace literal \n with actual newlines
+      privateKey = privateKey.replace(/\\n/g, '\n');
+
+      // If still no newlines (space-separated format), fix the formatting
+      if (!privateKey.includes('\n')) {
+        // Split by BEGIN/END markers and reconstruct with proper newlines
+        privateKey = privateKey
+          .replace('-----BEGIN RSA PRIVATE KEY----- ', '-----BEGIN RSA PRIVATE KEY-----\n')
+          .replace(' -----END RSA PRIVATE KEY-----', '\n-----END RSA PRIVATE KEY-----')
+          .replace(/(.{64})/g, '$1\n') // Add newline every 64 chars for base64
+          .replace(/\n\n/g, '\n') // Remove double newlines
+          .trim();
+      }
+
       this.octokit = new Octokit({
         authStrategy: createAppAuth,
         auth: {
           appId: config.GITHUB_APP_ID,
-          privateKey: config.GITHUB_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          privateKey: privateKey,
           installationId: config.GITHUB_INSTALLATION_ID,
         },
       });
