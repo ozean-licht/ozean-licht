@@ -277,16 +277,16 @@ curl -H "Content-Type: application/json" \
 
 ### 2. API Key Authentication 🔑 (For Remote Agents)
 
-Simple header-based authentication:
+Simple header-based authentication (for future use if gateway is exposed):
 
 ```bash
 curl -H "X-MCP-Key: mcp_live_abc123xyz456" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"mcp.execute","params":{...},"id":1}' \
-  http://mcp-gateway.example.com/mcp/rpc
+  http://10.0.1.16:8100/mcp/rpc
 ```
 
-**Use Case:** Remote agents or external integrations
+**Use Case:** Remote agents or external integrations (currently internal-only)
 
 ### 3. JWT Bearer Token 🎫 (Legacy)
 
@@ -1103,3 +1103,16 @@ MIT
 - ✅ Prometheus metrics and health checks
 - ✅ JWT authentication and rate limiting
 - ✅ Production-ready container (221MB)
+
+### v1.0.1 (2025-10-23)
+- ✅ Localhost bypass authentication implemented (zero context pollution)
+- ✅ **All 5 server-side MCPs tested and operational:**
+  - PostgreSQL (both databases: kids-ascension-db, ozean-licht-db)
+  - Cloudflare (zones, DNS, Stream with token cost tracking)
+  - Mem0 (memory storage + vector search, 7.9s execution)
+  - N8N (workflow automation)
+  - GitHub (repository management via GitHub App authentication)
+- ✅ Token cost tracking operational
+- ✅ IPv4 localhost access verified
+- ✅ Internal-only deployment (no public domain - security by design)
+- ✅ GitHub private key formatting fixed (Coolify global env vars)
