@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mcp-gateway:
     build:
@@ -97,6 +95,53 @@ services:
       - mcp-network
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-defaultpass}
 
+  # Grafana for monitoring and visualization
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: mcp-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"  # Grafana UI
+    environment:
+      # Admin credentials
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+
+      # Server settings
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3000}
+      GF_SERVER_DOMAIN: ${GRAFANA_DOMAIN:-localhost}
+
+      # Disable anonymous access
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+
+      # Enable provisioning
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+
+      # Alerting
+      GF_ALERTING_ENABLED: "true"
+      GF_UNIFIED_ALERTING_ENABLED: "true"
+
+      # Logging
+      GF_LOG_LEVEL: info
+      GF_LOG_MODE: console
+    volumes:
+      - mcp-grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/provisioning/alerting:/etc/grafana/provisioning/alerting:ro
+    networks:
+      - mcp-network
+      - coolify
+    depends_on:
+      - mcp-gateway
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
 networks:
   mcp-network:
     driver: bridge
@@ -105,3 +150,4 @@ networks:
 
 volumes:
   mcp-gateway-redis-data:
+  mcp-grafana-data:

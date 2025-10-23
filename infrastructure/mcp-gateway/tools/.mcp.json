@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "node",
+      "args": [
+        "/opt/ozean-licht-ecosystem/infrastructure/mcp-gateway/tools/playwright-server.js"
+      ],
+      "description": "Browser automation with Playwright",
+      "capabilities": ["navigate", "screenshot", "click", "fill", "get_content"]
+    },
+    "shadcn": {
+      "command": "node",
+      "args": [
+        "/opt/ozean-licht-ecosystem/infrastructure/mcp-gateway/tools/shadcn-server.js"
+      ],
+      "description": "ShadCN UI component management",
+      "capabilities": ["list_components", "add_component", "init"]
+    },
+    "magicui": {
+      "command": "node",
+      "args": [
+        "/opt/ozean-licht-ecosystem/infrastructure/mcp-gateway/tools/magicui-server.js"
+      ],
+      "description": "MagicUI animated component management",
+      "capabilities": ["list_components", "add_component", "get_component_docs"]
+    }
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "updated": "2025-10-23",
+    "location": "/opt/ozean-licht-ecosystem/infrastructure/mcp-gateway/tools",
+    "description": "Local MCP servers for browser automation and UI components"
+  }
+}

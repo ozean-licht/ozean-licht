@@ -1,0 +1,174 @@
+groups:
+  - name: mcp_gateway_alerts
+    interval: 30s
+    rules:
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(mcp_errors_total[5m])) by (service) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          component: mcp-gateway
+        annotations:
+          summary: "High error rate detected in {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has an error rate of {{ $value | humanize }} errors/sec (threshold: 0.1/sec)"
+
+      # Critical Error Rate
+      - alert: CriticalErrorRate
+        expr: |
+          sum(rate(mcp_errors_total[5m])) by (service) > 1
+        for: 1m
+        labels:
+          severity: critical
+          component: mcp-gateway
+        annotations:
+          summary: "CRITICAL: Very high error rate in {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has a critical error rate of {{ $value | humanize }} errors/sec (threshold: 1/sec)"
+
+      # Service Down (No Requests)
+      - alert: ServiceNoRequests
+        expr: |
+          sum(rate(mcp_operations_total[5m])) by (service) == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: mcp-gateway
+        annotations:
+          summary: "No requests to {{ $labels.service }} service"
+          description: "Service {{ $labels.service }} has received no requests in the last 5 minutes"
+
+      # High Rate Limit Hits
+      - alert: HighRateLimitHits
+        expr: |
+          sum(rate(mcp_rate_limit_hits_total[5m])) by (agent_id) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+          component: mcp-gateway
+        annotations:
+          summary: "High rate limit hits for agent {{ $labels.agent_id }}"
+          description: "Agent {{ $labels.agent_id }} is hitting rate limits at {{ $value | humanize }} hits/sec"
+
+      # Slow Response Times (p95)
+      - alert: SlowResponseTime
+        expr: |
+          histogram_quantile(0.95, sum(rate(mcp_operation_duration_seconds_bucket[5m])) by (le, service)) > 5
+        for: 5m
+        labels:
+          severity: warning
+          component: mcp-gateway
+        annotations:
+          summary: "Slow response time for {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has p95 response time of {{ $value | humanize }}s (threshold: 5s)"
+
+      # Very Slow Response Times (p95)
+      - alert: VerySlowResponseTime
+        expr: |
+          histogram_quantile(0.95, sum(rate(mcp_operation_duration_seconds_bucket[5m])) by (le, service)) > 10
+        for: 2m
+        labels:
+          severity: critical
+          component: mcp-gateway
+        annotations:
+          summary: "CRITICAL: Very slow response time for {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has p95 response time of {{ $value | humanize }}s (threshold: 10s)"
+
+      # Connection Pool Near Exhaustion
+      - alert: ConnectionPoolNearExhaustion
+        expr: |
+          (mcp_connection_pool_connections{state="active"} / mcp_connection_pool_connections{state="total"}) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: mcp-gateway
+        annotations:
+          summary: "Connection pool near exhaustion for {{ $labels.database }}"
+          description: "Database {{ $labels.database }} connection pool is {{ $value | humanizePercentage }} utilized"
+
+      # Connection Pool Exhausted
+      - alert: ConnectionPoolExhausted
+        expr: |
+          (mcp_connection_pool_connections{state="active"} / mcp_connection_pool_connections{state="total"}) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          component: mcp-gateway
+        annotations:
+          summary: "CRITICAL: Connection pool exhausted for {{ $labels.database }}"
+          description: "Database {{ $labels.database }} connection pool is {{ $value | humanizePercentage }} utilized (>95%)"
+
+      # High Active Requests
+      - alert: HighActiveRequests
+        expr: |
+          sum(mcp_active_requests) > 50
+        for: 5m
+        labels:
+          severity: warning
+          component: mcp-gateway
+        annotations:
+          summary: "High number of active requests"
+          description: "Gateway has {{ $value }} active requests (threshold: 50)"
+
+      # Gateway Down
+      - alert: GatewayDown
+        expr: |
+          up{job="mcp-gateway"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: mcp-gateway
+        annotations:
+          summary: "CRITICAL: MCP Gateway is down"
+          description: "MCP Gateway has been unreachable for 1 minute"
+
+      # High Memory Usage (Node.js default metrics)
+      - alert: HighMemoryUsage
+        expr: |
+          process_resident_memory_bytes / 1024 / 1024 > 512
+        for: 5m
+        labels:
+          severity: warning
+          component: mcp-gateway
+        annotations:
+          summary: "High memory usage detected"
+          description: "Gateway is using {{ $value | humanize }}MB of memory (threshold: 512MB)"
+
+      # Very High Memory Usage
+      - alert: VeryHighMemoryUsage
+        expr: |
+          process_resident_memory_bytes / 1024 / 1024 > 1024
+        for: 2m
+        labels:
+          severity: critical
+          component: mcp-gateway
+        annotations:
+          summary: "CRITICAL: Very high memory usage"
+          description: "Gateway is using {{ $value | humanize }}MB of memory (threshold: 1GB)"
+
+      # High Operation Failure Rate
+      - alert: HighOperationFailureRate
+        expr: |
+          sum(rate(mcp_operations_total{status="error"}[5m])) by (service, operation)
+          /
+          sum(rate(mcp_operations_total[5m])) by (service, operation)
+          > 0.1
+        for: 3m
+        labels:
+          severity: warning
+          component: mcp-gateway
+        annotations:
+          summary: "High failure rate for {{ $labels.service }}/{{ $labels.operation }}"
+          description: "Operation {{ $labels.service }}/{{ $labels.operation }} has a failure rate of {{ $value | humanizePercentage }}"
+
+      # Token Usage Spike
+      - alert: TokenUsageSpike
+        expr: |
+          rate(mcp_token_usage_total[5m]) > 1000
+        for: 3m
+        labels:
+          severity: warning
+          component: mcp-gateway
+        annotations:
+          summary: "Token usage spike detected"
+          description: "Token usage rate is {{ $value | humanize }} tokens/sec (threshold: 1000/sec)"
