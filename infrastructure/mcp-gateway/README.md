@@ -254,12 +254,61 @@ curl http://localhost:8100/mcp/catalog | jq
 
 ---
 
+## Authentication
+
+MCP Gateway supports **three authentication methods** (checked in priority order):
+
+### 1. Localhost/Docker Network Bypass ⚡ (Recommended for Internal Agents)
+
+**Zero authentication overhead!** Requests from localhost and Docker networks automatically bypass authentication:
+
+```bash
+# No auth headers needed!
+curl -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"mcp.execute","params":{...},"id":1}' \
+  http://localhost:8100/mcp/rpc
+```
+
+**Trusted IPs:**
+- `127.0.0.1`, `::1` (localhost)
+- `10.x.x.x`, `172.x.x.x`, `192.168.x.x` (private networks)
+
+**Use Case:** Internal agents running on the same server
+
+### 2. API Key Authentication 🔑 (For Remote Agents)
+
+Simple header-based authentication:
+
+```bash
+curl -H "X-MCP-Key: mcp_live_abc123xyz456" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"mcp.execute","params":{...},"id":1}' \
+  http://mcp-gateway.example.com/mcp/rpc
+```
+
+**Use Case:** Remote agents or external integrations
+
+### 3. JWT Bearer Token 🎫 (Legacy)
+
+Full JWT token support for backward compatibility:
+
+```bash
+curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..." \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"mcp.execute","params":{...},"id":1}' \
+  http://localhost:8100/mcp/rpc
+```
+
+**Use Case:** Legacy systems or when you need fine-grained permissions
+
+---
+
 ## Usage Examples
 
 ### Slash Commands
 
 ```bash
-# PostgreSQL operations
+# PostgreSQL operations (NO AUTH NEEDED for localhost!)
 /mcp-postgres kids-ascension-db list tables
 /mcp-postgres ozean-licht-db describe users
 /mcp-postgres kids-ascension-db query "SELECT * FROM videos LIMIT 10"
