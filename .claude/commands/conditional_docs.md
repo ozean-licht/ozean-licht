@@ -71,3 +71,15 @@ This prompt helps you determine what documentation you should read based on the 
     - When working with admin session management
     - When troubleshooting MCP Gateway connectivity issues
     - When adding new database operations to the admin system
+
+- projects/admin/app_docs/features/nextauth-admin-authentication.md
+  - Conditions:
+    - When working with admin dashboard authentication
+    - When implementing NextAuth.js authentication flows
+    - When modifying login, logout, or session management
+    - When troubleshooting authentication or authorization issues
+    - When adding route protection or middleware
+    - When implementing password hashing or verification
+    - When working with admin user sessions or JWT tokens
+    - When setting up 2FA or additional authentication factors
+    - When debugging authentication-related audit logs
