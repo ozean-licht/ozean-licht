@@ -248,20 +248,38 @@ def main():
         format_issue_message(adw_id, AGENT_PLANNER, "✅ Implementation plan created"),
     )
 
-    # Get the plan file path directly from response
+    # Get the plan file path from response
+    # The agent may return verbose output, so we need to extract the actual file path
     logger.info("Getting plan file path")
-    plan_file_path = plan_response.output.strip()
-    
-    # Validate the path exists (within worktree)
+    import re
+
+    # Try to extract file path matching pattern: specs/issue-N-adw-ID-*.md
+    plan_file_path = None
+    response_text = plan_response.output.strip()
+
+    # Look for the specs/ file path in the response
+    match = re.search(r'(specs/issue-\d+-adw-[a-z0-9]+-[^"\'`\s]+\.md)', response_text)
+    if match:
+        plan_file_path = match.group(1)
+    else:
+        # Fallback: try to find any .md file path in specs/
+        match = re.search(r'(specs/[^"\'`\s]+\.md)', response_text)
+        if match:
+            plan_file_path = match.group(1)
+        else:
+            # Last resort: if response is a clean path, use it
+            if response_text.startswith('specs/') and response_text.endswith('.md'):
+                plan_file_path = response_text
+
     if not plan_file_path:
-        error = "No plan file path returned from planning agent"
+        error = f"Could not extract plan file path from response: {response_text[:200]}"
         logger.error(error)
         make_issue_comment(
             issue_number,
             format_issue_message(adw_id, "ops", f"❌ {error}"),
         )
         sys.exit(1)
-    
+
     # Check if file exists in worktree
     worktree_plan_path = os.path.join(worktree_path, plan_file_path)
     if not os.path.exists(worktree_plan_path):
