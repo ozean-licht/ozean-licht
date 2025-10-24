@@ -39,8 +39,8 @@
   },
   "metadata": {
     "version": "1.0.0",
-    "updated": "2025-10-23",
-    "location": "/opt/ozean-licht-ecosystem/infrastructure/mcp-gateway/tools",
+    "updated": "2025-10-24",
+    "location": "/opt/ozean-licht-ecosystem/trees/e07adce5",
     "description": "Local MCP servers for browser automation and UI components"
   }
 }

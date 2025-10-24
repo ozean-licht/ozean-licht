@@ -35,6 +35,11 @@ export default function Sidebar({
           icon: '📊',
         },
         {
+          label: 'System Health',
+          href: '/health',
+          icon: '💓',
+        },
+        {
           label: 'Analytics',
           href: '/dashboard/analytics',
           icon: '📈',
