@@ -11,7 +11,7 @@ Fix a specific failing test using the provided failure details.
 
 2. **Context Discovery**
    - Check recent changes: `git diff origin/main --stat --name-only`
-   - If a relevant spec exists in `specs/*.md`, read it to understand requirements
+   - If a relevant spec exists in `projects/admin/specs/*.md`, read it to understand requirements
    - Focus only on files that could impact this specific test
 
 3. **Reproduce the Failure**

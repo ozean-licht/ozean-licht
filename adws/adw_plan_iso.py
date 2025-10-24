@@ -253,23 +253,28 @@ def main():
     logger.info("Getting plan file path")
     import re
 
-    # Try to extract file path matching pattern: specs/issue-N-adw-ID-*.md
+    # Try to extract file path matching pattern: projects/*/specs/issue-N-adw-ID-*.md
     plan_file_path = None
     response_text = plan_response.output.strip()
 
-    # Look for the specs/ file path in the response
-    match = re.search(r'(specs/issue-\d+-adw-[a-z0-9]+-[^"\'`\s]+\.md)', response_text)
+    # Look for the project-scoped specs file path in the response
+    match = re.search(r'(projects/[^/]+/specs/issue-\d+-adw-[a-z0-9]+-[^"\'`\s]+\.md)', response_text)
     if match:
         plan_file_path = match.group(1)
     else:
-        # Fallback: try to find any .md file path in specs/
-        match = re.search(r'(specs/[^"\'`\s]+\.md)', response_text)
+        # Fallback: try to find any .md file path in projects/*/specs/
+        match = re.search(r'(projects/[^/]+/specs/[^"\'`\s]+\.md)', response_text)
         if match:
             plan_file_path = match.group(1)
         else:
             # Last resort: if response is a clean path, use it
-            if response_text.startswith('specs/') and response_text.endswith('.md'):
-                plan_file_path = response_text
+            if 'projects/' in response_text and '/specs/' in response_text and response_text.endswith('.md'):
+                # Extract the path from the response
+                lines = response_text.split('\n')
+                for line in lines:
+                    if 'projects/' in line and '/specs/' in line and line.endswith('.md'):
+                        plan_file_path = line.strip()
+                        break
 
     if not plan_file_path:
         error = f"Could not extract plan file path from response: {response_text[:200]}"
