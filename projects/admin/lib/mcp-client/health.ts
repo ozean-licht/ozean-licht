@@ -3,7 +3,7 @@
  */
 
 import { MCPGatewayClient } from './client';
-import { MCPHealthResponse } from '../../types/mcp';
+import { MCPHealthResponse, MCPDatabase } from '../../types/mcp';
 import {
   PostgresHealthData,
   MCPGatewayHealth,
@@ -116,13 +116,13 @@ export async function checkDatabaseConnection(client: MCPGatewayClient): Promise
 
 /**
  * Check health of a single database
- * @param databaseName Database identifier (kids_ascension_db, ozean_licht_db, shared_users_db)
+ * @param databaseName Database identifier (kids-ascension-db, ozean-licht-db, shared-users-db)
  * @param displayName Human-readable name for display
  * @param baseUrl MCP Gateway base URL
  * @returns Database health metrics
  */
 async function checkSingleDatabase(
-  databaseName: string,
+  databaseName: MCPDatabase,
   displayName: string,
   baseUrl: string
 ): Promise<DatabaseMetrics> {
@@ -189,9 +189,9 @@ export async function checkPostgresHealth(
 ): Promise<PostgresHealthData> {
   // Check all three databases in parallel
   const [kidsAscension, ozeanLicht, sharedUsers] = await Promise.all([
-    checkSingleDatabase('kids_ascension_db', 'Kids Ascension', baseUrl),
-    checkSingleDatabase('ozean_licht_db', 'Ozean Licht', baseUrl),
-    checkSingleDatabase('shared_users_db', 'Shared Users', baseUrl),
+    checkSingleDatabase('kids-ascension-db', 'Kids Ascension', baseUrl),
+    checkSingleDatabase('ozean-licht-db', 'Ozean Licht', baseUrl),
+    checkSingleDatabase('shared-users-db', 'Shared Users', baseUrl),
   ]);
 
   // Overall status is up only if all databases are up
