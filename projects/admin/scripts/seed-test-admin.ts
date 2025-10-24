@@ -6,7 +6,7 @@
  */
 
 import { MCPGatewayClientWithQueries } from '../lib/mcp-client'
-import { hashPassword } from '../lib/password'
+import { hashPassword } from '../lib/auth/utils'
 
 const TEST_USER_ID = 'a0000000-0000-0000-0000-000000000001'
 const TEST_ADMIN_ID = 'b0000000-0000-0000-0000-000000000001'
@@ -19,7 +19,7 @@ async function seedTestAdmin() {
   try {
     const client = new MCPGatewayClientWithQueries({
       baseUrl: process.env.MCP_GATEWAY_URL || 'http://localhost:8100',
-      database: process.env.DATABASE_NAME || 'shared-users-db'
+      database: (process.env.DATABASE_NAME || 'shared-users-db') as 'shared-users-db'
     })
 
     // Check if user already exists
