@@ -94,3 +94,14 @@ This prompt helps you determine what documentation you should read based on the 
     - When implementing audit logging for authentication events
     - When troubleshooting NextAuth configuration or adapter issues
     - When integrating authentication with MCP Gateway client
+
+- projects/admin/app_docs/features/system-health-monitoring.md
+  - Conditions:
+    - When working with system health monitoring or infrastructure metrics
+    - When implementing health check functionality for databases or services
+    - When adding monitoring dashboards or health status displays
+    - When working with MCP Gateway health endpoints
+    - When implementing auto-refresh or real-time monitoring features
+    - When troubleshooting database connection metrics or query performance
+    - When working with server resource monitoring (CPU, memory, disk)
+    - When implementing warning thresholds or status indicators
