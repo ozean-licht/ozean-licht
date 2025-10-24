@@ -83,3 +83,14 @@ This prompt helps you determine what documentation you should read based on the 
     - When working with admin user sessions or JWT tokens
     - When setting up 2FA or additional authentication factors
     - When debugging authentication-related audit logs
+
+- projects/admin/app_docs/features/nextauth-core-libraries.md
+  - Conditions:
+    - When implementing authentication utility functions
+    - When working with password hashing (bcrypt) or token generation
+    - When creating custom NextAuth adapters for database integration
+    - When writing unit tests for authentication utilities
+    - When configuring authentication constants (session TTL, bcrypt rounds)
+    - When implementing audit logging for authentication events
+    - When troubleshooting NextAuth configuration or adapter issues
+    - When integrating authentication with MCP Gateway client
