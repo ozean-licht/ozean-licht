@@ -62,7 +62,7 @@ This prompt helps you determine what documentation you should read based on the 
     - When implementing UI text changes for data upload functionality
     - When troubleshooting upload button display or terminology
 
-- app_docs/feature-61c79c41-admin-db-schema-mcp-client.md
+- projects/admin/app_docs/features/admin-db-schema-mcp-client.md
   - Conditions:
     - When working with admin dashboard database operations
     - When implementing MCP Gateway client functionality

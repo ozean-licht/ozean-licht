@@ -1,6 +1,6 @@
 # Document Feature
 
-Generate concise markdown documentation for implemented features by analyzing code changes and specifications. This command creates documentation in the `app_docs/` directory based on git diff analysis against the main branch and the original feature specification.
+Generate concise markdown documentation for implemented features by analyzing code changes and specifications. This command creates documentation in the appropriate project's `app_docs/` directory based on git diff analysis against the main branch and the original feature specification.
 
 ## Variables
 
@@ -10,30 +10,39 @@ documentation_screenshots_dir: $3 if provided, otherwise leave it blank
 
 ## Instructions
 
-### 1. Analyze Changes
+### 1. Detect Project and Set Documentation Path
+- Run `git diff origin/main --name-only` to see which files were changed
+- Analyze the changed files to determine which project was modified:
+  - If most changes are in `projects/admin/` → use `projects/admin/app_docs/`
+  - If most changes are in `projects/kids-ascension/` → use `projects/kids-ascension/app_docs/`
+  - If most changes are in `projects/ozean-licht/` → use `projects/ozean-licht/app_docs/`
+  - If unclear or changes are outside projects/ → default to `projects/admin/app_docs/`
+- Store the detected path as `DOCS_PATH` for use in subsequent steps
+
+### 2. Analyze Changes
 - Run `git diff origin/main --stat` to see files changed and lines modified
 - Run `git diff origin/main --name-only` to get the list of changed files
 - For significant changes (>50 lines), run `git diff origin/main <file>` on specific files to understand the implementation details
 
-### 2. Read Specification (if provided)
+### 3. Read Specification (if provided)
 - If `spec_path` is provided, read the specification file to understand:
   - Original requirements and goals
   - Expected functionality
   - Success criteria
 - Use this to frame the documentation around what was requested vs what was built
 
-### 3. Analyze and Copy Screenshots (if provided)
+### 4. Analyze and Copy Screenshots (if provided)
 - If `documentation_screenshots_dir` is provided, list and examine screenshots
-- Create `app_docs/assets/` directory if it doesn't exist
-- Copy all screenshot files (*.png) from `documentation_screenshots_dir` to `app_docs/assets/`
+- Create `{DOCS_PATH}/assets/` directory if it doesn't exist
+- Copy all screenshot files (*.png) from `documentation_screenshots_dir` to `{DOCS_PATH}/assets/`
   - Preserve original filenames
   - Use `cp` command to copy files
 - Use visual context to better describe UI changes or visual features
 - Reference screenshots in documentation using relative paths (e.g., `assets/screenshot-name.png`)
 
-### 4. Generate Documentation
-- Create a new documentation file in `app_docs/` directory
-- Filename format: `feature-{adw_id}-{descriptive-name}.md`
+### 5. Generate Documentation
+- Create a new documentation file in `{DOCS_PATH}/features/` directory
+- Filename format: `{descriptive-name}.md` (without adw_id prefix for cleaner names)
   - Replace `{descriptive-name}` with a short feature name (e.g., "user-auth", "data-export", "search-ui")
 - Follow the Documentation Format below
 - Focus on:
@@ -42,14 +51,16 @@ documentation_screenshots_dir: $3 if provided, otherwise leave it blank
   - How to use it (user perspective)
   - Any configuration or setup required
 
-### 5. Update Conditional Documentation
+### 6. Update Conditional Documentation
 - After creating the documentation file, read `.claude/commands/conditional_docs.md`
 - Add an entry for the new documentation file with appropriate conditions
+- Use the full project-scoped path (e.g., `projects/admin/app_docs/features/feature-name.md`)
 - The entry should help future developers know when to read this documentation
 - Format the entry following the existing pattern in the file
 
-### 6. Final Output
+### 7. Final Output
 - When you finish writing the documentation and updating conditional_docs.md, return exclusively the path to the documentation file created and nothing else
+- The path should be relative to the repository root (e.g., `projects/admin/app_docs/features/feature-name.md`)
 
 ## Documentation Format
 
@@ -117,11 +128,20 @@ documentation_screenshots_dir: $3 if provided, otherwise leave it blank
 After creating the documentation, add this entry to `.claude/commands/conditional_docs.md`:
 
 ```md
-- app_docs/<your_documentation_file>.md
+- projects/{project}/app_docs/features/<your_documentation_file>.md
   - Conditions:
     - When working with <feature area>
     - When implementing <related functionality>
     - When troubleshooting <specific issues>
+```
+
+Example:
+```md
+- projects/admin/app_docs/features/user-authentication.md
+  - Conditions:
+    - When working with admin user authentication
+    - When implementing role-based access control
+    - When troubleshooting admin login issues
 ```
 
 ## Report

@@ -12,10 +12,16 @@ Usage:
 Workflow:
 1. Load state and validate worktree exists
 2. Find spec file from worktree
-3. Analyze git changes in worktree
-4. Generate feature documentation
-5. Update conditional docs
-6. Commit documentation in worktree
+3. Detect which project was modified (admin, kids-ascension, or ozean-licht)
+4. Analyze git changes in worktree
+5. Generate feature documentation in project-specific app_docs/
+6. Update conditional docs
+7. Commit documentation in worktree
+
+Documentation is generated in the appropriate project directory:
+- projects/admin/app_docs/
+- projects/kids-ascension/app_docs/
+- projects/ozean-licht/app_docs/
 
 This workflow REQUIRES that adw_plan_iso.py or adw_patch_iso.py has been run first
 to create the worktree. It cannot create worktrees itself.
@@ -57,7 +63,70 @@ from adw_modules.worktree_ops import validate_worktree
 # Agent name constant
 AGENT_DOCUMENTER = "documenter"
 
-DOCS_PATH = "app_docs/"
+# Deprecated: DOCS_PATH is now determined per-project
+# DOCS_PATH = "app_docs/"
+
+
+def detect_project_from_changes(
+    logger: logging.Logger, cwd: Optional[str] = None
+) -> str:
+    """Detect which project was modified based on git diff against origin/main.
+
+    Args:
+        logger: Logger instance
+        cwd: Working directory to run git commands in
+
+    Returns:
+        str: Project-specific app_docs path (e.g., "projects/admin/app_docs/")
+    """
+    try:
+        # Get list of changed files
+        result = subprocess.run(
+            ["git", "diff", "origin/main", "--name-only"],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=cwd,
+        )
+
+        changed_files = result.stdout.strip().split("\n")
+        logger.debug(f"Changed files: {changed_files}")
+
+        # Count changes per project
+        project_changes = {
+            "admin": 0,
+            "kids-ascension": 0,
+            "ozean-licht": 0,
+        }
+
+        for file_path in changed_files:
+            if file_path.startswith("projects/admin/"):
+                project_changes["admin"] += 1
+            elif file_path.startswith("projects/kids-ascension/"):
+                project_changes["kids-ascension"] += 1
+            elif file_path.startswith("projects/ozean-licht/"):
+                project_changes["ozean-licht"] += 1
+
+        # Determine which project had the most changes
+        max_changes = max(project_changes.values())
+        if max_changes > 0:
+            for project, count in project_changes.items():
+                if count == max_changes:
+                    docs_path = f"projects/{project}/app_docs/"
+                    logger.info(f"Detected project '{project}' with {count} changes")
+                    logger.info(f"Using documentation path: {docs_path}")
+                    return docs_path
+
+        # Default to admin if no clear winner or if changes are outside projects/
+        logger.info(
+            "No clear project detected from changes, defaulting to projects/admin/app_docs/"
+        )
+        return "projects/admin/app_docs/"
+
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Failed to detect project from changes: {e}")
+        logger.info("Defaulting to projects/admin/app_docs/")
+        return "projects/admin/app_docs/"
 
 
 def check_for_changes(logger: logging.Logger, cwd: Optional[str] = None) -> bool:

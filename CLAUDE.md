@@ -165,7 +165,7 @@ User Upload → MinIO Staging → Admin Approval → R2 Archive (original)
 2. **Build** - Implement from spec in isolation
 3. **Test** - Run unit/E2E tests with allocated ports
 4. **Review** - Validate against spec, capture screenshots
-5. **Document** - Generate docs in `app_docs/features/`
+5. **Document** - Generate docs in `projects/{project}/app_docs/features/`
 6. **Ship** - Approve PR and merge to main
 
 **Slash Commands:**
@@ -228,7 +228,17 @@ All agent operations use slash commands (e.g., `/classify_issue`, `/implement`, 
 ```
 ozean-licht-ecosystem/
 ├── projects/                  # Application projects
+│   ├── admin/
+│   │   ├── app_docs/         # Admin-specific documentation
+│   │   │   ├── features/     # Feature docs
+│   │   │   └── assets/       # Screenshots, diagrams
+│   │   ├── lib/              # MCP client, shared code
+│   │   ├── types/            # TypeScript types
+│   │   ├── tests/            # Unit & integration tests
+│   │   └── migrations/       # Database migrations
+│   │
 │   ├── kids-ascension/
+│   │   ├── app_docs/         # Kids Ascension documentation
 │   │   ├── apps/
 │   │   │   ├── web/          # React frontend (Vite + TypeScript)
 │   │   │   ├── mobile/       # React Native (future)
@@ -237,7 +247,10 @@ ozean-licht-ecosystem/
 │   │       ├── src/
 │   │       ├── prisma/       # Database schema & migrations
 │   │       └── tests/
-│   └── ozean-licht/          # Similar structure
+│   │
+│   └── ozean-licht/
+│       ├── app_docs/         # Ozean Licht documentation
+│       └── ...               # Similar structure
 │
 ├── shared/                    # Reusable code
 │   ├── ui-components/        # React components
@@ -260,16 +273,9 @@ ozean-licht-ecosystem/
 │   │   └── git_ops.py        # Git operations
 │   └── adw_triggers/         # Automation triggers
 │
-├── tools/                     # Development tools
-│   ├── .knowledge/           # LiteRAG (future)
-│   └── .mcp/                 # MCP configurations
-│
 ├── docs/                      # Documentation
 │   ├── architecture.md       # Complete system architecture
 │   └── guides/               # How-to guides
-│
-├── app_docs/                  # Generated documentation
-│   └── features/             # Feature-specific docs
 │
 ├── trees/                     # ADW worktrees (gitignored)
 │   └── {adw_id}/             # Isolated workspace per workflow
