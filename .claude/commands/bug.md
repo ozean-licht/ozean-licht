@@ -9,12 +9,36 @@ issue_json: $3
 
 ## Instructions
 
+### Step 0: Memory Recall (CRITICAL - Do This First!)
+
+**BEFORE** creating the bug fix plan, query institutional memory for similar bugs and resolutions:
+
+```bash
+docker exec mem0-uo8gc0kc0gswcskk44gc8wks python3 -c "
+from qdrant_client import QdrantClient
+
+client = QdrantClient(host='qdrant', port=6333)
+points = client.scroll(collection_name='ozean_memories', limit=100, with_payload=True, with_vectors=False)
+
+# Look for error resolutions and bug fixes
+print('=== RELEVANT BUG FIXES & ERROR RESOLUTIONS ===\n')
+for point in points[0]:
+    mem_type = point.payload.get('type', point.payload.get('metadata', {}).get('type', ''))
+    if 'error' in mem_type.lower() or 'bug' in mem_type.lower() or 'fix' in mem_type.lower():
+        print(f'Type: {mem_type}')
+        print(f'Memory: {point.payload.get(\"data\", \"\")}')
+        print('---')
+"
+```
+
+### Step 1: Planning
+
 - IMPORTANT: You're writing a plan to resolve a bug based on the `Bug` that will add value to the application.
 - IMPORTANT: The `Bug` describes the bug that will be resolved but remember we're not resolving the bug, we're creating the plan that will be used to resolve the bug based on the `Plan Format` below.
 - You're writing a plan to resolve a bug, it should be thorough and precise so we fix the root cause and prevent regressions.
 - Create the plan in the `projects/admin/specs/` directory with filename: `issue-{issue_number}-adw-{adw_id}-sdlc_planner-{descriptive-name}.md`
   - Replace `{descriptive-name}` with a short, descriptive name based on the bug (e.g., "fix-login-error", "resolve-timeout", "patch-memory-leak")
-- Use the plan format below to create the plan. 
+- Use the plan format below to create the plan.
 - Research the codebase to understand the bug, reproduce it, and put together a plan to fix it.
 - IMPORTANT: Replace every <placeholder> in the `Plan Format` with the requested value. Add as much detail as needed to fix the bug.
 - Use your reasoning model: THINK HARD about the bug, its root cause, and the steps to fix it properly.
@@ -29,6 +53,7 @@ issue_json: $3
   - To be clear, we're not creating a new E2E test file, we're creating a task to create a new E2E test file in the `Plan Format` below
 - Respect requested files in the `Relevant Files` section.
 - Start your research by reading the `README.md` file.
+- LEVERAGE memories from Step 0 to avoid repeating past mistakes
 
 ## Relevant Files
 

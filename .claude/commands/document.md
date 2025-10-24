@@ -58,8 +58,72 @@ documentation_screenshots_dir: $3 if provided, otherwise leave it blank
 - The entry should help future developers know when to read this documentation
 - Format the entry following the existing pattern in the file
 
-### 7. Final Output
-- When you finish writing the documentation and updating conditional_docs.md, return exclusively the path to the documentation file created and nothing else
+### 7. Generate Memory Report
+
+**CRITICAL: This must be done after documentation is complete!**
+
+Generate a comprehensive memory report showing all institutional learnings stored in Mem0:
+
+```bash
+docker exec mem0-uo8gc0kc0gswcskk44gc8wks python3 -c "
+from qdrant_client import QdrantClient
+import json
+
+client = QdrantClient(host='qdrant', port=6333)
+collection = client.get_collection('ozean_memories')
+points = client.scroll(collection_name='ozean_memories', limit=1000, with_payload=True, with_vectors=False)
+
+print('=' * 80)
+print('INSTITUTIONAL MEMORY REPORT')
+print('=' * 80)
+print()
+print(f'Total Memories: {collection.points_count}')
+print()
+
+# Group by user
+by_user = {}
+for point in points[0]:
+    user = point.payload.get('user_id', 'unknown')
+    by_user[user] = by_user.get(user, [])
+    by_user[user].append(point)
+
+# Group by type
+by_type = {}
+for point in points[0]:
+    mem_type = point.payload.get('type', point.payload.get('metadata', {}).get('type', 'general'))
+    by_type[mem_type] = by_type.get(mem_type, 0) + 1
+
+print('Memories by User:')
+for user, mems in sorted(by_user.items()):
+    print(f'  • {user}: {len(mems)} memories')
+print()
+
+print('Memories by Type:')
+for mem_type, count in sorted(by_type.items(), key=lambda x: x[1], reverse=True):
+    print(f'  • {mem_type}: {count}')
+print()
+
+print('=' * 80)
+print('RECENT MEMORIES (Last 10)')
+print('=' * 80)
+print()
+
+recent = sorted(points[0], key=lambda p: p.payload.get('timestamp', p.payload.get('created_at', '')), reverse=True)[:10]
+for i, point in enumerate(recent, 1):
+    content = point.payload.get('data', '')
+    user = point.payload.get('user_id', 'unknown')
+    mem_type = point.payload.get('type', point.payload.get('metadata', {}).get('type', 'general'))
+
+    print(f'{i}. [{mem_type}] ({user})')
+    print(f'   {content[:150]}...' if len(content) > 150 else f'   {content}')
+    print()
+
+print('=' * 80)
+"
+```
+
+### 8. Final Output
+- When you finish writing the documentation, updating conditional_docs.md, AND generating the memory report, return exclusively the path to the documentation file created and nothing else
 - The path should be relative to the repository root (e.g., `projects/admin/app_docs/features/feature-name.md`)
 
 ## Documentation Format

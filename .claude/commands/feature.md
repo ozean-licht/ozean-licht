@@ -9,6 +9,47 @@ issue_json: $3
 
 ## Instructions
 
+### Step 0: Memory Recall (CRITICAL - Do This First!)
+
+**BEFORE** creating the plan, query the institutional memory to learn from past implementations:
+
+1. Query Qdrant for relevant memories using this Python command:
+   ```bash
+   docker exec mem0-uo8gc0kc0gswcskk44gc8wks python3 -c "
+   from qdrant_client import QdrantClient
+   import json
+
+   client = QdrantClient(host='qdrant', port=6333)
+   points = client.scroll(collection_name='ozean_memories', limit=100, with_payload=True, with_vectors=False)
+
+   # Filter memories relevant to the current task
+   issue_keywords = '<extract 3-5 key words from the feature description>'
+
+   print('=== RELEVANT PAST LEARNINGS ===\n')
+   for point in points[0]:
+       content = point.payload.get('data', '').lower()
+       user = point.payload.get('user_id', '')
+       mem_type = point.payload.get('type', point.payload.get('metadata', {}).get('type', ''))
+
+       # Simple keyword matching
+       if any(keyword.lower() in content for keyword in issue_keywords.split()):
+           print(f'Type: {mem_type}')
+           print(f'User: {user}')
+           print(f'Memory: {point.payload.get(\"data\", \"\")}')
+           print('---')
+   "
+   ```
+
+2. Analyze the memories to identify:
+   - Similar features implemented before
+   - Patterns and best practices
+   - Common errors and their solutions
+   - Architecture decisions that worked well
+
+3. Incorporate these learnings into your plan to avoid repeating mistakes and leverage proven patterns
+
+### Step 1: Planning
+
 - IMPORTANT: You're writing a plan to implement a feature based on the `Feature` that will add value to the application.
 - IMPORTANT: The `Feature` describes what will be implemented but remember we're not implementing it yet, we're creating the plan that will be used to implement the feature based on the `Plan Format` below.
 - You're writing a plan to implement a feature, it should be thorough and precise so we build it correctly the first time.
@@ -18,6 +59,7 @@ issue_json: $3
 - Research the codebase and put together a comprehensive plan to implement the feature.
 - IMPORTANT: Replace every <placeholder> in the `Plan Format` with the requested value. Add as much detail as needed to implement the feature correctly.
 - Use your reasoning model: THINK HARD about the feature requirements, dependencies, and implementation steps.
+- LEVERAGE the memories retrieved in Step 0 to make better decisions
 
 ## Relevant Files
 
@@ -57,6 +99,16 @@ Use this exact format for the plan:
 - Current state of the codebase relevant to this feature
 - Where this feature fits in the architecture
 - Any related features or dependencies>
+
+### Institutional Memory Insights
+
+<List key learnings from Mem0 that informed this plan:
+- Past patterns that will be reused
+- Common mistakes that will be avoided
+- Architecture decisions that proved successful
+- If no relevant memories found, state "No directly relevant past implementations found">
+
+
 
 ## Requirements
 

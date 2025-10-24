@@ -396,30 +396,105 @@ pnpm --filter @ka/api prisma migrate reset
 
 ### Agent Collaboration via Mem0
 
-**Store learnings after workflow completion:**
-```python
-memory_payload = {
-    "adw_id": state.adw_id,
-    "issue_class": state.issue_class,
-    "files_changed": ["path/to/file1.ts", "path/to/file2.tsx"],
-    "lessons_learned": [
-        "Mobile touch events need passive listeners",
-        "Safari requires specific touch-action CSS"
-    ],
-    "patterns_used": ["React useEffect for event listeners"]
-}
-# Store in Mem0 via MCP Gateway
+**Institutional Memory System** - All ADW workflows now integrate with Mem0 to build compounding knowledge.
+
+#### Automatic Memory Integration
+
+**Planner Phase** - Memories are recalled BEFORE creating plans:
+- `/feature`, `/bug`, `/chore` commands now include Step 0: Memory Recall
+- Queries relevant past implementations, patterns, and error resolutions
+- Incorporates learnings into the plan to avoid repeating mistakes
+
+**Documenter Phase** - Memory report generated AFTER documentation:
+- `/document` command includes Step 7: Generate Memory Report
+- Shows institutional knowledge accumulated over time
+- Displays statistics: total memories, breakdown by user/type, recent learnings
+
+#### Manual Memory Operations
+
+Use the `/memory` slash command for manual operations:
+
+```bash
+# Search for relevant learnings
+/memory query "navigation implementation"
+
+# Add a new learning manually
+/memory add "Always validate user input on both client and server side"
+
+# Generate full memory report
+/memory report
+
+# Post memory highlights to GitHub issue
+/memory highlight "" 123
 ```
 
-**Query before planning:**
+#### Memory Storage Examples
+
+**From Python/MCP:**
 ```python
-# Retrieve similar past work
-similar_tasks = query_mem0(
-    query="mobile login touch events",
-    issue_class="/bug"
+import urllib.request, json
+from datetime import datetime, timezone
+
+payload = {
+    "content": "Pattern: React components should use memo for expensive calculations",
+    "user_id": "adw_system",
+    "metadata": {
+        "type": "best_practice",
+        "category": "react",
+        "importance": "high",
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+}
+
+data = json.dumps(payload).encode('utf-8')
+req = urllib.request.Request(
+    'http://localhost:8090/memory/add',
+    data=data,
+    headers={'Content-Type': 'application/json'}
 )
-# Incorporate learnings into implementation plan
+
+with urllib.request.urlopen(req, timeout=10) as response:
+    print(response.read().decode('utf-8'))
 ```
+
+**Query Qdrant Directly:**
+```bash
+docker exec mem0-uo8gc0kc0gswcskk44gc8wks python3 -c "
+from qdrant_client import QdrantClient
+
+client = QdrantClient(host='qdrant', port=6333)
+points = client.scroll(collection_name='ozean_memories', limit=100, with_payload=True, with_vectors=False)
+
+for point in points[0]:
+    print(f'{point.payload.get(\"user_id\")}: {point.payload.get(\"data\")}')
+"
+```
+
+#### Memory Types & Categories
+
+- `implementation` - Successful feature implementations
+- `pattern` - Reusable code patterns and best practices
+- `architecture` - Architecture decisions and their rationale
+- `error_resolution` - Bugs fixed and how they were solved
+- `optimization` - Performance improvements and their impact
+- `best_practice` - General development best practices
+- `system_learning` - Infrastructure and DevOps learnings
+
+#### Current Memory Statistics
+
+Run `/memory report` to see:
+- Total memories stored
+- Breakdown by user (adw_system, adw_<id>, manual_entry)
+- Breakdown by type
+- Recent memories (last 10)
+
+#### Integration Points
+
+1. **Planning** (feature.md, bug.md, chore.md) - Memory recall in Step 0
+2. **Documentation** (document.md) - Memory report in Step 7
+3. **Manual CLI** (memory.md) - Direct query/add/report operations
+4. **GitHub** (memory.md highlight) - Post highlights to issues
+5. **Python Tools** (tools/test_mem0_integration.py) - Programmatic access
 
 ### File Upload Pipeline (Kids Ascension)
 
