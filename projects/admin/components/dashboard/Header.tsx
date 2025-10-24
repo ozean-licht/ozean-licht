@@ -1,7 +1,10 @@
 'use client';
 
 import Link from 'next/link'
+import { Menu } from 'lucide-react'
 import LogoutButton from '../auth/LogoutButton'
+import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 interface HeaderProps {
   user: {
@@ -12,49 +15,56 @@ interface HeaderProps {
   onMenuToggle?: () => void
 }
 
+function getUserInitials(email: string): string {
+  const name = email.split('@')[0]
+  const parts = name.split(/[._-]/).filter(Boolean)
+
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase()
+  }
+  return name.substring(0, 2).toUpperCase()
+}
+
 export default function Header({ user, onMenuToggle }: HeaderProps) {
+  const initials = getUserInitials(user.email)
+
   return (
-    <header className="bg-white shadow">
+    <header className="bg-background border-b">
       <div className="px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
             {/* Mobile menu toggle button */}
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={onMenuToggle}
-              className="md:hidden p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              className="md:hidden"
               aria-label="Toggle menu"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
+              <Menu className="h-6 w-6" />
+            </Button>
 
             <Link href="/dashboard" className="flex items-center">
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+              <h1 className="text-xl md:text-2xl font-bold">Admin Dashboard</h1>
             </Link>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-gray-900">{user.email}</p>
-              <p className="text-xs text-gray-500">
-                {user.adminRole}
-                {user.entityScope && (
-                  <span className="ml-2 text-gray-400">
-                    ({user.entityScope})
-                  </span>
-                )}
-              </p>
+            <div className="hidden sm:flex items-center gap-3">
+              <Avatar>
+                <AvatarFallback>{initials}</AvatarFallback>
+              </Avatar>
+              <div className="text-right">
+                <p className="text-sm font-medium">{user.email}</p>
+                <p className="text-xs text-muted-foreground">
+                  {user.adminRole}
+                  {user.entityScope && (
+                    <span className="ml-2">
+                      ({user.entityScope})
+                    </span>
+                  )}
+                </p>
+              </div>
             </div>
             <LogoutButton />
           </div>

@@ -2,8 +2,12 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { X } from 'lucide-react';
 import { NavigationSection, UserEntity, EntityScope } from '@/types/navigation';
 import EntitySwitcher from './EntitySwitcher';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -124,56 +128,47 @@ export default function Sidebar({
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 md:hidden"
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:z-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:z-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo section */}
-          <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+          <div className="flex items-center justify-between h-16 px-6 border-b">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground font-bold">
                 OL
               </div>
-              <span className="text-xl font-semibold text-gray-900">
+              <span className="text-xl font-semibold">
                 Admin
               </span>
             </Link>
             {/* Mobile close button */}
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={onClose}
-              className="md:hidden p-2 text-gray-400 hover:text-gray-500"
+              className="md:hidden"
               aria-label="Close sidebar"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+              <X className="h-5 w-5" />
+            </Button>
           </div>
 
           {/* Navigation sections */}
           <nav className="flex-1 px-4 py-6 overflow-y-auto">
-            <div className="space-y-8">
-              {visibleSections.map((section) => (
+            <div className="space-y-6">
+              {visibleSections.map((section, sectionIndex) => (
                 <div key={section.title}>
-                  <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  {sectionIndex > 0 && <Separator className="my-4" />}
+                  <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     {section.title}
                   </h3>
                   <div className="mt-3 space-y-1">
@@ -186,8 +181,8 @@ export default function Sidebar({
                           onClick={() => onClose()} // Close mobile sidebar on navigation
                           className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                             isActive
-                              ? 'bg-indigo-50 text-indigo-600'
-                              : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                              ? 'bg-primary/10 text-primary'
+                              : 'text-foreground hover:bg-accent hover:text-accent-foreground'
                           }`}
                         >
                           {item.icon && (
@@ -195,9 +190,9 @@ export default function Sidebar({
                           )}
                           <span>{item.label}</span>
                           {item.badge && (
-                            <span className="ml-auto px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-full">
+                            <Badge variant="secondary" className="ml-auto">
                               {item.badge}
-                            </span>
+                            </Badge>
                           )}
                         </Link>
                       );
@@ -209,7 +204,7 @@ export default function Sidebar({
           </nav>
 
           {/* Entity switcher at bottom */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t">
             <EntitySwitcher
               currentEntity={currentEntity}
               availableEntities={availableEntities}

@@ -1,5 +1,10 @@
 import { requireAuth } from '@/lib/auth-utils'
 import Link from 'next/link'
+import { ArrowLeft, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 
 export const metadata = {
   title: 'Two-Factor Authentication - Admin Dashboard',
@@ -15,135 +20,107 @@ export default async function TwoFactorAuthPage() {
       <div className="mb-6">
         <Link
           href="/dashboard"
-          className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
         >
-          <svg className="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Dashboard
         </Link>
       </div>
 
-      <div className="bg-white shadow sm:rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Two-Factor Authentication
-          </h3>
-          <div className="mt-2 max-w-xl text-sm text-gray-500">
-            <p>
-              Add an extra layer of security to your admin account by enabling two-factor authentication.
-              When enabled, you'll need to provide a verification code in addition to your password when signing in.
-            </p>
-          </div>
-          <div className="mt-5">
-            <div className="rounded-md bg-yellow-50 p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-yellow-800">
-                    Feature Coming Soon
-                  </h3>
-                  <div className="mt-2 text-sm text-yellow-700">
-                    <p>
-                      Two-factor authentication setup will be available in a future update.
-                      This page serves as a placeholder for the upcoming feature.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Two-Factor Authentication</CardTitle>
+          <CardDescription>
+            Add an extra layer of security to your admin account by enabling two-factor authentication.
+            When enabled, you'll need to provide a verification code in addition to your password when signing in.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Alert variant="default" className="border-yellow-200 bg-yellow-50 text-yellow-900">
+            <AlertTriangle className="h-5 w-5 text-yellow-600" />
+            <AlertDescription>
+              <h3 className="font-medium mb-2">Feature Coming Soon</h3>
+              <p className="text-sm">
+                Two-factor authentication setup will be available in a future update.
+                This page serves as a placeholder for the upcoming feature.
+              </p>
+            </AlertDescription>
+          </Alert>
 
-            <div className="mt-6">
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Planned Features:</h4>
-              <ul className="space-y-2">
-                <li className="flex items-start">
-                  <svg className="flex-shrink-0 h-5 w-5 text-gray-400 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="ml-3 text-sm text-gray-600">
-                    Time-based One-Time Password (TOTP) support via authenticator apps
-                  </span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="flex-shrink-0 h-5 w-5 text-gray-400 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="ml-3 text-sm text-gray-600">
-                    QR code generation for easy authenticator app setup
-                  </span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="flex-shrink-0 h-5 w-5 text-gray-400 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="ml-3 text-sm text-gray-600">
-                    Backup recovery codes for account access if device is lost
-                  </span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="flex-shrink-0 h-5 w-5 text-gray-400 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="ml-3 text-sm text-gray-600">
-                    SMS-based 2FA as an alternative verification method
-                  </span>
-                </li>
-                <li className="flex items-start">
-                  <svg className="flex-shrink-0 h-5 w-5 text-gray-400 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="ml-3 text-sm text-gray-600">
-                    Enforce 2FA for specific admin roles (e.g., super_admin)
-                  </span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="mt-6">
-              <button
-                type="button"
-                disabled
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-400 cursor-not-allowed"
-              >
-                Enable 2FA (Coming Soon)
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-6 bg-white shadow sm:rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Current Security Status
-          </h3>
-          <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <div className="px-4 py-5 bg-gray-50 shadow rounded-lg overflow-hidden sm:p-6">
-              <dt className="text-sm font-medium text-gray-500 truncate">
-                2FA Status
-              </dt>
-              <dd className="mt-1 flex items-center">
-                <span className="text-3xl font-semibold text-red-600">Disabled</span>
-                <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                  Not Active
+          <div>
+            <h4 className="text-sm font-medium mb-3">Planned Features:</h4>
+            <ul className="space-y-2">
+              <li className="flex items-start">
+                <CheckCircle2 className="flex-shrink-0 h-5 w-5 text-muted-foreground mt-0.5" />
+                <span className="ml-3 text-sm text-muted-foreground">
+                  Time-based One-Time Password (TOTP) support via authenticator apps
                 </span>
-              </dd>
-            </div>
-            <div className="px-4 py-5 bg-gray-50 shadow rounded-lg overflow-hidden sm:p-6">
-              <dt className="text-sm font-medium text-gray-500 truncate">
-                Account Type
-              </dt>
-              <dd className="mt-1 text-3xl font-semibold text-indigo-600">
-                {session.user.adminRole}
-              </dd>
-            </div>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle2 className="flex-shrink-0 h-5 w-5 text-muted-foreground mt-0.5" />
+                <span className="ml-3 text-sm text-muted-foreground">
+                  QR code generation for easy authenticator app setup
+                </span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle2 className="flex-shrink-0 h-5 w-5 text-muted-foreground mt-0.5" />
+                <span className="ml-3 text-sm text-muted-foreground">
+                  Backup recovery codes for account access if device is lost
+                </span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle2 className="flex-shrink-0 h-5 w-5 text-muted-foreground mt-0.5" />
+                <span className="ml-3 text-sm text-muted-foreground">
+                  SMS-based 2FA as an alternative verification method
+                </span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle2 className="flex-shrink-0 h-5 w-5 text-muted-foreground mt-0.5" />
+                <span className="ml-3 text-sm text-muted-foreground">
+                  Enforce 2FA for specific admin roles (e.g., super_admin)
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <Button variant="secondary" disabled>
+              Enable 2FA (Coming Soon)
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Current Security Status</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <dl className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <Card>
+              <CardContent className="pt-6">
+                <dt className="text-sm font-medium text-muted-foreground truncate">
+                  2FA Status
+                </dt>
+                <dd className="mt-1 flex items-center gap-2">
+                  <span className="text-3xl font-semibold text-destructive">Disabled</span>
+                  <Badge variant="destructive">Not Active</Badge>
+                </dd>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <dt className="text-sm font-medium text-muted-foreground truncate">
+                  Account Type
+                </dt>
+                <dd className="mt-1 text-3xl font-semibold text-primary">
+                  {session.user.adminRole}
+                </dd>
+              </CardContent>
+            </Card>
           </dl>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
