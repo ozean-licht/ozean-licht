@@ -11,6 +11,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+!projects/*/lib/  # Exception: Allow TypeScript source in projects/*/lib/
 lib64/
 parts/
 sdist/
