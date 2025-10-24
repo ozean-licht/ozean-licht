@@ -10,8 +10,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-!projects/*/lib/  # Exception: Allow TypeScript source in projects/*/lib/
+# Python lib directories (but NOT TypeScript source in projects/*/lib/**)
+/lib/
 lib64/
 parts/
 sdist/
@@ -247,4 +247,10 @@ CVS/
 claude-output.json
 .claude/commands/feature.md
 
-specs/
+# ADW agent outputs (but keep specs/ tracked for plan files)
+agents/*/planner/raw_output.jsonl
+agents/*/implementor/raw_output.jsonl
+agents/*/tester/raw_output.jsonl
+agents/*/reviewer/raw_output.jsonl
+agents/*/documenter/raw_output.jsonl
+agents/*/reviewer/review_img/
