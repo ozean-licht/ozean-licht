@@ -8,7 +8,7 @@ export { MCPGatewayClient } from './client';
 export { MCPGatewayClientWithQueries } from './queries';
 
 // Configuration
-export { MCPClientConfig, ResolvedMCPClientConfig } from './config';
+export type { MCPClientConfig, ResolvedMCPClientConfig } from './config';
 
 // Health utilities
 export {
