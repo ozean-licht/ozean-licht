@@ -1,26 +1,169 @@
-# Admin MCP Client
+# Admin Dashboard
 
-MCP Gateway client library for the unified admin dashboard. Provides type-safe database operations for admin users, roles, permissions, audit logs, and session management.
+Unified admin dashboard for Kids Ascension and Ozean Licht platforms with NextAuth authentication, role-based access control, and comprehensive audit logging.
 
 ## Features
 
+### Authentication & Security
+- **NextAuth v5 (Auth.js)** - Modern authentication with database sessions
+- **PostgreSQL session storage** - Secure, server-side session management
+- **Role-based access control** - Super admin, KA admin, OL admin, support roles
+- **Permission system** - Granular permissions with wildcard support
+- **Audit logging** - All authentication and admin actions logged
+- **Route protection** - Middleware-based route guards
+- **CSRF protection** - Built into NextAuth
+
+### Dashboard & UI
+- **Next.js 14 App Router** - Modern React with server components
+- **TypeScript** - Full type safety across the stack
+- **Tailwind CSS** - Utility-first styling
+- **Responsive design** - Mobile-friendly admin interface
+- **2FA setup page** - Placeholder UI for future implementation
+
+### MCP Client Library
 - **Type-safe database operations** via MCP Gateway
-- **Zero direct database connections** - all operations through MCP Gateway
-- **Comprehensive admin operations** - users, roles, permissions, audit logs, sessions
-- **Health check utilities** to verify connectivity
-- **Automatic retries** on transient failures
-- **TypeScript first** with full type definitions
-
-## Installation
-
-```bash
-npm install @admin/mcp-client
-```
+- **Zero direct database connections** - All operations through MCP Gateway
+- **Comprehensive admin operations** - Users, roles, permissions, audit logs, sessions
+- **Health check utilities** - Verify connectivity and database health
+- **Automatic retries** - Transient failures automatically retried
 
 ## Quick Start
 
+### Prerequisites
+
+1. **MCP Gateway running** at `http://localhost:8100`
+2. **PostgreSQL database** with admin schema applied (from issue #1)
+3. **Node.js 18+** installed
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Or with pnpm (recommended)
+pnpm install
+```
+
+### Configuration
+
+1. Copy environment variables:
+
+```bash
+cp .env.local.example .env.local
+```
+
+2. Edit `.env.local` with your values:
+
+```bash
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:9200
+NEXTAUTH_SECRET=your-secret-key-here-generate-with-openssl-rand-base64-32
+
+# MCP Gateway
+MCP_GATEWAY_URL=http://localhost:8100
+DATABASE_NAME=shared-users-db
+
+# Ports (for isolated worktrees)
+FRONTEND_PORT=9200
+```
+
+3. Generate NextAuth secret:
+
+```bash
+openssl rand -base64 32
+```
+
+### Create Test Admin User
+
+```bash
+# Run the seed script
+npm run seed:test-admin
+```
+
+**Test Credentials:**
+- Email: `admin@ozean-licht.dev`
+- Password: `admin123`
+- Role: `super_admin`
+
+### Run Development Server
+
+```bash
+# Start Next.js dev server
+npm run dev
+
+# Or with custom port
+FRONTEND_PORT=9200 npm run dev
+```
+
+Visit `http://localhost:9200/login` to access the dashboard.
+
+## Authentication Architecture
+
+### NextAuth Configuration
+
+The admin dashboard uses NextAuth v5 (Auth.js) with a custom PostgreSQL adapter:
+
+- **Authentication Provider:** Credentials (email/password)
+- **Session Strategy:** Database-backed sessions (stored in `admin_sessions` table)
+- **Session Duration:** 24 hours
+- **Adapter:** Custom MCP Gateway adapter for admin tables
+
+### Authentication Flow
+
+1. **Login Request:**
+   - User submits email/password → LoginForm component
+   - NextAuth Credentials provider → `authorize` function
+   - Query `admin_users` via MCP Gateway → Verify password with bcrypt
+   - Create session via adapter → Store in `admin_sessions` table
+   - Set httpOnly cookie → Redirect to dashboard
+
+2. **Protected Route Access:**
+   - Request to `/dashboard/*` → Middleware intercepts
+   - Check session cookie → Validate via NextAuth
+   - If valid: Allow access, update `last_activity_at`
+   - If invalid: Redirect to `/login`
+
+3. **Logout:**
+   - User clicks logout → Call NextAuth `signOut`
+   - Delete session from `admin_sessions` → Clear cookie
+   - Redirect to `/login`
+
+### Route Protection
+
+All routes under `/dashboard/*` are protected by Next.js middleware. The middleware:
+
+- Checks for valid session
+- Redirects unauthenticated users to `/login`
+- Preserves callback URL for post-login redirect
+- Redirects authenticated users away from `/login`
+
+### Auth Utilities
+
 ```typescript
-import { MCPGatewayClientWithQueries } from '@admin/mcp-client';
+import { requireAuth, hasPermission } from '@/lib/auth-utils'
+
+// Server component - require authentication
+export default async function MyPage() {
+  const session = await requireAuth() // Throws redirect if not auth
+  return <div>Welcome {session.user.email}</div>
+}
+
+// Check permissions
+const canEdit = hasPermission(session.user.permissions, 'users.edit')
+
+// Wildcard permissions
+hasPermission(['*'], 'anything') // true - super admin
+hasPermission(['users.*'], 'users.create') // true - all user operations
+hasPermission(['*.read'], 'videos.read') // true - all read operations
+```
+
+## MCP Client Library Usage
+
+### Basic Example
+
+```typescript
+import { MCPGatewayClientWithQueries } from '@/lib/mcp-client';
 
 // Initialize client
 const client = new MCPGatewayClientWithQueries({
