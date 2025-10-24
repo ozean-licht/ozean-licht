@@ -94,3 +94,14 @@ This prompt helps you determine what documentation you should read based on the 
     - When implementing audit logging for authentication events
     - When troubleshooting NextAuth configuration or adapter issues
     - When integrating authentication with MCP Gateway client
+
+- projects/admin/app_docs/features/shadcn-component-migration.md
+  - Conditions:
+    - When working with ShadCN UI components in the admin dashboard
+    - When implementing new forms, buttons, cards, or other UI elements
+    - When adding new ShadCN components to the project
+    - When styling components using CSS variables
+    - When troubleshooting ShadCN component styling or behavior
+    - When implementing form validation with react-hook-form and zod
+    - When working with alerts, badges, avatars, or other ShadCN primitives
+    - When refactoring custom HTML/CSS to use design system components
