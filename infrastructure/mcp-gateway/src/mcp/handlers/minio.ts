@@ -449,53 +449,53 @@ export class MinIOHandler implements MCPHandler {
       {
         name: 'upload',
         description: 'Upload file to MinIO bucket',
-        parameters: {
-          bucket: 'string (required)',
-          fileKey: 'string (required)',
-          fileBuffer: 'string (required, base64 encoded)',
-          contentType: 'string (required)',
-          metadata: 'object (optional)',
-        },
+        parameters: [
+          { name: 'bucket', type: 'string' as const, description: 'Bucket name', required: true },
+          { name: 'fileKey', type: 'string' as const, description: 'Object key', required: true },
+          { name: 'fileBuffer', type: 'string' as const, description: 'File content (base64 encoded)', required: true },
+          { name: 'contentType', type: 'string' as const, description: 'MIME type of the file', required: true },
+          { name: 'metadata', type: 'object' as const, description: 'Additional metadata', required: false },
+        ],
       },
       {
         name: 'list',
         description: 'List files in bucket',
-        parameters: {
-          bucket: 'string (required)',
-          prefix: 'string (optional)',
-          limit: 'number (optional, default 100)',
-          marker: 'string (optional)',
-        },
+        parameters: [
+          { name: 'bucket', type: 'string' as const, description: 'Bucket name', required: true },
+          { name: 'prefix', type: 'string' as const, description: 'Object prefix filter', required: false },
+          { name: 'limit', type: 'number' as const, description: 'Maximum objects to return', required: false, default: 100 },
+          { name: 'marker', type: 'string' as const, description: 'Pagination marker', required: false },
+        ],
       },
       {
         name: 'getUrl',
         description: 'Get presigned URL for file',
-        parameters: {
-          bucket: 'string (required)',
-          fileKey: 'string (required)',
-          expirySeconds: 'number (optional, default 300)',
-        },
+        parameters: [
+          { name: 'bucket', type: 'string' as const, description: 'Bucket name', required: true },
+          { name: 'fileKey', type: 'string' as const, description: 'Object key', required: true },
+          { name: 'expirySeconds', type: 'number' as const, description: 'URL expiry time in seconds', required: false, default: 300 },
+        ],
       },
       {
         name: 'delete',
         description: 'Delete file from bucket',
-        parameters: {
-          bucket: 'string (required)',
-          fileKey: 'string (required)',
-        },
+        parameters: [
+          { name: 'bucket', type: 'string' as const, description: 'Bucket name', required: true },
+          { name: 'fileKey', type: 'string' as const, description: 'Object key to delete', required: true },
+        ],
       },
       {
         name: 'stat',
         description: 'Get file metadata',
-        parameters: {
-          bucket: 'string (required)',
-          fileKey: 'string (required)',
-        },
+        parameters: [
+          { name: 'bucket', type: 'string' as const, description: 'Bucket name', required: true },
+          { name: 'fileKey', type: 'string' as const, description: 'Object key', required: true },
+        ],
       },
       {
         name: 'health',
         description: 'Check MinIO service health',
-        parameters: {},
+        parameters: [],
       },
     ];
   }
