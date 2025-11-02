@@ -40,6 +40,11 @@ export default function Sidebar({
           icon: '💓',
         },
         {
+          label: 'Storage',
+          href: '/storage',
+          icon: '💾',
+        },
+        {
           label: 'Analytics',
           href: '/dashboard/analytics',
           icon: '📈',
