@@ -6,6 +6,7 @@
 // Main client
 export { MCPGatewayClient } from './client';
 export { MCPGatewayClientWithQueries } from './queries';
+export { MCPStorageClient } from './storage';
 
 // Configuration
 export type { MCPClientConfig, ResolvedMCPClientConfig } from './config';

@@ -52,6 +52,7 @@ async function initializeServerServices(registry: MCPRegistry): Promise<void> {
     { name: 'cloudflare', initializer: initializeCloudflare },
     { name: 'github', initializer: initializeGitHub },
     { name: 'n8n', initializer: initializeN8N },
+    { name: 'minio', initializer: initializeMinIO },
   ];
 
   for (const { name, initializer } of services) {
@@ -168,6 +169,36 @@ async function initializeN8N(registry: MCPRegistry): Promise<void> {
   const serviceConfig = mcpCatalog.services.n8n;
   registry.registerService({
     name: 'n8n',
+    version: serviceConfig.version,
+    description: serviceConfig.description,
+    location: 'server',
+    capabilities: serviceConfig.capabilities,
+    status: 'active',
+  }, handler);
+}
+
+/**
+ * MinIO MCP Initializer
+ */
+async function initializeMinIO(registry: MCPRegistry): Promise<void> {
+  const { createMinIOHandler } = await import('./handlers/minio');
+
+  const handler = createMinIOHandler({
+    endpoint: process.env.MINIO_ENDPOINT || 'localhost',
+    port: parseInt(process.env.MINIO_PORT || '9000'),
+    useSSL: process.env.MINIO_USE_SSL === 'true',
+    accessKey: process.env.MINIO_ACCESS_KEY || 'minioadmin',
+    secretKey: process.env.MINIO_SECRET_KEY || 'minioadmin',
+    maxFileSize: parseInt(process.env.MAX_FILE_SIZE_MB || '500') * 1024 * 1024,
+    allowedContentTypes: (process.env.ALLOWED_FILE_TYPES || 'video/*,image/*,application/pdf').split(','),
+    presignedUrlExpiry: parseInt(process.env.PRESIGNED_URL_EXPIRY_SECONDS || '300'),
+  });
+
+  await handler.initialize();
+
+  const serviceConfig = mcpCatalog.services.minio;
+  registry.registerService({
+    name: 'minio',
     version: serviceConfig.version,
     description: serviceConfig.description,
     location: 'server',
