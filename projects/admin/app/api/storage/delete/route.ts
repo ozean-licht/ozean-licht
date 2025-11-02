@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { auth } from '@/lib/auth/config';
 import { MCPStorageClient } from '@/lib/mcp-client';
 
 export async function POST(request: NextRequest) {
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     // Initialize storage client
     const storageClient = new MCPStorageClient({
       baseUrl: process.env.MCP_GATEWAY_URL || 'http://localhost:8100',
-      database: 'shared-users',
+      database: 'shared-users-db',
     });
 
     // Get file metadata to determine bucket if not provided

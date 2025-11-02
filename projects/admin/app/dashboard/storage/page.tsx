@@ -7,7 +7,7 @@ import { Suspense } from 'react';
 import { StorageStats } from '@/components/storage/StorageStats';
 import { FileList } from '@/components/storage/FileList';
 import { FileUploadForm } from '@/components/storage/FileUploadForm';
-import { auth } from '@/auth';
+import { auth } from '@/lib/auth/config';
 import { redirect } from 'next/navigation';
 
 export default async function StoragePage() {

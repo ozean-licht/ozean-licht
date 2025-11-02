@@ -11,7 +11,7 @@ describe('MCPStorageClient', () => {
   beforeEach(() => {
     client = new MCPStorageClient({
       baseUrl: process.env.MCP_GATEWAY_URL || 'http://localhost:8100',
-      database: 'shared-users',
+      database: 'shared-users-db',
       timeout: 5000,
       retries: 2,
     });
@@ -25,7 +25,7 @@ describe('MCPStorageClient', () => {
     it('should have correct configuration', () => {
       const config = client.getConfig();
       expect(config).toHaveProperty('baseUrl');
-      expect(config).toHaveProperty('database', 'shared-users');
+      expect(config).toHaveProperty('database', 'shared-users-db');
       expect(config).toHaveProperty('timeout', 5000);
       expect(config).toHaveProperty('retries', 2);
     });

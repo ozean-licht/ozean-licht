@@ -49,6 +49,17 @@ export class MCPStorageClient {
    * Automatically creates metadata record in database
    */
   async uploadFile(input: UploadFileInput): Promise<UploadFileResult> {
+    // Validate required fields
+    if (!input.bucket || !input.fileKey || !input.fileBuffer || !input.contentType || !input.metadata) {
+      throw new MCPError(-32602, 'Missing required fields: bucket, fileKey, fileBuffer, contentType, and metadata are required');
+    }
+
+    // Validate entity scope
+    const validScopes: EntityScope[] = ['kids_ascension', 'ozean_licht', 'shared'];
+    if (!validScopes.includes(input.metadata.entityScope)) {
+      throw new MCPError(-32602, `Invalid entity scope: ${input.metadata.entityScope}. Must be one of: ${validScopes.join(', ')}`);
+    }
+
     // Upload to MinIO
     const uploadResult = await this._minioRequest<UploadFileResult>('upload', {
       bucket: input.bucket,
@@ -86,6 +97,11 @@ export class MCPStorageClient {
    * Get presigned URL for file
    */
   async getFileUrl(input: GetFileUrlInput): Promise<GetFileUrlResult> {
+    // Validate required fields
+    if (!input.bucket || !input.fileKey) {
+      throw new MCPError(-32602, 'Missing required fields: bucket and fileKey are required');
+    }
+
     return this._minioRequest<GetFileUrlResult>('getUrl', input);
   }
 
@@ -94,6 +110,11 @@ export class MCPStorageClient {
    * Performs soft delete in metadata table
    */
   async deleteFile(input: DeleteFileInput): Promise<DeleteFileResult> {
+    // Validate required fields
+    if (!input.bucket || !input.fileKey) {
+      throw new MCPError(-32602, 'Missing required fields: bucket and fileKey are required');
+    }
+
     // Delete from MinIO
     const deleteResult = await this._minioRequest<DeleteFileResult>('delete', input);
 
