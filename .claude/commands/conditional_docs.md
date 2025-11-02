@@ -105,3 +105,16 @@ This prompt helps you determine what documentation you should read based on the 
     - When troubleshooting database connection metrics or query performance
     - When working with server resource monitoring (CPU, memory, disk)
     - When implementing warning thresholds or status indicators
+
+- projects/admin/app_docs/features/minio-s3-storage-integration.md
+  - Conditions:
+    - When working with file upload, storage, or download functionality
+    - When implementing MinIO S3-compatible storage operations
+    - When working with the three-tier storage system (MinIO, R2, Stream)
+    - When adding new storage buckets or file management features
+    - When implementing presigned URL generation for secure file access
+    - When working with storage metadata tracking or audit trails
+    - When troubleshooting file upload failures or storage connectivity
+    - When implementing video or image upload pipelines
+    - When adding file type validation or size limit enforcement
+    - When working with storage statistics or usage metrics
