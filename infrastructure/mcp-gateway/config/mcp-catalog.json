@@ -203,6 +203,52 @@
         "burstLimit": 25
       }
     },
+    "minio": {
+      "name": "MinIO MCP",
+      "description": "S3-compatible object storage for file management",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "upload",
+        "list",
+        "getUrl",
+        "delete",
+        "stat",
+        "health"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-minio upload [bucket] [fileKey] [contentType]",
+          "description": "Upload file to MinIO bucket",
+          "example": "/mcp-minio upload kids-ascension-staging videos/2025/video.mp4 video/mp4"
+        },
+        {
+          "command": "/mcp-minio list [bucket] --prefix=[prefix]",
+          "description": "List files in bucket",
+          "example": "/mcp-minio list kids-ascension-staging --prefix=videos/"
+        },
+        {
+          "command": "/mcp-minio getUrl [bucket] [fileKey]",
+          "description": "Get presigned URL for file",
+          "example": "/mcp-minio getUrl kids-ascension-staging videos/2025/video.mp4"
+        },
+        {
+          "command": "/mcp-minio delete [bucket] [fileKey]",
+          "description": "Delete file from bucket",
+          "example": "/mcp-minio delete kids-ascension-staging videos/2025/video.mp4"
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 350,
+        "costPerCall": 0.001,
+        "complexity": "medium"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 100,
+        "burstLimit": 20
+      }
+    },
     "playwright": {
       "name": "Playwright MCP",
       "description": "Browser automation and testing",
@@ -297,11 +343,11 @@
     }
   },
   "aggregates": {
-    "totalServices": 8,
-    "serverSideServices": 5,
+    "totalServices": 9,
+    "serverSideServices": 6,
     "localServices": 3,
-    "averageTokenCost": 390,
-    "averageCostPerCall": 0.00117
+    "averageTokenCost": 380,
+    "averageCostPerCall": 0.00114
   },
   "metadata": {
     "lastUpdated": "2025-10-20T10:00:00Z",
