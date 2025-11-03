@@ -141,8 +141,8 @@ export class MinIOHandler implements MCPHandler {
       const duration = Date.now() - startTime;
 
       // Record metrics
-      recordMCPOperation('minio', params.operation, 'success', duration);
-      recordTokenUsage('minio', tokensUsed);
+      recordMCPOperation('minio', params.operation, duration, 'success');
+      recordTokenUsage('minio', params.operation, tokensUsed);
 
       logger.info('MinIO operation completed', {
         operation: params.operation,
@@ -151,18 +151,21 @@ export class MinIOHandler implements MCPHandler {
       });
 
       return {
-        success: true,
+        status: 'success',
         data: result,
         metadata: {
           service: 'minio',
           operation: params.operation,
           duration,
           tokensUsed,
+          executionTime: duration,
+          cost: 0,
+          timestamp: new Date().toISOString(),
         },
       };
     } catch (error) {
       const duration = Date.now() - startTime;
-      recordMCPOperation('minio', params.operation, 'error', duration);
+      recordMCPOperation('minio', params.operation, duration, 'error');
 
       logger.error('MinIO operation failed', {
         operation: params.operation,
