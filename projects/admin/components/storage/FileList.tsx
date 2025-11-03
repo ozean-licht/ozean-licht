@@ -1,12 +1,48 @@
 /**
  * File List Component
  * Display files with pagination, search, and actions
+ * Now using ShadCN UI components for consistent styling
  */
 
 'use client';
 
 import { useState, useEffect } from 'react';
+import {
+  Download,
+  Trash2,
+  MoreHorizontal,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  Film,
+  Image,
+  Archive
+} from 'lucide-react';
 import { StorageMetadata, EntityScope } from '@/types/storage';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface FileListProps {
   bucket?: string;
@@ -79,141 +115,191 @@ export function FileList({
     });
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  const getFileIcon = (contentType: string) => {
+    if (contentType.startsWith('video/')) return <Film className="h-4 w-4" />;
+    if (contentType.startsWith('image/')) return <Image className="h-4 w-4" />;
+    if (contentType === 'application/pdf') return <FileText className="h-4 w-4" />;
+    if (contentType === 'application/zip') return <Archive className="h-4 w-4" />;
+    return <FileText className="h-4 w-4" />;
+  };
+
+  const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+    switch (status) {
+      case 'active':
+        return 'default';
+      case 'deleted':
+        return 'destructive';
+      default:
+        return 'secondary';
+    }
+  };
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-md p-4">
-        <p className="text-red-800">{error}</p>
-        <button
-          onClick={loadFiles}
-          className="mt-2 text-sm text-red-600 hover:text-red-800"
-        >
-          Retry
-        </button>
-      </div>
+      <Alert variant="destructive">
+        <AlertDescription className="flex items-center justify-between">
+          <span>{error}</span>
+          <Button variant="outline" size="sm" onClick={loadFiles}>
+            Retry
+          </Button>
+        </AlertDescription>
+      </Alert>
     );
   }
 
   return (
-    <div className="space-y-4">
-      {/* Search */}
-      <div>
-        <input
-          type="text"
-          placeholder="Search files..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setPage(0);
-          }}
-        />
-      </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>File Browser</CardTitle>
+        <CardDescription>
+          Browse and manage files in {entityScope === 'kids-ascension' ? 'Kids Ascension' : entityScope === 'ozean-licht' ? 'Ozean Licht' : 'all'} storage
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search files..."
+            className="pl-8"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(0);
+            }}
+          />
+        </div>
 
-      {/* File list */}
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Filename
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Size
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Uploaded
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {files.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                  No files found
-                </td>
-              </tr>
-            ) : (
-              files.map((file) => (
-                <tr
-                  key={file.id}
-                  className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => onFileClick?.(file)}
-                >
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900">
-                      {file.originalFilename}
-                    </div>
-                    <div className="text-sm text-gray-500">{file.fileKey}</div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {formatSize(file.fileSizeBytes)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {formatDate(file.uploadedAt)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        file.status === 'active'
-                          ? 'bg-green-100 text-green-800'
-                          : file.status === 'deleted'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {file.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right text-sm font-medium">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteFile?.(file.fileKey);
-                      }}
-                      className="text-red-600 hover:text-red-900 mr-4"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+        {/* File list */}
+        <div className="border rounded-lg">
+          {loading ? (
+            <div className="p-4 space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center space-x-4">
+                  <Skeleton className="h-4 w-4" />
+                  <Skeleton className="h-4 flex-1" />
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-6 w-16" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Table>
+              {files.length === 0 && (
+                <TableCaption>No files found</TableCaption>
+              )}
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[40px]"></TableHead>
+                  <TableHead>Filename</TableHead>
+                  <TableHead>Size</TableHead>
+                  <TableHead>Uploaded</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {files.map((file) => (
+                  <TableRow
+                    key={file.id}
+                    className="cursor-pointer"
+                    onClick={() => onFileClick?.(file)}
+                  >
+                    <TableCell>
+                      {getFileIcon(file.contentType)}
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{file.originalFilename}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {file.fileKey}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {formatSize(file.fileSizeBytes)}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {formatDate(file.uploadedAt)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusVariant(file.status)}>
+                        {file.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // TODO: Implement download
+                              console.log('Download:', file.fileKey);
+                            }}
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            Download
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDeleteFile?.(file.fileKey);
+                            }}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
 
-      {/* Pagination */}
-      <div className="flex justify-between items-center">
-        <button
-          onClick={() => setPage((p) => Math.max(0, p - 1))}
-          disabled={page === 0}
-          className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Previous
-        </button>
-        <span className="text-sm text-gray-700">Page {page + 1}</span>
-        <button
-          onClick={() => setPage((p) => p + 1)}
-          disabled={files.length < limit}
-          className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Next
-        </button>
-      </div>
-    </div>
+        {/* Pagination */}
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing page {page + 1}
+          </p>
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={files.length < limit}
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
