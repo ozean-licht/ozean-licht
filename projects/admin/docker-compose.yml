@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  admin-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: admin-dashboard
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # NextAuth
+      - AUTH_SECRET=${AUTH_SECRET}
+      - NEXTAUTH_URL=https://dashboard.ozean-licht.dev
+
+      # Database
+      - DATABASE_URL=${DATABASE_URL}
+
+      # MCP Gateway
+      - MCP_GATEWAY_URL=${MCP_GATEWAY_URL:-http://mcp-gateway:8100}
+
+      # MinIO Configuration
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_USE_SSL=${MINIO_USE_SSL:-false}
+      - MINIO_REGION=${MINIO_REGION:-eu-central-1}
+      - MINIO_DEFAULT_BUCKET=${MINIO_DEFAULT_BUCKET:-ozean-ecosystem}
+
+      # Application Settings
+      - NODE_ENV=production
+      - PORT=3000
+    networks:
+      - coolify
+    labels:
+      # Coolify labels for Traefik
+      - "traefik.enable=true"
+      - "traefik.docker.network=coolify"
+      - "traefik.http.routers.admin-dashboard.rule=Host(`dashboard.ozean-licht.dev`)"
+      - "traefik.http.routers.admin-dashboard.entrypoints=https"
+      - "traefik.http.routers.admin-dashboard.tls=true"
+      - "traefik.http.routers.admin-dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.services.admin-dashboard.loadbalancer.server.port=3000"
+
+      # Redirect HTTP to HTTPS
+      - "traefik.http.routers.admin-dashboard-http.rule=Host(`dashboard.ozean-licht.dev`)"
+      - "traefik.http.routers.admin-dashboard-http.entrypoints=http"
+      - "traefik.http.routers.admin-dashboard-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+
+networks:
+  coolify:
+    external: true
