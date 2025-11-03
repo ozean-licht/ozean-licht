@@ -1,8 +1,8 @@
 # MCP Gateway
 
-> **Version:** 1.0.0
-> **Status:** ✅ Production Ready - Docker Tested & Verified
-> **Last Updated:** 2025-10-22
+> **Version:** 1.0.2
+> **Status:** ✅ Production Ready - Docker Tested & Verified with MinIO
+> **Last Updated:** 2025-11-03
 
 A unified gateway for autonomous agents to access tools and services through the Model Context Protocol (MCP). The gateway provides a standardized interface for agents to interact with backend services through slash commands, handling authentication, rate limiting, protocol translation, and service orchestration.
 
@@ -70,8 +70,8 @@ Agent → Slash Command → MCP Gateway → Service Handler → Backend Service
 
 ### Core Capabilities
 
-✅ **8 MCP Services Integrated:**
-- **Server-Side (Always Loaded):** PostgreSQL, Mem0, Cloudflare, GitHub, N8N
+✅ **9 MCP Services Integrated:**
+- **Server-Side (Always Loaded):** PostgreSQL, Mem0, Cloudflare, GitHub, N8N, MinIO
 - **Local (Agent-Side References):** Playwright, ShadCN, MagicUI
 
 ✅ **Authentication & Security:**
@@ -145,6 +145,19 @@ Agent → Slash Command → MCP Gateway → Service Handler → Backend Service
   - Execution tracking
   - Workflow list/status
 - **Endpoint:** `http://n8n.ozean-licht.dev:5678`
+
+#### 6. MinIO MCP
+- **Purpose:** S3-compatible object storage for file management
+- **Features:**
+  - File upload with base64 encoding
+  - List files with prefix filtering and pagination
+  - Generate presigned URLs for secure access
+  - Delete files and get metadata
+  - Automatic bucket creation
+  - Content type validation (video/*, image/*, PDF, ZIP)
+  - File size limits (configurable, default 500MB)
+- **Endpoint:** `http://138.201.139.25:9000`
+- **Authentication:** Access Key/Secret Key
 
 ### Local MCP Services (Agent-Side)
 
@@ -343,6 +356,13 @@ curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..." \
 /mcp-n8n execute workflow_123 {"data": "payload"}
 /mcp-n8n list-workflows
 /mcp-n8n get-execution exec_456
+
+# MinIO storage operations
+/mcp-minio upload kids-ascension-staging videos/lesson1.mp4 video/mp4
+/mcp-minio list kids-ascension-staging --prefix=videos/
+/mcp-minio getUrl kids-ascension-staging videos/lesson1.mp4
+/mcp-minio delete kids-ascension-staging videos/old-video.mp4
+/mcp-minio stat kids-ascension-staging videos/lesson1.mp4
 ```
 
 ### JSON-RPC API
@@ -448,7 +468,9 @@ docker compose down
    - Name: `mcp-gateway`
    - Repository: Your Git repo
    - Branch: `main`
-   - Docker Compose Path: `infrastructure/mcp-gateway/docker-compose.yml`
+   - Docker Compose Path: `infrastructure/mcp-gateway/docker-compose.coolify.yml`
+
+   **⚠️ Important:** Use `docker-compose.coolify.yml` (not `docker-compose.yml`) for correct build context paths when deploying from repository root.
 4. **Environment Variables:** Copy all from `.env` file
 5. **Deploy:** Click "Deploy"
 
@@ -970,6 +992,7 @@ npm run type-check
 - ✅ **Cloudflare MCP** - Stream, DNS, zones, analytics
 - ✅ **GitHub MCP** - Complete GitHub App integration (repos, PRs, issues, workflows)
 - ✅ **N8N MCP** - Workflow automation with execution tracking
+- ✅ **MinIO MCP** - S3-compatible object storage with presigned URLs
 
 **Phase 4: Local MCP References**
 - ✅ Playwright, ShadCN, MagicUI configured in registry
@@ -980,7 +1003,7 @@ npm run type-check
 - ✅ **Environment loading** - Works with .env files and direct env vars
 - ✅ **Health checks verified** - Returns 200 OK
 - ✅ **Metrics verified** - Prometheus endpoint operational
-- ✅ **All 8 services initialized** - Tested in container
+- ✅ **All 9 services initialized** - Tested in container (including MinIO)
 
 ### ⏳ Pending (Phases 6-10)
 
@@ -1126,3 +1149,16 @@ MIT
 - ✅ IPv4 localhost access verified
 - ✅ Internal-only deployment (no public domain - security by design)
 - ✅ GitHub private key formatting fixed (Coolify global env vars)
+
+### v1.0.2 (2025-11-03)
+- ✅ **MinIO MCP fully integrated** - S3-compatible object storage
+  - Upload files with base64 encoding
+  - List files with pagination support
+  - Generate presigned URLs for secure access
+  - Delete files and get metadata
+  - Health check functionality
+  - Support for video, image, PDF, and ZIP files
+- ✅ Complete Coolify deployment configuration
+- ✅ Environment variables properly configured for all services
+- ✅ **Total: 9 MCP services operational** (6 server-side, 3 local references)
+- ✅ Documentation updated with MinIO integration details
