@@ -2,11 +2,14 @@
   <header class="app-header">
     <div class="header-content">
       <div class="header-title">
-        <img
-          src="../assets/ozean-licht-logo.webp"
-          alt="Ozean Licht - Multi-Agent Orchestration"
-          class="header-logo"
-        />
+        <div class="logo-brand-group">
+          <img
+            src="../assets/logo-ol.png"
+            alt="Ozean Licht - Agentic Ozean"
+            class="header-logo"
+          />
+          <span class="brand-text">Agentic Ozean</span>
+        </div>
         <div class="header-subtitle-group">
           <span class="header-subtitle">LIVE LOG STREAM</span>
           <div class="connection-status">
@@ -112,15 +115,30 @@ async function handleRefreshContext() {
   gap: var(--spacing-md);
 }
 
+.logo-brand-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
 .header-logo {
-  height: 32px;
-  width: auto;
+  height: 60px;
+  width: 60px;
   object-fit: contain;
   transition: opacity 0.2s ease;
 }
 
 .header-logo:hover {
   opacity: 0.9;
+}
+
+.brand-text {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--accent-primary);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
 }
 
 .header-subtitle {

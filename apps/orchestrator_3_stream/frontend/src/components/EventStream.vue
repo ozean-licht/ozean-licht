@@ -25,28 +25,11 @@
       <!-- Empty State -->
       <div v-if="filteredEvents.length === 0" class="empty-state">
         <div class="empty-icon">
-          <svg
-            width="98"
-            height="98"
-            viewBox="0 0 98 98"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <!-- 3x3 grid of rounded rectangles -->
-            <!-- Row 1 -->
-            <rect x="0" y="0" width="30" height="30" rx="2" fill="#000" stroke="#404040" stroke-width="1"/>
-            <rect x="34" y="0" width="30" height="30" rx="2" fill="#000" stroke="#404040" stroke-width="1"/>
-            <rect x="68" y="0" width="30" height="30" rx="2" fill="#000" stroke="#404040" stroke-width="1"/>
-
-            <!-- Row 2 -->
-            <rect x="0" y="34" width="30" height="30" rx="2" fill="#000" stroke="#404040" stroke-width="1"/>
-            <rect x="34" y="34" width="30" height="30" rx="2" fill="#000" stroke="#404040" stroke-width="1"/>
-            <rect x="68" y="34" width="30" height="30" rx="2" fill="#000" stroke="#404040" stroke-width="1"/>
-
-            <!-- Row 3 -->
-            <rect x="0" y="68" width="30" height="30" rx="2" fill="#000" stroke="#404040" stroke-width="1"/>
-            <rect x="34" y="68" width="30" height="30" rx="2" fill="#000" stroke="#404040" stroke-width="1"/>
-            <rect x="68" y="68" width="30" height="30" rx="2" fill="#000" stroke="#404040" stroke-width="1"/>
-          </svg>
+          <img
+            src="../assets/logo-ol.png"
+            alt="Ozean Licht"
+            class="empty-logo"
+          />
         </div>
         <p class="empty-title">
           {{
@@ -253,13 +236,26 @@ defineExpose({
 }
 
 .empty-icon {
-  width: 98px;
-  height: 98px;
-  margin-bottom: var(--spacing-md);
-  opacity: 0.3;
+  width: 120px;
+  height: 120px;
+  margin-bottom: var(--spacing-lg);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.empty-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.4;
+  filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.2));
+  transition: opacity 0.3s ease;
+}
+
+.empty-state:hover .empty-logo {
+  opacity: 0.5;
+  filter: drop-shadow(0 0 30px rgba(6, 182, 212, 0.3));
 }
 
 .empty-title {
