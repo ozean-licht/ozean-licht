@@ -9,6 +9,9 @@ services:
     restart: unless-stopped
     ports:
       - "9403:9403"
+    labels:
+      # Tell Traefik which port to route to (required for Coolify)
+      - "traefik.http.services.orchestrator.loadbalancer.server.port=9403"
     environment:
       # Database
       - DATABASE_URL=${DATABASE_URL}
