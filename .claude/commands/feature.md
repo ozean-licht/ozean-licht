@@ -53,7 +53,7 @@ issue_json: $3
 - IMPORTANT: You're writing a plan to implement a feature based on the `Feature` that will add value to the application.
 - IMPORTANT: The `Feature` describes what will be implemented but remember we're not implementing it yet, we're creating the plan that will be used to implement the feature based on the `Plan Format` below.
 - You're writing a plan to implement a feature, it should be thorough and precise so we build it correctly the first time.
-- Create the plan in the `projects/admin/specs/` directory with filename: `issue-{issue_number}-adw-{adw_id}-sdlc_planner-{descriptive-name}.md`
+- Create the plan in the `apps/admin/specs/` directory with filename: `issue-{issue_number}-adw-{adw_id}-sdlc_planner-{descriptive-name}.md`
   - Replace `{descriptive-name}` with a short, descriptive name based on the feature (e.g., "database-schema-mcp-client", "user-authentication", "video-upload")
 - Use the plan format below to create the plan.
 - Research the codebase and put together a comprehensive plan to implement the feature.
@@ -66,8 +66,8 @@ issue_json: $3
 Read these files to understand context:
 - `CLAUDE.md` - Repository overview and architecture
 - `docs/AGENT-INDEX.md` - Codebase navigation
-- `projects/admin/WEEK-1-STRATEGY.md` - Week 1 implementation strategy (if working on admin dashboard)
-- `projects/admin/docs/foundation-setup.md` - Admin dashboard foundation plan (if working on admin dashboard)
+- `apps/admin/WEEK-1-STRATEGY.md` - Week 1 implementation strategy (if working on admin dashboard)
+- `apps/admin/docs/foundation-setup.md` - Admin dashboard foundation plan (if working on admin dashboard)
 
 ## Feature
 
@@ -268,7 +268,7 @@ After completing the plan, report back using this format:
 ```
 ✅ Feature implementation plan created successfully!
 
-**Plan File:** `projects/admin/specs/issue-{issue_number}-adw-{adw_id}-sdlc_planner-{descriptive-name}.md`
+**Plan File:** `apps/admin/specs/issue-{issue_number}-adw-{adw_id}-sdlc_planner-{descriptive-name}.md`
 **Feature:** <Feature title>
 **Implementation Steps:** <Number of steps>
 **Estimated Complexity:** Low | Medium | High

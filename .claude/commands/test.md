@@ -41,19 +41,19 @@ TEST_COMMAND_TIMEOUT: 5 minutes
 
 1. **TypeScript Type Check**
    - Preparation Command: None
-   - Command: `cd projects/admin && npm run typecheck`
+   - Command: `cd apps/admin && npm run typecheck`
    - test_name: "typescript_check"
    - test_purpose: "Validates TypeScript type correctness without generating output files, catching type errors, missing imports, and incorrect function signatures"
 
 2. **Frontend Build**
    - Preparation Command: None
-   - Command: `cd projects/admin && npm run build`
+   - Command: `cd apps/admin && npm run build`
    - test_name: "frontend_build"
    - test_purpose: "Validates the complete frontend build process including bundling, asset optimization, and production compilation"
 
 3. **Unit Tests**
    - Preparation Command: None
-   - Command: `cd projects/admin && npm run test`
+   - Command: `cd apps/admin && npm run test`
    - test_name: "unit_tests"
    - test_purpose: "Validates authentication utilities, MCP client functionality, and core business logic through Jest unit tests"
 

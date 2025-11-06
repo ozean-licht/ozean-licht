@@ -254,3 +254,13 @@ agents/*/tester/raw_output.jsonl
 agents/*/reviewer/raw_output.jsonl
 agents/*/documenter/raw_output.jsonl
 agents/*/reviewer/review_img/
+# ADW Agent outputs - contain secrets and session data
+agents/**/raw_output.json
+agents/**/raw_output.jsonl
+agents/**/*.jsonl
+
+# ADW Agent outputs - contain secrets and session data
+agents/**/raw_output.json
+agents/**/raw_output.jsonl
+agents/**/*.jsonl
+agents/**/prompts/

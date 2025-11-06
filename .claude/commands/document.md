@@ -13,10 +13,10 @@ documentation_screenshots_dir: $3 if provided, otherwise leave it blank
 ### 1. Detect Project and Set Documentation Path
 - Run `git diff origin/main --name-only` to see which files were changed
 - Analyze the changed files to determine which project was modified:
-  - If most changes are in `projects/admin/` → use `projects/admin/app_docs/`
-  - If most changes are in `projects/kids-ascension/` → use `projects/kids-ascension/app_docs/`
-  - If most changes are in `projects/ozean-licht/` → use `projects/ozean-licht/app_docs/`
-  - If unclear or changes are outside projects/ → default to `projects/admin/app_docs/`
+  - If most changes are in `apps/admin/` → use `apps/admin/app_docs/`
+  - If most changes are in `apps/kids-ascension/` → use `apps/kids-ascension/app_docs/`
+  - If most changes are in `apps/ozean-licht/` → use `apps/ozean-licht/app_docs/`
+  - If unclear or changes are outside apps/ → default to `apps/admin/app_docs/`
 - Store the detected path as `DOCS_PATH` for use in subsequent steps
 
 ### 2. Analyze Changes
@@ -54,7 +54,7 @@ documentation_screenshots_dir: $3 if provided, otherwise leave it blank
 ### 6. Update Conditional Documentation
 - After creating the documentation file, read `.claude/commands/conditional_docs.md`
 - Add an entry for the new documentation file with appropriate conditions
-- Use the full project-scoped path (e.g., `projects/admin/app_docs/features/feature-name.md`)
+- Use the full project-scoped path (e.g., `apps/admin/app_docs/features/feature-name.md`)
 - The entry should help future developers know when to read this documentation
 - Format the entry following the existing pattern in the file
 
@@ -124,7 +124,7 @@ print('=' * 80)
 
 ### 8. Final Output
 - When you finish writing the documentation, updating conditional_docs.md, AND generating the memory report, return exclusively the path to the documentation file created and nothing else
-- The path should be relative to the repository root (e.g., `projects/admin/app_docs/features/feature-name.md`)
+- The path should be relative to the repository root (e.g., `apps/admin/app_docs/features/feature-name.md`)
 
 ## Documentation Format
 
@@ -192,7 +192,7 @@ print('=' * 80)
 After creating the documentation, add this entry to `.claude/commands/conditional_docs.md`:
 
 ```md
-- projects/{project}/app_docs/features/<your_documentation_file>.md
+- apps/{project}/app_docs/features/<your_documentation_file>.md
   - Conditions:
     - When working with <feature area>
     - When implementing <related functionality>
@@ -201,7 +201,7 @@ After creating the documentation, add this entry to `.claude/commands/conditiona
 
 Example:
 ```md
-- projects/admin/app_docs/features/user-authentication.md
+- apps/admin/app_docs/features/user-authentication.md
   - Conditions:
     - When working with admin user authentication
     - When implementing role-based access control

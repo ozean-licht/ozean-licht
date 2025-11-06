@@ -62,7 +62,7 @@ This prompt helps you determine what documentation you should read based on the 
     - When implementing UI text changes for data upload functionality
     - When troubleshooting upload button display or terminology
 
-- projects/admin/app_docs/features/admin-db-schema-mcp-client.md
+- apps/admin/app_docs/features/admin-db-schema-mcp-client.md
   - Conditions:
     - When working with admin dashboard database operations
     - When implementing MCP Gateway client functionality
@@ -72,7 +72,7 @@ This prompt helps you determine what documentation you should read based on the 
     - When troubleshooting MCP Gateway connectivity issues
     - When adding new database operations to the admin system
 
-- projects/admin/app_docs/features/nextauth-admin-authentication.md
+- apps/admin/app_docs/features/nextauth-admin-authentication.md
   - Conditions:
     - When working with admin dashboard authentication
     - When implementing NextAuth.js authentication flows
@@ -84,7 +84,7 @@ This prompt helps you determine what documentation you should read based on the 
     - When setting up 2FA or additional authentication factors
     - When debugging authentication-related audit logs
 
-- projects/admin/app_docs/features/nextauth-core-libraries.md
+- apps/admin/app_docs/features/nextauth-core-libraries.md
   - Conditions:
     - When implementing authentication utility functions
     - When working with password hashing (bcrypt) or token generation
@@ -95,7 +95,7 @@ This prompt helps you determine what documentation you should read based on the 
     - When troubleshooting NextAuth configuration or adapter issues
     - When integrating authentication with MCP Gateway client
 
-- projects/admin/app_docs/features/system-health-monitoring.md
+- apps/admin/app_docs/features/system-health-monitoring.md
   - Conditions:
     - When working with system health monitoring or infrastructure metrics
     - When implementing health check functionality for databases or services
@@ -106,7 +106,7 @@ This prompt helps you determine what documentation you should read based on the 
     - When working with server resource monitoring (CPU, memory, disk)
     - When implementing warning thresholds or status indicators
 
-- projects/admin/app_docs/features/minio-s3-storage-integration.md
+- apps/admin/app_docs/features/minio-s3-storage-integration.md
   - Conditions:
     - When working with file upload, storage, or download functionality
     - When implementing MinIO S3-compatible storage operations

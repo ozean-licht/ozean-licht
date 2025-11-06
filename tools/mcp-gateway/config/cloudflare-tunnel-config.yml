@@ -1,0 +1,25 @@
+tunnel: YOUR_TUNNEL_ID
+credentials-file: /root/.cloudflared/YOUR_TUNNEL_ID.json
+
+ingress:
+  # MCP Gateway API
+  - hostname: mcp-gateway.your-domain.com
+    service: http://127.0.0.1:8100
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # MCP Gateway Metrics (optional)
+  - hostname: mcp-metrics.your-domain.com
+    service: http://127.0.0.1:9090
+    originRequest:
+      noTLSVerify: true
+
+  # Admin Dashboard (if running)
+  - hostname: admin.your-domain.com
+    service: http://127.0.0.1:3000
+    originRequest:
+      noTLSVerify: true
+
+  # Catch-all rule (required)
+  - service: http_status:404

@@ -19,9 +19,9 @@ Workflow:
 7. Commit documentation in worktree
 
 Documentation is generated in the appropriate project directory:
-- projects/admin/app_docs/
-- projects/kids-ascension/app_docs/
-- projects/ozean-licht/app_docs/
+- apps/admin/app_docs/
+- apps/kids-ascension/app_docs/
+- apps/ozean-licht/app_docs/
 
 This workflow REQUIRES that adw_plan_iso.py or adw_patch_iso.py has been run first
 to create the worktree. It cannot create worktrees itself.
@@ -77,7 +77,7 @@ def detect_project_from_changes(
         cwd: Working directory to run git commands in
 
     Returns:
-        str: Project-specific app_docs path (e.g., "projects/admin/app_docs/")
+        str: Project-specific app_docs path (e.g., "apps/admin/app_docs/")
     """
     try:
         # Get list of changed files
@@ -100,11 +100,11 @@ def detect_project_from_changes(
         }
 
         for file_path in changed_files:
-            if file_path.startswith("projects/admin/"):
+            if file_path.startswith("apps/admin/"):
                 project_changes["admin"] += 1
-            elif file_path.startswith("projects/kids-ascension/"):
+            elif file_path.startswith("apps/kids-ascension/"):
                 project_changes["kids-ascension"] += 1
-            elif file_path.startswith("projects/ozean-licht/"):
+            elif file_path.startswith("apps/ozean-licht/"):
                 project_changes["ozean-licht"] += 1
 
         # Determine which project had the most changes
@@ -112,21 +112,21 @@ def detect_project_from_changes(
         if max_changes > 0:
             for project, count in project_changes.items():
                 if count == max_changes:
-                    docs_path = f"projects/{project}/app_docs/"
+                    docs_path = f"apps/{project}/app_docs/"
                     logger.info(f"Detected project '{project}' with {count} changes")
                     logger.info(f"Using documentation path: {docs_path}")
                     return docs_path
 
-        # Default to admin if no clear winner or if changes are outside projects/
+        # Default to admin if no clear winner or if changes are outside apps/
         logger.info(
-            "No clear project detected from changes, defaulting to projects/admin/app_docs/"
+            "No clear project detected from changes, defaulting to apps/admin/app_docs/"
         )
-        return "projects/admin/app_docs/"
+        return "apps/admin/app_docs/"
 
     except subprocess.CalledProcessError as e:
         logger.warning(f"Failed to detect project from changes: {e}")
-        logger.info("Defaulting to projects/admin/app_docs/")
-        return "projects/admin/app_docs/"
+        logger.info("Defaulting to apps/admin/app_docs/")
+        return "apps/admin/app_docs/"
 
 
 def check_for_changes(logger: logging.Logger, cwd: Optional[str] = None) -> bool:

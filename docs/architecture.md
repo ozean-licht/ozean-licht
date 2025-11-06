@@ -648,11 +648,11 @@ const literagDB = new PrismaClient({
 
 ```bash
 # Each database has its own migration folder
-projects/kids-ascension/api/prisma/
+apps/kids-ascension/api/prisma/
 ├── schema.prisma
 └── migrations/
 
-projects/ozean-licht/api/prisma/
+apps/ozean-licht/api/prisma/
 ├── schema.prisma
 └── migrations/
 
@@ -1003,7 +1003,7 @@ ozean-licht-ecosystem/
 ├── .claude/                      # Root commands (ecosystem-wide)
 ├── .taskmaster/                  # Autonomous development
 ├── worktrees/                    # Parallel agent work
-├── projects/
+├── apps/
 │   ├── kids-ascension/
 │   │   ├── .claude/              # KA-specific commands
 │   │   ├── apps/
@@ -1027,7 +1027,7 @@ ozean-licht-ecosystem/
 │   ├── database/                 # Prisma client
 │   └── types/                    # TypeScript types
 │
-├── infrastructure/               # DevOps
+├── tools/               # DevOps
 │   ├── docker/
 │   ├── kubernetes/               # Future K8s configs
 │   ├── coolify/
@@ -1085,10 +1085,10 @@ Example:
 Tool: pnpm (workspace support)
 
 Workspace Structure:
-  - projects/kids-ascension/apps/web
-  - projects/kids-ascension/api
-  - projects/ozean-licht/apps/web
-  - projects/ozean-licht/api
+  - apps/kids-ascension/apps/web
+  - apps/kids-ascension/api
+  - apps/ozean-licht/apps/web
+  - apps/ozean-licht/api
   - shared/*
 
 Commands:
@@ -1365,7 +1365,7 @@ literag_knowledge/
 │   └── [same structure]
 │
 ├── shared/
-│   ├── infrastructure/        # DevOps knowledge
+│   ├── tools/        # DevOps knowledge
 │   ├── auth/                  # Auth patterns
 │   ├── storage/               # Storage patterns
 │   ├── database/              # DB patterns
@@ -1500,7 +1500,7 @@ Deployment Method: Git-based
 Projects:
   kids-ascension-api:
     repo: ozean-licht-ecosystem
-    path: projects/kids-ascension/api
+    path: apps/kids-ascension/api
     build: pnpm --filter @ka/api build
     start: pnpm --filter @ka/api start
     port: 3000
@@ -1513,7 +1513,7 @@ Projects:
   
   ozean-licht-api:
     repo: ozean-licht-ecosystem
-    path: projects/ozean-licht/api
+    path: apps/ozean-licht/api
     port: 3001
     domain: api.ozean-licht.at
 
@@ -1592,7 +1592,7 @@ jobs:
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: pages deploy projects/kids-ascension/apps/web/dist --project-name=kids-ascension
+          command: pages deploy apps/kids-ascension/apps/web/dist --project-name=kids-ascension
 ```
 
 ---
@@ -2487,7 +2487,7 @@ Success Criteria:
 **Date:** 2024-10-19  
 **Context:** Need to decide repository structure for Kids Ascension and Ozean Licht
 
-**Decision:** Use monorepo with projects/ structure
+**Decision:** Use monorepo with apps/ structure
 
 **Rationale:**
 - Shared infrastructure and code
