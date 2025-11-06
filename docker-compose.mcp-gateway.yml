@@ -1,0 +1,100 @@
+services:
+  mcp-gateway:
+    build:
+      context: ./tools/mcp-gateway
+      dockerfile: Dockerfile
+    container_name: mcp-gateway
+    restart: unless-stopped
+    ports:
+      - "8100:8100"  # Main API port
+      - "9090:9090"  # Metrics port
+    environment:
+      # Server Configuration
+      NODE_ENV: production
+      PORT: 8100
+      HOST: 0.0.0.0
+
+      # PostgreSQL - Kids Ascension
+      POSTGRES_KA_HOST: ${POSTGRES_KA_HOST:-iccc0wo0wkgsws4cowk4440c}
+      POSTGRES_KA_PORT: ${POSTGRES_KA_PORT:-5432}
+      POSTGRES_KA_DATABASE: ${POSTGRES_KA_DATABASE:-kids-ascension}
+      POSTGRES_KA_USER: ${POSTGRES_KA_USER:-postgres}
+      POSTGRES_KA_PASSWORD: ${POSTGRES_KA_PASSWORD}
+
+      # PostgreSQL - Ozean Licht
+      POSTGRES_OL_HOST: ${POSTGRES_OL_HOST:-zo8g4ogg8g0gss0oswkcs84w}
+      POSTGRES_OL_PORT: ${POSTGRES_OL_PORT:-5432}
+      POSTGRES_OL_DATABASE: ${POSTGRES_OL_DATABASE:-ozean-licht}
+      POSTGRES_OL_USER: ${POSTGRES_OL_USER:-postgres}
+      POSTGRES_OL_PASSWORD: ${POSTGRES_OL_PASSWORD}
+
+      # Service URLs (use container names in Coolify)
+      MEM0_API_URL: ${MEM0_API_URL:-http://mem0-uo8gc0kc0gswcskk44gc8wks:8090}
+      N8N_API_URL: ${N8N_API_URL:-http://n8n-wgg0gsko808w4ow040gkgs0o:5678}
+      N8N_API_KEY: ${N8N_API_KEY}
+
+      # Cloudflare
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
+      CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID}
+      CLOUDFLARE_ZONE_ID: ${CLOUDFLARE_ZONE_ID}
+
+      # GitHub
+      GITHUB_APP_ID: ${GITHUB_APP_ID}
+      GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY}
+      GITHUB_INSTALLATION_ID: ${GITHUB_INSTALLATION_ID}
+
+      # MinIO Storage
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-host.docker.internal}
+      MINIO_PORT: ${MINIO_PORT:-9000}
+      MINIO_USE_SSL: ${MINIO_USE_SSL:-false}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-500}
+      ALLOWED_FILE_TYPES: ${ALLOWED_FILE_TYPES:-video/*,image/*,application/pdf,application/zip}
+      PRESIGNED_URL_EXPIRY_SECONDS: ${PRESIGNED_URL_EXPIRY_SECONDS:-300}
+
+      # Coolify API (for MCP handler)
+      COOLIFY_API_URL: ${COOLIFY_API_URL:-http://coolify.ozean-licht.dev:8000/api/v1}
+      COOLIFY_API_TOKEN: ${COOLIFY_API_TOKEN}
+
+      # Orchestrator API (for permission checks)
+      ORCHESTRATOR_URL: ${ORCHESTRATOR_URL:-http://orchestrator-3-stream:9403}
+
+      # Security
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: 24h
+
+      # Rate Limiting
+      RATE_LIMIT_WINDOW_MS: 60000
+      RATE_LIMIT_MAX_REQUESTS: 100
+
+      # Monitoring
+      ENABLE_METRICS: true
+      METRICS_PORT: 9090
+
+      # Logging
+      LOG_LEVEL: info
+      LOG_FORMAT: json
+
+      # Database Pools
+      DB_POOL_MIN: 2
+      DB_POOL_MAX: 10
+      DB_IDLE_TIMEOUT_MS: 10000
+
+      # Timeouts
+      DEFAULT_TIMEOUT_MS: 30000
+      DB_QUERY_TIMEOUT_MS: 10000
+      HTTP_TIMEOUT_MS: 30000
+
+    networks:
+      - coolify
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8100/health', (r) => {r.statusCode === 200 ? process.exit(0) : process.exit(1)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+networks:
+  coolify:
+    external: true
