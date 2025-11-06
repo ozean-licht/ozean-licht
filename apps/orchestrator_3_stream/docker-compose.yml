@@ -9,13 +9,6 @@ services:
     restart: unless-stopped
     ports:
       - "9403:9403"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.orchestrator.rule=Host(`dev.ozean-licht.dev`)"
-      - "traefik.http.routers.orchestrator.entrypoints=websecure"
-      - "traefik.http.routers.orchestrator.tls=true"
-      - "traefik.http.routers.orchestrator.tls.certresolver=letsencrypt"
-      - "traefik.http.services.orchestrator.loadbalancer.server.port=9403"
     environment:
       # Database
       - DATABASE_URL=${DATABASE_URL}
