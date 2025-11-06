@@ -1,8 +1,8 @@
 services:
   mcp-gateway:
     build:
-      context: ../../  # Build from repo root
-      dockerfile: tools/mcp-gateway/Dockerfile
+      context: .  # Build from current directory (tools/mcp-gateway)
+      dockerfile: Dockerfile
     container_name: mcp-gateway
     restart: unless-stopped
     ports:
