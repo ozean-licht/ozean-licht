@@ -24,8 +24,8 @@ services:
       - BACKEND_HOST=0.0.0.0
       - BACKEND_PORT=9403
       - ORCHESTRATOR_MODEL=${ORCHESTRATOR_MODEL:-claude-sonnet-4-20250514}
-      - ORCHESTRATOR_WORKING_DIR=/app
-      - DEFAULT_WORKING_DIR=/app
+      - ORCHESTRATOR_WORKING_DIR=/opt/ozean-licht-ecosystem
+      - DEFAULT_WORKING_DIR=/opt/ozean-licht-ecosystem
 
       # Frontend Config (served by FastAPI on same port)
       - VITE_API_BASE_URL=https://dev.ozean-licht.dev
