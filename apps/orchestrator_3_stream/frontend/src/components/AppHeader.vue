@@ -2,7 +2,11 @@
   <header class="app-header">
     <div class="header-content">
       <div class="header-title">
-        <h1>MULTI-AGENT ORCHESTRATION</h1>
+        <img
+          src="../assets/ozean-licht-logo.webp"
+          alt="Ozean Licht - Multi-Agent Orchestration"
+          class="header-logo"
+        />
         <div class="header-subtitle-group">
           <span class="header-subtitle">LIVE LOG STREAM</span>
           <div class="connection-status">
@@ -34,6 +38,19 @@
         </div>
 
         <div class="header-actions">
+          <button
+            class="btn-refresh"
+            :class="{ loading: store.isRefreshing }"
+            :disabled="store.isRefreshing"
+            @click="handleRefreshContext"
+            title="Refresh context and reload all data (Ctrl+R / Cmd+R)"
+            aria-label="Refresh orchestrator context"
+          >
+            <span v-if="!store.isRefreshing">
+              ↻ REFRESH <span class="btn-hint">(Ctrl+R)</span>
+            </span>
+            <span v-else class="loading-spinner">⟳ REFRESHING...</span>
+          </button>
           <button class="btn-clear" @click="headerBar.clearEventStream">
             CLEAR ALL
           </button>
@@ -60,6 +77,11 @@ const headerBar = useHeaderBar();
 
 // Use store for command input visibility
 const store = useOrchestratorStore();
+
+// Handle context refresh
+async function handleRefreshContext() {
+  await store.refreshContext();
+}
 </script>
 
 <style scoped>
@@ -90,12 +112,15 @@ const store = useOrchestratorStore();
   gap: var(--spacing-md);
 }
 
-.header-title h1 {
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: var(--text-primary);
-  margin: 0;
+.header-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+  transition: opacity 0.2s ease;
+}
+
+.header-logo:hover {
+  opacity: 0.9;
 }
 
 .header-subtitle {
@@ -201,7 +226,8 @@ const store = useOrchestratorStore();
 
 /* Action Buttons */
 .btn-prompt,
-.btn-clear {
+.btn-clear,
+.btn-refresh {
   padding: 0.375rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 600;
@@ -222,7 +248,8 @@ const store = useOrchestratorStore();
 }
 
 .btn-prompt:hover,
-.btn-clear:hover {
+.btn-clear:hover,
+.btn-refresh:hover:not(:disabled) {
   background: var(--bg-quaternary);
   color: var(--text-primary);
   border-color: var(--accent-primary);
@@ -236,6 +263,27 @@ const store = useOrchestratorStore();
   box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
 }
 
+.btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-refresh.loading {
+  background: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
+}
+
+.loading-spinner {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
   .header-stats {
@@ -244,12 +292,18 @@ const store = useOrchestratorStore();
 }
 
 @media (max-width: 1024px) {
-  .header-title h1 {
-    font-size: 0.875rem;
+  .header-logo {
+    height: 28px;
   }
 
   .header-subtitle {
     font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 650px) {
+  .header-logo {
+    height: 24px;
   }
 }
 </style>
