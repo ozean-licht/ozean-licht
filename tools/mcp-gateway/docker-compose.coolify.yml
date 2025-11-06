@@ -1,8 +1,8 @@
 services:
   mcp-gateway:
     build:
-      context: ./infrastructure/mcp-gateway
-      dockerfile: Dockerfile
+      context: ../../  # Build from repo root
+      dockerfile: tools/mcp-gateway/Dockerfile
     container_name: mcp-gateway
     restart: unless-stopped
     ports:
@@ -53,6 +53,13 @@ services:
       MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-500}
       ALLOWED_FILE_TYPES: ${ALLOWED_FILE_TYPES:-video/*,image/*,application/pdf,application/zip}
       PRESIGNED_URL_EXPIRY_SECONDS: ${PRESIGNED_URL_EXPIRY_SECONDS:-300}
+
+      # Coolify API (for MCP handler)
+      COOLIFY_API_URL: ${COOLIFY_API_URL:-http://coolify.ozean-licht.dev:8000/api/v1}
+      COOLIFY_API_TOKEN: ${COOLIFY_API_TOKEN}
+
+      # Orchestrator API (for permission checks)
+      ORCHESTRATOR_URL: ${ORCHESTRATOR_URL:-http://orchestrator-3-stream:9403}
 
       # Security
       JWT_SECRET: ${JWT_SECRET}

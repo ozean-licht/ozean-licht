@@ -48,6 +48,7 @@
       "location": "server",
       "version": "1.0.0",
       "status": "active",
+      "alwaysActive": true,
       "capabilities": [
         "remember",
         "search",
@@ -249,6 +250,58 @@
         "burstLimit": 20
       }
     },
+    "coolify": {
+      "name": "Coolify MCP",
+      "description": "Infrastructure and deployment management",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "list-applications",
+        "deploy-application",
+        "restart-application",
+        "list-databases",
+        "create-database",
+        "list-servers",
+        "get-version"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-coolify list-applications",
+          "description": "List all Coolify applications",
+          "example": "/mcp-coolify list-applications"
+        },
+        {
+          "command": "/mcp-coolify deploy-application [appId]",
+          "description": "Deploy an application (pulls latest code)",
+          "example": "/mcp-coolify deploy-application 3"
+        },
+        {
+          "command": "/mcp-coolify restart-application [appId]",
+          "description": "Restart an application",
+          "example": "/mcp-coolify restart-application 3"
+        },
+        {
+          "command": "/mcp-coolify list-databases",
+          "description": "List all databases",
+          "example": "/mcp-coolify list-databases"
+        },
+        {
+          "command": "/mcp-coolify get-version",
+          "description": "Get Coolify version",
+          "example": "/mcp-coolify get-version"
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 200,
+        "costPerCall": 0.0006,
+        "complexity": "low"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 60,
+        "burstLimit": 15
+      }
+    },
     "playwright": {
       "name": "Playwright MCP",
       "description": "Browser automation and testing",
@@ -343,11 +396,11 @@
     }
   },
   "aggregates": {
-    "totalServices": 9,
-    "serverSideServices": 6,
+    "totalServices": 10,
+    "serverSideServices": 7,
     "localServices": 3,
-    "averageTokenCost": 380,
-    "averageCostPerCall": 0.00114
+    "averageTokenCost": 360,
+    "averageCostPerCall": 0.00108
   },
   "metadata": {
     "lastUpdated": "2025-10-20T10:00:00Z",

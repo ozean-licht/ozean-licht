@@ -53,6 +53,7 @@ async function initializeServerServices(registry: MCPRegistry): Promise<void> {
     { name: 'github', initializer: initializeGitHub },
     { name: 'n8n', initializer: initializeN8N },
     { name: 'minio', initializer: initializeMinIO },
+    { name: 'coolify', initializer: initializeCoolify },
   ];
 
   for (const { name, initializer } of services) {
@@ -199,6 +200,25 @@ async function initializeMinIO(registry: MCPRegistry): Promise<void> {
   const serviceConfig = mcpCatalog.services.minio;
   registry.registerService({
     name: 'minio',
+    version: serviceConfig.version,
+    description: serviceConfig.description,
+    location: 'server',
+    capabilities: serviceConfig.capabilities,
+    status: 'active',
+  }, handler);
+}
+
+/**
+ * Coolify MCP Initializer
+ */
+async function initializeCoolify(registry: MCPRegistry): Promise<void> {
+  const { CoolifyHandler } = await import('./handlers/coolify');
+
+  const handler = new CoolifyHandler();
+
+  const serviceConfig = mcpCatalog.services.coolify;
+  registry.registerService({
+    name: 'coolify',
     version: serviceConfig.version,
     description: serviceConfig.description,
     location: 'server',

@@ -943,6 +943,28 @@ async def reset_agent_tokens(agent_id: uuid.UUID) -> None:
         )
 
 
+async def update_agent_metadata(agent_id: uuid.UUID, metadata: Dict[str, Any]) -> None:
+    """
+    Update agent's metadata field (JSONB).
+
+    Args:
+        agent_id: UUID of the agent
+        metadata: Complete metadata dictionary to replace existing metadata
+    """
+    async with get_connection() as conn:
+        await conn.execute(
+            """
+            UPDATE agents
+            SET
+                metadata = $1,
+                updated_at = NOW()
+            WHERE id = $2
+            """,
+            json.dumps(metadata),
+            agent_id,
+        )
+
+
 async def delete_agent(agent_id: uuid.UUID) -> None:
     """
     Soft delete agent (sets archived=true).

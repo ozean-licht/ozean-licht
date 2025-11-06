@@ -14,7 +14,7 @@
 ### Docker Compose Source
 - Repository: `https://github.com/ozean-licht/ecosystem`
 - Branch: `main`
-- Docker Compose Path: `infrastructure/mcp-gateway/docker-compose.coolify.yml`
+- Docker Compose Path: `tools/mcp-gateway/docker-compose.coolify.yml`
 
 **Important:** Use `docker-compose.coolify.yml` instead of `docker-compose.yml` as it has the correct build context paths for Coolify deployment from repository root.
 
@@ -53,6 +53,13 @@ PRESIGNED_URL_EXPIRY_SECONDS=300
 MEM0_API_URL=http://mem0-uo8gc0kc0gswcskk44gc8wks:8090
 N8N_API_URL=http://n8n-wgg0gsko808w4ow040gkgs0o:5678
 N8N_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODI2ZGFmMS1lNzdjLTQ5ZmQtYmJmYi1lZjYwNGNlOGFjNWMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzYxMTQzMzQwLCJleHAiOjE3Njg4NjM2MDB9.YgHly7agiQKKWkcR-cL30LQvTa0VOqhCHY-YRcKajuc
+
+# Coolify API (NEW - for Coolify MCP handler)
+COOLIFY_API_URL=http://coolify.ozean-licht.dev:8000/api/v1
+COOLIFY_API_TOKEN=1|nN3hZvkfX7IrsKWRpl86UzaNV7UDUrQ44kxrKqBs0664ab00
+
+# Orchestrator API (NEW - for permission checks)
+ORCHESTRATOR_URL=http://orchestrator-3-stream:9403
 
 # Cloudflare
 CLOUDFLARE_API_TOKEN=R7VMT1nwmnqUD-N4rch71tsp0hn4qvYEZ36X--z1

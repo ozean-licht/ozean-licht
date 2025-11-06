@@ -53,6 +53,13 @@ const envSchema = z.object({
   N8N_API_URL: z.string().url().default('http://n8n:5678'),
   N8N_API_KEY: z.string().optional(),
 
+  // Coolify API
+  COOLIFY_API_URL: z.string().url().default('http://localhost:8000'),
+  COOLIFY_API_TOKEN: z.string().optional(),
+
+  // Orchestrator API (for permission checks)
+  ORCHESTRATOR_URL: z.string().url().default('http://localhost:9403'),
+
   // External APIs
   CLOUDFLARE_API_TOKEN: z.string().optional(),
   CLOUDFLARE_ACCOUNT_ID: z.string().optional(),
@@ -161,6 +168,7 @@ export const dbConfig = {
 export const serviceUrls = {
   mem0: config.MEM0_API_URL,
   n8n: config.N8N_API_URL,
+  coolify: config.COOLIFY_API_URL,
 };
 
 // Feature flags

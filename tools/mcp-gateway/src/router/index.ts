@@ -26,17 +26,23 @@ export function setupRouter(registry: MCPRegistry): Router {
       const parsed = commandParser.parse(command);
       logger.debug('Parsed command', { parsed, requestId });
 
+      // Extract agent ID from header
+      const agentId = req.headers['x-agent-id'] as string | undefined;
+
       // Build MCP params
       const params = {
         service: parsed.service,
         operation: parsed.operation,
         database: parsed.database,
         args: parsed.args,
-        options: req.body.options,
+        options: {
+          ...req.body.options,
+          agent_id: agentId,
+        },
       };
 
       // Execute through registry
-      const result = await registry.execute(params);
+      const result = await registry.execute(params, agentId);
 
       // Build response
       const response: MCPResponse = {
@@ -49,6 +55,7 @@ export function setupRouter(registry: MCPRegistry): Router {
         command,
         service: parsed.service,
         operation: parsed.operation,
+        agentId,
         executionTime: Date.now() - startTime,
         requestId,
       });
@@ -89,6 +96,9 @@ export function setupRouter(registry: MCPRegistry): Router {
         id: rpcRequest.id,
       });
 
+      // Extract agent ID from header
+      const agentId = req.headers['x-agent-id'] as string | undefined;
+
       // Handle different methods
       let result;
       switch (rpcRequest.method) {
@@ -96,7 +106,11 @@ export function setupRouter(registry: MCPRegistry): Router {
           if (!rpcRequest.params) {
             throw new MCPError('Parameters required for mcp.execute', MCPErrorCode.INVALID_PARAMS);
           }
-          result = await registry.execute(rpcRequest.params);
+          // Add agent ID to params if provided
+          if (agentId && rpcRequest.params.options) {
+            rpcRequest.params.options.agent_id = agentId;
+          }
+          result = await registry.execute(rpcRequest.params, agentId);
           break;
 
         case 'mcp.listServices':

@@ -2,14 +2,18 @@ import { MCPService, MCPHandler, MCPParams, MCPResult, MCPErrorCode } from './pr
 import { logger } from '../utils/logger';
 import { MCPError } from '../utils/errors';
 import mcpCatalog from '../../config/mcp-catalog.json';
+import { config } from '../../config/environment';
+import axios from 'axios';
 
 export class MCPRegistry {
   private services: Map<string, MCPService>;
   private handlers: Map<string, MCPHandler>;
+  private orchestratorUrl: string;
 
   constructor() {
     this.services = new Map();
     this.handlers = new Map();
+    this.orchestratorUrl = config.ORCHESTRATOR_URL || 'http://localhost:9403';
   }
 
   /**
@@ -67,9 +71,74 @@ export class MCPRegistry {
   }
 
   /**
+   * Check if agent has permission to use a service
+   */
+  private async checkPermission(serviceName: string, agentId?: string): Promise<boolean> {
+    // If no agent ID provided, allow (localhost/testing)
+    if (!agentId) {
+      logger.debug(`No agent ID provided, allowing ${serviceName} access`);
+      return true;
+    }
+
+    // Check if service is always active (e.g., mem0)
+    const catalogService = mcpCatalog.services[serviceName as keyof typeof mcpCatalog.services];
+    if (catalogService?.alwaysActive) {
+      logger.debug(`Service ${serviceName} is alwaysActive, allowing access for agent ${agentId}`);
+      return true;
+    }
+
+    // Query orchestrator for agent permissions
+    try {
+      const response = await axios.get(
+        `${this.orchestratorUrl}/api/agent/${agentId}/mcp-permissions`,
+        { timeout: 3000 }
+      );
+
+      const allowedMCPs = response.data.allowed_mcps || [];
+      const hasPermission = allowedMCPs.includes(serviceName);
+
+      logger.debug(`Permission check for agent ${agentId} on ${serviceName}: ${hasPermission}`, {
+        allowedMCPs,
+      });
+
+      return hasPermission;
+    } catch (error) {
+      logger.error(`Failed to check permissions for agent ${agentId}`, { error });
+      // On error, deny access for safety
+      return false;
+    }
+  }
+
+  /**
+   * Request permission from orchestrator
+   */
+  private async requestPermission(serviceName: string, agentId: string, reason: string): Promise<void> {
+    try {
+      await axios.post(
+        `${this.orchestratorUrl}/api/mcp/permission-request`,
+        {
+          agent_id: agentId,
+          service_name: serviceName,
+          reason,
+          timestamp: new Date().toISOString(),
+        },
+        { timeout: 3000 }
+      );
+
+      logger.info(`Permission request sent to orchestrator`, {
+        agentId,
+        serviceName,
+        reason,
+      });
+    } catch (error) {
+      logger.error(`Failed to send permission request`, { error, agentId, serviceName });
+    }
+  }
+
+  /**
    * Execute a command on a service
    */
-  public async execute(params: MCPParams): Promise<MCPResult> {
+  public async execute(params: MCPParams, agentId?: string): Promise<MCPResult> {
     const service = this.services.get(params.service);
 
     if (!service) {
@@ -88,6 +157,26 @@ export class MCPRegistry {
           service: params.service,
           status: service.status,
           details: service.errorMessage
+        }
+      );
+    }
+
+    // Check permissions
+    const hasPermission = await this.checkPermission(params.service, agentId);
+
+    if (!hasPermission) {
+      // Send permission request to orchestrator
+      const reason = `Agent ${agentId} attempted to use ${params.service} for operation: ${params.operation}`;
+      await this.requestPermission(params.service, agentId!, reason);
+
+      // Return permission denied error
+      throw new MCPError(
+        `Permission denied: Agent does not have access to service '${params.service}'. A permission request has been sent to the orchestrator.`,
+        MCPErrorCode.PERMISSION_DENIED,
+        {
+          service: params.service,
+          agentId,
+          message: 'The orchestrator has been notified of this request. You can ask them to grant you access.',
         }
       );
     }

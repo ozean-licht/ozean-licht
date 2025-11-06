@@ -587,6 +587,176 @@ async def list_agents_endpoint():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ============================================================================
+# MCP Permission Management Endpoints
+# ============================================================================
+
+class MCPPermissionRequest(BaseModel):
+    agent_id: str
+    service_name: str
+    reason: str
+    timestamp: str
+
+class MCPPermissionResponse(BaseModel):
+    request_id: str
+    approved: bool
+    reason: Optional[str] = None
+
+# In-memory storage for pending permission requests
+# TODO: Move to database for persistence
+pending_permission_requests: Dict[str, MCPPermissionRequest] = {}
+
+@app.get("/api/agent/{agent_id}/mcp-permissions")
+async def get_agent_mcp_permissions(agent_id: str):
+    """
+    Get the list of MCPs an agent is allowed to use.
+    Called by MCP Gateway to check permissions.
+    """
+    try:
+        logger.http_request("GET", f"/api/agent/{agent_id}/mcp-permissions")
+
+        # Parse agent_id as UUID
+        agent_uuid = uuid.UUID(agent_id)
+
+        # Get agent from database
+        agent = await database.get_agent(agent_uuid)
+
+        if not agent:
+            raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+
+        # Extract allowed_mcps from metadata
+        allowed_mcps = agent.metadata.get("allowed_mcps", []) if agent.metadata else []
+
+        logger.http_request("GET", f"/api/agent/{agent_id}/mcp-permissions", 200)
+        return {
+            "status": "success",
+            "agent_id": agent_id,
+            "agent_name": agent.name,
+            "allowed_mcps": allowed_mcps,
+        }
+
+    except ValueError as e:
+        logger.error(f"Invalid agent ID format: {agent_id}")
+        raise HTTPException(status_code=400, detail="Invalid agent ID format")
+    except Exception as e:
+        logger.error(f"Failed to get agent MCP permissions: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/mcp/permission-request")
+async def create_permission_request(request: MCPPermissionRequest):
+    """
+    Receive permission request from MCP Gateway when agent tries to use unauthorized MCP.
+    Stores request and broadcasts to frontend for human approval.
+    """
+    try:
+        logger.http_request("POST", "/api/mcp/permission-request")
+        logger.info(f"MCP permission request received: agent={request.agent_id}, service={request.service_name}")
+
+        # Generate unique request ID
+        request_id = f"perm_req_{int(time.time())}_{request.agent_id[:8]}"
+
+        # Store request
+        pending_permission_requests[request_id] = request
+
+        # Get agent info for better context
+        agent_uuid = uuid.UUID(request.agent_id)
+        agent = await database.get_agent(agent_uuid)
+        agent_name = agent.name if agent else "Unknown Agent"
+
+        # Broadcast to WebSocket for frontend notification
+        await ws_manager.broadcast({
+            "type": "mcp_permission_request",
+            "request_id": request_id,
+            "agent_id": request.agent_id,
+            "agent_name": agent_name,
+            "service_name": request.service_name,
+            "reason": request.reason,
+            "timestamp": request.timestamp,
+        })
+
+        logger.success(f"Permission request created and broadcasted: {request_id}")
+        logger.http_request("POST", "/api/mcp/permission-request", 200)
+
+        return {
+            "status": "success",
+            "request_id": request_id,
+            "message": "Permission request received and pending approval",
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to create permission request: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/mcp/permission-respond")
+async def respond_to_permission_request(response: MCPPermissionResponse):
+    """
+    Approve or deny a permission request.
+    Called from frontend when human makes decision.
+    """
+    try:
+        logger.http_request("POST", "/api/mcp/permission-respond")
+        logger.info(f"MCP permission response: request_id={response.request_id}, approved={response.approved}")
+
+        # Get the original request
+        request = pending_permission_requests.get(response.request_id)
+
+        if not request:
+            raise HTTPException(status_code=404, detail=f"Permission request {response.request_id} not found")
+
+        # If approved, update agent's metadata
+        if response.approved:
+            agent_uuid = uuid.UUID(request.agent_id)
+            agent = await database.get_agent(agent_uuid)
+
+            if agent:
+                # Get current allowed MCPs
+                metadata = agent.metadata or {}
+                allowed_mcps = metadata.get("allowed_mcps", [])
+
+                # Add new service if not already present
+                if request.service_name not in allowed_mcps:
+                    allowed_mcps.append(request.service_name)
+                    metadata["allowed_mcps"] = allowed_mcps
+
+                    # Update agent metadata in database
+                    await database.update_agent_metadata(agent_uuid, metadata)
+
+                    logger.success(f"Agent {agent.name} granted access to {request.service_name}")
+
+        # Broadcast response to frontend
+        await ws_manager.broadcast({
+            "type": "mcp_permission_response",
+            "request_id": response.request_id,
+            "agent_id": request.agent_id,
+            "service_name": request.service_name,
+            "approved": response.approved,
+            "reason": response.reason,
+            "timestamp": time.time(),
+        })
+
+        # Remove from pending
+        del pending_permission_requests[response.request_id]
+
+        logger.http_request("POST", "/api/mcp/permission-respond", 200)
+
+        return {
+            "status": "success",
+            "request_id": response.request_id,
+            "approved": response.approved,
+            "message": f"Permission {'granted' if response.approved else 'denied'}",
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to respond to permission request: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# WebSocket Endpoint
+# ============================================================================
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     """WebSocket endpoint for real-time updates and chat messages"""
