@@ -190,6 +190,28 @@ class SubagentRegistry:
             - Info for each successfully loaded template
             - Summary of discovery results including conflicts
         """
+        import os
+
+        # Check if hierarchical loading is enabled (default: disabled for stability)
+        enable_hierarchical = os.environ.get("ENABLE_HIERARCHICAL_LOADING", "false").lower() == "true"
+
+        if not enable_hierarchical:
+            # Fall back to original single-directory loading for stability
+            self.logger.info("Hierarchical loading disabled, using app-specific templates only")
+            app_templates = {}
+            if self.app_templates_dir.exists():
+                app_templates = self._load_templates_from_dir(self.app_templates_dir, "app")
+                self.logger.info(f"Loaded {len(app_templates)} app-specific agent templates")
+                if app_templates:
+                    names = ', '.join(sorted(app_templates.keys()))
+                    self.logger.info(f"✅ Template names: {names}")
+            else:
+                self.logger.warning(f"⚠️  App templates directory not found: {self.app_templates_dir}")
+            return app_templates
+
+        # Hierarchical loading (when enabled)
+        self.logger.info("Hierarchical loading enabled")
+
         # 1. Load root templates
         root_templates = {}
         try:

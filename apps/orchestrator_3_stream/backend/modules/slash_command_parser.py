@@ -280,6 +280,25 @@ def discover_slash_commands(working_dir: str) -> List[dict]:
             "source": "global"
         }
     """
+    import os
+
+    # Check if hierarchical loading is enabled (default: disabled for stability)
+    enable_hierarchical = os.environ.get("ENABLE_HIERARCHICAL_LOADING", "false").lower() == "true"
+
+    if not enable_hierarchical:
+        # Fall back to original single-directory loading for stability
+        logger.info("Hierarchical loading disabled, using app-specific commands only")
+        app_commands_dir = Path(working_dir) / ".claude" / "commands"
+        if app_commands_dir.exists():
+            app_commands = _load_commands_from_dir(app_commands_dir, "app")
+            logger.info(f"Loaded {len(app_commands)} app-specific commands from {app_commands_dir}")
+            return sorted(app_commands, key=lambda x: x["name"])
+        else:
+            logger.warning(f"App commands directory not found: {app_commands_dir}")
+            return []
+
+    # Hierarchical loading (when enabled)
+    logger.info("Hierarchical loading enabled")
 
     # 1. Load root commands from /opt/ozean-licht-ecosystem/.claude/commands/
     root_commands = []
