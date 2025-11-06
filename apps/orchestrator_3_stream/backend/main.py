@@ -12,6 +12,7 @@ import uuid
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from pathlib import Path
@@ -791,6 +792,17 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as e:
         logger.error(f"WebSocket error: {e}")
         ws_manager.disconnect(websocket)
+
+
+# ============================================================================
+# SERVE FRONTEND STATIC FILES (must be last to not interfere with API routes)
+# ============================================================================
+frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
+if frontend_dist.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="frontend")
+    logger.info(f"✅ Serving frontend static files from {frontend_dist}")
+else:
+    logger.warning(f"⚠️  Frontend dist directory not found at {frontend_dist}")
 
 
 if __name__ == "__main__":

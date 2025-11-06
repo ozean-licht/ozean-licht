@@ -9,7 +9,6 @@ services:
     restart: unless-stopped
     ports:
       - "9403:9403"
-      - "5175:5175"
     environment:
       # Database
       - DATABASE_URL=${DATABASE_URL}
@@ -25,9 +24,8 @@ services:
       - ORCHESTRATOR_WORKING_DIR=/app
       - DEFAULT_WORKING_DIR=/app
 
-      # Frontend Config
-      - FRONTEND_PORT=5175
-      - VITE_API_BASE_URL=https://dev.ozean-licht.dev/api
+      # Frontend Config (served by FastAPI on same port)
+      - VITE_API_BASE_URL=https://dev.ozean-licht.dev
       - VITE_WS_URL=wss://dev.ozean-licht.dev/ws
 
       # CORS

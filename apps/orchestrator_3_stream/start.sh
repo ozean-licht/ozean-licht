@@ -8,7 +8,7 @@ echo "=================================="
 cleanup() {
     echo ""
     echo "🛑 Shutting down Orchestrator..."
-    kill $BACKEND_PID $FRONTEND_PID 2>/dev/null || true
+    kill $BACKEND_PID 2>/dev/null || true
     exit 0
 }
 
@@ -61,43 +61,23 @@ if ! kill -0 $BACKEND_PID 2>/dev/null; then
     exit 1
 fi
 
-# Start frontend (serve static files)
-echo "🎨 Starting frontend on port 5175..."
-cd /app/frontend/dist
-
-# Use Python's http.server to serve static files
-python3 -m http.server 5175 &
-FRONTEND_PID=$!
-echo "   Frontend PID: $FRONTEND_PID"
-
-# Wait a bit for frontend to start
-sleep 2
-if ! kill -0 $FRONTEND_PID 2>/dev/null; then
-    echo "❌ Frontend failed to start"
-    kill $BACKEND_PID 2>/dev/null || true
-    exit 1
-fi
-
 echo ""
 echo "✅ Orchestrator started successfully!"
 echo "=================================="
-echo "   🔧 Backend:  http://localhost:9403"
-echo "   🎨 Frontend: http://localhost:5175"
-echo "   💬 WebSocket: ws://localhost:9403/ws"
-echo "   💚 Health:    http://localhost:9403/health"
+echo "   🌐 Application: http://localhost:9403"
+echo "   💬 WebSocket:    ws://localhost:9403/ws"
+echo "   💚 Health:       http://localhost:9403/health"
+echo "   📊 API Docs:     http://localhost:9403/docs"
 echo "=================================="
+echo ""
+echo "   Frontend static files served by FastAPI at /"
+echo "   API endpoints available at /health, /send_chat, /ws, etc."
+echo ""
 
-# Keep container running and monitor processes
+# Keep container running and monitor backend process
 while true; do
     if ! kill -0 $BACKEND_PID 2>/dev/null; then
         echo "❌ Backend process died"
-        kill $FRONTEND_PID 2>/dev/null || true
-        exit 1
-    fi
-
-    if ! kill -0 $FRONTEND_PID 2>/dev/null; then
-        echo "❌ Frontend process died"
-        kill $BACKEND_PID 2>/dev/null || true
         exit 1
     fi
 
