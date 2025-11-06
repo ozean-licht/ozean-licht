@@ -5,11 +5,11 @@ FROM node:18-alpine AS frontend-build
 WORKDIR /app/frontend
 
 # Copy package files
-COPY frontend/package*.json ./
+COPY apps/orchestrator_3_stream/frontend/package*.json ./
 RUN npm ci --only=production
 
 # Copy frontend source
-COPY frontend/ ./
+COPY apps/orchestrator_3_stream/frontend/ ./
 
 # Build frontend
 RUN npm run build
@@ -31,20 +31,20 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:$PATH"
 
 # Copy backend files
-COPY backend/pyproject.toml backend/uv.lock ./backend/
+COPY apps/orchestrator_3_stream/backend/pyproject.toml apps/orchestrator_3_stream/backend/uv.lock ./backend/
 WORKDIR /app/backend
 
 # Install Python dependencies
 RUN uv sync --frozen
 
 # Copy rest of backend
-COPY backend/ ./
+COPY apps/orchestrator_3_stream/backend/ ./
 
 # Copy built frontend
 COPY --from=frontend-build /app/frontend/dist /app/frontend/dist
 
 # Copy database migrations
-COPY ../orchestrator_db /app/orchestrator_db
+COPY apps/orchestrator_db /app/orchestrator_db
 
 # Create necessary directories
 RUN mkdir -p /app/backend/logs /app/data
@@ -57,7 +57,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:9403/health || exit 1
 
 # Copy and set start script
-COPY start.sh /app/start.sh
+COPY apps/orchestrator_3_stream/start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
 # Set working directory

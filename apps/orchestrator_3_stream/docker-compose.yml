@@ -3,8 +3,8 @@ version: '3.8'
 services:
   orchestrator:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: apps/orchestrator_3_stream/Dockerfile
     container_name: orchestrator_3_stream
     restart: unless-stopped
     ports:
