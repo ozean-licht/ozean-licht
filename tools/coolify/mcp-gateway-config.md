@@ -55,7 +55,8 @@ N8N_API_URL=http://n8n-wgg0gsko808w4ow040gkgs0o:5678
 N8N_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODI2ZGFmMS1lNzdjLTQ5ZmQtYmJmYi1lZjYwNGNlOGFjNWMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzYxMTQzMzQwLCJleHAiOjE3Njg4NjM2MDB9.YgHly7agiQKKWkcR-cL30LQvTa0VOqhCHY-YRcKajuc
 
 # Coolify API (NEW - for Coolify MCP handler)
-COOLIFY_API_URL=http://coolify.ozean-licht.dev:8000/api/v1
+# NOTE: Do NOT include /api/v1 - the handler adds it automatically
+COOLIFY_API_URL=http://coolify.ozean-licht.dev:8000
 COOLIFY_API_TOKEN=1|nN3hZvkfX7IrsKWRpl86UzaNV7UDUrQ44kxrKqBs0664ab00
 
 # Orchestrator API (NEW - for permission checks)

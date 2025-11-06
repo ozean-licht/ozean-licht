@@ -54,7 +54,8 @@ services:
       PRESIGNED_URL_EXPIRY_SECONDS: ${PRESIGNED_URL_EXPIRY_SECONDS:-300}
 
       # Coolify API (for MCP handler)
-      COOLIFY_API_URL: ${COOLIFY_API_URL:-http://coolify.ozean-licht.dev:8000/api/v1}
+      # NOTE: Do NOT include /api/v1 suffix - handler adds it automatically
+      COOLIFY_API_URL: ${COOLIFY_API_URL:-http://coolify.ozean-licht.dev:8000}
       COOLIFY_API_TOKEN: ${COOLIFY_API_TOKEN}
 
       # Orchestrator API (for permission checks)
