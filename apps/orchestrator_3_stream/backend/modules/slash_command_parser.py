@@ -192,36 +192,24 @@ def parse_slash_command_file(file_content: str) -> Optional[SlashCommandFrontmat
     return parse_slash_command_frontmatter(frontmatter_text)
 
 
-def discover_slash_commands(working_dir: str) -> List[dict]:
+def _load_commands_from_dir(commands_dir, source: str = "unknown") -> List[dict]:
     """
-    Discover slash commands from .claude/commands/ directory.
-
-    Uses the proper slash command parser to extract frontmatter metadata
-    including name, description, arguments, and model.
+    Helper function to load commands from a specific directory.
 
     Args:
-        working_dir: Working directory containing .claude/commands/
+        commands_dir: Path to .claude/commands/ directory
+        source: Source of the commands ("global" or "app")
 
     Returns:
-        List of dicts with name, description, arguments, model
-
-    Example:
-        >>> commands = discover_slash_commands("/path/to/project")
-        >>> commands[0]
-        {
-            "name": "my-command",
-            "description": "Does something cool",
-            "arguments": "[arg1] [arg2]",
-            "model": "sonnet"
-        }
+        List of command dicts with source metadata
     """
     from pathlib import Path
     import logging
 
     logger = logging.getLogger(__name__)
     commands = []
-    commands_dir = Path(working_dir) / ".claude" / "commands"
 
+    commands_dir = Path(commands_dir)
     if not commands_dir.exists():
         return commands
 
@@ -241,6 +229,7 @@ def discover_slash_commands(working_dir: str) -> List[dict]:
                         "allowed_tools": frontmatter.allowed_tools or [],
                         "disable_model_invocation": frontmatter.disable_model_invocation
                         or False,
+                        "source": source,  # Add source metadata
                     }
                 )
             else:
@@ -252,16 +241,80 @@ def discover_slash_commands(working_dir: str) -> List[dict]:
                         "model": "",
                         "allowed_tools": [],
                         "disable_model_invocation": False,
+                        "source": source,  # Add source metadata
                     }
                 )
         except Exception as e:
             logger.error(
-                f"Failed to parse slash command file {file_path.name}: {e}",
+                f"Failed to parse slash command file {file_path.name} from {source}: {e}",
                 exc_info=True
             )
-            raise
+            # Don't raise, continue loading other commands
 
-    # Sort by name
+    return commands
+
+
+def discover_slash_commands(working_dir: str) -> List[dict]:
+    """
+    Discover slash commands from both root and app-specific .claude/commands/ directories.
+
+    Implements hierarchical loading with precedence:
+    1. Load commands from root repository (/opt/ozean-licht-ecosystem/.claude/commands/)
+    2. Load commands from app-specific directory (working_dir/.claude/commands/)
+    3. App-specific commands override root commands with the same name
+
+    Args:
+        working_dir: Working directory containing app-specific .claude/commands/
+
+    Returns:
+        List of dicts with name, description, arguments, model, and source metadata
+
+    Example:
+        >>> commands = discover_slash_commands("/opt/ozean-licht-ecosystem/apps/orchestrator_3_stream")
+        >>> commands[0]
+        {
+            "name": "my-command",
+            "description": "Does something cool",
+            "arguments": "[arg1] [arg2]",
+            "model": "sonnet",
+            "source": "global"
+        }
+    """
+    from pathlib import Path
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    # 1. Load root commands from /opt/ozean-licht-ecosystem/.claude/commands/
+    root_commands_dir = Path("/opt/ozean-licht-ecosystem/.claude/commands")
+    root_commands = _load_commands_from_dir(root_commands_dir, "global")
+
+    logger.info(f"Loaded {len(root_commands)} root commands from {root_commands_dir}")
+
+    # 2. Load app-specific commands from working_dir/.claude/commands/
+    app_commands_dir = Path(working_dir) / ".claude" / "commands"
+    app_commands = _load_commands_from_dir(app_commands_dir, "app")
+
+    logger.info(f"Loaded {len(app_commands)} app-specific commands from {app_commands_dir}")
+
+    # 3. Merge with precedence: app-specific overrides root
+    merged = {cmd['name']: cmd for cmd in root_commands}
+
+    # Track conflicts for logging
+    conflicts = []
+    for cmd in app_commands:
+        if cmd['name'] in merged:
+            conflicts.append(cmd['name'])
+        merged[cmd['name']] = cmd
+
+    if conflicts:
+        logger.info(f"App-specific commands overriding root commands: {', '.join(conflicts)}")
+
+    commands = list(merged.values())
+
+    # Sort by name for consistent ordering
     commands.sort(key=lambda x: x["name"])
+
+    logger.info(f"Total commands available: {len(commands)} ({len(root_commands)} global + {len(app_commands)} app - {len(conflicts)} duplicates)")
 
     return commands

@@ -57,10 +57,12 @@ class SubagentTemplate(BaseModel):
         frontmatter: Parsed YAML frontmatter configuration
         prompt_body: System prompt text (everything after frontmatter)
         file_path: Path to the source template file
+        source: Source of the template ("global" or "app")
     """
     frontmatter: SubagentFrontmatter = Field(..., description="Template configuration")
     prompt_body: str = Field(..., description="Agent system prompt text")
     file_path: Path = Field(..., description="Source template file path")
+    source: Optional[str] = Field(default="unknown", description="Template source: 'global' or 'app'")
 
     @field_validator('prompt_body')
     @classmethod

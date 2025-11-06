@@ -1,0 +1,10 @@
+# Placeholder for global agent templates
+
+This directory is for global agent templates that should be available to all apps in the ecosystem.
+Currently empty but prepared for future use.
+
+Agent templates placed here will be available to:
+- Orchestrator_3_stream
+- All other apps that implement hierarchical agent loading
+
+Templates in app-specific directories will override global templates with the same name.

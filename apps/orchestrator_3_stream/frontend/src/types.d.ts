@@ -46,6 +46,7 @@ export interface SlashCommand {
   description: string
   arguments?: string
   model?: string
+  source?: 'global' | 'app'  // Source of the command (hierarchical loading)
 }
 
 // Subagent Template
@@ -61,6 +62,7 @@ export interface SubagentTemplate {
   frontmatter: SubagentFrontmatter
   prompt_body: string
   file_path: string
+  source?: 'global' | 'app'  // Source of the template (hierarchical loading)
 }
 
 // API Response for /get_orchestrator

@@ -99,8 +99,8 @@ class SubagentRegistry:
     """
     Registry for discovering and caching subagent templates.
 
-    Scans .claude/agents/ directory for template files, parses them,
-    and provides lookup by name.
+    Implements hierarchical loading from both root and app-specific
+    .claude/agents/ directories with clear precedence rules.
     """
 
     def __init__(self, working_dir: str | Path, logger: OrchestratorLogger):
@@ -113,71 +113,115 @@ class SubagentRegistry:
         """
         self.working_dir = Path(working_dir)
         self.logger = logger
-        self.templates_dir = self.working_dir / ".claude" / "agents"
+
+        # Define both root and app template directories
+        self.root_templates_dir = Path("/opt/ozean-licht-ecosystem/.claude/agents")
+        self.app_templates_dir = self.working_dir / ".claude" / "agents"
+
         self._templates: Dict[str, SubagentTemplate] = {}
 
         self.logger.info(f"Initializing SubagentRegistry with working_dir: {self.working_dir}")
-        self.logger.info(f"Templates directory: {self.templates_dir}")
+        self.logger.info(f"Root templates directory: {self.root_templates_dir}")
+        self.logger.info(f"App templates directory: {self.app_templates_dir}")
 
         # Discover templates immediately
         self._templates = self.discover_templates()
 
-    def discover_templates(self) -> Dict[str, SubagentTemplate]:
+    def _load_templates_from_dir(self, templates_dir: Path, source: str) -> Dict[str, SubagentTemplate]:
         """
-        Discover and parse all template files in .claude/agents/.
+        Helper function to load templates from a specific directory.
+
+        Args:
+            templates_dir: Path to .claude/agents/ directory
+            source: Source of the templates ("global" or "app")
 
         Returns:
             Dictionary mapping template name to SubagentTemplate
-
-        Logs:
-            - Warnings if directory doesn't exist or no templates found
-            - Info for each successfully loaded template
-            - Summary of discovery results
         """
         templates: Dict[str, SubagentTemplate] = {}
 
         # Check if directory exists
-        if not self.templates_dir.exists():
-            self.logger.warning(f"⚠️  Subagent templates directory not found: {self.templates_dir}")
-            self.logger.warning("💡 Create .claude/agents/ directory and add *.md template files to enable specialized agents")
-            self.logger.info(f"Run: mkdir -p {self.templates_dir}")
+        if not templates_dir.exists():
+            self.logger.debug(f"Templates directory not found: {templates_dir} (source: {source})")
             return templates
 
-        self.logger.info(f"Scanning for templates in {self.templates_dir}")
+        self.logger.info(f"Scanning for templates in {templates_dir} (source: {source})")
 
         # Find all .md files
-        template_files = list(self.templates_dir.glob("*.md"))
+        template_files = list(templates_dir.glob("*.md"))
 
         if not template_files:
-            self.logger.warning(f"⚠️  No .md files found in {self.templates_dir}")
+            self.logger.debug(f"No .md files found in {templates_dir} (source: {source})")
             return templates
 
         # Parse each template file
         valid_count = 0
         for file_path in template_files:
-            self.logger.debug(f"Parsing template file: {file_path.name}")
+            self.logger.debug(f"Parsing template file: {file_path.name} (source: {source})")
 
             template = parse_subagent_file(file_path, self.logger)
 
             if template:
+                # Add source metadata to the template
+                template.source = source
                 templates[template.frontmatter.name] = template
                 valid_count += 1
                 tool_count = len(template.frontmatter.tools)
                 model = template.frontmatter.model or "default"
-                self.logger.info(f"✓ Loaded template: {template.frontmatter.name} (tools: {tool_count}, model: {model})")
+                self.logger.info(f"✓ Loaded {source} template: {template.frontmatter.name} (tools: {tool_count}, model: {model})")
             else:
-                self.logger.warning(f"✗ Skipping invalid template {file_path.name}")
-
-        # Summary
-        if templates:
-            names = ', '.join(sorted(templates.keys()))
-            self.logger.info(f"✅ Discovered {len(templates)} subagent template(s): {names}")
-        else:
-            if template_files:
-                self.logger.error(f"❌ Found {len(template_files)} files but no valid templates")
-            self.logger.warning(f"⚠️  No valid templates found in {self.templates_dir}")
+                self.logger.warning(f"✗ Skipping invalid template {file_path.name} (source: {source})")
 
         return templates
+
+    def discover_templates(self) -> Dict[str, SubagentTemplate]:
+        """
+        Discover and parse template files from both root and app-specific directories.
+
+        Implements hierarchical loading with precedence:
+        1. Load templates from root repository (/opt/ozean-licht-ecosystem/.claude/agents/)
+        2. Load templates from app-specific directory (working_dir/.claude/agents/)
+        3. App-specific templates override root templates with the same name
+
+        Returns:
+            Dictionary mapping template name to SubagentTemplate
+
+        Logs:
+            - Info for each successfully loaded template
+            - Summary of discovery results including conflicts
+        """
+        # 1. Load root templates
+        root_templates = self._load_templates_from_dir(self.root_templates_dir, "global")
+        self.logger.info(f"Loaded {len(root_templates)} root agent templates")
+
+        # 2. Load app-specific templates
+        app_templates = self._load_templates_from_dir(self.app_templates_dir, "app")
+        self.logger.info(f"Loaded {len(app_templates)} app-specific agent templates")
+
+        # 3. Merge with precedence: app-specific overrides root
+        merged = dict(root_templates)  # Start with root templates
+
+        # Track conflicts for logging
+        conflicts = []
+        for name, template in app_templates.items():
+            if name in merged:
+                conflicts.append(name)
+                self.logger.info(f"App template '{name}' overriding global template")
+            merged[name] = template
+
+        if conflicts:
+            self.logger.info(f"App-specific templates overriding root templates: {', '.join(conflicts)}")
+
+        # Summary
+        if merged:
+            names = ', '.join(sorted(merged.keys()))
+            self.logger.info(f"✅ Total templates available: {len(merged)} ({len(root_templates)} global + {len(app_templates)} app - {len(conflicts)} duplicates)")
+            self.logger.info(f"✅ Template names: {names}")
+        else:
+            self.logger.warning(f"⚠️  No valid templates found in either directory")
+            self.logger.warning("💡 Create .claude/agents/ directory and add *.md template files to enable specialized agents")
+
+        return merged
 
     def get_template(self, name: str) -> Optional[SubagentTemplate]:
         """
