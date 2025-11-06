@@ -50,6 +50,7 @@ services:
 
     networks:
       - orchestrator-network
+      - coolify
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9403/health"]
@@ -61,6 +62,9 @@ services:
 networks:
   orchestrator-network:
     driver: bridge
+  coolify:
+    external: true
+    name: coolify
 
 volumes:
   orchestrator-data:
