@@ -8,6 +8,9 @@ export function useKeyboardShortcuts() {
     // Check for cmd+k (Mac) or ctrl+k (Windows/Linux)
     const isModifierPressed = event.metaKey || event.ctrlKey
 
+    // Removed Ctrl+R / Cmd+R shortcut to avoid conflict with browser refresh
+    // Users can use the REFRESH button in the header instead
+
     if (isModifierPressed && event.key === 'k') {
       // Prevent default browser behavior (usually focuses search bar)
       event.preventDefault()

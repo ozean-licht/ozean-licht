@@ -67,6 +67,9 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
   const isConnected = ref(false)
   let wsConnection: WebSocket | null = null
 
+  // Context Refresh
+  const isRefreshing = ref(false)
+
   // ═══════════════════════════════════════════════════════════
   // GETTERS
   // ═══════════════════════════════════════════════════════════
@@ -934,6 +937,42 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
     console.log('Orchestrator store initialized')
   }
 
+  /**
+   * Refresh Context
+   *
+   * Re-initializes the entire orchestrator state by:
+   * 1. Disconnecting WebSocket
+   * 2. Re-fetching all data from backend
+   * 3. Reconnecting WebSocket
+   */
+  async function refreshContext(): Promise<void> {
+    if (isRefreshing.value) {
+      console.warn('Refresh already in progress')
+      return
+    }
+
+    try {
+      isRefreshing.value = true
+      console.log('🔄 Refreshing orchestrator context...')
+
+      // Disconnect WebSocket
+      disconnectWebSocket()
+
+      // Re-initialize store (fetches fresh data from backend)
+      await initialize()
+
+      console.log('✅ Context refresh complete')
+
+      // Optional: Show success notification in UI
+      // TODO: Add toast notification component
+    } catch (error) {
+      console.error('❌ Context refresh failed:', error)
+      // TODO: Show error notification
+    } finally {
+      isRefreshing.value = false
+    }
+  }
+
   // ═══════════════════════════════════════════════════════════
   // RETURN PUBLIC API
   // ═══════════════════════════════════════════════════════════
@@ -953,6 +992,7 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
     isTyping,
     isConnected,
     commandInputVisible,
+    isRefreshing,
 
     // Getters
     activeAgents,
@@ -988,6 +1028,7 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
     disconnectWebSocket,
     handleWebSocketMessage,
     initialize,
+    refreshContext,
 
     // Event stream actions
     fetchEventHistory,
