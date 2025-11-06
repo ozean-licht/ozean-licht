@@ -36,9 +36,9 @@ fi
 
 # Run database migrations
 echo "📊 Running database migrations..."
-cd /app
+cd /app/backend
 export PYTHONPATH="/app:$PYTHONPATH"
-uv run python /app/orchestrator_db/run_migrations.py
+uv run --no-project python /app/orchestrator_db/run_migrations.py
 
 if [ $? -ne 0 ]; then
     echo "❌ Database migrations failed"
