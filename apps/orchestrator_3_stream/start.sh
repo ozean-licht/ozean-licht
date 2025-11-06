@@ -36,6 +36,10 @@ fi
 
 # Run database migrations
 echo "📊 Running database migrations..."
+
+# Create empty .env file if it doesn't exist (migration script checks for it)
+touch /.env
+
 cd /app/backend
 export PYTHONPATH="/app:$PYTHONPATH"
 uv run --no-project python /app/orchestrator_db/run_migrations.py
