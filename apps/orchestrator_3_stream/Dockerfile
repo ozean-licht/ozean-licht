@@ -6,7 +6,7 @@ WORKDIR /app/frontend
 
 # Copy package files
 COPY apps/orchestrator_3_stream/frontend/package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy frontend source
 COPY apps/orchestrator_3_stream/frontend/ ./
