@@ -191,12 +191,28 @@ class SubagentRegistry:
             - Summary of discovery results including conflicts
         """
         # 1. Load root templates
-        root_templates = self._load_templates_from_dir(self.root_templates_dir, "global")
-        self.logger.info(f"Loaded {len(root_templates)} root agent templates")
+        root_templates = {}
+        try:
+            if self.root_templates_dir.exists():
+                root_templates = self._load_templates_from_dir(self.root_templates_dir, "global")
+                self.logger.info(f"Loaded {len(root_templates)} root agent templates")
+            else:
+                self.logger.debug(f"Root templates directory not found: {self.root_templates_dir}")
+        except Exception as e:
+            self.logger.warning(f"Failed to load root templates: {e}")
+            # Continue without root templates
 
         # 2. Load app-specific templates
-        app_templates = self._load_templates_from_dir(self.app_templates_dir, "app")
-        self.logger.info(f"Loaded {len(app_templates)} app-specific agent templates")
+        app_templates = {}
+        try:
+            if self.app_templates_dir.exists():
+                app_templates = self._load_templates_from_dir(self.app_templates_dir, "app")
+                self.logger.info(f"Loaded {len(app_templates)} app-specific agent templates")
+            else:
+                self.logger.debug(f"App templates directory not found: {self.app_templates_dir}")
+        except Exception as e:
+            self.logger.warning(f"Failed to load app templates: {e}")
+            # Continue without app templates
 
         # 3. Merge with precedence: app-specific overrides root
         merged = dict(root_templates)  # Start with root templates

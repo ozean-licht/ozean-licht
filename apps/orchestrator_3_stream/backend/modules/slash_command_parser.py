@@ -9,8 +9,13 @@ Reference: https://docs.anthropic.com/en/docs/claude-code/slash-commands
 
 import re
 import yaml
+import logging
+from pathlib import Path
 from typing import Optional, List
 from pydantic import BaseModel, Field
+
+# Module-level logger
+logger = logging.getLogger(__name__)
 
 
 class SlashCommandFrontmatter(BaseModel):
@@ -203,12 +208,7 @@ def _load_commands_from_dir(commands_dir, source: str = "unknown") -> List[dict]
     Returns:
         List of command dicts with source metadata
     """
-    from pathlib import Path
-    import logging
-
-    logger = logging.getLogger(__name__)
     commands = []
-
     commands_dir = Path(commands_dir)
     if not commands_dir.exists():
         return commands
@@ -280,22 +280,32 @@ def discover_slash_commands(working_dir: str) -> List[dict]:
             "source": "global"
         }
     """
-    from pathlib import Path
-    import logging
-
-    logger = logging.getLogger(__name__)
 
     # 1. Load root commands from /opt/ozean-licht-ecosystem/.claude/commands/
-    root_commands_dir = Path("/opt/ozean-licht-ecosystem/.claude/commands")
-    root_commands = _load_commands_from_dir(root_commands_dir, "global")
-
-    logger.info(f"Loaded {len(root_commands)} root commands from {root_commands_dir}")
+    root_commands = []
+    try:
+        root_commands_dir = Path("/opt/ozean-licht-ecosystem/.claude/commands")
+        if root_commands_dir.exists():
+            root_commands = _load_commands_from_dir(root_commands_dir, "global")
+            logger.info(f"Loaded {len(root_commands)} root commands from {root_commands_dir}")
+        else:
+            logger.debug(f"Root commands directory not found: {root_commands_dir}")
+    except Exception as e:
+        logger.warning(f"Failed to load root commands: {e}")
+        # Continue without root commands
 
     # 2. Load app-specific commands from working_dir/.claude/commands/
-    app_commands_dir = Path(working_dir) / ".claude" / "commands"
-    app_commands = _load_commands_from_dir(app_commands_dir, "app")
-
-    logger.info(f"Loaded {len(app_commands)} app-specific commands from {app_commands_dir}")
+    app_commands = []
+    try:
+        app_commands_dir = Path(working_dir) / ".claude" / "commands"
+        if app_commands_dir.exists():
+            app_commands = _load_commands_from_dir(app_commands_dir, "app")
+            logger.info(f"Loaded {len(app_commands)} app-specific commands from {app_commands_dir}")
+        else:
+            logger.debug(f"App commands directory not found: {app_commands_dir}")
+    except Exception as e:
+        logger.warning(f"Failed to load app commands: {e}")
+        # Continue without app commands
 
     # 3. Merge with precedence: app-specific overrides root
     merged = {cmd['name']: cmd for cmd in root_commands}
