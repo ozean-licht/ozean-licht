@@ -1,4 +1,4 @@
-import * as Minio from 'minio';
+import { Client as MinioClient } from 'minio';
 import { MCPHandler, MCPParams, MCPResult, MCPCapability } from '../protocol/types';
 import { ValidationError, TimeoutError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
@@ -53,7 +53,7 @@ interface StatParams {
 }
 
 export class MinIOHandler implements MCPHandler {
-  private client: Minio.Client;
+  private client: MinioClient;
   private readonly options: MinIOHandlerOptions;
   private readonly defaultExpiry = 300; // 5 minutes
   private readonly maxFileSize: number;
@@ -70,7 +70,7 @@ export class MinIOHandler implements MCPHandler {
       'application/x-zip-compressed',
     ]);
 
-    this.client = new Minio.Client({
+    this.client = new MinioClient({
       endPoint: options.endpoint || 'localhost',
       port: options.port || 9000,
       useSSL: options.useSSL || false,

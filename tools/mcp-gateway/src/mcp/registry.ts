@@ -82,7 +82,7 @@ export class MCPRegistry {
 
     // Check if service is always active (e.g., mem0)
     const catalogService = mcpCatalog.services[serviceName as keyof typeof mcpCatalog.services];
-    if (catalogService?.alwaysActive) {
+    if (catalogService && 'alwaysActive' in catalogService && (catalogService as any).alwaysActive) {
       logger.debug(`Service ${serviceName} is alwaysActive, allowing access for agent ${agentId}`);
       return true;
     }
