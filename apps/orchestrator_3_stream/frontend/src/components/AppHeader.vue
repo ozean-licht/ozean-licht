@@ -43,11 +43,11 @@
             :class="{ loading: store.isRefreshing }"
             :disabled="store.isRefreshing"
             @click="handleRefreshContext"
-            title="Refresh context and reload all data (Ctrl+R / Cmd+R)"
+            title="Refresh context and reload all data"
             aria-label="Refresh orchestrator context"
           >
             <span v-if="!store.isRefreshing">
-              ↻ REFRESH <span class="btn-hint">(Ctrl+R)</span>
+              ↻ REFRESH
             </span>
             <span v-else class="loading-spinner">⟳ REFRESHING...</span>
           </button>
