@@ -90,35 +90,46 @@ def discover_slash_commands(orchestrator_dir: str) -> List[dict]:
     Returns:
         List of command dicts with name, description, arguments, model
     """
-    commands = []
-    commands_dir = Path(orchestrator_dir) / ".claude" / "commands"
+    try:
+        commands = []
+        commands_dir = Path(orchestrator_dir) / ".claude" / "commands"
 
-    if not commands_dir.exists():
-        logger.warning(f"Commands directory not found: {commands_dir}")
+        logger.info(f"🔍 Attempting to load commands from: {commands_dir}")
+        logger.info(f"📂 Directory exists: {commands_dir.exists()}")
+        logger.info(f"📂 Is absolute: {commands_dir.is_absolute()}")
+
+        if not commands_dir.exists():
+            logger.error(f"❌ Commands directory not found: {commands_dir}")
+            logger.error(f"   Orchestrator dir: {orchestrator_dir}")
+            logger.error(f"   Resolved path: {commands_dir.resolve()}")
+            return []
+
+        logger.info(f"✅ Loading slash commands from: {commands_dir}")
+
+        # Scan all .md files
+        for file_path in sorted(commands_dir.glob("*.md")):
+            try:
+                content = file_path.read_text()
+                frontmatter = parse_slash_command_file(content)
+
+                command_dict = {
+                    "name": file_path.stem,
+                    "description": frontmatter.description if frontmatter else "",
+                    "arguments": frontmatter.argument_hint if frontmatter else "",
+                    "model": frontmatter.model if frontmatter else "",
+                    "allowed_tools": frontmatter.allowed_tools if frontmatter else [],
+                    "disable_model_invocation": frontmatter.disable_model_invocation if frontmatter else False,
+                    "source": "orchestrator",
+                }
+                commands.append(command_dict)
+
+            except Exception as e:
+                logger.error(f"Failed to parse command file {file_path.name}: {e}")
+                continue
+
+        logger.info(f"✅ Loaded {len(commands)} slash commands from {commands_dir}")
+        return commands
+
+    except Exception as e:
+        logger.error(f"❌ Error in discover_slash_commands: {e}", exc_info=True)
         return []
-
-    logger.info(f"Loading slash commands from: {commands_dir}")
-
-    # Scan all .md files
-    for file_path in sorted(commands_dir.glob("*.md")):
-        try:
-            content = file_path.read_text()
-            frontmatter = parse_slash_command_file(content)
-
-            command_dict = {
-                "name": file_path.stem,
-                "description": frontmatter.description if frontmatter else "",
-                "arguments": frontmatter.argument_hint if frontmatter else "",
-                "model": frontmatter.model if frontmatter else "",
-                "allowed_tools": frontmatter.allowed_tools if frontmatter else [],
-                "disable_model_invocation": frontmatter.disable_model_invocation if frontmatter else False,
-                "source": "orchestrator",
-            }
-            commands.append(command_dict)
-
-        except Exception as e:
-            logger.error(f"Failed to parse command file {file_path.name}: {e}")
-            continue
-
-    logger.info(f"Loaded {len(commands)} slash commands from {commands_dir}")
-    return commands

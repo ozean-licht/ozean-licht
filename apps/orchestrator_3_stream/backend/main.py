@@ -236,7 +236,9 @@ async def get_orchestrator_info():
         app.state.orchestrator = orchestrator
 
         # Discover slash commands from orchestrator's .claude/commands/ directory
+        logger.info(f"Discovering slash commands from PROJECT_ROOT: {config.PROJECT_ROOT}")
         slash_commands = discover_slash_commands(str(config.PROJECT_ROOT))
+        logger.info(f"Discovered {len(slash_commands)} slash commands")
 
         # Get agent templates from SubagentRegistry
         from modules.subagent_loader import SubagentRegistry
