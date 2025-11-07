@@ -776,25 +776,13 @@ class OrchestratorService:
                     # Continue anyway - the new message will be processed
 
         # ═══════════════════════════════════════════════════════════
-        # MODEL SELECTION - Choose optimal model for cost savings
+        # MODEL SELECTION - Always use Sonnet 4.5 for orchestrator
         # ═══════════════════════════════════════════════════════════
 
-        # Use ModelSelector for intelligent model tiering (PRIORITY 2: Save 50-60% costs)
-        if self.model_selector and TOKEN_MANAGEMENT_ENABLED:
-            selected_model = self.model_selector.select_model(user_message)
-            # Get usage stats for monitoring
-            stats = self.model_selector.get_usage_stats()
-            if stats["total_requests"] > 0:
-                self.logger.info(
-                    f"📊 Model Usage: Haiku {stats['haiku_percentage']:.1f}%, "
-                    f"Sonnet {stats['sonnet_percentage']:.1f}%, "
-                    f"Opus {stats['opus_percentage']:.1f}% | "
-                    f"Cost Reduction: {stats['cost_reduction_percentage']:.1f}%"
-                )
-        else:
-            # Fallback to simple selection if model selector not available
-            task_type, complexity = self.analyze_task_complexity(user_message)
-            selected_model = self.select_model_for_task(task_type, complexity)
+        # Always use configured orchestrator model (Sonnet 4.5)
+        # Model selection disabled per user request - orchestrator needs full capabilities
+        selected_model = config.ORCHESTRATOR_MODEL
+        self.logger.info(f"🎯 Using {selected_model} (orchestrator always uses Sonnet 4.5)")
 
         # ═══════════════════════════════════════════════════════════
         # PHASE 2: EXECUTION - Execute agent with streaming

@@ -21,10 +21,10 @@ class ModelSelector:
     - Opus: $15.00 input / $75.00 output (5x more expensive than Sonnet)
     """
 
-    # Model constants
-    MODEL_HAIKU = "claude-3-haiku-20240307"
-    MODEL_SONNET = "claude-3-5-sonnet-20241022"
-    MODEL_OPUS = "claude-3-5-opus-latest"
+    # Model constants - Updated to current Claude models
+    MODEL_HAIKU = "claude-haiku-4-5-20251001"
+    MODEL_SONNET = "claude-sonnet-4-5-20250929"
+    MODEL_OPUS = "claude-opus-4-20250514"
 
     def __init__(self, logger: Optional["OrchestratorLogger"] = None):
         """
