@@ -41,8 +41,11 @@ services:
     volumes:
       - orchestrator-data:/app/data
       - orchestrator-logs:/app/backend/logs
-      # Mount git repo for ADW (if on same server)
-      - /opt/ozean-licht-ecosystem:/opt/ozean-licht-ecosystem:ro
+      # Mount git repo for ADW with write permissions (removed :ro flag)
+      - /opt/ozean-licht-ecosystem:/opt/ozean-licht-ecosystem
+
+    # Run as adw-user (UID:GID 1000:1000) to match host user
+    user: "1000:1000"
 
     networks:
       - orchestrator-network

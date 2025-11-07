@@ -107,17 +107,30 @@ RUN npm run build
 
 # Stage 2: Backend
 FROM python:3.12-slim
+
+# Create adw-user with UID/GID 1000 to match host user
+RUN groupadd -g 1000 adw-user && \
+    useradd -u 1000 -g 1000 -m -s /bin/bash adw-user && \
+    usermod -aG sudo adw-user && \
+    echo "adw-user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
 WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
+    sudo \
+    lsof \
     && rm -rf /var/lib/apt/lists/*
 
-# Install UV
+# Install UV for adw-user
+USER adw-user
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.local/bin:$PATH"
+ENV PATH="/home/adw-user/.local/bin:$PATH"
+
+# Switch back to root for remaining setup
+USER root
 
 # Copy backend
 COPY backend/ ./backend/
@@ -129,6 +142,9 @@ RUN uv sync
 # Copy built frontend
 COPY --from=frontend-build /app/frontend/dist /app/frontend/dist
 
+# Set ownership
+RUN chown -R adw-user:adw-user /app
+
 # Expose ports
 EXPOSE 9403 5175
 
@@ -138,8 +154,14 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 
 # Start script
 COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
+RUN chmod +x /app/start.sh && chown adw-user:adw-user /app/start.sh
 
+# Configure git for adw-user
+USER adw-user
+RUN git config --global user.email "orchestrator@ozean-licht.dev" && \
+    git config --global user.name "Orchestrator Agent"
+
+USER adw-user
 CMD ["/app/start.sh"]
 ```
 
