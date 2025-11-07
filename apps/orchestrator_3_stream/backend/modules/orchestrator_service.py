@@ -239,7 +239,8 @@ class OrchestratorService:
             self.context_manager = ContextManager(
                 max_messages=aggressive_max_messages,
                 max_tokens=aggressive_max_tokens,
-                mode="token_priority"  # Prioritize token reduction over message count
+                mode="token_priority",  # Prioritize token reduction over message count
+                logger=self.logger
             )
             self.response_cache = ResponseCache(
                 max_size=RESPONSE_CACHE_MAX_SIZE,
@@ -527,7 +528,7 @@ class OrchestratorService:
         cache_key = None
         if self.response_cache and RESPONSE_CACHE_ENABLED:
             cache_key = f"chat_history:{orchestrator_agent_id}:{limit}"
-            cached_history = await self.response_cache.get(cache_key)
+            cached_history = self.response_cache.get(cache_key)
             if cached_history:
                 self.logger.info(f"💾 CACHE HIT: Chat history for {orchestrator_agent_id[:8]}... (saved DB query)")
                 return cached_history
@@ -631,7 +632,7 @@ class OrchestratorService:
                 # Cache the trimmed result
                 result = {"messages": trimmed_messages, "turn_count": turn_count}
                 if cache_key and self.response_cache and RESPONSE_CACHE_ENABLED:
-                    await self.response_cache.set(cache_key, result)
+                    self.response_cache.set(cache_key, result)
                     self.logger.debug(f"💾 Cached trimmed chat history")
 
                 return result
@@ -639,7 +640,7 @@ class OrchestratorService:
             # Cache the result
             result = {"messages": all_messages, "turn_count": turn_count}
             if cache_key and self.response_cache and RESPONSE_CACHE_ENABLED:
-                await self.response_cache.set(cache_key, result)
+                self.response_cache.set(cache_key, result)
                 self.logger.debug(f"💾 Cached chat history")
 
             return result
@@ -819,7 +820,7 @@ class OrchestratorService:
                 # Generate cache key from prompt and recent context
                 chat_history = await self.load_chat_history(orchestrator_agent_id, limit=5)
                 cache_key = self.response_cache.generate_key(user_message, chat_history.get("messages", []))
-                cached_response = await self.response_cache.get(cache_key)
+                cached_response = self.response_cache.get(cache_key)
 
                 if cached_response:
                     self.logger.info(f"Cache hit for query: {user_message[:50]}...")
@@ -1212,7 +1213,7 @@ class OrchestratorService:
                 "usage": usage_data,
                 "timestamp": datetime.now(timezone.utc).isoformat()
             }
-            await self.response_cache.set(cache_key, cache_data)
+            self.response_cache.set(cache_key, cache_data)
             self.logger.info(f"Cached response for future queries")
 
         # Update costs in database
@@ -1411,7 +1412,7 @@ class OrchestratorService:
 
         # Cache stats
         if self.response_cache:
-            cache_stats = await self.response_cache.get_stats()
+            cache_stats = self.response_cache.get_stats()
             metrics["cache"] = {
                 "enabled": RESPONSE_CACHE_ENABLED,
                 "hit_rate": cache_stats.get("hit_rate", 0),
@@ -1454,7 +1455,7 @@ class OrchestratorService:
             return {"success": False, "error": "Cache not enabled"}
 
         try:
-            cleared_count = await self.response_cache.clear()
+            cleared_count = self.response_cache.clear()
             return {
                 "success": True,
                 "cleared_entries": cleared_count,
