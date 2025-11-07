@@ -123,8 +123,8 @@ async function handleRefreshContext() {
 }
 
 .header-logo {
-  height: 48px;
-  width: 48px;
+  height: 42px;
+  width: 42px;
   object-fit: contain;
   transition: opacity 0.2s ease;
 }
