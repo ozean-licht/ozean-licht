@@ -1,135 +1,272 @@
 """
-Simple Slash Command Parser for Orchestrator
+Slash Command Frontmatter Parser
 
-Scans ONLY the orchestrator's .claude/commands/ directory.
-No hierarchical loading, no complex logic - just basic command discovery.
+Parses YAML frontmatter from slash command .md files with special handling
+for the argument-hint field, which should always be treated as a plain string.
+
+Reference: https://docs.anthropic.com/en/docs/claude-code/slash-commands
 """
 
 import re
 import yaml
-import logging
-from pathlib import Path
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
-# Module-level logger
-logger = logging.getLogger(__name__)
-
 
 class SlashCommandFrontmatter(BaseModel):
-    """Pydantic model for slash command frontmatter."""
+    """
+    Pydantic model for slash command frontmatter.
 
-    allowed_tools: Optional[List[str]] = Field(default=None)
-    argument_hint: Optional[str] = Field(default=None, alias="argument-hint")
-    description: Optional[str] = Field(default=None)
-    model: Optional[str] = Field(default=None)
-    disable_model_invocation: Optional[bool] = Field(default=False, alias="disable-model-invocation")
+    All fields are optional per the Claude Code specification.
+    """
+
+    allowed_tools: Optional[List[str]] = Field(
+        default=None,
+        description="Tools the command can use. Inherits from conversation if not specified.",
+    )
+
+    argument_hint: Optional[str] = Field(
+        default=None,
+        alias="argument-hint",
+        description="Arguments expected for slash command. Example: 'add [tagId] | remove [tagId] | list'",
+    )
+
+    description: Optional[str] = Field(
+        default=None, description="Brief description. Uses first line if not specified."
+    )
+
+    model: Optional[str] = Field(
+        default=None,
+        description="Specific model string. Inherits from conversation if not specified.",
+    )
+
+    disable_model_invocation: Optional[bool] = Field(
+        default=False,
+        alias="disable-model-invocation",
+        description="Prevent SlashCommand tool from calling this command.",
+    )
 
     class Config:
-        populate_by_name = True
+        populate_by_name = True  # Allow both 'argument_hint' and 'argument-hint'
 
 
-def parse_slash_command_frontmatter(frontmatter_text: str) -> Optional[SlashCommandFrontmatter]:
-    """Parse YAML frontmatter with special handling for argument-hint."""
+def parse_slash_command_frontmatter(
+    frontmatter_text: str,
+) -> Optional[SlashCommandFrontmatter]:
+    """
+    Parse slash command YAML frontmatter with special handling for argument-hint.
+
+    The argument-hint field can contain square brackets like [tagId] which are NOT
+    YAML list syntax - they're just documentation notation. This parser ensures
+    argument-hint is always treated as a plain string.
+
+    Args:
+        frontmatter_text: Raw YAML frontmatter text (without --- delimiters)
+
+    Returns:
+        SlashCommandFrontmatter model or None if parsing fails
+
+    Example:
+        >>> frontmatter = '''
+        ... description: Add or remove tags
+        ... argument-hint: add [tagId] | remove [tagId] | list
+        ... model: sonnet
+        ... '''
+        >>> result = parse_slash_command_frontmatter(frontmatter)
+        >>> result.argument_hint
+        'add [tagId] | remove [tagId] | list'
+    """
     if not frontmatter_text or not frontmatter_text.strip():
         return None
 
-    # Auto-quote argument-hint values to handle special characters
+    # Pre-process the frontmatter to auto-quote argument-hint values
     processed_text = _preprocess_argument_hint(frontmatter_text)
 
+    # Parse with YAML
     try:
         data = yaml.safe_load(processed_text)
         if data is None:
             return None
+
+        # Convert to Pydantic model
         return SlashCommandFrontmatter(**data)
-    except (yaml.YAMLError, ValueError):
+
+    except (yaml.YAMLError, ValueError) as e:
+        # If parsing fails, return None (caller should handle)
         return None
 
 
 def _preprocess_argument_hint(frontmatter_text: str) -> str:
-    """Ensure argument-hint values are quoted for YAML parsing."""
-    lines = []
-    for line in frontmatter_text.split("\n"):
+    """
+    Pre-process frontmatter to ensure argument-hint values are quoted.
+
+    This allows argument-hint to contain square brackets and other special
+    characters without YAML interpreting them as syntax.
+
+    Args:
+        frontmatter_text: Raw YAML frontmatter text
+
+    Returns:
+        Processed YAML with argument-hint values properly quoted
+
+    Example:
+        >>> text = "argument-hint: add [tagId] | remove [tagId]"
+        >>> _preprocess_argument_hint(text)
+        'argument-hint: "add [tagId] | remove [tagId]"'
+    """
+    lines = frontmatter_text.split("\n")
+    processed_lines = []
+
+    for line in lines:
+        # Match lines like: "argument-hint: <value>"
+        # Capture the key and value separately
         match = re.match(r"^(\s*argument-hint\s*:\s*)(.+?)(\s*)$", line)
+
         if match:
-            indent, value, trailing = match.groups()
-            # Check if already quoted
-            if not (value.startswith('"') and value.endswith('"')) and \
-               not (value.startswith("'") and value.endswith("'")):
-                # Quote if contains special YAML characters
-                if any(char in value for char in ["[", "]", "{", "}", ":", "|", ">", "#"]):
+            indent = match.group(1)  # "argument-hint: "
+            value = match.group(2)  # The actual value
+            trailing = match.group(3)  # Trailing whitespace
+
+            # Check if value is already quoted
+            if value.startswith('"') and value.endswith('"'):
+                # Already quoted, keep as-is
+                processed_lines.append(line)
+            elif value.startswith("'") and value.endswith("'"):
+                # Already quoted with single quotes, keep as-is
+                processed_lines.append(line)
+            else:
+                # Not quoted - check if it needs quoting
+                # Quote if it contains special YAML characters: [ ] { } : | > etc.
+                needs_quoting = any(
+                    char in value for char in ["[", "]", "{", "}", ":", "|", ">", "#"]
+                )
+
+                if needs_quoting:
+                    # Escape any existing quotes in the value
                     escaped_value = value.replace('"', '\\"')
-                    lines.append(f'{indent}"{escaped_value}"{trailing}')
-                    continue
-        lines.append(line)
-    return "\n".join(lines)
+                    # Add quotes around the value
+                    processed_lines.append(f'{indent}"{escaped_value}"{trailing}')
+                else:
+                    # No special characters, keep as-is
+                    processed_lines.append(line)
+        else:
+            # Not an argument-hint line, keep as-is
+            processed_lines.append(line)
+
+    return "\n".join(processed_lines)
 
 
 def parse_slash_command_file(file_content: str) -> Optional[SlashCommandFrontmatter]:
-    """Parse a complete slash command .md file and extract frontmatter."""
+    """
+    Parse a complete slash command .md file and extract frontmatter.
+
+    Args:
+        file_content: Full content of the .md file
+
+    Returns:
+        SlashCommandFrontmatter model or None if no valid frontmatter found
+
+    Example:
+        >>> content = '''---
+        ... description: My command
+        ... argument-hint: [arg1] [arg2]
+        ... ---
+        ...
+        ... # Command content here
+        ... '''
+        >>> result = parse_slash_command_file(content)
+        >>> result.argument_hint
+        '[arg1] [arg2]'
+    """
     if not file_content.startswith("---"):
         return None
 
+    # Split by --- to extract frontmatter
     parts = file_content.split("---", 2)
+
     if len(parts) < 3:
         return None
 
-    return parse_slash_command_frontmatter(parts[1])
+    frontmatter_text = parts[1]
+
+    return parse_slash_command_frontmatter(frontmatter_text)
 
 
-def discover_slash_commands(orchestrator_dir: str) -> List[dict]:
+def discover_slash_commands(working_dir: str) -> List[dict]:
     """
-    Discover slash commands from orchestrator's .claude/commands/ directory.
+    Discover slash commands from .claude/commands/ directory.
 
-    Simple and direct - no hierarchical loading, no complex logic.
-    Just scans the orchestrator's own commands directory.
+    Uses the proper slash command parser to extract frontmatter metadata
+    including name, description, arguments, and model.
 
     Args:
-        orchestrator_dir: Path to orchestrator app directory (apps/orchestrator_3_stream)
+        working_dir: Working directory containing .claude/commands/
 
     Returns:
-        List of command dicts with name, description, arguments, model
+        List of dicts with name, description, arguments, model
+
+    Example:
+        >>> commands = discover_slash_commands("/path/to/project")
+        >>> commands[0]
+        {
+            "name": "my-command",
+            "description": "Does something cool",
+            "arguments": "[arg1] [arg2]",
+            "model": "sonnet"
+        }
     """
-    try:
-        commands = []
-        commands_dir = Path(orchestrator_dir) / ".claude" / "commands"
+    from pathlib import Path
+    import logging
 
-        logger.info(f"🔍 Attempting to load commands from: {commands_dir}")
-        logger.info(f"📂 Directory exists: {commands_dir.exists()}")
-        logger.info(f"📂 Is absolute: {commands_dir.is_absolute()}")
+    logger = logging.getLogger(__name__)
+    commands = []
+    commands_dir = Path(working_dir) / ".claude" / "commands"
 
-        if not commands_dir.exists():
-            logger.error(f"❌ Commands directory not found: {commands_dir}")
-            logger.error(f"   Orchestrator dir: {orchestrator_dir}")
-            logger.error(f"   Resolved path: {commands_dir.resolve()}")
-            return []
-
-        logger.info(f"✅ Loading slash commands from: {commands_dir}")
-
-        # Scan all .md files
-        for file_path in sorted(commands_dir.glob("*.md")):
-            try:
-                content = file_path.read_text()
-                frontmatter = parse_slash_command_file(content)
-
-                command_dict = {
-                    "name": file_path.stem,
-                    "description": frontmatter.description if frontmatter else "",
-                    "arguments": frontmatter.argument_hint if frontmatter else "",
-                    "model": frontmatter.model if frontmatter else "",
-                    "allowed_tools": frontmatter.allowed_tools if frontmatter else [],
-                    "disable_model_invocation": frontmatter.disable_model_invocation if frontmatter else False,
-                    "source": "orchestrator",
-                }
-                commands.append(command_dict)
-
-            except Exception as e:
-                logger.error(f"Failed to parse command file {file_path.name}: {e}")
-                continue
-
-        logger.info(f"✅ Loaded {len(commands)} slash commands from {commands_dir}")
+    if not commands_dir.exists():
+        logger.warning(f"Commands directory not found: {commands_dir}")
         return commands
 
-    except Exception as e:
-        logger.error(f"❌ Error in discover_slash_commands: {e}", exc_info=True)
-        return []
+    logger.info(f"Loading commands from: {commands_dir}")
+
+    # Find all .md files
+    for file_path in commands_dir.glob("*.md"):
+        try:
+            content = file_path.read_text()
+            frontmatter = parse_slash_command_file(content)
+
+            if frontmatter:
+                commands.append(
+                    {
+                        "name": file_path.stem,
+                        "description": frontmatter.description or "",
+                        "arguments": frontmatter.argument_hint or "",
+                        "model": frontmatter.model or "",
+                        "allowed_tools": frontmatter.allowed_tools or [],
+                        "disable_model_invocation": frontmatter.disable_model_invocation
+                        or False,
+                    }
+                )
+            else:
+                commands.append(
+                    {
+                        "name": file_path.stem,
+                        "description": "",
+                        "arguments": "",
+                        "model": "",
+                        "allowed_tools": [],
+                        "disable_model_invocation": False,
+                    }
+                )
+        except Exception as e:
+            logger.error(
+                f"Failed to parse slash command file {file_path.name}: {e}",
+                exc_info=True
+            )
+            # Don't raise - continue loading other commands
+            continue
+
+    # Sort by name
+    commands.sort(key=lambda x: x["name"])
+
+    logger.info(f"Loaded {len(commands)} commands from {commands_dir}")
+    return commands
