@@ -60,6 +60,9 @@ COPY apps/orchestrator_3_stream/CLAUDE.md /app/CLAUDE.md
 # Copy .claude directory (slash commands and agents)
 COPY apps/orchestrator_3_stream/.claude /app/.claude
 
+# Copy ai_docs directory (SDK documentation cache for orchestrator)
+COPY apps/orchestrator_3_stream/ai_docs /app/ai_docs
+
 # Copy built frontend
 COPY --from=frontend-build /app/frontend/dist /app/frontend/dist
 
