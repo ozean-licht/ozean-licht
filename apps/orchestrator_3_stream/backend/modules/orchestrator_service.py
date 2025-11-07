@@ -247,8 +247,9 @@ class OrchestratorService:
                 logger=self.logger
             ) if RESPONSE_CACHE_ENABLED else None
             self.rate_limiter = RateLimiter(
-                tokens_per_minute=RATE_LIMIT_TOKENS_PER_MINUTE,
-                backoff_threshold=RATE_LIMIT_BACKOFF_THRESHOLD
+                max_tokens_per_minute=RATE_LIMIT_TOKENS_PER_MINUTE,
+                backoff_threshold=RATE_LIMIT_BACKOFF_THRESHOLD,
+                logger=self.logger
             )
             self.cost_tracker = CostTracker(
                 alert_threshold=COST_ALERT_THRESHOLD_USD,
