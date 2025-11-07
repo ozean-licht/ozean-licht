@@ -189,12 +189,14 @@ class ModelSelector:
 
         # Decision thresholds - BALANCED for cost savings + accuracy
         # Aim for 40% Haiku, 50% Sonnet, 10% Opus
-        if simple_score >= 4 or (simple_score >= 2 and message_length < 100):
-            return "simple"  # Haiku
-        elif complex_score >= 6 and ("architect" in message_lower or "refactor" in message_lower or "optimize" in message_lower):
-            return "complex"  # Opus - only for true architecture tasks
+
+        # Complex tasks get priority
+        if complex_score >= 6 or ("architect" in message_lower and "design" in message_lower):
+            return "complex"  # Opus - for architecture and complex tasks
+        elif simple_score >= 5 and complex_score < 2:
+            return "simple"  # Haiku - only for clearly simple tasks
         else:
-            return "moderate"  # Sonnet - default for most work
+            return "moderate"  # Sonnet - default for most work including implementation
 
     def get_usage_stats(self) -> dict:
         """

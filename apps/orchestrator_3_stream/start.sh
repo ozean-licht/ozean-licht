@@ -59,10 +59,17 @@ echo "✅ Migrations completed"
 # Setup orchestrator directories in global workspace
 echo "🔧 Setting up orchestrator context in global workspace..."
 
-# Backup root .claude if it exists
+# Idempotent setup: Remove existing orchestrator context if present
 if [ -d "/opt/ozean-licht-ecosystem/.claude" ]; then
-    echo "   Backing up root .claude → .claude-root"
-    mv /opt/ozean-licht-ecosystem/.claude /opt/ozean-licht-ecosystem/.claude-root
+    echo "   Removing existing orchestrator .claude"
+    rm -rf /opt/ozean-licht-ecosystem/.claude
+fi
+
+# Backup root .claude if it exists (first run only)
+if [ -d "/opt/ozean-licht-ecosystem/.claude-root" ]; then
+    echo "   Root .claude already backed up (skipping)"
+else
+    echo "   No root .claude found to backup"
 fi
 
 # Install orchestrator .claude (18 orchestrator-specific commands)
@@ -71,6 +78,7 @@ cp -r /app/.claude /opt/ozean-licht-ecosystem/.claude
 
 # Install orchestrator ai_docs (SDK documentation cache)
 echo "   Installing orchestrator ai_docs (SDK documentation)"
+rm -rf /opt/ozean-licht-ecosystem/ai_docs  # Remove if exists
 cp -r /app/ai_docs /opt/ozean-licht-ecosystem/ai_docs
 
 echo "✅ Orchestrator context installed"
