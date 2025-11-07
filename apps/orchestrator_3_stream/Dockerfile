@@ -69,15 +69,11 @@ COPY --from=frontend-build /app/frontend/dist /app/frontend/dist
 # Copy database migrations
 COPY apps/orchestrator_db /app/orchestrator_db
 
-# Create necessary directories
-RUN mkdir -p /app/backend/logs /app/data
-
-# Create directories for mounted repo with proper permissions
-RUN mkdir -p /opt/ozean-licht-ecosystem && \
+# Create necessary directories and set ownership in one step
+RUN mkdir -p /app/backend/logs /app/data && \
+    mkdir -p /opt/ozean-licht-ecosystem && \
+    chown -R adw-user:adw-user /app && \
     chown -R adw-user:adw-user /opt/ozean-licht-ecosystem
-
-# Set ownership of app directory
-RUN chown -R adw-user:adw-user /app
 
 # Expose ports
 EXPOSE 9403 5175

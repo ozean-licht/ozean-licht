@@ -242,8 +242,9 @@ class OrchestratorService:
                 mode="token_priority"  # Prioritize token reduction over message count
             )
             self.response_cache = ResponseCache(
-                max_size_mb=RESPONSE_CACHE_MAX_SIZE,
-                ttl_seconds=RESPONSE_CACHE_TTL_SECONDS
+                max_size=RESPONSE_CACHE_MAX_SIZE,
+                ttl_seconds=RESPONSE_CACHE_TTL_SECONDS,
+                logger=self.logger
             ) if RESPONSE_CACHE_ENABLED else None
             self.rate_limiter = RateLimiter(
                 tokens_per_minute=RATE_LIMIT_TOKENS_PER_MINUTE,
