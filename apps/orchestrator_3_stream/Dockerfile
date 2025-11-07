@@ -54,6 +54,9 @@ RUN uv sync --frozen
 # Copy rest of backend
 COPY apps/orchestrator_3_stream/backend/ ./
 
+# Copy orchestrator-specific CLAUDE.md for context
+COPY apps/orchestrator_3_stream/CLAUDE.md /app/CLAUDE.md
+
 # Copy .claude directory (slash commands and agents)
 COPY apps/orchestrator_3_stream/.claude /app/.claude
 

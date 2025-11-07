@@ -176,8 +176,8 @@ class OrchestratorService:
         if "{{SUBAGENT_MAP}}" in prompt_text:
             self.logger.debug("Found {{SUBAGENT_MAP}} placeholder in system prompt")
 
-            # Initialize SubagentRegistry to discover templates
-            registry = SubagentRegistry(self.working_dir, self.logger)
+            # Initialize SubagentRegistry to discover templates from orchestrator's directory
+            registry = SubagentRegistry(str(config.PROJECT_ROOT), self.logger)
             self.logger.info("SubagentRegistry initialized for prompt injection")
 
             # Generate template list
@@ -202,8 +202,9 @@ class OrchestratorService:
             # Replace placeholder
             prompt_text = prompt_text.replace("{{SUBAGENT_MAP}}", template_map)
 
-        # Load CLAUDE.md from working directory for codebase context
-        claude_md_path = Path(self.working_dir) / "CLAUDE.md"
+        # Load orchestrator-specific CLAUDE.md for context
+        # Use PROJECT_ROOT (/app) not working_dir (/opt/ozean-licht-ecosystem)
+        claude_md_path = Path(config.PROJECT_ROOT) / "CLAUDE.md"
         if claude_md_path.exists():
             try:
                 with open(claude_md_path, "r") as f:
