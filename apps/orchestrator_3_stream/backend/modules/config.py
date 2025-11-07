@@ -110,14 +110,6 @@ ORCHESTRATOR_SYSTEM_PROMPT_PATH = os.getenv(
 # Orchestrator working directory (can be overridden via --cwd CLI flag)
 ORCHESTRATOR_WORKING_DIR = os.getenv("ORCHESTRATOR_WORKING_DIR", DEFAULT_CODEBASE_PATH)
 
-# Orchestrator commands directory (explicit path to orchestrator slash commands)
-# This allows the orchestrator to load only orchestrator-specific commands
-# even when working_dir is set to the root repository
-ORCHESTRATOR_COMMANDS_DIR = os.getenv(
-    "ORCHESTRATOR_COMMANDS_DIR",
-    str(Path(__file__).parent.parent.parent / ".claude" / "commands")
-)
-
 # Current working directory (runtime override)
 _current_working_dir = ORCHESTRATOR_WORKING_DIR
 
@@ -202,5 +194,4 @@ config_logger.info(
 config_logger.info(f"Log Level:       {LOG_LEVEL}")
 config_logger.info(f"Log Directory:   {LOG_DIR}")
 config_logger.info(f"CORS Origins:    {', '.join(CORS_ORIGINS)}")
-config_logger.info(f"Orch Commands:   {ORCHESTRATOR_COMMANDS_DIR}")
 config_logger.info("=" * 70)
