@@ -14,8 +14,8 @@ import os
 from pydantic import BaseModel
 
 # Add parent directory to path to import orchestrator_db modules
-# In Docker: /app/backend/modules -> need to add /app to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+# From: apps/orchestrator_3_stream/backend/modules -> apps/ (3 levels up)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 from orchestrator_db.git_utils import GitUtils
 # Pydantic models for type safety
 class FileChange(BaseModel):

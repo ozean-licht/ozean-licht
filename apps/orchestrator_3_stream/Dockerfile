@@ -19,12 +19,17 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies including Node.js for Claude Code CLI
 RUN apt-get update && apt-get install -y \
     git \
     curl \
     postgresql-client \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Claude Code CLI globally
+RUN npm install -g @anthropic-ai/claude-code
 
 # Install UV (Python package manager)
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
