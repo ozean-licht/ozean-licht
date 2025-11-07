@@ -254,17 +254,17 @@ def _load_commands_from_dir(commands_dir, source: str = "unknown") -> List[dict]
     return commands
 
 
-def discover_slash_commands(working_dir: str) -> List[dict]:
+def discover_slash_commands(working_dir: str, commands_dir: Optional[str] = None) -> List[dict]:
     """
-    Discover slash commands from both root and app-specific .claude/commands/ directories.
+    Discover slash commands from specified directory or working_dir-based directories.
 
-    Implements hierarchical loading with precedence:
-    1. Load commands from root repository (/opt/ozean-licht-ecosystem/.claude/commands/)
-    2. Load commands from app-specific directory (working_dir/.claude/commands/)
-    3. App-specific commands override root commands with the same name
+    Precedence:
+    1. If commands_dir is provided, load ONLY from that directory (no hierarchical loading)
+    2. Otherwise, use working_dir for hierarchical loading (root + app-specific)
 
     Args:
-        working_dir: Working directory containing app-specific .claude/commands/
+        working_dir: Working directory for fallback command discovery
+        commands_dir: Optional explicit path to commands directory (overrides working_dir logic)
 
     Returns:
         List of dicts with name, description, arguments, model, and source metadata
@@ -281,6 +281,18 @@ def discover_slash_commands(working_dir: str) -> List[dict]:
         }
     """
     import os
+
+    # If explicit commands_dir is provided, load ONLY from that directory
+    if commands_dir:
+        logger.info(f"Loading commands from explicit directory: {commands_dir}")
+        commands_path = Path(commands_dir)
+        if commands_path.exists():
+            commands = _load_commands_from_dir(commands_path, "orchestrator")
+            logger.info(f"Loaded {len(commands)} commands from {commands_path}")
+            return sorted(commands, key=lambda x: x["name"])
+        else:
+            logger.warning(f"Explicit commands directory not found: {commands_path}")
+            return []
 
     # Check if hierarchical loading is enabled (default: enabled for orchestrator apps)
     # Set ENABLE_HIERARCHICAL_LOADING=false to disable if needed

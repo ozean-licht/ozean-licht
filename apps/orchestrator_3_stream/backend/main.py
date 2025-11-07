@@ -235,8 +235,12 @@ async def get_orchestrator_info():
         orchestrator = OrchestratorAgent(**orchestrator_data)
         app.state.orchestrator = orchestrator
 
-        # Discover slash commands
-        slash_commands = discover_slash_commands(config.get_working_dir())
+        # Discover slash commands from orchestrator-specific directory
+        # Use explicit orchestrator commands dir to avoid loading root commands
+        slash_commands = discover_slash_commands(
+            working_dir=config.get_working_dir(),
+            commands_dir=config.ORCHESTRATOR_COMMANDS_DIR
+        )
 
         # Get agent templates from SubagentRegistry
         from modules.subagent_loader import SubagentRegistry
