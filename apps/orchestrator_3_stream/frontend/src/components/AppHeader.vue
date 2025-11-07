@@ -126,11 +126,6 @@ async function handleRefreshContext() {
   height: 42px;
   width: 42px;
   object-fit: contain;
-  transition: opacity 0.2s ease;
-}
-
-.header-logo:hover {
-  opacity: 0.9;
 }
 
 .brand-text {
