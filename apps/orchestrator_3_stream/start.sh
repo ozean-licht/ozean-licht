@@ -85,6 +85,9 @@ echo "✅ Orchestrator context installed"
 echo "   - Commands: /opt/ozean-licht-ecosystem/.claude (18 orchestrator commands)"
 echo "   - AI Docs:  /opt/ozean-licht-ecosystem/ai_docs (SDK cache)"
 
+# Ensure logs directory exists (permissions set in Dockerfile)
+mkdir -p /app/backend/logs 2>/dev/null || true
+
 # Start backend
 echo "🔧 Starting backend on port 9403..."
 cd /app/backend

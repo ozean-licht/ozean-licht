@@ -69,11 +69,9 @@ COPY --from=frontend-build /app/frontend/dist /app/frontend/dist
 # Copy database migrations
 COPY apps/orchestrator_db /app/orchestrator_db
 
-# Create necessary directories and set ownership in one step
-RUN mkdir -p /app/backend/logs /app/data && \
-    mkdir -p /opt/ozean-licht-ecosystem && \
-    chown -R adw-user:adw-user /app && \
-    chown -R adw-user:adw-user /opt/ozean-licht-ecosystem
+# Copy start script
+COPY apps/orchestrator_3_stream/start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Expose ports
 EXPOSE 9403 5175
@@ -82,9 +80,12 @@ EXPOSE 9403 5175
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:9403/health || exit 1
 
-# Copy and set start script
-COPY apps/orchestrator_3_stream/start.sh /app/start.sh
-RUN chmod +x /app/start.sh && chown adw-user:adw-user /app/start.sh
+# Create necessary directories and set ALL permissions AFTER all COPY operations
+# This is the sustainable fix for permission issues between root and adw-user
+RUN mkdir -p /app/backend/logs /app/data /opt/ozean-licht-ecosystem && \
+    chown -R adw-user:adw-user /app && \
+    chown -R adw-user:adw-user /opt/ozean-licht-ecosystem && \
+    chmod -R u+w /app/backend/logs /app/data
 
 # Configure git for adw-user (required for ADW operations)
 USER adw-user

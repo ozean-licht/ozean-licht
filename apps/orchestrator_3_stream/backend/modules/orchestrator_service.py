@@ -30,6 +30,7 @@ from .config import (
     RESPONSE_CACHE_MAX_SIZE,
     RESPONSE_CACHE_TTL_SECONDS,
     COST_ALERT_THRESHOLD as COST_ALERT_THRESHOLD_USD,
+    ORCHESTRATOR_MODEL,
 )
 
 
@@ -781,7 +782,7 @@ class OrchestratorService:
 
         # Always use configured orchestrator model (Sonnet 4.5)
         # Model selection disabled per user request - orchestrator needs full capabilities
-        selected_model = config.ORCHESTRATOR_MODEL
+        selected_model = ORCHESTRATOR_MODEL
         self.logger.info(f"🎯 Using {selected_model} (orchestrator always uses Sonnet 4.5)")
 
         # ═══════════════════════════════════════════════════════════
