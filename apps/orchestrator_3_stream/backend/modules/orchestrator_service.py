@@ -572,9 +572,10 @@ class OrchestratorService:
                             try:
                                 from .database import update_orchestrator_metadata
                                 from .slash_command_parser import discover_slash_commands
+                                from . import config
 
-                                # Discover slash commands from filesystem using custom parser
-                                slash_commands = discover_slash_commands(self.working_dir)
+                                # Discover slash commands from orchestrator's .claude/commands/ directory
+                                slash_commands = discover_slash_commands(str(config.PROJECT_ROOT))
 
                                 # Extract relevant fields for display
                                 system_message_info = {
