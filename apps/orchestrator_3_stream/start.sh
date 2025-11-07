@@ -56,6 +56,27 @@ fi
 
 echo "✅ Migrations completed"
 
+# Setup orchestrator directories in global workspace
+echo "🔧 Setting up orchestrator context in global workspace..."
+
+# Backup root .claude if it exists
+if [ -d "/opt/ozean-licht-ecosystem/.claude" ]; then
+    echo "   Backing up root .claude → .claude-root"
+    mv /opt/ozean-licht-ecosystem/.claude /opt/ozean-licht-ecosystem/.claude-root
+fi
+
+# Install orchestrator .claude (18 orchestrator-specific commands)
+echo "   Installing orchestrator .claude commands (18 commands)"
+cp -r /app/.claude /opt/ozean-licht-ecosystem/.claude
+
+# Install orchestrator ai_docs (SDK documentation cache)
+echo "   Installing orchestrator ai_docs (SDK documentation)"
+cp -r /app/ai_docs /opt/ozean-licht-ecosystem/ai_docs
+
+echo "✅ Orchestrator context installed"
+echo "   - Commands: /opt/ozean-licht-ecosystem/.claude (18 orchestrator commands)"
+echo "   - AI Docs:  /opt/ozean-licht-ecosystem/ai_docs (SDK cache)"
+
 # Start backend
 echo "🔧 Starting backend on port 9403..."
 cd /app/backend

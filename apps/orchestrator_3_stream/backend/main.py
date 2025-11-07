@@ -236,11 +236,12 @@ async def get_orchestrator_info():
         app.state.orchestrator = orchestrator
 
         # Discover slash commands from orchestrator's .claude/commands/ directory
-        slash_commands = discover_slash_commands(str(config.PROJECT_ROOT))
+        # At startup, start.sh copies /app/.claude to /opt/ozean-licht-ecosystem/.claude
+        slash_commands = discover_slash_commands(config.get_working_dir())
 
-        # Get agent templates from SubagentRegistry (orchestrator's directory)
+        # Get agent templates from SubagentRegistry (installed at startup to global .claude)
         from modules.subagent_loader import SubagentRegistry
-        registry = SubagentRegistry(str(config.PROJECT_ROOT), logger)
+        registry = SubagentRegistry(config.get_working_dir(), logger)
         templates = registry.list_templates()
 
         # Get orchestrator tools

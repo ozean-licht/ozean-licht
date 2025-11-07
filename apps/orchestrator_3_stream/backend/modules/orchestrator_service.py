@@ -176,8 +176,9 @@ class OrchestratorService:
         if "{{SUBAGENT_MAP}}" in prompt_text:
             self.logger.debug("Found {{SUBAGENT_MAP}} placeholder in system prompt")
 
-            # Initialize SubagentRegistry to discover templates from orchestrator's directory
-            registry = SubagentRegistry(str(config.PROJECT_ROOT), self.logger)
+            # Initialize SubagentRegistry to discover templates
+            # Templates are at /opt/.claude/agents/ (installed by start.sh)
+            registry = SubagentRegistry(self.working_dir, self.logger)
             self.logger.info("SubagentRegistry initialized for prompt injection")
 
             # Generate template list
@@ -255,12 +256,13 @@ class OrchestratorService:
         if "ANTHROPIC_API_KEY" in os.environ:
             env_vars["ANTHROPIC_API_KEY"] = os.environ["ANTHROPIC_API_KEY"]
 
-        # Orchestrator works in its own directory (/app) for slash commands
-        # Agents work in the global repo (/opt/ozean-licht-ecosystem)
+        # Orchestrator works in global repo (/opt/ozean-licht-ecosystem)
+        # At startup, orchestrator .claude is installed to /opt/.claude via start.sh
+        # This gives orchestrator global file access while using orchestrator-specific commands
         options_dict = {
             "system_prompt": self._load_system_prompt(),
             "model": config.ORCHESTRATOR_MODEL,
-            "cwd": str(config.PROJECT_ROOT),  # Orchestrator's directory with .claude/commands
+            "cwd": self.working_dir,  # Global workspace for file operations
             "resume": resume_session,
             "env": env_vars,  # Ensure API key is available to subprocess
         }
