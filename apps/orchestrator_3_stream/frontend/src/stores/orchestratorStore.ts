@@ -132,7 +132,8 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
 
   async function loadChatHistory() {
     try {
-      console.log('Loading chat history...')
+      console.log('[loadChatHistory] ⚠️ LOADING CHAT HISTORY - this will REPLACE all messages')
+      console.log('[loadChatHistory] Current chatMessages count:', chatMessages.value.length)
       const response = await chatService.loadChatHistory(orchestratorAgentId.value)
 
       // Convert backend messages to frontend ChatMessage format
@@ -173,14 +174,16 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
         }
       })
 
-      console.log(`Loaded ${chatMessages.value.length} messages (${response.turn_count} turns)`)
+      console.log(`[loadChatHistory] ✅ REPLACED with ${chatMessages.value.length} messages from database (${response.turn_count} turns)`)
     } catch (error) {
       console.error('Failed to load chat history:', error)
     }
   }
 
   function addChatMessage(message: ChatMessage) {
+    console.log('[addChatMessage] Adding message:', message.sender, message.id, message.content?.substring(0, 30) || message.type)
     chatMessages.value.push(message)
+    console.log('[addChatMessage] Total messages after add:', chatMessages.value.length)
   }
 
   async function sendUserMessage(content: string) {
@@ -192,7 +195,10 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
       content,
       timestamp: new Date().toISOString()
     }
+    console.log('[sendUserMessage] Adding user message optimistically:', userMessage.id, content.substring(0, 30))
+    console.log('[sendUserMessage] Current chatMessages count BEFORE add:', chatMessages.value.length)
     addChatMessage(userMessage)
+    console.log('[sendUserMessage] Current chatMessages count AFTER add:', chatMessages.value.length)
 
     try {
       // Send to backend (response will come via WebSocket streaming)

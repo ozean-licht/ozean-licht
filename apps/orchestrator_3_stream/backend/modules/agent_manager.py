@@ -115,8 +115,8 @@ class AgentManager:
 
         @tool(
             "create_agent",
-            "Create a new agent. REQUIRED: name. OPTIONAL: system_prompt (can be empty if using template), model, subagent_template. Use 'fast' for haiku model. If subagent_template is provided, the template's system prompt, tools, and model will be applied automatically.",
-            {"name": str, "system_prompt": str, "model": str, "subagent_template": str},
+            "Create a new agent. REQUIRED: name. OPTIONAL: system_prompt (can be empty if using template), model, subagent_template, working_dir. Use 'fast' for haiku model. If subagent_template is provided, the template's system prompt, tools, model, and working directory will be applied automatically. Use working_dir to override the default or template working directory (e.g., for MCP gateway: /opt/ozean-licht-ecosystem/tools/mcp-gateway).",
+            {"name": str, "system_prompt": str, "model": str, "subagent_template": str, "working_dir": str},
         )
         async def create_agent_tool(args: Dict[str, Any]) -> Dict[str, Any]:
             """Tool for creating new agents"""
@@ -125,6 +125,7 @@ class AgentManager:
                 system_prompt = args.get("system_prompt", "")
                 model_input = args.get("model", config.DEFAULT_AGENT_MODEL)
                 subagent_template = args.get("subagent_template")
+                working_dir_override = args.get("working_dir")
 
                 # Model alias mapping
                 model_aliases = {
@@ -164,7 +165,7 @@ class AgentManager:
                         "is_error": True,
                     }
 
-                result = await self.create_agent(name, system_prompt, model, subagent_template)
+                result = await self.create_agent(name, system_prompt, model, subagent_template, working_dir_override)
 
                 if result["ok"]:
                     return {
@@ -596,7 +597,7 @@ class AgentManager:
         ]
 
     async def create_agent(
-        self, name: str, system_prompt: str, model: Optional[str] = None, subagent_template: Optional[str] = None
+        self, name: str, system_prompt: str, model: Optional[str] = None, subagent_template: Optional[str] = None, working_dir_override: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Create a new agent.
@@ -606,6 +607,7 @@ class AgentManager:
             system_prompt: Agent's system prompt (can be empty if using template)
             model: Optional model override
             subagent_template: Optional template name to use
+            working_dir_override: Optional working directory override
 
         Returns:
             Dict with ok, agent_id, session_id, or error
@@ -614,6 +616,7 @@ class AgentManager:
             # Handle template-based creation
             metadata = {}
             allowed_tools = None  # Will use defaults if not specified
+            agent_working_dir = working_dir_override or self.working_dir  # Default to manager's working_dir
 
             if subagent_template:
                 self.logger.info(f"Creating agent '{name}' using template '{subagent_template}'")
@@ -639,6 +642,11 @@ class AgentManager:
                     model = template.frontmatter.model
                 allowed_tools = template.frontmatter.tools
 
+                # Apply template working directory if not overridden
+                if template.frontmatter.cwd and not working_dir_override:
+                    agent_working_dir = template.frontmatter.cwd
+                    self.logger.info(f"Using template working directory: {agent_working_dir}")
+
                 # Add template metadata
                 metadata = {
                     "template_name": template.frontmatter.name,
@@ -648,9 +656,9 @@ class AgentManager:
                 # Log template application
                 if template.frontmatter.tools:
                     tool_count = len(template.frontmatter.tools)
-                    self.logger.info(f"Applying template '{template.frontmatter.name}': {tool_count} tools, model={model or 'default'}")
+                    self.logger.info(f"Applying template '{template.frontmatter.name}': {tool_count} tools, model={model or 'default'}, cwd={agent_working_dir}")
                 else:
-                    self.logger.info(f"Applying template '{template.frontmatter.name}': all default tools, model={model or 'default'}")
+                    self.logger.info(f"Applying template '{template.frontmatter.name}': all default tools, model={model or 'default'}, cwd={agent_working_dir}")
 
             # Check if agent name already exists (scoped to this orchestrator)
             existing = await get_agent_by_name(self.orchestrator_agent_id, name)
@@ -667,13 +675,13 @@ class AgentManager:
                 name=name,
                 model=model or config.DEFAULT_AGENT_MODEL,
                 system_prompt=system_prompt,
-                working_dir=self.working_dir,
+                working_dir=agent_working_dir,
                 metadata=metadata,
             )
 
-            # Initialize file tracker for this agent
+            # Initialize file tracker for this agent with its specific working directory
             self.file_trackers[str(agent_id)] = FileTracker(
-                agent_id, name, self.working_dir
+                agent_id, name, agent_working_dir
             )
 
             # Initialize agent with greeting
@@ -718,13 +726,13 @@ class AgentManager:
             options = ClaudeAgentOptions(
                 system_prompt=system_prompt,
                 model=model or config.DEFAULT_AGENT_MODEL,
-                cwd=self.working_dir,
+                cwd=agent_working_dir,
                 hooks=hooks_dict,
                 allowed_tools=tools_to_use,
                 disallowed_tools=default_disallowed,
                 permission_mode="acceptEdits",
                 env=env_vars,  # Ensure API key is available to subprocess
-                setting_sources=["project"],  # Load CLAUDE.md and slash commands
+                setting_sources=["project"],  # Load CLAUDE.md and slash commands from agent's working directory
             )
 
             async with ClaudeSDKClient(options=options) as client:

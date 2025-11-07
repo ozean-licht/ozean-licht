@@ -23,12 +23,14 @@ class SubagentFrontmatter(BaseModel):
         tools: Optional list/string of allowed Claude SDK tools (defaults to all tools if not specified)
         model: Optional model override (sonnet, haiku, opus)
         color: Optional color for UI theming
+        cwd: Optional working directory path for the agent (restricts agent to specific directory)
     """
     name: str = Field(..., description="Unique template identifier")
     description: str = Field(..., description="Template description for orchestrator")
     tools: Optional[List[str]] = Field(None, description="List of allowed tool names (optional, defaults to all tools)")
     model: Optional[str] = Field(None, description="Model override (sonnet, haiku, opus)")
     color: Optional[str] = Field(None, description="UI theme color")
+    cwd: Optional[str] = Field(None, description="Working directory path for the agent (e.g., /opt/ozean-licht-ecosystem/tools/mcp-gateway)")
 
     @field_validator('name')
     @classmethod

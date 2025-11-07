@@ -282,8 +282,9 @@ def discover_slash_commands(working_dir: str) -> List[dict]:
     """
     import os
 
-    # Check if hierarchical loading is enabled (default: disabled for stability)
-    enable_hierarchical = os.environ.get("ENABLE_HIERARCHICAL_LOADING", "false").lower() == "true"
+    # Check if hierarchical loading is enabled (default: enabled for orchestrator apps)
+    # Set ENABLE_HIERARCHICAL_LOADING=false to disable if needed
+    enable_hierarchical = os.environ.get("ENABLE_HIERARCHICAL_LOADING", "true").lower() == "true"
 
     if not enable_hierarchical:
         # Fall back to original single-directory loading for stability

@@ -149,9 +149,10 @@ class OrchestratorService:
     def _load_system_prompt(self) -> str:
         """
         Load orchestrator system prompt from file and inject SUBAGENT_MAP.
+        Also loads CLAUDE.md from working directory to provide codebase context.
 
         Returns:
-            System prompt text with {{SUBAGENT_MAP}} placeholder replaced
+            System prompt text with {{SUBAGENT_MAP}} placeholder replaced and CLAUDE.md appended
 
         Raises:
             FileNotFoundError: If prompt file doesn't exist
@@ -200,6 +201,22 @@ class OrchestratorService:
 
             # Replace placeholder
             prompt_text = prompt_text.replace("{{SUBAGENT_MAP}}", template_map)
+
+        # Load CLAUDE.md from working directory for codebase context
+        claude_md_path = Path(self.working_dir) / "CLAUDE.md"
+        if claude_md_path.exists():
+            try:
+                with open(claude_md_path, "r") as f:
+                    claude_md_content = f.read()
+
+                # Append CLAUDE.md content to system prompt
+                prompt_text += "\n\n---\n\n# Codebase Context (CLAUDE.md)\n\n"
+                prompt_text += claude_md_content
+                self.logger.info(f"✅ Loaded CLAUDE.md from {claude_md_path}")
+            except Exception as e:
+                self.logger.warning(f"Failed to load CLAUDE.md: {e}")
+        else:
+            self.logger.debug(f"No CLAUDE.md found at {claude_md_path}")
 
         return prompt_text
 
@@ -475,22 +492,10 @@ class OrchestratorService:
 
             self.logger.chat_event(orchestrator_agent_id, user_message, sender="user")
 
-            # Broadcast user message to EventStream (include database ID)
-            await self.ws_manager.broadcast(
-                {
-                    "type": "orchestrator_chat",
-                    "message": {
-                        "id": str(chat_id),
-                        "orchestrator_agent_id": str(orch_uuid),
-                        "sender_type": "user",
-                        "receiver_type": "orchestrator",
-                        "message": user_message,
-                        "agent_id": None,
-                        "metadata": {},
-                        "timestamp": datetime.now().isoformat(),
-                    },
-                }
-            )
+            # NOTE: We do NOT broadcast user messages via WebSocket because the frontend
+            # already adds them optimistically when the user clicks send.
+            # Broadcasting here would cause duplicate messages in the UI.
+            # Only orchestrator responses are broadcasted below during agent execution.
         except Exception as e:
             self.logger.error(f"Failed to log user message: {e}")
             raise
