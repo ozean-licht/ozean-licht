@@ -615,6 +615,7 @@ async def get_chat_history(
     limit: Optional[int] = None,
     offset: int = 0,
     agent_id: Optional[uuid.UUID] = None,
+    max_tokens: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
     """
     Get chat history for an orchestrator agent.
@@ -624,6 +625,7 @@ async def get_chat_history(
         limit: Maximum number of messages to return (None = all)
         offset: Number of messages to skip (for pagination)
         agent_id: Optional - filter messages involving specific command agent
+        max_tokens: Optional - return only messages that fit within token limit
 
     Returns:
         List of chat message dictionaries, ordered by created_at ASC (oldest first)
@@ -671,6 +673,98 @@ async def get_chat_history(
         # Since we queried DESC to get the most recent messages with LIMIT
         results.reverse()
 
+        # Apply token limit if specified
+        if max_tokens is not None and max_tokens > 0:
+            filtered_results = []
+            total_tokens = 0
+
+            # Start from most recent and work backwards
+            for msg in reversed(results):
+                # Estimate tokens (rough: 1 token ≈ 4 characters)
+                msg_tokens = len(str(msg.get("message", ""))) // 4
+                if total_tokens + msg_tokens <= max_tokens:
+                    filtered_results.append(msg)
+                    total_tokens += msg_tokens
+                else:
+                    break
+
+            # Reverse again to maintain chronological order
+            filtered_results.reverse()
+            return filtered_results
+
+        return results
+
+
+async def get_chat_history_with_summaries(
+    orchestrator_agent_id: uuid.UUID,
+    recent_limit: int = 10,
+    summary_limit: int = 5,
+) -> List[Dict[str, Any]]:
+    """
+    Get chat history with summaries for older messages.
+
+    Loads full content for recent messages and summaries for older messages
+    to reduce payload size and context window usage.
+
+    Args:
+        orchestrator_agent_id: UUID of the orchestrator agent
+        recent_limit: Number of recent messages to load in full
+        summary_limit: Number of older message summaries to include
+
+    Returns:
+        List of chat messages with older ones replaced by summaries
+    """
+    async with get_connection() as conn:
+        # Get recent messages with full content
+        recent_query = """
+            SELECT id, orchestrator_agent_id, sender_type, receiver_type,
+                   message, agent_id, metadata, summary,
+                   created_at, updated_at
+            FROM orchestrator_chat
+            WHERE orchestrator_agent_id = $1
+            ORDER BY created_at DESC
+            LIMIT $2
+        """
+        recent_rows = await conn.fetch(recent_query, orchestrator_agent_id, recent_limit)
+
+        # Get older messages with summaries only
+        older_query = """
+            SELECT id, orchestrator_agent_id, sender_type, receiver_type,
+                   COALESCE(summary, SUBSTRING(message, 1, 100) || '...') as message,
+                   agent_id, metadata,
+                   created_at, updated_at
+            FROM orchestrator_chat
+            WHERE orchestrator_agent_id = $1
+              AND created_at < (
+                  SELECT MIN(created_at)
+                  FROM (
+                      SELECT created_at
+                      FROM orchestrator_chat
+                      WHERE orchestrator_agent_id = $1
+                      ORDER BY created_at DESC
+                      LIMIT $2
+                  ) recent
+              )
+            ORDER BY created_at DESC
+            LIMIT $3
+        """
+        older_rows = await conn.fetch(
+            older_query, orchestrator_agent_id, recent_limit, summary_limit
+        )
+
+        # Combine and process results
+        all_rows = list(older_rows) + list(recent_rows)
+        results = []
+
+        for row in all_rows:
+            result = dict(row)
+            # Parse JSON metadata if it's a string
+            if isinstance(result.get("metadata"), str):
+                result["metadata"] = json.loads(result["metadata"])
+            results.append(result)
+
+        # Reverse to return in chronological order
+        results.reverse()
         return results
 
 

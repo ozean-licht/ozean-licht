@@ -9,6 +9,7 @@ import argparse
 import os
 import sys
 import uuid
+from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -210,6 +211,158 @@ async def health_check():
         "service": "orchestrator-3-stream",
         "websocket_connections": ws_manager.get_connection_count(),
     }
+
+
+@app.get("/api/metrics/tokens")
+async def get_token_metrics():
+    """
+    Get token optimization metrics.
+
+    Returns current token usage, cache performance, and cost data.
+    """
+    logger.http_request("GET", "/api/metrics/tokens", 200)
+
+    # Get metrics from the global orchestrator service if it exists
+    if global_orchestrator_service:
+        metrics = await global_orchestrator_service.get_token_metrics()
+        return metrics
+
+    return {
+        "enabled": False,
+        "error": "No active orchestrator service"
+    }
+
+
+@app.get("/api/metrics/cache")
+async def get_cache_metrics():
+    """
+    Get response cache metrics.
+
+    Returns cache hit rate, size, and entry count.
+    """
+    logger.http_request("GET", "/api/metrics/cache", 200)
+
+    if global_orchestrator_service and global_orchestrator_service.response_cache:
+        cache_stats = await global_orchestrator_service.response_cache.get_stats()
+        return {
+            "enabled": True,
+            "stats": cache_stats,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+
+    return {
+        "enabled": False,
+        "error": "Response cache not available"
+    }
+
+
+@app.get("/api/metrics/costs")
+async def get_cost_metrics():
+    """
+    Get cost tracking metrics.
+
+    Returns total costs, token usage, and threshold status.
+    """
+    logger.http_request("GET", "/api/metrics/costs", 200)
+
+    if global_orchestrator_service and global_orchestrator_service.cost_tracker:
+        return {
+            "enabled": True,
+            "total_cost_usd": global_orchestrator_service.cost_tracker.get_total_cost(),
+            "total_input_tokens": global_orchestrator_service.cost_tracker.get_total_input_tokens(),
+            "total_output_tokens": global_orchestrator_service.cost_tracker.get_total_output_tokens(),
+            "threshold_exceeded": global_orchestrator_service.cost_tracker.check_threshold(),
+            "breakdown": global_orchestrator_service.cost_tracker.get_detailed_report(),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+
+    return {
+        "enabled": False,
+        "error": "Cost tracker not available"
+    }
+
+
+@app.post("/api/cache/clear")
+async def clear_cache():
+    """
+    Clear the response cache.
+
+    Admin endpoint to manually clear cached responses.
+    """
+    logger.http_request("POST", "/api/cache/clear", 200)
+
+    if global_orchestrator_service:
+        result = await global_orchestrator_service.clear_cache()
+        return result
+
+    return {
+        "success": False,
+        "error": "No active orchestrator service"
+    }
+
+
+@app.post("/api/orchestrator/reset")
+async def reset_orchestrator_context():
+    """
+    Reset the orchestrator agent context.
+
+    This endpoint:
+    1. Clears the response cache (if enabled)
+    2. Resets rate limiter state
+    3. Forces fresh data reload from database
+    4. Maintains session continuity (does NOT create new orchestrator)
+
+    Use this when the orchestrator needs a fresh context reload without
+    creating an entirely new agent session.
+    """
+    try:
+        logger.http_request("POST", "/api/orchestrator/reset")
+        logger.info("🔄 Resetting orchestrator context...")
+
+        # Clear response cache if enabled
+        if hasattr(app.state, 'orchestrator_service'):
+            service = app.state.orchestrator_service
+
+            # Clear cache
+            if service.response_cache:
+                await service.response_cache.clear()
+                logger.info("✅ Response cache cleared")
+
+            # Reset rate limiter
+            if service.rate_limiter:
+                service.rate_limiter.reset()
+                logger.info("✅ Rate limiter reset")
+
+            # Refresh orchestrator data from database
+            orchestrator_id = app.state.orchestrator.id
+            fresh_orchestrator_data = await database.get_orchestrator_by_id(orchestrator_id)
+
+            if fresh_orchestrator_data:
+                app.state.orchestrator = OrchestratorAgent(**fresh_orchestrator_data)
+                logger.info(f"✅ Orchestrator data refreshed from database")
+
+            logger.success("✅ Orchestrator context reset complete")
+            logger.http_request("POST", "/api/orchestrator/reset", 200)
+
+            return {
+                "success": True,
+                "message": "Orchestrator context reset successfully",
+                "orchestrator_id": str(app.state.orchestrator.id),
+                "session_id": app.state.orchestrator.session_id,
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+        else:
+            logger.error("No orchestrator service available")
+            logger.http_request("POST", "/api/orchestrator/reset", 500)
+            return {
+                "success": False,
+                "error": "No active orchestrator service"
+            }
+
+    except Exception as e:
+        logger.error(f"❌ Failed to reset orchestrator context: {e}")
+        logger.http_request("POST", "/api/orchestrator/reset", 500)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/get_orchestrator")

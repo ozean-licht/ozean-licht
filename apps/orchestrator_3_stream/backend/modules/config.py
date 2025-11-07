@@ -168,6 +168,32 @@ DEFAULT_SYSTEM_LOG_LIMIT = int(os.getenv("DEFAULT_SYSTEM_LOG_LIMIT", "50"))
 DEFAULT_CHAT_HISTORY_LIMIT = int(os.getenv("DEFAULT_CHAT_HISTORY_LIMIT", "300"))
 
 # ============================================================================
+# TOKEN MANAGEMENT CONFIGURATION
+# ============================================================================
+
+# Feature flag to enable/disable token optimization system
+TOKEN_MANAGEMENT_ENABLED = os.getenv("TOKEN_MANAGEMENT_ENABLED", "true").lower() in ["true", "1", "yes"]
+
+# Context window limits - AGGRESSIVE SETTINGS TO FIX RATE LIMITING
+# PRIORITY 1: Reduced from 50/50000 to fix 90% input token rate limiting
+MAX_CONTEXT_MESSAGES = int(os.getenv("MAX_CONTEXT_MESSAGES", "20"))  # Aggressive: was 50
+MAX_CONTEXT_TOKENS = int(os.getenv("MAX_CONTEXT_TOKENS", "25000"))  # Aggressive: was 50000
+
+# Rate limiting (40% of 1M/minute API limit for safety)
+RATE_LIMIT_TOKENS_PER_MINUTE = int(os.getenv("RATE_LIMIT_TOKENS_PER_MINUTE", "400000"))
+RATE_LIMIT_BACKOFF_THRESHOLD = float(os.getenv("RATE_LIMIT_BACKOFF_THRESHOLD", "0.8"))
+
+# Response caching
+RESPONSE_CACHE_ENABLED = os.getenv("RESPONSE_CACHE_ENABLED", "true").lower() in ["true", "1", "yes"]
+RESPONSE_CACHE_MAX_SIZE = int(os.getenv("RESPONSE_CACHE_MAX_SIZE", "100"))
+RESPONSE_CACHE_TTL_SECONDS = int(os.getenv("RESPONSE_CACHE_TTL_SECONDS", "3600"))
+
+# Cost tracking and alerts
+COST_TRACKING_ENABLED = os.getenv("COST_TRACKING_ENABLED", "true").lower() in ["true", "1", "yes"]
+COST_ALERT_THRESHOLD = float(os.getenv("COST_ALERT_THRESHOLD", "10.0"))
+COST_CRITICAL_THRESHOLD = float(os.getenv("COST_CRITICAL_THRESHOLD", "50.0"))
+
+# ============================================================================
 # IDE INTEGRATION CONFIGURATION
 # ============================================================================
 
@@ -194,4 +220,12 @@ config_logger.info(
 config_logger.info(f"Log Level:       {LOG_LEVEL}")
 config_logger.info(f"Log Directory:   {LOG_DIR}")
 config_logger.info(f"CORS Origins:    {', '.join(CORS_ORIGINS)}")
+config_logger.info("-" * 70)
+config_logger.info("TOKEN MANAGEMENT:")
+config_logger.info(f"  Enabled:       {TOKEN_MANAGEMENT_ENABLED}")
+if TOKEN_MANAGEMENT_ENABLED:
+    config_logger.info(f"  Max Context:   {MAX_CONTEXT_MESSAGES} messages / {MAX_CONTEXT_TOKENS:,} tokens")
+    config_logger.info(f"  Rate Limit:    {RATE_LIMIT_TOKENS_PER_MINUTE:,} tokens/min")
+    config_logger.info(f"  Cache:         {RESPONSE_CACHE_ENABLED} (size={RESPONSE_CACHE_MAX_SIZE}, ttl={RESPONSE_CACHE_TTL_SECONDS}s)")
+    config_logger.info(f"  Cost Alerts:   ${COST_ALERT_THRESHOLD:.2f} (warn) / ${COST_CRITICAL_THRESHOLD:.2f} (critical)")
 config_logger.info("=" * 70)

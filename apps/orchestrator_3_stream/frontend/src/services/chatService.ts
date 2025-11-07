@@ -17,6 +17,17 @@ export async function getOrchestratorInfo() {
 }
 
 /**
+ * Reset orchestrator agent context
+ *
+ * Clears cache, resets rate limiter, and reloads fresh data from database
+ * while maintaining session continuity.
+ */
+export async function resetOrchestratorContext() {
+  const response = await apiClient.post('/api/orchestrator/reset')
+  return response.data
+}
+
+/**
  * Load chat history for orchestrator agent
  * Gets the most recent N messages from the database
  */

@@ -46,13 +46,13 @@
             :class="{ loading: store.isRefreshing }"
             :disabled="store.isRefreshing"
             @click="handleRefreshContext"
-            title="Refresh context and reload all data"
-            aria-label="Refresh orchestrator context"
+            title="Reset orchestrator agent context"
+            aria-label="Reset orchestrator agent"
           >
             <span v-if="!store.isRefreshing">
-              ↻ REFRESH
+              ↻ RESET O-AGENT
             </span>
-            <span v-else class="loading-spinner">⟳ REFRESHING...</span>
+            <span v-else>⟳ RESETTING...</span>
           </button>
           <button class="btn-clear" @click="headerBar.clearEventStream">
             CLEAR ALL
@@ -288,16 +288,6 @@ async function handleRefreshContext() {
   background: var(--accent-primary);
   color: white;
   border-color: var(--accent-primary);
-}
-
-.loading-spinner {
-  display: inline-block;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 
 /* Responsive */

@@ -947,9 +947,10 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
    * Refresh Context
    *
    * Re-initializes the entire orchestrator state by:
-   * 1. Disconnecting WebSocket
-   * 2. Re-fetching all data from backend
-   * 3. Reconnecting WebSocket
+   * 1. Calling backend reset endpoint to clear cache and reset state
+   * 2. Disconnecting WebSocket
+   * 3. Re-fetching all data from backend
+   * 4. Reconnecting WebSocket
    */
   async function refreshContext(): Promise<void> {
     if (isRefreshing.value) {
@@ -959,7 +960,16 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
 
     try {
       isRefreshing.value = true
-      console.log('🔄 Refreshing orchestrator context...')
+      console.log('🔄 Resetting orchestrator agent context...')
+
+      // Call backend reset endpoint to clear cache and reset state
+      try {
+        const resetResult = await chatService.resetOrchestratorContext()
+        console.log('✅ Backend context reset:', resetResult)
+      } catch (error) {
+        console.error('⚠️  Backend reset failed, continuing with frontend reset:', error)
+        // Continue with frontend reset even if backend fails
+      }
 
       // Disconnect WebSocket
       disconnectWebSocket()
@@ -967,12 +977,12 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
       // Re-initialize store (fetches fresh data from backend)
       await initialize()
 
-      console.log('✅ Context refresh complete')
+      console.log('✅ Orchestrator agent reset complete')
 
       // Optional: Show success notification in UI
       // TODO: Add toast notification component
     } catch (error) {
-      console.error('❌ Context refresh failed:', error)
+      console.error('❌ Orchestrator agent reset failed:', error)
       // TODO: Show error notification
     } finally {
       isRefreshing.value = false
