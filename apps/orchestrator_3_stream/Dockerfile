@@ -19,9 +19,7 @@ FROM python:3.12-slim
 
 # Create adw-user with UID/GID 1000 to match host user
 RUN groupadd -g 1000 adw-user && \
-    useradd -u 1000 -g 1000 -m -s /bin/bash adw-user && \
-    usermod -aG sudo adw-user && \
-    echo "adw-user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+    useradd -u 1000 -g 1000 -m -s /bin/bash adw-user
 
 WORKDIR /app
 
@@ -32,7 +30,6 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     nodejs \
     npm \
-    sudo \
     lsof \
     && rm -rf /var/lib/apt/lists/*
 

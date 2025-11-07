@@ -60,24 +60,36 @@ def main():
         border_style="cyan"
     ))
 
-    # Load .env from project root
-    script_dir = Path(__file__).parent
-    project_root = script_dir.parent.parent
-    env_file = project_root / ".env"
-    migrations_dir = script_dir / "migrations"
+    # Check if DATABASE_URL is already set as environment variable
+    database_url = os.getenv("DATABASE_URL")
+    env_source = "environment variable"
 
-    if not env_file.exists():
-        console.print(f"[red]✗ Error:[/red] .env file not found at {env_file}", style="bold")
-        console.print("Create a .env file with DATABASE_URL='your-neon-connection-string'")
-        sys.exit(1)
+    # If not set, try loading from .env file
+    if not database_url:
+        script_dir = Path(__file__).parent
+        project_root = script_dir.parent.parent
+        env_file = project_root / ".env"
 
-    load_dotenv(env_file)
+        # Also check /app/.env for Docker environments
+        app_env_file = Path("/app/.env")
+        if app_env_file.exists():
+            env_file = app_env_file
+
+        if not env_file.exists():
+            console.print(f"[red]✗ Error:[/red] .env file not found at {env_file}", style="bold")
+            console.print("Create a .env file with DATABASE_URL='your-neon-connection-string'")
+            sys.exit(1)
+
+        load_dotenv(env_file)
+        database_url = os.getenv("DATABASE_URL")
+        env_source = str(env_file)
+
+    migrations_dir = Path(__file__).parent / "migrations"
 
     # Check if DATABASE_URL is set
-    database_url = os.getenv("DATABASE_URL")
     if not database_url:
         console.print("[red]✗ Error:[/red] DATABASE_URL environment variable is required", style="bold")
-        console.print(f"Add DATABASE_URL to {env_file}")
+        console.print("Set DATABASE_URL environment variable or add it to .env file")
         sys.exit(1)
 
     # Check if psql is available
@@ -93,7 +105,7 @@ def main():
         console.print(f"[red]✗ Error:[/red] Migrations directory not found at {migrations_dir}", style="bold")
         sys.exit(1)
 
-    console.print(f"\n[dim]Using .env from:[/dim] {env_file}")
+    console.print(f"\n[dim]DATABASE_URL from:[/dim] {env_source}")
     console.print(f"[dim]Migrations directory:[/dim] {migrations_dir}")
     console.print(f"[dim]Database:[/dim] {database_url.split('@')[1].split('?')[0] if '@' in database_url else 'unknown'}\n")
 

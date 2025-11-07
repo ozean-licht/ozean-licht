@@ -37,12 +37,17 @@ fi
 # Run database migrations
 echo "📊 Running database migrations..."
 
-# Create empty .env file if it doesn't exist (migration script checks for it)
-touch /.env
+# Create .env file for migration script (it looks for /.env)
+echo "DATABASE_URL=$DATABASE_URL" > /.env 2>/dev/null || {
+    # If we can't write to /, try /app
+    echo "DATABASE_URL=$DATABASE_URL" > /app/.env
+    export ENV_FILE=/app/.env
+}
 
 cd /app/backend
 export PYTHONPATH="/app:$PYTHONPATH"
-uv run --no-project python /app/orchestrator_db/run_migrations.py
+# Run migration with uv from the backend directory where dependencies are installed
+uv run python /app/orchestrator_db/run_migrations.py
 
 if [ $? -ne 0 ]; then
     echo "❌ Database migrations failed"
