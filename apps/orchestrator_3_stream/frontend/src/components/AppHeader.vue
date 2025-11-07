@@ -8,16 +8,16 @@
             alt="Ozean Licht - Agentic Ozean"
             class="header-logo"
           />
-          <span class="brand-text">Agentic Ozean</span>
-        </div>
-        <div class="header-subtitle-group">
-          <span class="header-subtitle">LIVE LOG STREAM</span>
-          <div class="connection-status">
-            <span class="status-indicator" :class="{ online: store.isConnected }"></span>
-            <span class="status-text">{{
-              store.isConnected ? "Connected" : "Disconnected"
-            }}</span>
+          <div class="brand-text-group">
+            <span class="brand-text">Agentic Ozean</span>
+            <span class="header-subtitle">LIVE LOG STREAM</span>
           </div>
+        </div>
+        <div class="connection-status">
+          <span class="status-indicator" :class="{ online: store.isConnected }"></span>
+          <span class="status-text">{{
+            store.isConnected ? "Connected" : "Disconnected"
+          }}</span>
         </div>
       </div>
       <div class="header-right">
@@ -92,7 +92,9 @@ async function handleRefreshContext() {
 .app-header {
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  max-height: 80px;
+  overflow: hidden;
 }
 
 .header-content {
@@ -104,26 +106,25 @@ async function handleRefreshContext() {
 
 .header-title {
   display: flex;
-  align-items: baseline;
-  gap: var(--spacing-md);
-  flex-wrap: wrap;
-}
-
-.header-subtitle-group {
-  display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
 }
 
 .logo-brand-group {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
+}
+
+.brand-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .header-logo {
-  height: 60px;
-  width: 60px;
+  height: 48px;
+  width: 48px;
   object-fit: contain;
   transition: opacity 0.2s ease;
 }
@@ -134,27 +135,29 @@ async function handleRefreshContext() {
 
 .brand-text {
   font-family: 'Cinzel Decorative', serif;
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   font-weight: 400;
-  color: var(--accent-primary);
+  color: white;
   letter-spacing: 0.05em;
-  text-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+  line-height: 1.2;
 }
 
 .header-subtitle {
-  font-size: 0.875rem;
+  font-size: 0.7rem;
   color: var(--accent-primary);
   font-weight: 600;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .connection-status {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
-  padding-left: var(--spacing-md);
+  padding-left: var(--spacing-sm);
+  margin-left: var(--spacing-sm);
   border-left: 1px solid var(--border-color);
 }
 
@@ -214,11 +217,11 @@ async function handleRefreshContext() {
 .stat-pill {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: 0.375rem 0.75rem;
+  gap: 4px;
+  padding: 4px 8px;
   background: var(--bg-tertiary);
-  border-radius: 12px;
-  font-size: 0.875rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
   border: 1px solid var(--border-light);
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -232,22 +235,22 @@ async function handleRefreshContext() {
 .stat-pill .stat-label {
   color: var(--text-muted);
   font-weight: 500;
-  font-size: 0.8125rem;
+  font-size: 0.65rem;
 }
 
 .stat-pill .stat-value {
   color: var(--text-primary);
   font-weight: 700;
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.7rem;
 }
 
 /* Action Buttons */
 .btn-prompt,
 .btn-clear,
 .btn-refresh {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.75rem;
+  padding: 6px 10px;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.025em;
   border-radius: 4px;
@@ -259,7 +262,7 @@ async function handleRefreshContext() {
 }
 
 .btn-hint {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 500;
   opacity: 0.7;
   margin-left: 0.25rem;
