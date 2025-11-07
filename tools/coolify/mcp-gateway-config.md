@@ -56,7 +56,8 @@ N8N_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODI2ZGFmMS1lNzdjLTQ
 
 # Coolify API (NEW - for Coolify MCP handler)
 # NOTE: Do NOT include /api/v1 - the handler adds it automatically
-COOLIFY_API_URL=http://coolify.ozean-licht.dev:8000
+# NOTE: Use HTTPS without port (port 8000 causes redirect issues)
+COOLIFY_API_URL=https://coolify.ozean-licht.dev
 COOLIFY_API_TOKEN=1|nN3hZvkfX7IrsKWRpl86UzaNV7UDUrQ44kxrKqBs0664ab00
 
 # Orchestrator API (NEW - for permission checks)
