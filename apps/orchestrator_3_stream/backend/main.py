@@ -236,8 +236,16 @@ async def get_orchestrator_info():
         app.state.orchestrator = orchestrator
 
         # Discover slash commands from orchestrator directory (not root)
-        # This loads only orchestrator-specific commands, not root commands
+        # Force disable hierarchical loading to prevent loading root commands
+        import os
+        original_hierarchical = os.environ.get("ENABLE_HIERARCHICAL_LOADING")
+        os.environ["ENABLE_HIERARCHICAL_LOADING"] = "false"
         slash_commands = discover_slash_commands(str(config.PROJECT_ROOT))
+        # Restore original value
+        if original_hierarchical is not None:
+            os.environ["ENABLE_HIERARCHICAL_LOADING"] = original_hierarchical
+        else:
+            os.environ.pop("ENABLE_HIERARCHICAL_LOADING", None)
 
         # Get agent templates from SubagentRegistry
         from modules.subagent_loader import SubagentRegistry
