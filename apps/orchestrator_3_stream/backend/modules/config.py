@@ -18,7 +18,7 @@ logging.basicConfig(
 config_logger = logging.getLogger(__name__)
 
 # Get the project root (orchestrator_3_stream/)
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
 ENV_FILE = PROJECT_ROOT / ".env"
 
 # Load .env file
