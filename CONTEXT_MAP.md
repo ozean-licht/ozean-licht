@@ -15,6 +15,7 @@
 
 ## Table of Contents
 
+- [Lines 20-29](#lines-20-29-claude-code-configuration) - Claude Code Configuration
 - [Lines 30-150](#lines-30-150-repository-overview--quick-start) - Repository Overview & Quick Start
 - [Lines 151-350](#lines-151-350-apps-directory-structure) - Apps Directory Structure
   - [Lines 151-230](#lines-151-230-admin-dashboard) - Admin Dashboard
@@ -31,6 +32,42 @@
 - [Lines 751-850](#lines-751-850-shared-libraries) - Shared Libraries
 - [Lines 851-950](#lines-851-950-documentation) - Documentation
 - [Lines 951-1050](#lines-951-1050-configuration-files) - Configuration Files
+
+---
+
+## Lines 20-29: Claude Code Configuration
+
+### Purpose
+Claude Code slash commands and workspace configuration for command discovery across the megarepo.
+
+### Key Files
+- `.claude/README.md` - Complete command catalog (50 commands)
+- `.claude/commands/` - Root slash commands (32 files)
+- `.claude/settings.json` - Claude Code settings
+- `apps/orchestrator_3_stream/.claude/commands/` - Orchestrator commands (18 files)
+- `ozean-licht-ecosystem.code-workspace` - Multi-root workspace file with `claude.commands.scanWorkspace: true`
+
+### Core Concepts
+- **Hierarchical Command Discovery**: Commands loaded based on working directory
+- **Multi-Root Workspace**: Access all commands from all contexts simultaneously with `claude.commands.scanWorkspace: true`
+- **Command Availability**: Root (32), Orchestrator (18), Total (50)
+- **Workspace Folders**: 13 major folders with emoji prefixes for visual distinction
+- **Critical Setting**: `claude.commands.scanWorkspace: true` enables command discovery across all workspace folders
+
+### Common Operations
+```bash
+# Open in multi-root workspace (RECOMMENDED)
+code ozean-licht-ecosystem.code-workspace
+
+# View command catalog
+cat .claude/README.md
+
+# List all root commands
+ls -la .claude/commands/
+
+# List orchestrator commands
+ls -la apps/orchestrator_3_stream/.claude/commands/
+```
 
 ---
 
@@ -455,8 +492,11 @@ Environment variables, tool configurations, and settings.
 #### Claude Code Configuration
 - `.claude/settings.json` - Claude Code settings
 - `.claude/settings.local.json` - Local overrides
-- `.claude/commands/*.md` - 29 slash commands
+- `.claude/commands/*.md` - 42 root slash commands
+- `.claude/README.md` - Complete command catalog
 - `.claude/hooks/*.py` - Event hooks
+- `ozean-licht-ecosystem.code-workspace` - Multi-root workspace file
+- `apps/orchestrator_3_stream/.claude/commands/*.md` - 18 orchestrator commands
 
 #### Database Configuration
 - Multi-tenant PostgreSQL setup:

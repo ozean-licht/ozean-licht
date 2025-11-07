@@ -1,3 +1,7 @@
+---
+description: Prime understanding of the codebase by reading key files and summarizing
+---
+
 # Prime
 Execute the `Run`, `Read` and `Report` sections to understand the codebase then summarize your understanding.
 

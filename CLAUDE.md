@@ -16,6 +16,137 @@ This is a monorepo for the **Ozean Licht Ecosystem** - two legally separate Aust
 - This eliminates repetitive searching and grep operations
 - Read `CONTEXT_MAP.md` first before starting any task
 
+## Command Discovery & Multi-Root Workspace
+
+### Understanding Command Availability
+
+Claude Code slash commands are discovered from `.claude/commands/` relative to where you opened the editor. This creates context-specific command availability:
+
+| Context | Commands Available | Count |
+|---------|-------------------|-------|
+| **Root** | All root commands | 32 |
+| **Orchestrator** | Root + Orchestrator commands | 50 (32+18) |
+| **Other Apps** | Root commands only | 32 |
+| **Multi-Root Workspace** ⭐ | ALL commands from ALL contexts | 50 |
+
+### Quick Reference
+
+```bash
+# View all available commands
+ls -la .claude/commands/
+ls -la apps/orchestrator_3_stream/.claude/commands/
+
+# Open in multi-root workspace (RECOMMENDED)
+code ozean-licht-ecosystem.code-workspace
+
+# Navigate to specific context
+cd apps/orchestrator_3_stream  # Access orchestrator commands
+```
+
+### Multi-Root Workspace (Best Practice)
+
+**Problem**: Opening Claude Code at repository root means orchestrator-specific commands like `/orch_scout_and_build` are not discoverable.
+
+**Solution**: Use `ozean-licht-ecosystem.code-workspace` which defines all major folders as workspace roots with the critical setting:
+
+```json
+{
+  "settings": {
+    "claude.commands.scanWorkspace": true
+  }
+}
+```
+
+This enables Claude Code to scan ALL workspace folders for commands simultaneously.
+
+**Benefits**:
+- ✅ Access ALL 50 commands regardless of active folder
+- ✅ No need to navigate between directories
+- ✅ Maintain full repository context in Explorer
+- ✅ Consistent command availability across development
+- ✅ Both root AND orchestrator commands always available
+
+**Workspace Folders**:
+- 🏠 Root (Ecosystem) - 32 root commands + ADW workflows
+- 🎓 Kids Ascension - Root commands + app context
+- 🌊 Ozean Licht - Root commands + app context
+- ⚙️ Admin Dashboard - Root commands + app context
+- 🤖 Orchestrator 3 Stream - 50 commands (32 root + 18 orchestrator)
+- 🔧 MCP Gateway - Root commands + tool context
+- 🚀 Coolify Config - Root commands
+- 🐳 Docker Services - Root commands
+- 🤖 ADW Workflows - Root commands + ADW context
+- 📚 Documentation - Root commands
+- 🧩 Shared Libraries - Root commands
+- 🎥 Video Translator - Root commands + app context
+- 📅 Event Calendar - Root commands + app context
+
+### Command Categories
+
+#### Primary Commands (Always Available)
+- `/plan` - Create implementation plans
+- `/bug` - Bug fixes with structured workflow
+- `/feature` - Feature implementation
+- `/test` - Run test suites
+- `/health_check` - System diagnostics
+
+#### Orchestrator Commands (Only in Orchestrator Context)
+- `/orch_scout_and_build` - Scout → Build workflow
+- `/orch_plan_w_scouts_build_review` - Full scout pipeline
+- `/plan_w_scouters` - Planning with multiple scouts
+- `/build_in_parallel` - Parallel agent execution
+
+**See `.claude/README.md` for complete command catalog.**
+
+### Troubleshooting Command Discovery
+
+#### Missing Orchestrator Commands
+
+```bash
+# Verify orchestrator commands exist
+ls -la apps/orchestrator_3_stream/.claude/commands/
+
+# Option 1: Use multi-root workspace (recommended)
+code ozean-licht-ecosystem.code-workspace
+
+# Option 2: Navigate to orchestrator
+cd apps/orchestrator_3_stream
+# Restart Claude Code in this directory
+```
+
+#### Commands Not Loading at All
+
+```bash
+# Verify .claude directory exists
+ls -la .claude/
+
+# Check command file syntax
+head -n 5 .claude/commands/plan.md
+# Should show valid frontmatter:
+# ---
+# description: Command description
+# ---
+```
+
+#### ADW Worktree Commands
+
+ADW worktrees (`trees/{adw_id}/`) receive `.claude/` copied by `adw_plan_iso.py`. If commands are missing:
+
+```bash
+# Verify .claude was copied to worktree
+ls -la trees/{adw_id}/.claude/commands/
+
+# If missing, entry point workflow wasn't run
+cd adws/
+uv run adw_plan_iso.py <issue-number>
+```
+
+### References
+
+- **Complete Command Catalog**: `.claude/README.md` (60 commands documented)
+- **Implementation Plan**: `specs/implementation_command_palette_fix.md`
+- **Orchestrator Discovery Logic**: `apps/orchestrator_3_stream/backend/modules/slash_command_parser.py`
+
 ## Engineering Rules
 
 ### Actually read files completely

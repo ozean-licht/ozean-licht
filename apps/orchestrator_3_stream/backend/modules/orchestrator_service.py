@@ -254,10 +254,12 @@ class OrchestratorService:
         if "ANTHROPIC_API_KEY" in os.environ:
             env_vars["ANTHROPIC_API_KEY"] = os.environ["ANTHROPIC_API_KEY"]
 
+        # Orchestrator works in its own directory (/app) for slash commands
+        # Agents work in the global repo (/opt/ozean-licht-ecosystem)
         options_dict = {
             "system_prompt": self._load_system_prompt(),
             "model": config.ORCHESTRATOR_MODEL,
-            "cwd": self.working_dir,
+            "cwd": str(config.PROJECT_ROOT),  # Orchestrator's directory with .claude/commands
             "resume": resume_session,
             "env": env_vars,  # Ensure API key is available to subprocess
         }

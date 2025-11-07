@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2025-10-20",
+  "updated": "2025-11-07",
   "services": {
     "postgres": {
       "name": "PostgreSQL MCP",
@@ -302,6 +302,38 @@
         "burstLimit": 15
       }
     },
+    "firecrawl": {
+      "name": "Firecrawl MCP",
+      "description": "Web scraping and content extraction service",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "scrape",
+        "health"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-firecrawl scrape \"[url]\"",
+          "description": "Scrape a web page and convert to markdown",
+          "example": "/mcp-firecrawl scrape \"https://docs.anthropic.com/en/docs/claude-code/sdk\""
+        },
+        {
+          "command": "/mcp-firecrawl health",
+          "description": "Check Firecrawl service health",
+          "example": "/mcp-firecrawl health"
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 800,
+        "costPerCall": 0.0024,
+        "complexity": "high"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 30,
+        "burstLimit": 5
+      }
+    },
     "playwright": {
       "name": "Playwright MCP",
       "description": "Browser automation and testing",
@@ -396,14 +428,14 @@
     }
   },
   "aggregates": {
-    "totalServices": 10,
-    "serverSideServices": 7,
+    "totalServices": 11,
+    "serverSideServices": 8,
     "localServices": 3,
-    "averageTokenCost": 360,
-    "averageCostPerCall": 0.00108
+    "averageTokenCost": 390,
+    "averageCostPerCall": 0.00117
   },
   "metadata": {
-    "lastUpdated": "2025-10-20T10:00:00Z",
+    "lastUpdated": "2025-11-07T15:00:00Z",
     "maintainer": "Ozean Licht Infrastructure Team",
     "documentation": "/docs/mcp-catalog.md"
   }

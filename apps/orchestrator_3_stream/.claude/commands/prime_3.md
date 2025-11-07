@@ -1,3 +1,7 @@
+---
+description: Prime the orchestrator context by reading key files and understanding the codebase structure
+---
+
 # Prime
 
 Execute the `Run`, `Read` and `Report` sections to understand the codebase then summarize your understanding.

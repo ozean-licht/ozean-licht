@@ -1,0 +1,139 @@
+{
+  "folders": [
+    {
+      "name": "🏠 Root (Ecosystem)",
+      "path": "."
+    },
+    {
+      "name": "🎓 Kids Ascension",
+      "path": "apps/kids-ascension"
+    },
+    {
+      "name": "🌊 Ozean Licht",
+      "path": "apps/ozean-licht"
+    },
+    {
+      "name": "⚙️ Admin Dashboard",
+      "path": "apps/admin"
+    },
+    {
+      "name": "🤖 Orchestrator 3 Stream",
+      "path": "apps/orchestrator_3_stream"
+    },
+    {
+      "name": "🎥 Video Translator",
+      "path": "apps/video-translator"
+    },
+    {
+      "name": "📅 Event Calendar",
+      "path": "apps/event-calendar"
+    },
+    {
+      "name": "🔧 MCP Gateway",
+      "path": "tools/mcp-gateway"
+    },
+    {
+      "name": "🚀 Coolify Config",
+      "path": "tools/coolify"
+    },
+    {
+      "name": "🐳 Docker Services",
+      "path": "tools/docker"
+    },
+    {
+      "name": "🤖 ADW Workflows",
+      "path": "adws"
+    },
+    {
+      "name": "📚 Documentation",
+      "path": "docs"
+    },
+    {
+      "name": "🧩 Shared Libraries",
+      "path": "shared"
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder:🏠 Root (Ecosystem)}/venv/bin/python",
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.formatting.provider": "black",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    },
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "files.exclude": {
+      "**/.git": true,
+      "**/node_modules": true,
+      "**/__pycache__": true,
+      "**/.pytest_cache": true,
+      "**/venv": true,
+      "**/trees": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/venv": true,
+      "**/.git": true,
+      "**/trees": true,
+      "**/__pycache__": true
+    },
+    "claude.commands.scanWorkspace": true
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-python.venv-selector",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "bradlc.vscode-tailwindcss",
+      "prisma.prisma",
+      "github.copilot",
+      "github.copilot-chat",
+      "anthropic.claude-code"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Admin Dashboard - Dev Server",
+        "type": "node",
+        "request": "launch",
+        "cwd": "${workspaceFolder:⚙️ Admin Dashboard}",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "dev"],
+        "console": "integratedTerminal"
+      },
+      {
+        "name": "MCP Gateway - Dev Server",
+        "type": "node",
+        "request": "launch",
+        "cwd": "${workspaceFolder:🔧 MCP Gateway}",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "dev"],
+        "console": "integratedTerminal"
+      },
+      {
+        "name": "ADW Plan (Python)",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder:🤖 ADW Workflows}/adw_plan_iso.py",
+        "args": ["${input:issueNumber}"],
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:🤖 ADW Workflows}"
+      }
+    ],
+    "inputs": [
+      {
+        "id": "issueNumber",
+        "type": "promptString",
+        "description": "Enter GitHub issue number"
+      }
+    ]
+  }
+}

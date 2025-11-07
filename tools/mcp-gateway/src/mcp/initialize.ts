@@ -54,6 +54,7 @@ async function initializeServerServices(registry: MCPRegistry): Promise<void> {
     { name: 'n8n', initializer: initializeN8N },
     { name: 'minio', initializer: initializeMinIO },
     { name: 'coolify', initializer: initializeCoolify },
+    { name: 'firecrawl', initializer: initializeFirecrawl },
   ];
 
   for (const { name, initializer } of services) {
@@ -219,6 +220,25 @@ async function initializeCoolify(registry: MCPRegistry): Promise<void> {
   const serviceConfig = mcpCatalog.services.coolify;
   registry.registerService({
     name: 'coolify',
+    version: serviceConfig.version,
+    description: serviceConfig.description,
+    location: 'server',
+    capabilities: serviceConfig.capabilities,
+    status: 'active',
+  }, handler);
+}
+
+/**
+ * Firecrawl MCP Initializer
+ */
+async function initializeFirecrawl(registry: MCPRegistry): Promise<void> {
+  const { FirecrawlHandler } = await import('./handlers/firecrawl');
+
+  const handler = new FirecrawlHandler();
+
+  const serviceConfig = mcpCatalog.services.firecrawl;
+  registry.registerService({
+    name: 'firecrawl',
     version: serviceConfig.version,
     description: serviceConfig.description,
     location: 'server',
