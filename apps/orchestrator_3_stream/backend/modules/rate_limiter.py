@@ -242,3 +242,22 @@ class TokenRateLimiter:
 
         if self.logger:
             self.logger.info("TokenRateLimiter statistics reset")
+
+    def update_actual_usage(self, tokens: int, context: str = "") -> None:
+        """
+        Alias for record_usage() to match orchestrator_service API.
+
+        Args:
+            tokens: Actual tokens used in the request
+            context: Optional context string for debugging
+        """
+        self.record_usage(tokens, context)
+
+    def get_usage_stats(self) -> Dict[str, any]:
+        """
+        Alias for get_stats() to match orchestrator_service API.
+
+        Returns:
+            Dict with current usage statistics
+        """
+        return self.get_stats()
