@@ -1,0 +1,178 @@
+version: '3.8'
+
+###############################################################################
+# Ozean Licht Ecosystem - Docker Compose Configuration
+# Phase 0: Multi-Tenant PostgreSQL Setup
+###############################################################################
+#
+# This docker-compose file sets up the PostgreSQL infrastructure for:
+# - shared_users_db (port 5430) - Unified authentication
+# - kids-ascension-db (port 5432) - Kids Ascension data
+# - ozean-licht-db (port 5431) - Ozean Licht data
+# - orchestrator-db (port 5433) - Orchestrator workflows
+#
+# Usage:
+#   docker-compose up -d                    # Start all services
+#   docker-compose ps                       # Check status
+#   docker-compose logs -f postgres-shared  # View logs
+#   docker-compose down                     # Stop all services
+#
+###############################################################################
+
+services:
+  # ============================================
+  # Shared Users Database (Port 5430)
+  # ============================================
+  postgres-shared:
+    image: postgres:15-alpine
+    container_name: ozean-postgres-shared
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_SHARED:-7M6jFrr7IYILOa67MxnfkpUxxNiDVp9IjHN60bkIR0QpbC40DRgzXkVAeVEkdWbJ}
+      POSTGRES_DB: shared_users_db
+      PGDATA: /var/lib/postgresql/data/shared
+    ports:
+      - "5430:5432"
+    volumes:
+      - postgres-shared-data:/var/lib/postgresql/data
+      - ./postgres/init-shared.sql:/docker-entrypoint-initdb.d/01-init-shared.sql:ro
+    networks:
+      - ozean-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d shared_users_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Kids Ascension Database (Port 5432)
+  # ============================================
+  postgres-ka:
+    image: postgres:15-alpine
+    container_name: ozean-postgres-ka
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_KA:-7M6jFrr7IYILOa67MxnfkpUxxNiDVp9IjHN60bkIR0QpbC40DRgzXkVAeVEkdWbJ}
+      POSTGRES_DB: kids-ascension-db
+      PGDATA: /var/lib/postgresql/data/ka
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-ka-data:/var/lib/postgresql/data
+      - ./postgres/init-ka.sql:/docker-entrypoint-initdb.d/01-init-ka.sql:ro
+    networks:
+      - ozean-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kids-ascension-db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Ozean Licht Database (Port 5431)
+  # ============================================
+  postgres-ol:
+    image: postgres:15-alpine
+    container_name: ozean-postgres-ol
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_OL:-7M6jFrr7IYILOa67MxnfkpUxxNiDVp9IjHN60bkIR0QpbC40DRgzXkVAeVEkdWbJ}
+      POSTGRES_DB: ozean-licht-db
+      PGDATA: /var/lib/postgresql/data/ol
+    ports:
+      - "5431:5432"
+    volumes:
+      - postgres-ol-data:/var/lib/postgresql/data
+      - ./postgres/init-ol.sql:/docker-entrypoint-initdb.d/01-init-ol.sql:ro
+    networks:
+      - ozean-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ozean-licht-db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Orchestrator Database (Port 5433)
+  # ============================================
+  postgres-orchestrator:
+    image: postgres:15-alpine
+    container_name: ozean-postgres-orchestrator
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_ORCHESTRATOR:-7M6jFrr7IYILOa67MxnfkpUxxNiDVp9IjHN60bkIR0QpbC40DRgzXkVAeVEkdWbJ}
+      POSTGRES_DB: orchestrator-db
+      PGDATA: /var/lib/postgresql/data/orchestrator
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-orchestrator-data:/var/lib/postgresql/data
+      - ./postgres/init-orchestrator.sql:/docker-entrypoint-initdb.d/01-init-orchestrator.sql:ro
+    networks:
+      - ozean-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d orchestrator-db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  postgres-shared-data:
+    driver: local
+    name: ozean-postgres-shared-data
+  postgres-ka-data:
+    driver: local
+    name: ozean-postgres-ka-data
+  postgres-ol-data:
+    driver: local
+    name: ozean-postgres-ol-data
+  postgres-orchestrator-data:
+    driver: local
+    name: ozean-postgres-orchestrator-data
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  ozean-network:
+    driver: bridge
+    name: ozean-network
+
+###############################################################################
+# Management Commands
+###############################################################################
+#
+# Start services:
+#   docker-compose up -d
+#
+# Check status:
+#   docker-compose ps
+#
+# View logs:
+#   docker-compose logs -f postgres-shared
+#   docker-compose logs -f postgres-ka
+#
+# Connect to database:
+#   docker exec -it ozean-postgres-shared psql -U postgres -d shared_users_db
+#   docker exec -it ozean-postgres-ka psql -U postgres -d kids-ascension-db
+#
+# Backup database:
+#   docker exec ozean-postgres-shared pg_dump -U postgres shared_users_db > backup.sql
+#
+# Restore database:
+#   docker exec -i ozean-postgres-shared psql -U postgres shared_users_db < backup.sql
+#
+# Stop services:
+#   docker-compose down
+#
+# Remove volumes (WARNING: deletes all data):
+#   docker-compose down -v
+#
+###############################################################################

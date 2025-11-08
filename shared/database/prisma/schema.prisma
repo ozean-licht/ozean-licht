@@ -1,0 +1,218 @@
+// ============================================
+// Shared Users Database - Prisma Schema
+// Database: shared_users_db
+// ============================================
+// This schema provides type-safe access to the shared authentication database
+// Used by Kids Ascension, Ozean Licht, and Admin Dashboard
+//
+// Related Files:
+// - migrations/000_create_shared_users_db.sql (database schema)
+// - specs/kids-ascension-integration-plan.md (integration plan)
+// - specs/kids_ascension_integration_analysis_2025.md (analysis)
+
+datasource db {
+  provider = "postgresql"
+  url      = env("SHARED_USERS_DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client-shared-users"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+// ============================================
+// CORE MODELS
+// ============================================
+
+/// Core user account for unified authentication
+/// Referenced by both Kids Ascension and Ozean Licht
+model User {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email             String    @unique @db.VarChar(255)
+  passwordHash      String?   @map("password_hash") @db.VarChar(255)
+  name              String?   @db.VarChar(255)
+  emailVerified     Boolean   @default(false) @map("email_verified")
+  isVerified        Boolean   @default(false) @map("is_verified")
+
+  // Profile information
+  firstName         String?   @map("first_name") @db.VarChar(100)
+  lastName          String?   @map("last_name") @db.VarChar(100)
+  displayName       String?   @map("display_name") @db.VarChar(255)
+  avatarUrl         String?   @map("avatar_url") @db.Text
+
+  // Account status
+  isActive          Boolean   @default(true) @map("is_active")
+  isDeleted         Boolean   @default(false) @map("is_deleted")
+  deletedAt         DateTime? @map("deleted_at") @db.Timestamptz
+
+  // Security
+  twoFactorEnabled  Boolean   @default(false) @map("two_factor_enabled")
+  twoFactorSecret   String?   @map("two_factor_secret") @db.VarChar(255)
+
+  // Timestamps
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  lastLoginAt       DateTime? @map("last_login_at") @db.Timestamptz
+
+  // Relations
+  userEntities      UserEntity[]
+  sessions          Session[]
+  oauthAccounts     OAuthAccount[]
+  passwordResetTokens PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+
+  @@index([email])
+  @@index([isActive])
+  @@index([isDeleted])
+  @@index([createdAt(sort: Desc)])
+  @@map("users")
+}
+
+/// Platform access mapping (multi-tenant)
+/// Determines which platforms a user can access and their role
+model UserEntity {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entityType      EntityType @map("entity_type") // KIDS_ASCENSION or OZEAN_LICHT
+  role            UserRole   // USER, CREATOR, EDUCATOR, ADMIN, MODERATOR, SUPPORT
+
+  // Access control
+  isActive        Boolean   @default(true) @map("is_active")
+  accessGrantedAt DateTime  @default(now()) @map("access_granted_at") @db.Timestamptz
+  accessRevokedAt DateTime? @map("access_revoked_at") @db.Timestamptz
+
+  // Additional metadata
+  metadata        Json      @default("{}") @db.JsonB
+
+  // Timestamps
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([userId, entityType])
+  @@index([userId])
+  @@index([entityType])
+  @@index([role])
+  @@index([isActive])
+  @@index([userId, entityType, isActive])
+  @@map("user_entities")
+}
+
+/// JWT session storage
+/// Used by NextAuth.js for session management
+model Session {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionToken   String    @unique @map("session_token") @db.VarChar(500)
+
+  // Session metadata
+  ipAddress      String?   @map("ip_address") @db.Inet
+  userAgent      String?   @map("user_agent") @db.Text
+  deviceInfo     Json?     @map("device_info") @db.JsonB
+
+  // Expiration
+  expiresAt      DateTime  @map("expires_at") @db.Timestamptz
+
+  // Timestamps
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  lastActivityAt DateTime  @default(now()) @map("last_activity_at") @db.Timestamptz
+
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([expiresAt])
+  @@index([lastActivityAt(sort: Desc)])
+  @@map("sessions")
+}
+
+/// OAuth provider accounts (Google, GitHub, etc.)
+/// Optional: For future OAuth integration
+model OAuthAccount {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String    @map("user_id") @db.Uuid
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider          String    @db.VarChar(50) // 'google', 'github', 'facebook'
+  providerAccountId String    @map("provider_account_id") @db.VarChar(255)
+
+  // OAuth tokens
+  accessToken       String?   @map("access_token") @db.Text
+  refreshToken      String?   @map("refresh_token") @db.Text
+  expiresAt         DateTime? @map("expires_at") @db.Timestamptz
+  tokenType         String?   @map("token_type") @db.VarChar(50)
+  scope             String?   @db.Text
+  idToken           String?   @map("id_token") @db.Text
+
+  // Provider profile data
+  profileData       Json?     @map("profile_data") @db.JsonB
+
+  // Timestamps
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([userId, provider])
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@index([provider])
+  @@index([providerAccountId])
+  @@map("oauth_accounts")
+}
+
+/// Password reset tokens for security
+model PasswordResetToken {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique @db.VarChar(255)
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz
+  used      Boolean   @default(false)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz
+
+  // Timestamps
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+/// Email verification tokens for account activation
+model EmailVerificationToken {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token      String    @unique @db.VarChar(255)
+  email      String    @db.VarChar(255) // Email to verify (allows email changes)
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz
+  verified   Boolean   @default(false)
+  verifiedAt DateTime? @map("verified_at") @db.Timestamptz
+
+  // Timestamps
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([token])
+  @@index([userId])
+  @@index([email])
+  @@map("email_verification_tokens")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+/// Platform/Entity types
+enum EntityType {
+  KIDS_ASCENSION
+  OZEAN_LICHT
+}
+
+/// User roles within a platform
+enum UserRole {
+  USER        // Regular user
+  CREATOR     // Content creator
+  EDUCATOR    // Teacher/educator
+  ADMIN       // Platform administrator
+  MODERATOR   // Content moderator
+  SUPPORT     // Support staff
+}
