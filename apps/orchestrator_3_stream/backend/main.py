@@ -472,14 +472,10 @@ async def get_orchestrator_info():
         orchestrator = OrchestratorAgent(**orchestrator_data)
         app.state.orchestrator = orchestrator
 
-        # Discover slash commands from orchestrator's .claude/commands/ directory
-        # At startup, start.sh copies /app/.claude to /opt/ozean-licht-ecosystem/.claude
-        slash_commands = discover_slash_commands(config.get_working_dir())
-
-        # Get agent templates from SubagentRegistry (installed at startup to global .claude)
-        from modules.subagent_loader import SubagentRegistry
-        registry = SubagentRegistry(config.get_working_dir(), logger)
-        templates = registry.list_templates()
+        # Get cached slash commands and templates (loaded once at startup, reused for all requests)
+        # This prevents 26+ file I/O operations on every API call, fixing 30s timeout issue
+        slash_commands = await get_cached_slash_commands()
+        templates = await get_cached_agent_templates()
 
         # Get orchestrator tools
         orchestrator_tools = get_orchestrator_tools()
@@ -539,11 +535,67 @@ async def get_headers():
 
 
 # ═══════════════════════════════════════════════════════════
-# SLASH COMMAND DISCOVERY
+# SLASH COMMAND DISCOVERY & TEMPLATE CACHING
 # ═══════════════════════════════════════════════════════════
 
 # Import slash command discovery from parser module
 from modules.slash_command_parser import discover_slash_commands
+
+# Global cache for slash commands and templates (loaded once at startup)
+_cached_slash_commands: Optional[List[dict]] = None
+_cached_agent_templates: Optional[List[dict]] = None
+_cache_lock = asyncio.Lock()
+
+
+async def get_cached_slash_commands() -> List[dict]:
+    """
+    Get cached slash commands. Loads once at startup and reuses for all requests.
+
+    Returns:
+        List of slash command metadata dicts
+    """
+    global _cached_slash_commands
+
+    async with _cache_lock:
+        if _cached_slash_commands is None:
+            logger.info("Loading slash commands (first time)...")
+            _cached_slash_commands = discover_slash_commands(config.get_working_dir())
+            logger.success(f"✅ Cached {len(_cached_slash_commands)} slash commands")
+
+        return _cached_slash_commands
+
+
+async def get_cached_agent_templates() -> List[dict]:
+    """
+    Get cached agent templates. Loads once at startup and reuses for all requests.
+
+    Returns:
+        List of agent template metadata dicts
+    """
+    global _cached_agent_templates
+
+    async with _cache_lock:
+        if _cached_agent_templates is None:
+            logger.info("Loading agent templates (first time)...")
+            from modules.subagent_loader import SubagentRegistry
+            registry = SubagentRegistry(config.get_working_dir(), logger)
+            _cached_agent_templates = registry.list_templates()
+            logger.success(f"✅ Cached {len(_cached_agent_templates)} agent templates")
+
+        return _cached_agent_templates
+
+
+async def invalidate_command_cache():
+    """
+    Invalidate the command and template cache (force reload on next request).
+    Call this when .claude/commands/ or .claude/agents/ files are modified.
+    """
+    global _cached_slash_commands, _cached_agent_templates
+
+    async with _cache_lock:
+        _cached_slash_commands = None
+        _cached_agent_templates = None
+        logger.info("Command and template cache invalidated")
 
 
 class OpenFileRequest(BaseModel):
