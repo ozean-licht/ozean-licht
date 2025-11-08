@@ -44,7 +44,7 @@
           <span class="cost-label">Cost:</span>
           <span class="cost-value">${{ orchestratorCost }}</span>
         </div>
-        <div class="context-display" :class="contextWindowClass">
+        <div class="context-display" :class="[contextWindowClass, { 'context-updated': contextUpdated }]">
           <span class="context-label">Context:</span>
           <span class="context-value">{{ contextWindowDisplay }}</span>
         </div>
@@ -174,7 +174,15 @@ const CONTEXT_WINDOW_SIZE = 200000;
 const currentTokens = computed(() => {
   const inputTokens = store.orchestratorAgent?.input_tokens ?? 0;
   const outputTokens = store.orchestratorAgent?.output_tokens ?? 0;
-  return inputTokens + outputTokens;
+  const total = inputTokens + outputTokens;
+
+  // DIAGNOSTIC: Log when computed property recalculates
+  console.log('🟢 [CHAT] currentTokens computed recalculated')
+  console.log('  input_tokens:', inputTokens)
+  console.log('  output_tokens:', outputTokens)
+  console.log('  total:', total)
+
+  return total;
 });
 
 const contextWindowDisplay = computed(() => {
@@ -189,7 +197,12 @@ const contextWindowDisplay = computed(() => {
     return tokens.toString();
   };
 
-  return `${formatTokens(current)}/${formatTokens(total)}`;
+  const display = `${formatTokens(current)}/${formatTokens(total)}`;
+
+  // DIAGNOSTIC: Log when display value changes
+  console.log('🟢 [CHAT] contextWindowDisplay computed:', display)
+
+  return display;
 });
 
 const contextPercentage = computed(() => {
@@ -242,6 +255,35 @@ watch(
       scrollToBottom();
     }
   }
+);
+
+// Ref to track context update animation
+const contextUpdated = ref(false);
+
+// DIAGNOSTIC: Watch orchestratorAgent for changes to verify reactivity
+watch(
+  () => store.orchestratorAgent,
+  (newVal, oldVal) => {
+    console.log('🟢 [CHAT] orchestratorAgent watcher triggered')
+    console.log('  Old input_tokens:', oldVal?.input_tokens)
+    console.log('  New input_tokens:', newVal?.input_tokens)
+    console.log('  Old output_tokens:', oldVal?.output_tokens)
+    console.log('  New output_tokens:', newVal?.output_tokens)
+    console.log('  Old total_cost:', oldVal?.total_cost)
+    console.log('  New total_cost:', newVal?.total_cost)
+
+    // Trigger visual update indicator if tokens changed
+    if (oldVal && newVal &&
+        (oldVal.input_tokens !== newVal.input_tokens ||
+         oldVal.output_tokens !== newVal.output_tokens)) {
+      console.log('🟢 [CHAT] Tokens changed - triggering visual update indicator')
+      contextUpdated.value = true;
+      setTimeout(() => {
+        contextUpdated.value = false;
+      }, 1000);
+    }
+  },
+  { deep: true }
 );
 
 const formatTime = (timestamp: string | Date) => {
@@ -435,6 +477,26 @@ onMounted(() => {
   }
   50% {
     opacity: 0.7;
+  }
+}
+
+/* Update indicator animation */
+.context-updated {
+  animation: pulse-update 0.6s ease-out;
+}
+
+@keyframes pulse-update {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 8px rgba(6, 182, 212, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(6, 182, 212, 0);
   }
 }
 

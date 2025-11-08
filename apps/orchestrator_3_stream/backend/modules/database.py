@@ -20,7 +20,12 @@ from typing import Optional, List, Dict, Any
 from contextlib import asynccontextmanager
 
 from .orch_database_models import Agent, AgentLog
-from .config import DEFAULT_AGENT_LOG_LIMIT, DEFAULT_SYSTEM_LOG_LIMIT, DEFAULT_CHAT_HISTORY_LIMIT
+from .config import (
+    DEFAULT_AGENT_LOG_LIMIT,
+    DEFAULT_SYSTEM_LOG_LIMIT,
+    DEFAULT_CHAT_HISTORY_LIMIT,
+    DATABASE_COMMAND_TIMEOUT,
+)
 
 # Global connection pool
 _pool: Optional[asyncpg.Pool] = None
@@ -58,7 +63,7 @@ async def init_pool(
         raise ValueError("DATABASE_URL environment variable not set")
 
     _pool = await asyncpg.create_pool(
-        url, min_size=min_size, max_size=max_size, command_timeout=60
+        url, min_size=min_size, max_size=max_size, command_timeout=DATABASE_COMMAND_TIMEOUT
     )
 
     return _pool
@@ -406,6 +411,25 @@ async def update_orchestrator_costs(
         ... )
     """
     async with get_connection() as conn:
+        # DIAGNOSTIC: Get current values before update
+        before_row = await conn.fetchrow(
+            """
+            SELECT id, input_tokens, output_tokens, total_cost
+            FROM orchestrator_agents
+            WHERE id = $1 AND archived = false
+            """,
+            orchestrator_agent_id,
+        )
+
+        if before_row:
+            print(f"[DATABASE] BEFORE UPDATE - Orchestrator {orchestrator_agent_id}")
+            print(f"  Current input_tokens: {before_row['input_tokens']}")
+            print(f"  Current output_tokens: {before_row['output_tokens']}")
+            print(f"  Current total_cost: ${before_row['total_cost']:.6f}")
+            print(f"  Adding input_tokens: {input_tokens}")
+            print(f"  Adding output_tokens: {output_tokens}")
+            print(f"  Adding cost_usd: ${cost_usd:.6f}")
+
         # Execute the UPDATE - with ID matching to only update THIS orchestrator
         result = await conn.execute(
             """
@@ -433,6 +457,13 @@ async def update_orchestrator_costs(
         )
 
         if row:
+            print(f"[DATABASE] AFTER UPDATE - Orchestrator {orchestrator_agent_id}")
+            print(f"  New input_tokens: {row['input_tokens']}")
+            print(f"  New output_tokens: {row['output_tokens']}")
+            print(f"  New total_tokens: {row['input_tokens'] + row['output_tokens']}")
+            print(f"  New total_cost: ${row['total_cost']:.6f}")
+            print(f"  Rows updated: {int(result.split()[-1]) if result else 0}")
+
             return {
                 "success": True,
                 "rows_updated": int(result.split()[-1]) if result else 0,
@@ -443,6 +474,7 @@ async def update_orchestrator_costs(
                 "updated_at": row["updated_at"].isoformat() if row["updated_at"] else None,
             }
         else:
+            print(f"[DATABASE] ERROR: No orchestrator found with id={orchestrator_agent_id}")
             return {
                 "success": False,
                 "rows_updated": 0,

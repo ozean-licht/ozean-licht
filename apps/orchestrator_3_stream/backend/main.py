@@ -155,11 +155,18 @@ async def lifespan(app: FastAPI):
     app.state.orchestrator_service = orchestrator_service
     app.state.orchestrator = orchestrator
 
+    # Start WebSocket keepalive mechanism
+    logger.info("Starting WebSocket keepalive mechanism...")
+    await ws_manager.start_keepalive()
+
     logger.success("Backend initialization complete")
 
     yield  # Server runs
 
     # Shutdown
+    logger.info("Stopping WebSocket keepalive mechanism...")
+    await ws_manager.stop_keepalive()
+
     logger.info("Closing database connection pool...")
     await database.close_pool()
     logger.shutdown()

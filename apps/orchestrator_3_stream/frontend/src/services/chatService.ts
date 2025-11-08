@@ -147,6 +147,8 @@ export function connectWebSocket(
           break
 
         case 'orchestrator_updated':
+          console.log('🔵 [WEBSOCKET] Received orchestrator_updated message')
+          console.log('  Message:', JSON.stringify(message, null, 2))
           callbacks.onOrchestratorUpdated?.(message)
           break
 

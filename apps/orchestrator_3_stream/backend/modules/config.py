@@ -195,6 +195,25 @@ COST_ALERT_THRESHOLD = float(os.getenv("COST_ALERT_THRESHOLD", "10.0"))
 COST_CRITICAL_THRESHOLD = float(os.getenv("COST_CRITICAL_THRESHOLD", "50.0"))
 
 # ============================================================================
+# TIMEOUT CONFIGURATION
+# ============================================================================
+
+# Database operation timeouts
+# Increased from 60s to 180s to allow sufficient time for complex orchestrator operations
+DATABASE_COMMAND_TIMEOUT = int(os.getenv("DATABASE_COMMAND_TIMEOUT", "180"))
+
+# Claude SDK timeout for API calls (5 minutes for complex operations)
+# This ensures long-running agent operations don't timeout prematurely
+CLAUDE_SDK_TIMEOUT = int(os.getenv("CLAUDE_SDK_TIMEOUT", "300"))
+
+# WebSocket keepalive configuration
+# Ping interval prevents long-running connections from timing out
+WEBSOCKET_PING_INTERVAL = int(os.getenv("WEBSOCKET_PING_INTERVAL", "30"))
+
+# WebSocket connection timeout (how long to wait before considering connection dead)
+WEBSOCKET_CONNECTION_TIMEOUT = int(os.getenv("WEBSOCKET_CONNECTION_TIMEOUT", "60"))
+
+# ============================================================================
 # IDE INTEGRATION CONFIGURATION
 # ============================================================================
 
@@ -229,4 +248,9 @@ if TOKEN_MANAGEMENT_ENABLED:
     config_logger.info(f"  Rate Limit:    {RATE_LIMIT_TOKENS_PER_MINUTE:,} tokens/min")
     config_logger.info(f"  Cache:         {RESPONSE_CACHE_ENABLED} (size={RESPONSE_CACHE_MAX_SIZE}, ttl={RESPONSE_CACHE_TTL_SECONDS}s)")
     config_logger.info(f"  Cost Alerts:   ${COST_ALERT_THRESHOLD:.2f} (warn) / ${COST_CRITICAL_THRESHOLD:.2f} (critical)")
+config_logger.info("-" * 70)
+config_logger.info("TIMEOUT CONFIGURATION:")
+config_logger.info(f"  Database:      {DATABASE_COMMAND_TIMEOUT}s (command timeout)")
+config_logger.info(f"  Claude SDK:    {CLAUDE_SDK_TIMEOUT}s (API timeout)")
+config_logger.info(f"  WebSocket:     {WEBSOCKET_PING_INTERVAL}s (ping) / {WEBSOCKET_CONNECTION_TIMEOUT}s (timeout)")
 config_logger.info("=" * 70)

@@ -463,12 +463,57 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
   }
 
   function handleOrchestratorUpdated(message: any) {
-    console.log('Orchestrator updated:', message)
+    console.log('🔵 [STORE] Orchestrator updated event received')
+    console.log('  Full message:', JSON.stringify(message, null, 2))
+
+    // Validate message structure
+    if (!message || typeof message !== 'object') {
+      console.error('❌ Invalid message structure - message is not an object')
+      return
+    }
+
+    if (!message.orchestrator) {
+      console.error('❌ Invalid message structure - missing orchestrator field')
+      return
+    }
 
     // Update orchestrator agent data with live cost and token updates
     const orchestratorData = message.orchestrator
 
-    if (orchestratorData && orchestratorAgent.value) {
+    if (!orchestratorAgent.value) {
+      console.error('❌ Cannot update orchestrator - orchestratorAgent.value is null')
+      console.log('  orchestratorData:', orchestratorData)
+      return
+    }
+
+    // Validate orchestrator data has expected fields
+    if (typeof orchestratorData.input_tokens !== 'number' &&
+        orchestratorData.input_tokens !== undefined) {
+      console.warn('⚠️ Unexpected input_tokens type:', typeof orchestratorData.input_tokens)
+    }
+
+    if (typeof orchestratorData.output_tokens !== 'number' &&
+        orchestratorData.output_tokens !== undefined) {
+      console.warn('⚠️ Unexpected output_tokens type:', typeof orchestratorData.output_tokens)
+    }
+
+    if (typeof orchestratorData.total_cost !== 'number' &&
+        orchestratorData.total_cost !== undefined) {
+      console.warn('⚠️ Unexpected total_cost type:', typeof orchestratorData.total_cost)
+    }
+
+    // DIAGNOSTIC: Log before update
+    console.log('  BEFORE UPDATE:')
+    console.log('    Current input_tokens:', orchestratorAgent.value.input_tokens)
+    console.log('    Current output_tokens:', orchestratorAgent.value.output_tokens)
+    console.log('    Current total_cost:', orchestratorAgent.value.total_cost)
+
+    console.log('  NEW DATA FROM WEBSOCKET:')
+    console.log('    New input_tokens:', orchestratorData.input_tokens)
+    console.log('    New output_tokens:', orchestratorData.output_tokens)
+    console.log('    New total_cost:', orchestratorData.total_cost)
+
+    try {
       // Update orchestratorAgent with new cost and token data
       orchestratorAgent.value = {
         ...orchestratorAgent.value,
@@ -478,7 +523,17 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
         updated_at: orchestratorData.updated_at ?? orchestratorAgent.value.updated_at
       }
 
-      console.log(`✅ Updated orchestrator cost: $${orchestratorData.total_cost?.toFixed(4)} | Tokens: ${orchestratorData.input_tokens + orchestratorData.output_tokens}`)
+      // DIAGNOSTIC: Log after update
+      console.log('  AFTER UPDATE:')
+      console.log('    Updated input_tokens:', orchestratorAgent.value.input_tokens)
+      console.log('    Updated output_tokens:', orchestratorAgent.value.output_tokens)
+      console.log('    Updated total_tokens:', orchestratorAgent.value.input_tokens + orchestratorAgent.value.output_tokens)
+      console.log('    Updated total_cost:', orchestratorAgent.value.total_cost)
+
+      console.log(`✅ Updated orchestrator cost: $${orchestratorData.total_cost?.toFixed(4)} | Tokens: ${(orchestratorData.input_tokens || 0) + (orchestratorData.output_tokens || 0)}`)
+    } catch (error) {
+      console.error('❌ Error updating orchestrator:', error)
+      console.error('  Stack trace:', error instanceof Error ? error.stack : 'No stack trace')
     }
   }
 
@@ -908,7 +963,14 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
       const response = await chatService.getOrchestratorInfo()
       orchestratorAgentId.value = response.orchestrator.id
       orchestratorAgent.value = response.orchestrator
-      console.log('Orchestrator info loaded:', orchestratorAgentId.value, 'Cost:', response.orchestrator.total_cost)
+
+      // DIAGNOSTIC: Log initial orchestrator state with tokens
+      console.log('🟢 [STORE] Orchestrator info loaded from /get_orchestrator')
+      console.log('  ID:', orchestratorAgentId.value)
+      console.log('  input_tokens:', response.orchestrator.input_tokens)
+      console.log('  output_tokens:', response.orchestrator.output_tokens)
+      console.log('  total_cost:', response.orchestrator.total_cost)
+      console.log('  Full orchestrator data:', response.orchestrator)
     } catch (error) {
       console.error('Failed to load orchestrator info:', error)
       // Fall back to a safe default behavior

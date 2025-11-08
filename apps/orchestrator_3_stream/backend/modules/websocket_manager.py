@@ -4,11 +4,13 @@ WebSocket Manager Module
 Handles WebSocket connections and event broadcasting for real-time updates
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from fastapi import WebSocket, WebSocketDisconnect
 import json
+import asyncio
 from datetime import datetime
 from .logger import get_logger
+from .config import WEBSOCKET_PING_INTERVAL, WEBSOCKET_CONNECTION_TIMEOUT
 
 logger = get_logger()
 
@@ -21,6 +23,8 @@ class WebSocketManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
         self.connection_metadata: Dict[WebSocket, Dict[str, Any]] = {}
+        self._keepalive_task: Optional[asyncio.Task] = None
+        self._shutdown = False
 
     async def connect(self, websocket: WebSocket, client_id: str = None):
         """
@@ -159,6 +163,14 @@ class WebSocketManager:
 
     async def broadcast_orchestrator_updated(self, orchestrator_data: dict):
         """Broadcast orchestrator update (cost, tokens, status, etc.)"""
+        # DIAGNOSTIC: Log the exact data being broadcast
+        print(f"[WEBSOCKET] Broadcasting orchestrator_updated")
+        print(f"  orchestrator data keys: {list(orchestrator_data.keys())}")
+        print(f"  input_tokens: {orchestrator_data.get('input_tokens', 'MISSING')}")
+        print(f"  output_tokens: {orchestrator_data.get('output_tokens', 'MISSING')}")
+        print(f"  total_cost: {orchestrator_data.get('total_cost', 'MISSING')}")
+        print(f"  id: {orchestrator_data.get('id', 'MISSING')}")
+
         await self.broadcast({
             "type": "orchestrator_updated",
             "orchestrator": orchestrator_data
@@ -221,6 +233,89 @@ class WebSocketManager:
                 "timestamp": datetime.now().isoformat(),
             }
         )
+
+    # ========================================================================
+    # WebSocket Keepalive / Ping-Pong Mechanism
+    # ========================================================================
+
+    async def start_keepalive(self):
+        """
+        Start the keepalive task that sends periodic pings to all connected clients.
+        Prevents long-running connections from timing out.
+        """
+        if self._keepalive_task is None or self._keepalive_task.done():
+            self._shutdown = False
+            self._keepalive_task = asyncio.create_task(self._keepalive_loop())
+            logger.info(
+                f"✅ WebSocket keepalive started (ping every {WEBSOCKET_PING_INTERVAL}s)"
+            )
+
+    async def stop_keepalive(self):
+        """
+        Stop the keepalive task gracefully.
+        """
+        self._shutdown = True
+        if self._keepalive_task and not self._keepalive_task.done():
+            self._keepalive_task.cancel()
+            try:
+                await self._keepalive_task
+            except asyncio.CancelledError:
+                pass
+            logger.info("✅ WebSocket keepalive stopped")
+
+    async def _keepalive_loop(self):
+        """
+        Keepalive loop that sends periodic pings to all connected clients.
+        Runs in the background until stopped.
+        """
+        logger.info(f"🔄 WebSocket keepalive loop started")
+
+        while not self._shutdown:
+            try:
+                # Wait for ping interval
+                await asyncio.sleep(WEBSOCKET_PING_INTERVAL)
+
+                if not self.active_connections:
+                    logger.debug("No active connections, skipping ping")
+                    continue
+
+                # Send ping to all connected clients
+                disconnected = []
+                for connection in self.active_connections:
+                    try:
+                        # Send ping frame
+                        await asyncio.wait_for(
+                            connection.send_json({
+                                "type": "ping",
+                                "timestamp": datetime.now().isoformat()
+                            }),
+                            timeout=WEBSOCKET_CONNECTION_TIMEOUT
+                        )
+                        logger.debug(f"📡 Sent ping to client")
+                    except asyncio.TimeoutError:
+                        logger.warning(f"⏰ Ping timeout for client, marking for disconnection")
+                        disconnected.append(connection)
+                    except Exception as e:
+                        logger.error(f"❌ Failed to send ping to client: {e}")
+                        disconnected.append(connection)
+
+                # Clean up disconnected clients
+                for ws in disconnected:
+                    self.disconnect(ws)
+
+                if disconnected:
+                    logger.warning(
+                        f"🧹 Cleaned up {len(disconnected)} dead connection(s) "
+                        f"| Active: {len(self.active_connections)}"
+                    )
+
+            except asyncio.CancelledError:
+                logger.info("🛑 Keepalive loop cancelled")
+                break
+            except Exception as e:
+                logger.error(f"❌ Error in keepalive loop: {e}")
+                # Continue running despite errors
+                await asyncio.sleep(5)  # Back off on errors
 
     # ========================================================================
     # Connection Management
