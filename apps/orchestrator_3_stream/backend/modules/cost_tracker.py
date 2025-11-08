@@ -358,3 +358,71 @@ class CostTracker:
 
         if self.logger:
             self.logger.info("All cost tracking data reset")
+
+    def check_threshold(self) -> bool:
+        """
+        Check if global cost has exceeded alert threshold.
+
+        Returns:
+            True if total cost exceeds alert threshold, False otherwise
+        """
+        return self._total_cost >= self.alert_threshold
+
+    def get_total_cost(self) -> float:
+        """
+        Get total cost across all sessions.
+
+        Returns:
+            Total cost in USD
+        """
+        return self._total_cost
+
+    def get_total_input_tokens(self) -> int:
+        """
+        Get total input tokens across all sessions.
+
+        Returns:
+            Total input tokens
+        """
+        total = 0
+        for session in self._sessions.values():
+            total += session.total_input_tokens
+        return total
+
+    def get_total_output_tokens(self) -> int:
+        """
+        Get total output tokens across all sessions.
+
+        Returns:
+            Total output tokens
+        """
+        total = 0
+        for session in self._sessions.values():
+            total += session.total_output_tokens
+        return total
+
+    def get_detailed_report(self) -> Dict[str, Any]:
+        """
+        Get detailed cost breakdown by session.
+
+        Returns:
+            Dict with per-session cost breakdown
+        """
+        sessions_data = {}
+        for session_id, session in self._sessions.items():
+            sessions_data[session_id] = {
+                "input_tokens": session.total_input_tokens,
+                "output_tokens": session.total_output_tokens,
+                "total_cost": session.total_cost,
+                "request_count": session.request_count,
+                "average_cost_per_request": session.total_cost / session.request_count if session.request_count > 0 else 0.0
+            }
+
+        return {
+            "total_cost": self._total_cost,
+            "total_requests": self._total_requests,
+            "sessions": sessions_data,
+            "alert_threshold": self.alert_threshold,
+            "critical_threshold": self.critical_threshold,
+            "threshold_exceeded": self._total_cost >= self.alert_threshold
+        }
