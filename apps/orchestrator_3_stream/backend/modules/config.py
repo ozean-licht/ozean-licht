@@ -174,13 +174,14 @@ DEFAULT_CHAT_HISTORY_LIMIT = int(os.getenv("DEFAULT_CHAT_HISTORY_LIMIT", "300"))
 # Feature flag to enable/disable token optimization system
 TOKEN_MANAGEMENT_ENABLED = os.getenv("TOKEN_MANAGEMENT_ENABLED", "true").lower() in ["true", "1", "yes"]
 
-# Context window limits - AGGRESSIVE SETTINGS TO FIX RATE LIMITING
-# PRIORITY 1: Reduced from 50/50000 to fix 90% input token rate limiting
-MAX_CONTEXT_MESSAGES = int(os.getenv("MAX_CONTEXT_MESSAGES", "20"))  # Aggressive: was 50
-MAX_CONTEXT_TOKENS = int(os.getenv("MAX_CONTEXT_TOKENS", "25000"))  # Aggressive: was 50000
+# Context window limits - FULL CAPACITY for effective orchestration
+# Claude Sonnet 4.5 has 200k context window - using 60% for context, 40% for responses
+# Message limit is generous, token limit (120k) is the real constraint
+MAX_CONTEXT_MESSAGES = int(os.getenv("MAX_CONTEXT_MESSAGES", "200"))  # Full boost: was 20 (aggressive)
+MAX_CONTEXT_TOKENS = int(os.getenv("MAX_CONTEXT_TOKENS", "120000"))  # Full boost: was 25k (aggressive)
 
-# Rate limiting (40% of 1M/minute API limit for safety)
-RATE_LIMIT_TOKENS_PER_MINUTE = int(os.getenv("RATE_LIMIT_TOKENS_PER_MINUTE", "400000"))
+# Rate limiting (60% of 1M/minute API limit for headroom)
+RATE_LIMIT_TOKENS_PER_MINUTE = int(os.getenv("RATE_LIMIT_TOKENS_PER_MINUTE", "600000"))
 RATE_LIMIT_BACKOFF_THRESHOLD = float(os.getenv("RATE_LIMIT_BACKOFF_THRESHOLD", "0.8"))
 
 # Response caching
