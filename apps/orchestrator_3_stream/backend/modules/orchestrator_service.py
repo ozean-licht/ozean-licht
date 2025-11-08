@@ -31,7 +31,6 @@ from .config import (
     RESPONSE_CACHE_TTL_SECONDS,
     COST_ALERT_THRESHOLD as COST_ALERT_THRESHOLD_USD,
     ORCHESTRATOR_MODEL,
-    CLAUDE_SDK_TIMEOUT,
 )
 
 
@@ -406,7 +405,8 @@ class OrchestratorService:
             "cwd": self.working_dir,  # Global workspace for file operations
             "resume": resume_session,
             "env": env_vars,  # Ensure API key is available to subprocess
-            "timeout": CLAUDE_SDK_TIMEOUT,  # 5-minute timeout for complex operations
+            # NOTE: Claude Agent SDK doesn't support timeout parameter directly
+            # Timeout is handled at the HTTP client level in the SDK
         }
 
         # Add hooks for event tracking if orchestrator_agent_id provided

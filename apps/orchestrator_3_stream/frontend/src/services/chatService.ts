@@ -160,6 +160,10 @@ export function connectWebSocket(
           console.log('WebSocket connection established:', message.client_id)
           break
 
+        case 'ping':
+          // Keepalive ping from server - silently ignore (no action needed)
+          break
+
         default:
           console.log('Unknown message type:', message.type)
       }
