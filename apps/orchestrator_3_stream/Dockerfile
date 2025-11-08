@@ -6,12 +6,15 @@ WORKDIR /app/frontend
 
 # Copy package files
 COPY apps/orchestrator_3_stream/frontend/package*.json ./
-RUN npm ci
+
+# Install dependencies with timeout and retry settings
+RUN npm ci --prefer-offline --no-audit --progress=false --loglevel=error
 
 # Copy frontend source
 COPY apps/orchestrator_3_stream/frontend/ ./
 
-# Build frontend
+# Build frontend with increased memory and timeout
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN npm run build
 
 # Stage 2: Backend with Python
@@ -24,17 +27,22 @@ RUN groupadd -g 1000 adw-user && \
 WORKDIR /app
 
 # Install system dependencies including Node.js for Claude Code CLI
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     postgresql-client \
     nodejs \
     npm \
     lsof \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && npm config set registry https://registry.npmjs.org/ \
+    && npm config set fetch-retries 5 \
+    && npm config set fetch-retry-mintimeout 20000 \
+    && npm config set fetch-retry-maxtimeout 120000
 
-# Install Claude Code CLI globally
-RUN npm install -g @anthropic-ai/claude-code
+# Install Claude Code CLI globally with retry settings
+RUN npm install -g @anthropic-ai/claude-code --loglevel=error --prefer-offline || \
+    npm install -g @anthropic-ai/claude-code --loglevel=error
 
 # Install UV (Python package manager) for adw-user
 USER adw-user
@@ -48,8 +56,9 @@ USER root
 COPY apps/orchestrator_3_stream/backend/pyproject.toml apps/orchestrator_3_stream/backend/uv.lock ./backend/
 WORKDIR /app/backend
 
-# Install Python dependencies
-RUN uv sync --frozen
+# Install Python dependencies with increased timeout
+ENV UV_HTTP_TIMEOUT=300
+RUN uv sync --frozen --no-progress
 
 # Copy rest of backend
 COPY apps/orchestrator_3_stream/backend/ ./
