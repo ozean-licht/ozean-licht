@@ -394,9 +394,9 @@ async def reboot_orchestrator():
         logger.info("🔄 Rebooting orchestrator (backend + frontend)...")
 
         # Construct absolute path to reboot script
-        # From: /app/backend/main.py
-        # To:   /opt/ozean-licht-ecosystem/scripts/reboot-orchestrator.sh
-        script_path = Path(__file__).parent.parent.parent.parent / "scripts" / "reboot-orchestrator.sh"
+        # Use ORCHESTRATOR_WORKING_DIR to find script in mounted volume
+        # In Docker: /opt/ozean-licht-ecosystem/scripts/reboot-orchestrator.sh
+        script_path = Path(config.get_working_dir()) / "scripts" / "reboot-orchestrator.sh"
 
         if not script_path.exists():
             logger.error(f"❌ Reboot script not found: {script_path}")
