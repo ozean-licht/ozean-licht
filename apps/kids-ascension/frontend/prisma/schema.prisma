@@ -1,0 +1,25 @@
+// ============================================
+// Kids Ascension - Prisma Schema Reference
+// Database: shared_users_db
+// ============================================
+// This schema links to the shared authentication database
+// for unified user management across the Ozean Licht ecosystem.
+//
+// Related Files:
+// - /shared/database/prisma/schema.prisma (source of truth)
+// - /apps/kids-ascension/frontend/lib/auth.ts (authentication logic)
+
+datasource db {
+  provider = "postgresql"
+  url      = env("SHARED_USERS_DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../shared/database/node_modules/.prisma/client-shared-users"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+// Note: This schema references the shared database schema.
+// The actual models are defined in /shared/database/prisma/schema.prisma
+// Run `prisma generate` from the shared/database directory to generate the client.

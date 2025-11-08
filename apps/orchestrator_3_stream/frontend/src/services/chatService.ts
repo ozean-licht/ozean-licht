@@ -19,11 +19,15 @@ export async function getOrchestratorInfo() {
 /**
  * Reset orchestrator agent context
  *
- * Clears cache, resets rate limiter, and reloads fresh data from database
- * while maintaining session continuity.
+ * Clears cache, resets rate limiter, and reloads fresh data from database.
+ *
+ * @param clearSession - If true, clears Claude SDK session to start completely fresh
+ * @returns Promise with reset result
  */
-export async function resetOrchestratorContext() {
-  const response = await apiClient.post('/api/orchestrator/reset')
+export async function resetOrchestratorContext(clearSession: boolean = true) {
+  const response = await apiClient.post('/api/orchestrator/reset', null, {
+    params: { clear_session: clearSession }
+  })
   return response.data
 }
 

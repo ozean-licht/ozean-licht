@@ -309,7 +309,7 @@ async def clear_cache():
 
 
 @app.post("/api/orchestrator/reset")
-async def reset_orchestrator_context():
+async def reset_orchestrator_context(clear_session: bool = False):
     """
     Reset the orchestrator agent context.
 
@@ -317,14 +317,19 @@ async def reset_orchestrator_context():
     1. Clears the response cache (if enabled)
     2. Resets rate limiter state
     3. Forces fresh data reload from database
-    4. Maintains session continuity (does NOT create new orchestrator)
+    4. Optionally clears Claude SDK session_id (if clear_session=true)
 
-    Use this when the orchestrator needs a fresh context reload without
-    creating an entirely new agent session.
+    Query Parameters:
+        clear_session: If true, clears the Claude SDK session_id to force
+                      completely fresh context on next interaction.
+                      Default: false (maintains session continuity)
+
+    Use this when the orchestrator needs a fresh context reload.
+    Use clear_session=true before reboots to start with clean context.
     """
     try:
         logger.http_request("POST", "/api/orchestrator/reset")
-        logger.info("🔄 Resetting orchestrator context...")
+        logger.info(f"🔄 Resetting orchestrator context (clear_session={clear_session})...")
 
         # Clear response cache if enabled
         if hasattr(app.state, 'orchestrator_service'):
@@ -340,6 +345,19 @@ async def reset_orchestrator_context():
                 service.rate_limiter.reset()
                 logger.info("✅ Rate limiter reset")
 
+            # Clear Claude SDK session if requested
+            if clear_session:
+                orchestrator_id = app.state.orchestrator.id
+                clear_result = await database.clear_orchestrator_session(orchestrator_id)
+
+                if clear_result.get("success"):
+                    logger.success("✅ Claude SDK session cleared - orchestrator will start fresh on next interaction")
+                    # Update in-memory state
+                    service.session_id = None
+                    service.started_with_session = False
+                else:
+                    logger.warning(f"⚠️ Failed to clear session: {clear_result.get('error')}")
+
             # Refresh orchestrator data from database
             orchestrator_id = app.state.orchestrator.id
             fresh_orchestrator_data = await database.get_orchestrator_by_id(orchestrator_id)
@@ -353,9 +371,10 @@ async def reset_orchestrator_context():
 
             return {
                 "success": True,
-                "message": "Orchestrator context reset successfully",
+                "message": f"Orchestrator context reset successfully (session_cleared={clear_session})",
                 "orchestrator_id": str(app.state.orchestrator.id),
                 "session_id": app.state.orchestrator.session_id,
+                "session_cleared": clear_session,
                 "timestamp": datetime.now(timezone.utc).isoformat()
             }
         else:

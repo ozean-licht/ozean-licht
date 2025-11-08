@@ -21,7 +21,7 @@ import type {
   EventStreamFilter
 } from '../types'
 import * as chatService from '../services/chatService'
-import { rebootOrchestrator } from '../services/chatService'
+import { resetOrchestratorContext } from '../services/chatService'
 import * as agentService from '../services/agentService'
 import { getEvents } from '../services/eventService'
 import { DEFAULT_EVENT_HISTORY_LIMIT } from '../config/constants'
@@ -1023,14 +1023,14 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
 
     try {
       isRefreshing.value = true
-      console.log('🔄 Rebooting orchestrator (backend + frontend)...')
+      console.log('🔄 Resetting orchestrator context...')
 
-      // Call backend reboot endpoint to trigger full orchestrator restart
+      // Call backend reset endpoint to clear state (NO backend restart)
       try {
-        const rebootResult = await rebootOrchestrator()
-        console.log('✅ Backend reboot triggered:', rebootResult)
+        const resetResult = await resetOrchestratorContext(true) // clear_session=true
+        console.log('✅ Backend context reset:', resetResult)
       } catch (error) {
-        console.error('⚠️  Backend reboot failed, continuing with frontend reset:', error)
+        console.error('⚠️  Backend reset failed, continuing with frontend reset:', error)
         // Continue with frontend reset even if backend fails
       }
 
@@ -1047,14 +1047,14 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
       isTyping.value = false
       console.log('✅ State cleared')
 
-      // Wait for backend to fully restart (give it a few seconds)
-      console.log('⏳ Waiting for backend to restart...')
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      // Small delay to ensure backend has processed reset
+      console.log('⏳ Waiting for backend to process reset...')
+      await new Promise(resolve => setTimeout(resolve, 500))
 
       // Re-initialize store (fetches fresh data from backend)
       await initialize()
 
-      console.log('✅ Orchestrator reboot complete')
+      console.log('✅ Orchestrator context reset complete')
 
       // Optional: Show success notification in UI
       // TODO: Add toast notification component

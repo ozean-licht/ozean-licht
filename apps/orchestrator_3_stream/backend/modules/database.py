@@ -547,6 +547,59 @@ async def update_orchestrator_metadata(
         )
 
 
+async def clear_orchestrator_session(
+    orchestrator_agent_id: uuid.UUID
+) -> Dict[str, Any]:
+    """
+    Clear orchestrator's Claude SDK session ID to force fresh context on restart.
+
+    This sets session_id to NULL, which forces Claude SDK to start a completely
+    fresh session with no prior conversation history when the orchestrator
+    is next initialized.
+
+    Use this when you want to reset the orchestrator's context without creating
+    a new orchestrator agent.
+
+    Args:
+        orchestrator_agent_id: UUID of the specific orchestrator to clear
+
+    Returns:
+        Dictionary with success status and updated orchestrator data
+
+    Example:
+        >>> result = await clear_orchestrator_session(orch_id)
+        >>> print(f"Session cleared: {result['success']}")
+    """
+    async with get_connection() as conn:
+        # Clear the session_id
+        row = await conn.fetchrow(
+            """
+            UPDATE orchestrator_agents
+            SET session_id = NULL, updated_at = NOW()
+            WHERE id = $1 AND archived = false
+            RETURNING id, session_id, status, input_tokens, output_tokens, total_cost, updated_at
+            """,
+            orchestrator_agent_id,
+        )
+
+        if row:
+            return {
+                "success": True,
+                "id": str(row["id"]),
+                "session_id": row["session_id"],  # Should be None
+                "status": row["status"],
+                "input_tokens": row["input_tokens"],
+                "output_tokens": row["output_tokens"],
+                "total_cost": float(row["total_cost"]) if row["total_cost"] else 0.0,
+                "updated_at": row["updated_at"].isoformat() if row["updated_at"] else None,
+            }
+        else:
+            return {
+                "success": False,
+                "error": "Orchestrator not found or already archived"
+            }
+
+
 # ═══════════════════════════════════════════════════════════
 # CHAT MESSAGE OPERATIONS
 # ═══════════════════════════════════════════════════════════

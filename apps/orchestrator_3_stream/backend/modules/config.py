@@ -165,6 +165,8 @@ DEFAULT_AGENT_LOG_LIMIT = int(os.getenv("DEFAULT_AGENT_LOG_LIMIT", "50"))
 DEFAULT_SYSTEM_LOG_LIMIT = int(os.getenv("DEFAULT_SYSTEM_LOG_LIMIT", "50"))
 
 # Default limit for chat history queries
+# Load 300 messages for full context, but use smart summarization to condense
+# Older messages are summarized while recent ones are kept in full detail
 DEFAULT_CHAT_HISTORY_LIMIT = int(os.getenv("DEFAULT_CHAT_HISTORY_LIMIT", "300"))
 
 # ============================================================================
@@ -174,17 +176,33 @@ DEFAULT_CHAT_HISTORY_LIMIT = int(os.getenv("DEFAULT_CHAT_HISTORY_LIMIT", "300"))
 # Feature flag to enable/disable token optimization system
 TOKEN_MANAGEMENT_ENABLED = os.getenv("TOKEN_MANAGEMENT_ENABLED", "true").lower() in ["true", "1", "yes"]
 
-# Context window limits - FULL CAPACITY for effective orchestration
-# Claude Sonnet 4.5 has 200k context window - using 60% for context, 40% for responses
-# Message limit is generous, token limit (120k) is the real constraint
-MAX_CONTEXT_MESSAGES = int(os.getenv("MAX_CONTEXT_MESSAGES", "200"))  # Full boost: was 20 (aggressive)
-MAX_CONTEXT_TOKENS = int(os.getenv("MAX_CONTEXT_TOKENS", "120000"))  # Full boost: was 25k (aggressive)
+# Context window limits - Uses smart summarization to maintain long-term memory
+#
+# STRATEGY: Load full history but use MessageSummarizer to condense old messages
+# - Recent messages (0-30): Keep in full detail
+# - Mid-range (31-100): Light summarization
+# - Old messages (101+): Heavy summarization into conversation segments
+#
+# This allows orchestrator to:
+# - Remember user intent from 200+ messages ago
+# - Track agent lifecycle across long conversations
+# - Stay under token limits without losing context
+#
+# Claude Sonnet 4.5 has 200k context window, we target ~40-50k for safety:
+# - System prompt + tools + CLAUDE.md: ~5-10k tokens
+# - Summarized old messages: ~5-10k tokens
+# - Recent messages (30-50 full): ~20-30k tokens
+# - Total: ~40-50k tokens (leaves 150k for response)
+MAX_CONTEXT_MESSAGES = int(os.getenv("MAX_CONTEXT_MESSAGES", "200"))  # Before summarization
+MAX_CONTEXT_TOKENS = int(os.getenv("MAX_CONTEXT_TOKENS", "200000"))  # Full window - summarizer keeps ~50k
 
-# Rate limiting (60% of 1M/minute API limit for headroom)
-RATE_LIMIT_TOKENS_PER_MINUTE = int(os.getenv("RATE_LIMIT_TOKENS_PER_MINUTE", "600000"))
+# Rate limiting (Full 1M/minute API limit with 80% backoff)
+RATE_LIMIT_TOKENS_PER_MINUTE = int(os.getenv("RATE_LIMIT_TOKENS_PER_MINUTE", "1000000"))
 RATE_LIMIT_BACKOFF_THRESHOLD = float(os.getenv("RATE_LIMIT_BACKOFF_THRESHOLD", "0.8"))
 
-# Response caching
+# Response caching - ENABLED with smart summarization
+# With message summarization, context stays reasonable (~40-50k tokens)
+# Cache helps with repeated queries and reduces API calls
 RESPONSE_CACHE_ENABLED = os.getenv("RESPONSE_CACHE_ENABLED", "true").lower() in ["true", "1", "yes"]
 RESPONSE_CACHE_MAX_SIZE = int(os.getenv("RESPONSE_CACHE_MAX_SIZE", "100"))
 RESPONSE_CACHE_TTL_SECONDS = int(os.getenv("RESPONSE_CACHE_TTL_SECONDS", "3600"))
@@ -245,8 +263,9 @@ config_logger.info("TOKEN MANAGEMENT:")
 config_logger.info(f"  Enabled:       {TOKEN_MANAGEMENT_ENABLED}")
 if TOKEN_MANAGEMENT_ENABLED:
     config_logger.info(f"  Max Context:   {MAX_CONTEXT_MESSAGES} messages / {MAX_CONTEXT_TOKENS:,} tokens")
+    config_logger.info(f"  Chat History:  {DEFAULT_CHAT_HISTORY_LIMIT} messages (smart summarization enabled)")
     config_logger.info(f"  Rate Limit:    {RATE_LIMIT_TOKENS_PER_MINUTE:,} tokens/min")
-    config_logger.info(f"  Cache:         {RESPONSE_CACHE_ENABLED} (size={RESPONSE_CACHE_MAX_SIZE}, ttl={RESPONSE_CACHE_TTL_SECONDS}s)")
+    config_logger.info(f"  Cache:         {RESPONSE_CACHE_ENABLED} (with summarized context)")
     config_logger.info(f"  Cost Alerts:   ${COST_ALERT_THRESHOLD:.2f} (warn) / ${COST_CRITICAL_THRESHOLD:.2f} (critical)")
 config_logger.info("-" * 70)
 config_logger.info("TIMEOUT CONFIGURATION:")

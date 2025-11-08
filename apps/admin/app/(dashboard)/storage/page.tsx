@@ -51,13 +51,11 @@ export default async function StoragePage() {
             bucket="shared-assets"
             entityScope="shared"
             uploadedBy={session.user.id || ''}
-            onUploadComplete={(fileKey) => {
-              console.log('Upload complete:', fileKey);
+            onUploadComplete={() => {
               // Refresh file list
               window.location.reload();
             }}
             onUploadError={(error) => {
-              console.error('Upload error:', error);
               alert(`Upload failed: ${error}`);
             }}
           />
@@ -73,8 +71,8 @@ export default async function StoragePage() {
           }
         >
           <FileList
-            onFileClick={(file) => {
-              console.log('File clicked:', file);
+            onFileClick={() => {
+              // File click handler - no action needed
             }}
             onDeleteFile={async (fileKey) => {
               if (confirm('Are you sure you want to delete this file?')) {
