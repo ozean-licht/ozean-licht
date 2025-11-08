@@ -71,6 +71,9 @@ const envSchema = z.object({
   GITHUB_PRIVATE_KEY: z.string().optional(),
   GITHUB_INSTALLATION_ID: z.string().optional(),
 
+  // Firecrawl - Web scraping service
+  FIRECRAWL_API_KEY: z.string().optional(),
+
   // Security
   JWT_SECRET: z.string().min(32),
   JWT_EXPIRES_IN: z.string().default('24h'),

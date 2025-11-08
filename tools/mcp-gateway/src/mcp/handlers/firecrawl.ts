@@ -94,10 +94,10 @@ export class FirecrawlHandler implements MCPHandler {
 
       switch (params.operation) {
         case 'scrape':
-          if (!params.args || !params.args.url) {
+          if (!params.args || params.args.length < 1) {
             throw new ValidationError('URL required for scrape operation');
           }
-          result = await this.scrapeUrl(params.args.url, params.options);
+          result = await this.scrapeUrl(params.args[0], params.options);
           break;
 
         case 'health':
