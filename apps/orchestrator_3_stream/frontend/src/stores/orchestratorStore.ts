@@ -21,6 +21,7 @@ import type {
   EventStreamFilter
 } from '../types'
 import * as chatService from '../services/chatService'
+import { rebootOrchestrator } from '../services/chatService'
 import * as agentService from '../services/agentService'
 import { getEvents } from '../services/eventService'
 import { DEFAULT_EVENT_HISTORY_LIMIT } from '../config/constants'
@@ -1022,14 +1023,14 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
 
     try {
       isRefreshing.value = true
-      console.log('🔄 Resetting orchestrator agent context...')
+      console.log('🔄 Rebooting orchestrator (backend + frontend)...')
 
-      // Call backend reset endpoint to clear cache and reset state
+      // Call backend reboot endpoint to trigger full orchestrator restart
       try {
-        const resetResult = await chatService.resetOrchestratorContext()
-        console.log('✅ Backend context reset:', resetResult)
+        const rebootResult = await rebootOrchestrator()
+        console.log('✅ Backend reboot triggered:', rebootResult)
       } catch (error) {
-        console.error('⚠️  Backend reset failed, continuing with frontend reset:', error)
+        console.error('⚠️  Backend reboot failed, continuing with frontend reset:', error)
         // Continue with frontend reset even if backend fails
       }
 
@@ -1039,12 +1040,12 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
       // Re-initialize store (fetches fresh data from backend)
       await initialize()
 
-      console.log('✅ Orchestrator agent reset complete')
+      console.log('✅ Orchestrator reboot complete')
 
       // Optional: Show success notification in UI
       // TODO: Add toast notification component
     } catch (error) {
-      console.error('❌ Orchestrator agent reset failed:', error)
+      console.error('❌ Orchestrator reboot failed:', error)
       // TODO: Show error notification
     } finally {
       isRefreshing.value = false

@@ -28,6 +28,18 @@ export async function resetOrchestratorContext() {
 }
 
 /**
+ * Reboot orchestrator service (backend + frontend)
+ *
+ * Triggers a complete orchestrator reboot by executing the reboot script
+ * on the server. This will restart the backend process, and the frontend
+ * will automatically reconnect via WebSocket.
+ */
+export async function rebootOrchestrator() {
+  const response = await apiClient.post('/api/orchestrator/reboot')
+  return response.data
+}
+
+/**
  * Load chat history for orchestrator agent
  * Gets the most recent N messages from the database
  */

@@ -372,6 +372,64 @@ async def reset_orchestrator_context():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/api/orchestrator/reboot")
+async def reboot_orchestrator():
+    """
+    Reboot the orchestrator service (backend + frontend).
+
+    This endpoint triggers a complete orchestrator reboot by executing the
+    reboot-orchestrator.sh script in a detached background process.
+
+    The script will:
+    1. Find and kill the running orchestrator backend process
+    2. Restart the orchestrator via Docker Compose
+    3. Frontend will reconnect automatically via WebSocket
+
+    Returns immediately after triggering the reboot script.
+    """
+    try:
+        import subprocess
+
+        logger.http_request("POST", "/api/orchestrator/reboot")
+        logger.info("🔄 Rebooting orchestrator (backend + frontend)...")
+
+        # Construct absolute path to reboot script
+        # From: /app/backend/main.py
+        # To:   /opt/ozean-licht-ecosystem/scripts/reboot-orchestrator.sh
+        script_path = Path(__file__).parent.parent.parent.parent / "scripts" / "reboot-orchestrator.sh"
+
+        if not script_path.exists():
+            logger.error(f"❌ Reboot script not found: {script_path}")
+            logger.http_request("POST", "/api/orchestrator/reboot", 404)
+            raise HTTPException(status_code=404, detail=f"Reboot script not found: {script_path}")
+
+        logger.info(f"Executing reboot script: {script_path}")
+
+        # Execute reboot script in detached background process
+        # start_new_session=True ensures the script continues running after this process exits
+        subprocess.Popen(
+            [str(script_path)],
+            start_new_session=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            cwd=str(script_path.parent)
+        )
+
+        logger.success("✅ Reboot script triggered successfully")
+        logger.http_request("POST", "/api/orchestrator/reboot", 200)
+
+        return {
+            "success": True,
+            "message": "Orchestrator reboot initiated. Backend will restart shortly.",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+
+    except Exception as e:
+        logger.error(f"❌ Failed to trigger orchestrator reboot: {e}")
+        logger.http_request("POST", "/api/orchestrator/reboot", 500)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/get_orchestrator")
 async def get_orchestrator_info():
     """

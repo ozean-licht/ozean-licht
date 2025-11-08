@@ -46,13 +46,13 @@
             :class="{ loading: store.isRefreshing }"
             :disabled="store.isRefreshing"
             @click="handleRefreshContext"
-            title="Reset orchestrator agent context"
-            aria-label="Reset orchestrator agent"
+            title="Reboot orchestrator (backend + frontend)"
+            aria-label="Reboot orchestrator"
           >
             <span v-if="!store.isRefreshing">
-              ↻ RESET O-AGENT
+              🔄 REBOOT ORCHESTRATOR
             </span>
-            <span v-else>⟳ RESETTING...</span>
+            <span v-else>🔄 REBOOTING...</span>
           </button>
           <button class="btn-clear" @click="headerBar.clearEventStream">
             CLEAR ALL

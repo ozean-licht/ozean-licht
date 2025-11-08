@@ -59,6 +59,7 @@ from .response_cache import ResponseCache
 from .rate_limiter import TokenRateLimiter as RateLimiter
 from .cost_tracker import CostTracker
 from .model_selector import ModelSelector
+from .message_summarizer import MessageSummarizer
 
 # WebSocket and logging
 from .websocket_manager import WebSocketManager
@@ -178,6 +179,7 @@ def get_orchestrator_tools() -> List[str]:
         "interrupt_agent(agent_name: string)",
         "read_system_logs(offset = 0, limit = 50, message_contains?: string, level?: string)",
         "report_cost()",
+        "reboot_orchestrator()",
     ]
 
 
@@ -230,13 +232,20 @@ class OrchestratorService:
         self.logger.warning(f"💰 SESSION BUDGET: {self.session_budget.budget_limit:,} tokens allocated")
 
         # Initialize token optimization modules if enabled
-        # FULL CAPACITY MODE - Use config values for maximum orchestrator memory
+        # SMART SUMMARIZATION MODE - Maintains long-term context while controlling tokens
         if TOKEN_MANAGEMENT_ENABLED:
-            # Use config values (respects .env settings)
+            # Message summarizer for intelligent context compression
+            self.message_summarizer = MessageSummarizer(
+                recent_message_threshold=30,  # Keep last 30 messages in full
+                mid_range_threshold=100,      # Lightly summarize 31-100
+                logger=self.logger
+            )
+
+            # Context manager for final token limit enforcement
             self.context_manager = ContextManager(
                 max_messages=MAX_CONTEXT_MESSAGES,  # From config (default: 200)
-                max_tokens=MAX_CONTEXT_TOKENS,      # From config (default: 120,000)
-                mode="balanced",  # Balanced mode - no aggressive reduction
+                max_tokens=MAX_CONTEXT_TOKENS,      # From config (default: 50,000)
+                mode="balanced",  # Balanced mode since summarizer already condensed
                 logger=self.logger
             )
             self.response_cache = ResponseCache(
@@ -258,14 +267,16 @@ class OrchestratorService:
             # Model selector for intelligent model tiering
             self.model_selector = ModelSelector(logger=self.logger)
 
-            self.logger.info(f"Token optimization modules initialized (FULL CAPACITY MODE)")
-            self.logger.info(f"  - Context Manager: {MAX_CONTEXT_MESSAGES} msgs, {MAX_CONTEXT_TOKENS:,} tokens (60% of 200k window)")
-            self.logger.info(f"  - Response Cache: {'Enabled' if self.response_cache else 'Disabled'} (TTL: {RESPONSE_CACHE_TTL_SECONDS}s)")
+            self.logger.info(f"Token optimization modules initialized (SMART SUMMARIZATION MODE)")
+            self.logger.info(f"  - Message Summarizer: Recent 30 full, 31-100 light, 101+ heavy summarization")
+            self.logger.info(f"  - Context Manager: {MAX_CONTEXT_MESSAGES} msgs, {MAX_CONTEXT_TOKENS:,} tokens (~25% of 200k window)")
+            self.logger.info(f"  - Response Cache: {'Enabled' if self.response_cache else 'Disabled'} (with summarized context)")
             self.logger.info(f"  - Rate Limiter: {RATE_LIMIT_TOKENS_PER_MINUTE:,} tokens/min (60% of 1M API limit)")
             self.logger.info(f"  - Cost Tracker: Alert at ${COST_ALERT_THRESHOLD_USD}")
             self.logger.info(f"  - Model Selector: ENABLED (Haiku for simple, Sonnet for moderate, Opus for complex)")
-            self.logger.info(f"  - Prompt Caching: AUTO (90% savings on cache hits after first request)")
+            self.logger.info(f"  - Long-term memory: ENABLED (orchestrator remembers 300+ message history)")
         else:
+            self.message_summarizer = None
             self.context_manager = None
             self.response_cache = None
             self.rate_limiter = None
@@ -599,41 +610,52 @@ class OrchestratorService:
             all_messages = messages + transformed_blocks
             all_messages.sort(key=lambda x: x["created_at"])
 
-            # Apply context management if enabled
-            if self.context_manager and TOKEN_MANAGEMENT_ENABLED:
-                # PRIORITY 1: Aggressive context trimming to fix rate limiting
+            # Apply smart summarization + context management if enabled
+            if self.message_summarizer and self.context_manager and TOKEN_MANAGEMENT_ENABLED:
+                # STEP 1: Analyze raw message stats
                 stats_before = self.context_manager.analyze_messages(all_messages)
 
-                # Log BEFORE trimming for visibility
-                self.logger.warning(
-                    f"🔍 PRE-TRIM Context: {stats_before.total_messages} messages, "
+                self.logger.info(
+                    f"📊 RAW Context: {stats_before.total_messages} messages, "
                     f"{stats_before.total_tokens:,} tokens"
                 )
 
-                # Use aggressive token-based trimming
-                trimmed_messages = self.context_manager.trim_to_limit(all_messages, mode="token_count")
-                stats_after = self.context_manager.analyze_messages(trimmed_messages)
-
-                # Calculate reduction percentage
-                token_reduction = (stats_before.total_tokens - stats_after.total_tokens) / stats_before.total_tokens * 100 if stats_before.total_tokens > 0 else 0
-                message_reduction = (stats_before.total_messages - stats_after.total_messages) / stats_before.total_messages * 100 if stats_before.total_messages > 0 else 0
-
-                # Always log the reduction (even if 0) for monitoring
-                self.logger.warning(
-                    f"✂️  POST-TRIM Context: {stats_after.total_messages} messages ({message_reduction:.1f}% reduction), "
-                    f"{stats_after.total_tokens:,} tokens ({token_reduction:.1f}% reduction)"
+                # STEP 2: Apply smart summarization (keeps recent, summarizes old)
+                summarized_messages = self.message_summarizer.summarize_messages(
+                    all_messages,
+                    max_total_tokens=MAX_CONTEXT_TOKENS
                 )
 
-                if token_reduction > 30:
-                    self.logger.info(f"🎯 Achieved {token_reduction:.1f}% token reduction - Rate limiting should improve!")
-                elif token_reduction < 10:
-                    self.logger.error(f"⚠️  Only {token_reduction:.1f}% token reduction - May still hit rate limits!")
+                stats_after_summarization = self.context_manager.analyze_messages(summarized_messages)
 
-                # Cache the trimmed result
-                result = {"messages": trimmed_messages, "turn_count": turn_count}
+                # STEP 3: Apply final token limit if still needed
+                final_messages = self.context_manager.trim_to_limit(summarized_messages, mode="auto")
+                stats_final = self.context_manager.analyze_messages(final_messages)
+
+                # Calculate reduction percentages
+                token_reduction = (stats_before.total_tokens - stats_final.total_tokens) / stats_before.total_tokens * 100 if stats_before.total_tokens > 0 else 0
+                message_reduction = (stats_before.total_messages - len(final_messages)) / stats_before.total_messages * 100 if stats_before.total_messages > 0 else 0
+
+                # Log the multi-stage reduction
+                self.logger.info(
+                    f"✅ SMART CONTEXT: {stats_before.total_messages} msgs → "
+                    f"{len(summarized_messages)} entries → {len(final_messages)} final "
+                    f"| {stats_before.total_tokens:,} → {stats_final.total_tokens:,} tokens "
+                    f"({token_reduction:.1f}% reduction)"
+                )
+
+                # Detailed breakdown
+                if len(all_messages) > 50:
+                    self.logger.info(
+                        f"  📝 Summarization: Condensed {stats_before.total_messages} messages into "
+                        f"{len(summarized_messages)} entries (summaries + recent full messages)"
+                    )
+
+                # Cache the final result
+                result = {"messages": final_messages, "turn_count": turn_count}
                 if cache_key and self.response_cache and RESPONSE_CACHE_ENABLED:
                     self.response_cache.set(cache_key, result)
-                    self.logger.debug(f"💾 Cached trimmed chat history")
+                    self.logger.debug(f"💾 Cached summarized chat history")
 
                 return result
 
