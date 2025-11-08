@@ -72,7 +72,6 @@ interrupt_agent(agent_name: string)
 // System Operations
 read_system_logs(offset = 0, limit = 50, message_contains?: string, level?: string)
 report_cost()
-reboot_orchestrator()  // Use ONLY in emergencies
 ```
 
 ### 2. Agent Templates

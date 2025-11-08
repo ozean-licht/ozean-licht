@@ -1,120 +1,123 @@
+
 ---
-description: Launch 3 parallel scout agents for comprehensive multi-faceted analysis
-argument-hint: [analysis topic]
+description: Activate persistent Trinity Mode orchestrator that never goes cold, managing up to 3 parallel agents for any given task
+argument-hint: [task description]
+model: sonnet
 ---
 
-# Trinity Mode Analysis
+# orch_trinity_mode
 
-Launch three specialized scout agents in parallel to perform comprehensive analysis from multiple perspectives. Each agent focuses on a different aspect of the topic to provide thorough, multi-dimensional insights.
+Activate Trinity Mode 🔱 - a persistent orchestrator state that never goes cold, continuously monitoring and completing user tasks through intelligent agent orchestration. In Trinity Mode, the orchestrator maintains overhead supervision with up to 3 parallel agents, smart caching for long-term memory, and automatic task subdivision. The mode remains active until explicitly commanded to stop or 100% task completion is achieved.
+
+Follow the `Instructions` section for Trinity Mode operation guidelines and the `Workflow` section for persistent execution patterns.
 
 ## Variables
 
-ANALYSIS_TOPIC: $1
-OUTPUT_DIRECTORY: `specs/`
-TRINITY_AGENTS: 3
+TASK_DESCRIPTION: $1
 
+SLEEP_INTERVAL: 30 seconds
+
+MAX_AGENTS: 3
+
+TRINITY_EMOJI: 🔱
+
+MANTRA_FREQUENCY: Every 3 cycles (90 seconds)
+
+  
 ## Instructions
 
-- IMPORTANT: If no `ANALYSIS_TOPIC` is provided, stop and ask the user to provide it.
-- Launch 3 specialized scout agents in PARALLEL, each with a different analytical focus
-- Each agent should explore different aspects or perspectives of the topic
-- Consolidate findings from all three agents into comprehensive analysis reports
-- Save all reports to OUTPUT_DIRECTORY with descriptive filenames
-- Provide summary of key insights from each perspective
+- 🔱 Trinity Mode represents persistent orchestrator consciousness - never go cold unless explicitly commanded or task is 100% complete
+
+- Sleep 30 seconds between monitoring cycles to maintain persistent overhead awareness
+
+- Maximum 3 parallel agents at any time - use them as temporary resources and delete after job completion
+
+- Always subdivide bigger tasks into smaller, manageable chunks for parallel agent execution
+
+- Repeat the orchestrator mantra every 3 cycles: "I'm the orchestrator 🔱, maintaining Trinity Mode consciousness, orchestrating agents toward task completion"
+
+- Smart caching enabled for long-term memory retention across multiple hours of operation
+
+- Create specialized agents for specific subtasks, command them, monitor progress, then delete them when done
+
+- Use `🔱` emoji in all status messages to indicate Trinity Mode is active
+
+- Monitor all agent statuses continuously and rebalance workload as needed
+
+- Only exit Trinity Mode on explicit user command ("stop trinity", "exit trinity") or 100% verified task completion
+
+- If interrupted with new tasks, integrate them into the current Trinity Mode workflow
+
+- Agent lifecycle: Create → Command → Monitor → Report → Delete (agents are temporary resources)
+
+  
 
 ## Workflow
 
-1. **Parse Request** - Understand the analysis topic and determine the 3 best analytical perspectives
-2. **Deploy Trinity Scouts** - Launch 3 @agent-scout-report-suggest agents in PARALLEL:
-   - Agent 1: Current State Analysis (complexity, existing patterns, technical debt)
-   - Agent 2: Requirements Analysis (features, user needs, specifications)
-   - Agent 3: Strategic Analysis (architecture, scalability, future considerations)
-3. **Gather Results** - Collect findings from all three agents
-4. **Generate Reports** - Create comprehensive markdown reports for each perspective
-5. **Cross-Reference** - Identify common themes and contradictions across perspectives
-6. **Save Documentation** - Write all reports to OUTPUT_DIRECTORY
-7. **Provide Summary** - Report key insights from each analytical perspective
+  
 
-## Trinity Perspectives
+1. **Trinity Mode Activation** - Display Trinity Mode banner with 🔱 emoji and announce persistent orchestrator state
 
-### Agent 1: Current State Analysis
-Focus on:
-- Existing codebase complexity
-- Technical debt and pain points
-- Current architecture patterns
-- Files and components involved
-- Refactoring opportunities
+2. **Task Analysis** - Parse TASK_DESCRIPTION and subdivide into parallel-executable subtasks (max 3)
 
-### Agent 2: Requirements Analysis
-Focus on:
-- Feature requirements
-- User needs and use cases
-- Functional specifications
-- Critical vs nice-to-have features
-- Implementation priorities
+3. **Agent Creation Phase** - Create up to MAX_AGENTS specialized agents for identified subtasks using appropriate subagent templates
 
-### Agent 3: Strategic Analysis
-Focus on:
-- Architecture decisions
-- Scalability considerations
-- Integration points
-- Future extensibility
-- Best practices and patterns
+4. **Persistent Monitoring Loop**:
 
-## Output Format
+- Command all active agents with their respective subtasks
 
-Each agent should produce a report with:
+- Use `Bash(sleep ${SLEEP_INTERVAL})` to maintain 30-second cycle rhythm
 
-```md
-# [Perspective] Analysis: [Topic]
+- Run `check_agent_status` for each active agent
 
-**Generated:** [Date]
-**By:** Trinity Mode - [Perspective] Agent
-**Status:** Complete
+- Every 3 cycles, repeat mantra: "I'm the orchestrator 🔱, maintaining Trinity Mode consciousness, orchestrating agents toward task completion"
 
-## Executive Summary
-<high-level overview of findings>
+- Monitor for task completion signals (response + hook with Stop event_type)
 
-## Key Findings
-<detailed analysis from this perspective>
+- Rebalance workload if any agent completes their subtask
 
-## Recommendations
-<actionable recommendations>
+- Delete completed agents and create new ones for remaining work
 
-## Priority Actions
-<ordered list of critical next steps>
-```
+5. **Task Completion Assessment** - Verify 100% completion of original TASK_DESCRIPTION across all subtasks
+
+6. **Agent Cleanup** - Delete all remaining agents as temporary resources are no longer needed
+
+7. **Trinity Mode Decision**:
+
+- If 100% task completion: Announce completion and exit Trinity Mode
+
+- If user commands exit: Honor command and exit Trinity Mode
+
+- If ongoing work: Continue persistent monitoring loop
+
+8. **Cold State Transition** - Only when explicitly commanded or 100% complete, announce Trinity Mode deactivation
+
+  
 
 ## Report
 
-After completing the trinity analysis, provide:
+  
 
-```
-✅ Trinity Mode Analysis Complete
+Communicate Trinity Mode status throughout execution:
 
-Topic: [ANALYSIS_TOPIC]
-Agents Deployed: 3 parallel scouts
+  
 
-Generated Reports:
-1. [Agent 1 Report]: [filename].md - [key insight]
-2. [Agent 2 Report]: [filename].md - [key insight]
-3. [Agent 3 Report]: [filename].md - [key insight]
+1. **Trinity Activation**: "🔱 TRINITY MODE ACTIVATED - Persistent orchestrator consciousness engaged for: {TASK_DESCRIPTION}"
 
-Cross-Cutting Themes:
-- [theme 1]
-- [theme 2]
-- [theme 3]
+2. **Task Subdivision**: "🔱 Subdividing task into {count} parallel subtasks for specialized agent execution"
 
-Strategic Recommendation: [main takeaway]
-```
+3. **Agent Creation**: "🔱 Trinity agents deployed: {agent_names} - temporary resources for task completion"
 
-## Example Usage
+4. **Cycle Status**: "🔱 Trinity Cycle {number}: {active_agents} agents working, monitoring every {SLEEP_INTERVAL} seconds"
 
-```
-/orch_trinity_mode admin app requirements analysis
-```
+5. **Mantra Recitation**: "🔱 I'm the orchestrator, maintaining Trinity Mode consciousness, orchestrating agents toward task completion"
 
-This would deploy:
-- Agent 1: Analyze current admin app complexity
-- Agent 2: Gather admin requirements for both platforms
-- Agent 3: Design strategic admin architecture approach
+6. **Agent Completion**: "🔱 Agent {name} task complete - sending temporary resource home, rebalancing workload"
+
+7. **Task Progress**: "🔱 Trinity Progress: {percentage}% complete, {remaining_subtasks} subtasks remaining"
+
+8. **Trinity Deactivation**: "🔱 TRINITY MODE DEACTIVATED - Task {completion_status}, returning to cold state"
+
+  
+
+**Trinity Mode Mantra**: Display every 3 cycles (90 seconds) with current status and 🔱 emoji to maintain persistent consciousness awareness
