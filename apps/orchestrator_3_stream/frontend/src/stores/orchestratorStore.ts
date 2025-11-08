@@ -1037,6 +1037,20 @@ export const useOrchestratorStore = defineStore('orchestrator', () => {
       // Disconnect WebSocket
       disconnectWebSocket()
 
+      // CRITICAL: Clear all state before re-initializing to prevent stale data
+      console.log('🧹 Clearing all frontend state...')
+      chatMessages.value = []
+      eventStreamEntries.value = []
+      agents.value = []
+      orchestratorAgent.value = null
+      fileTrackingEvents.value = new Map()
+      isTyping.value = false
+      console.log('✅ State cleared')
+
+      // Wait for backend to fully restart (give it a few seconds)
+      console.log('⏳ Waiting for backend to restart...')
+      await new Promise(resolve => setTimeout(resolve, 3000))
+
       // Re-initialize store (fetches fresh data from backend)
       await initialize()
 
