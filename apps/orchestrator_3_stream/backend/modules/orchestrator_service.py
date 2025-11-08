@@ -230,17 +230,13 @@ class OrchestratorService:
         self.logger.warning(f"💰 SESSION BUDGET: {self.session_budget.budget_limit:,} tokens allocated")
 
         # Initialize token optimization modules if enabled
-        # PRIORITY 1: Aggressive context windowing to fix 90% rate limiting
+        # FULL CAPACITY MODE - Use config values for maximum orchestrator memory
         if TOKEN_MANAGEMENT_ENABLED:
-            # Use aggressive limits to immediately reduce token usage
-            # Override config with hardcoded aggressive values for immediate fix
-            aggressive_max_messages = 20  # Very aggressive message limit
-            aggressive_max_tokens = 25000  # 25k tokens (12.5% of 200k limit)
-
+            # Use config values (respects .env settings)
             self.context_manager = ContextManager(
-                max_messages=aggressive_max_messages,
-                max_tokens=aggressive_max_tokens,
-                mode="token_priority",  # Prioritize token reduction over message count
+                max_messages=MAX_CONTEXT_MESSAGES,  # From config (default: 200)
+                max_tokens=MAX_CONTEXT_TOKENS,      # From config (default: 120,000)
+                mode="balanced",  # Balanced mode - no aggressive reduction
                 logger=self.logger
             )
             self.response_cache = ResponseCache(
@@ -259,15 +255,16 @@ class OrchestratorService:
                 logger=self.logger,
                 ws_manager=self.ws_manager
             )
-            # PRIORITY 2: Model selector for intelligent model tiering
+            # Model selector for intelligent model tiering
             self.model_selector = ModelSelector(logger=self.logger)
 
-            self.logger.info(f"Token optimization modules initialized (AGGRESSIVE MODE)")
-            self.logger.info(f"  - Context Manager: {aggressive_max_messages} msgs, {aggressive_max_tokens:,} tokens (AGGRESSIVE)")
-            self.logger.info(f"  - Response Cache: {'Enabled' if self.response_cache else 'Disabled'}")
-            self.logger.info(f"  - Rate Limiter: {RATE_LIMIT_TOKENS_PER_MINUTE} tokens/min")
+            self.logger.info(f"Token optimization modules initialized (FULL CAPACITY MODE)")
+            self.logger.info(f"  - Context Manager: {MAX_CONTEXT_MESSAGES} msgs, {MAX_CONTEXT_TOKENS:,} tokens (60% of 200k window)")
+            self.logger.info(f"  - Response Cache: {'Enabled' if self.response_cache else 'Disabled'} (TTL: {RESPONSE_CACHE_TTL_SECONDS}s)")
+            self.logger.info(f"  - Rate Limiter: {RATE_LIMIT_TOKENS_PER_MINUTE:,} tokens/min (60% of 1M API limit)")
             self.logger.info(f"  - Cost Tracker: Alert at ${COST_ALERT_THRESHOLD_USD}")
             self.logger.info(f"  - Model Selector: ENABLED (Haiku for simple, Sonnet for moderate, Opus for complex)")
+            self.logger.info(f"  - Prompt Caching: AUTO (90% savings on cache hits after first request)")
         else:
             self.context_manager = None
             self.response_cache = None
