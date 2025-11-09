@@ -519,7 +519,7 @@ class OrchestratorService:
         }
 
     async def load_chat_history(
-        self, orchestrator_agent_id: str, limit: int = DEFAULT_CHAT_HISTORY_LIMIT
+        self, orchestrator_agent_id: str, limit: int = DEFAULT_CHAT_HISTORY_LIMIT, skip_summarization: bool = False
     ) -> Dict[str, Any]:
         """
         Load chat history for orchestrator agent, including action blocks.
@@ -531,6 +531,7 @@ class OrchestratorService:
         Args:
             orchestrator_agent_id: UUID of orchestrator agent
             limit: Maximum number of messages to return
+            skip_summarization: If True, skip expensive AI summarization (for fast lookups)
 
         Returns:
             Dictionary with messages list (includes action blocks) and turn count
@@ -610,8 +611,8 @@ class OrchestratorService:
             all_messages = messages + transformed_blocks
             all_messages.sort(key=lambda x: x["created_at"])
 
-            # Apply smart summarization + context management if enabled
-            if self.message_summarizer and self.context_manager and TOKEN_MANAGEMENT_ENABLED:
+            # Apply smart summarization + context management if enabled (and not skipped)
+            if self.message_summarizer and self.context_manager and TOKEN_MANAGEMENT_ENABLED and not skip_summarization:
                 # STEP 1: Analyze raw message stats
                 stats_before = self.context_manager.analyze_messages(all_messages)
 
@@ -827,8 +828,8 @@ class OrchestratorService:
             cached_response = None
             cache_key = None
             if self.response_cache and RESPONSE_CACHE_ENABLED:
-                # Generate cache key from prompt and recent context
-                chat_history = await self.load_chat_history(orchestrator_agent_id, limit=5)
+                # Generate cache key from prompt and recent context (SKIP summarization for speed!)
+                chat_history = await self.load_chat_history(orchestrator_agent_id, limit=5, skip_summarization=True)
                 cache_key = self.response_cache.generate_key(user_message, chat_history.get("messages", []))
                 cached_response = self.response_cache.get(cache_key)
 
@@ -853,8 +854,8 @@ class OrchestratorService:
 
             # Apply rate limiting if enabled
             if self.rate_limiter and TOKEN_MANAGEMENT_ENABLED:
-                # Load recent context to estimate total input tokens
-                recent_context = await self.load_chat_history(orchestrator_agent_id, limit=20)
+                # Load recent context to estimate total input tokens (SKIP summarization for speed!)
+                recent_context = await self.load_chat_history(orchestrator_agent_id, limit=20, skip_summarization=True)
 
                 # Estimate TOTAL input tokens (context + new message)
                 context_tokens = sum(
