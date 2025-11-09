@@ -12,6 +12,9 @@ ENV NODE_ENV=development
 # Copy package files
 COPY package.json package-lock.json* ./
 
+# Cache bust: Ensure npm ci runs with new flags (change this comment to invalidate cache)
+# Last updated: 2025-11-10 - Force 766 packages with --include=dev
+
 # Install ALL dependencies (including devDependencies needed for Next.js build)
 RUN npm ci --include=dev
 
