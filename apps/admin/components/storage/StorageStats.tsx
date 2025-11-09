@@ -175,8 +175,8 @@ export function StorageStats({ entityScope }: StorageStatsProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {Object.entries(stats.filesByBucket).map(([bucket, count]) => {
-            const bucketSize = stats.sizeByBucket[bucket] || 0;
+          {stats.filesByBucket && Object.entries(stats.filesByBucket).map(([bucket, count]) => {
+            const bucketSize = stats.sizeByBucket?.[bucket] || 0;
             const percentage = (bucketSize / stats.totalSize) * 100;
 
             return (
@@ -262,7 +262,7 @@ export function StorageStats({ entityScope }: StorageStatsProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {(Object.entries(stats.filesByEntity || {}) as [string, { count: number; size: number }][]).map(([entity, data]) => {
+            {stats.filesByEntity && Object.entries(stats.filesByEntity).map(([entity, data]) => {
               const entityFiles = data.count || 0;
               const entitySize = data.size || 0;
               const percentage = (entitySize / stats.totalSize) * 100;
