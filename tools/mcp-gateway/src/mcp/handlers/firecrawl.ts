@@ -250,7 +250,7 @@ export class FirecrawlHandler implements MCPHandler {
   public getCapabilities(): MCPCapability[] {
     return [
       {
-        name: 'web-scraping',
+        name: 'scrape',
         description: 'Scrape web pages and convert to markdown',
         parameters: [
           {
@@ -264,7 +264,7 @@ export class FirecrawlHandler implements MCPHandler {
         tokenCost: 10, // Base cost in tokens
       },
       {
-        name: 'health-check',
+        name: 'health',
         description: 'Check Firecrawl service health',
         examples: ['/mcp-firecrawl health'],
         tokenCost: 1,

@@ -258,7 +258,8 @@ export class CoolifyHandler implements MCPHandler {
       operation: 'list_applications',
       count: applications.length,
       applications: applications.map((app: any) => ({
-        id: app.id,
+        uuid: app.uuid,
+        id: app.id || app.uuid, // Use uuid as fallback for id
         name: app.name,
         fqdn: app.fqdn,
         git_repository: app.git_repository,
@@ -295,18 +296,45 @@ export class CoolifyHandler implements MCPHandler {
     };
   }
 
-  private async deployApplication(appId: string, options?: any): Promise<any> {
-    const response = await this.client.post(`/applications/${appId}/deploy`, {
+  private async deployApplication(appIdOrName: string, options?: any): Promise<any> {
+    // Resolve name to UUID if needed
+    const appUuid = await this.resolveApplicationId(appIdOrName);
+
+    const response = await this.client.post(`/applications/${appUuid}/deploy`, {
       force_rebuild: options?.force_rebuild || false,
     });
 
     return {
       operation: 'deploy_application',
-      application_id: appId,
+      application_id: appIdOrName,
+      application_uuid: appUuid,
       deployment_id: response.data.deployment_id || response.data.id,
       status: response.data.status || 'queued',
       message: 'Deployment triggered successfully',
     };
+  }
+
+  /**
+   * Resolve application name to UUID
+   * Returns the input if it's already a UUID or the UUID if it's a name
+   */
+  private async resolveApplicationId(appIdOrName: string): Promise<string> {
+    // If it looks like a UUID (contains only alphanumeric chars, 24+ chars), use it directly
+    if (appIdOrName.length >= 24 && /^[a-z0-9]+$/.test(appIdOrName)) {
+      return appIdOrName;
+    }
+
+    // Otherwise, look up by name
+    const listResult = await this.listApplications();
+    const app = listResult.applications.find((a: any) => a.name === appIdOrName);
+
+    if (!app) {
+      throw new ValidationError(`Application '${appIdOrName}' not found`, {
+        available: listResult.applications.map((a: any) => a.name)
+      });
+    }
+
+    return app.uuid;
   }
 
   private async startApplication(appId: string): Promise<any> {
