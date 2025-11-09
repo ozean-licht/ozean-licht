@@ -58,6 +58,9 @@ services:
       COOLIFY_API_URL: ${COOLIFY_API_URL:-http://coolify.ozean-licht.dev:8000}
       COOLIFY_API_TOKEN: ${COOLIFY_API_TOKEN}
 
+      # Firecrawl API (for web scraping)
+      FIRECRAWL_API_KEY: ${FIRECRAWL_API_KEY}
+
       # Orchestrator API (for permission checks)
       ORCHESTRATOR_URL: ${ORCHESTRATOR_URL:-http://orchestrator-3-stream:9403}
 
