@@ -232,7 +232,7 @@ export function StorageStats({ entityScope }: StorageStatsProps) {
                     </p>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="text-xs">
-                        {file.bucket}
+                        {file.bucketName}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
                         {new Date(file.uploadedAt).toLocaleString()}
@@ -272,10 +272,10 @@ export function StorageStats({ entityScope }: StorageStatsProps) {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium capitalize">
-                        {entity.replace('-', ' ')}
+                        {entity.replace('_', ' ')}
                       </span>
                       <Badge
-                        variant={entity === 'kids-ascension' ? 'default' : 'secondary'}
+                        variant={entity === 'kids_ascension' ? 'default' : 'secondary'}
                         className="text-xs"
                       >
                         {entityFiles} files
