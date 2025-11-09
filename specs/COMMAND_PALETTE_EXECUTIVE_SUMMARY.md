@@ -188,7 +188,7 @@ Claude Code CLI Enhanced
 ### Orchestrator-Only Commands (18 additional)
 
 **Multi-Agent Workflows**:
-- /orch_scout_and_build, /orch_plan_w_scouts_build_review, /parallel_subagents, /build_in_parallel
+- /orch_scout_and_build, /orch_plan_w_scouts_build_review, /parallel_subagents, /build_in_parallel, /orch_trinity_mode
 
 **Orchestrator Tools**:
 - /orch_one_shot_agent, /find_and_summarize, /load_bundle, /load_ai_docs

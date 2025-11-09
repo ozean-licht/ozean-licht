@@ -147,6 +147,153 @@ uv run adw_plan_iso.py <issue-number>
 - **Implementation Plan**: `specs/implementation_command_palette_fix.md`
 - **Orchestrator Discovery Logic**: `apps/orchestrator_3_stream/backend/modules/slash_command_parser.py`
 
+## Command Architecture: o-commands vs a-commands
+
+### Separation of Concerns
+
+Commands are organized into two categories to eliminate duplication and provide clear architectural boundaries:
+
+1. **a-commands** (Application/ADW Commands)
+   - **Location**: `.claude/a-commands/`
+   - **Purpose**: Development workflows, ADW operations, codebase utilities
+   - **Examples**: `/plan`, `/build`, `/prime`, `/question`, `/quick-plan`
+   - **Count**: 13 commands
+   - **Usage**: Root-level development, ADW workflows, general operations
+
+2. **o-commands** (Orchestrator Commands)
+   - **Location**: `.claude/o-commands/`
+   - **Purpose**: Agent orchestration, multi-agent workflows, parallel execution
+   - **Examples**: `/orch_scout_and_build`, `/parallel_subagents`, `/build_in_parallel`
+   - **Count**: 7 commands
+   - **Usage**: Orchestrator-specific agent coordination
+
+### Command Discovery via Symlinks
+
+The system uses symlinks to route commands to the correct context without duplication:
+
+```
+.claude/
+├── a-commands/              # Application commands (source of truth)
+│   ├── plan.md
+│   ├── build.md
+│   ├── prime.md
+│   └── ... (13 total)
+├── o-commands/              # Orchestrator commands (source of truth)
+│   ├── orch_scout_and_build.md
+│   ├── parallel_subagents.md
+│   └── ... (7 total)
+├── commands -> a-commands   # Symlink: root sees ADW commands
+└── agents/                  # Shared agent templates (7 total)
+
+apps/orchestrator_3_stream/.claude/
+├── commands -> ../../../.claude/o-commands  # Symlink: orchestrator sees orchestrator commands
+└── agents -> ../../../.claude/agents        # Symlink: shared agent templates
+```
+
+**How It Works:**
+- **Root context**: `.claude/commands/` → `a-commands/` (13 ADW commands available)
+- **Orchestrator context**: `apps/orchestrator/.claude/commands/` → `../../.claude/o-commands/` (7 orchestrator commands available)
+- **Agent templates**: Both contexts share `.claude/agents/` via symlinks (zero duplication)
+
+### Benefits
+
+- ✅ **Zero Duplication**: Each command exists in exactly one location
+- ✅ **Clear Separation**: Obvious which commands are for which purpose
+- ✅ **Single Source of Truth**: Update once, change propagates automatically
+- ✅ **Easy Maintenance**: Add command to correct directory, symlink handles routing
+- ✅ **Backward Compatible**: Existing code and references work unchanged
+- ✅ **Simplified Discovery**: Symlinks encode routing logic, no complex merging needed
+
+### Quick Reference
+
+| Context | Commands Available | Directory | Count |
+|---------|-------------------|-----------|-------|
+| **Root** | ADW/Application | `.claude/commands/` → `a-commands/` | 13 |
+| **Orchestrator** | Orchestrator-specific | `apps/orchestrator/.claude/commands/` → `../../.claude/o-commands/` | 7 |
+| **Agents** | Shared templates | `.claude/agents/` (no symlink at root) | 7 |
+| | | `apps/orchestrator/.claude/agents/` → `../../.claude/agents/` | |
+
+### Adding New Commands
+
+**ADW/Application Command:**
+```bash
+# Add to a-commands directory
+vi .claude/a-commands/my-new-workflow.md
+
+# Automatically available at root via symlink!
+```
+
+**Orchestrator Command:**
+```bash
+# Add to o-commands directory
+vi .claude/o-commands/orch_my_orchestration.md
+
+# Automatically available in orchestrator via symlink!
+```
+
+**Agent Template:**
+```bash
+# Add to shared agents directory
+vi .claude/agents/my-specialist-agent.md
+
+# Automatically available in all contexts!
+```
+
+### Command Categorization Guidelines
+
+When creating new commands, categorize by purpose:
+
+| Command Type | Category | Examples |
+|--------------|----------|----------|
+| Single-agent workflow | a-commands | `/plan`, `/build`, `/test` |
+| Multi-agent orchestration | o-commands | `/orch_*`, `/build_in_parallel` |
+| Codebase utilities | a-commands | `/prime`, `/question`, `/find_and_summarize` |
+| Parallel execution | o-commands | `/parallel_subagents` |
+| Development workflows | a-commands | `/feature`, `/bug`, `/patch` |
+
+**Naming Conventions:**
+- **Orchestrator commands**: Prefix with `orch_` OR contain `parallel` in name
+- **Application commands**: No prefix, descriptive action verbs
+- **Utility commands**: Short, clear names (`prime`, `reset`, `question`)
+
+### Complete Command Lists
+
+**a-commands (13 total):**
+1. `plan.md` - Create implementation plans
+2. `build.md` - Build based on plan
+3. `prime.md` - Prime codebase understanding
+4. `prime_3.md` - Enhanced priming (v3)
+5. `prime_cc.md` - Prime Claude Code context
+6. `question.md` - Q&A mode without changes
+7. `quick-plan.md` - Fast planning
+8. `find_and_summarize.md` - Find and document files
+9. `load_ai_docs.md` - Load AI documentation
+10. `load_bundle.md` - Load context bundle
+11. `all_tools.md` - List available tools
+12. `t_metaprompt_workflow.md` - Create slash commands
+13. `reset.md` - Reset orchestrator context
+
+**o-commands (7 total):**
+1. `orch_scout_and_build.md` - Scout → Build workflow
+2. `orch_one_shot_agent.md` - One-shot agent creation
+3. `orch_plan_w_scouts_build_review.md` - Full scout pipeline
+4. `orch_trinity_mode.md` - Trinity mode orchestration
+5. `build_in_parallel.md` - Parallel build execution
+6. `plan_w_scouters.md` - Planning with scouts
+7. `parallel_subagents.md` - Parallel subagent execution
+
+### Migration Status
+
+**Current State**: Planning phase - architecture documented, migration ready to execute
+
+**Migration Guide**: See `docs/guides/o-commands-a-commands-migration.md` for complete migration instructions
+
+**Related Documentation**:
+- Migration Guide: `docs/guides/o-commands-a-commands-migration.md`
+- Migration Strategy: `specs/practical-o-commands-a-commands-migration-strategy.md`
+- Command Discovery: This section + Multi-Root Workspace section above
+- Context Map: `CONTEXT_MAP.md` (Claude Code Configuration)
+
 ## Engineering Rules
 
 ### Actually read files completely
