@@ -6,18 +6,37 @@ FROM node:18-slim AS base
 FROM base AS deps
 WORKDIR /app
 
+# Explicitly set to development to install ALL deps (including dev needed for build)
+ENV NODE_ENV=development
+
 # Copy package files
 COPY package.json package-lock.json* ./
-RUN npm ci
+
+# Install ALL dependencies (including devDependencies needed for Next.js build)
+RUN npm ci --include=dev
+
+# Validate critical package installed
+RUN test -d node_modules/@radix-ui/react-icons || \
+    (echo "ERROR: @radix-ui/react-icons not installed!" && exit 1)
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+
+# Copy all node_modules including devDependencies
 COPY --from=deps /app/node_modules ./node_modules
+
+# Verify critical package copied correctly
+RUN ls node_modules/@radix-ui/ | grep react-icons || \
+    (echo "ERROR: react-icons missing in builder stage!" && exit 1)
+
 COPY . .
 
 # Disable telemetry during build
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Set production mode ONLY for Next.js build (not for deps install)
+ENV NODE_ENV=production
 
 # Set placeholder for build (will be overridden at runtime)
 # Next.js needs this for next.config.js evaluation
