@@ -152,7 +152,7 @@ export function FileList({
       <CardHeader>
         <CardTitle>File Browser</CardTitle>
         <CardDescription>
-          Browse and manage files in {entityScope === 'kids-ascension' ? 'Kids Ascension' : entityScope === 'ozean-licht' ? 'Ozean Licht' : 'all'} storage
+          Browse and manage files in {entityScope === 'kids_ascension' ? 'Kids Ascension' : entityScope === 'ozean_licht' ? 'Ozean Licht' : 'all'} storage
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
