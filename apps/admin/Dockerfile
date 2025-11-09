@@ -1,9 +1,9 @@
 # Admin Dashboard Dockerfile
-FROM node:18-alpine AS base
+# Using Debian-based slim image for better npm compatibility (vs Alpine musl libc)
+FROM node:18-slim AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files
