@@ -195,7 +195,7 @@ export function FileUploadForm({
       <CardHeader>
         <CardTitle>Upload File</CardTitle>
         <CardDescription>
-          Upload files to {entityScope === 'kids-ascension' ? 'Kids Ascension' : 'Ozean Licht'} storage
+          Upload files to {entityScope === 'kids_ascension' ? 'Kids Ascension' : 'Ozean Licht'} storage
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
