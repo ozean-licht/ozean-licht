@@ -5,6 +5,7 @@ import { logger } from './config/logger.js';
 import { env } from './config/env.js';
 import { registerAdwRoutes } from './routes/adw.js';
 import { registerWebhookRoutes } from './routes/webhooks.js';
+import { registerOrchestratorRoutes } from './routes/orchestrator.js';
 import { registerClient } from './modules/websocket/adw-websocket-manager.js';
 
 export async function buildServer() {
@@ -25,6 +26,9 @@ export async function buildServer() {
 
   // Register ADW HTTP routes
   await registerAdwRoutes(server);
+
+  // Register Orchestrator HTTP routes
+  await registerOrchestratorRoutes(server);
 
   // Health check route
   server.get('/health', async () => {

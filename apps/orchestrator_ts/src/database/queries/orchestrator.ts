@@ -307,3 +307,69 @@ export async function archiveOrchestrator(id: string): Promise<OrchestratorAgent
     throw new Error(`Failed to archive orchestrator: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
+
+/**
+ * Save a chat message between user and orchestrator.
+ *
+ * @param orchestratorId - The orchestrator agent ID
+ * @param sessionId - The session ID for grouping messages
+ * @param userMessage - The user's message
+ * @param assistantResponse - The assistant's response
+ * @returns Promise resolving when messages are saved
+ * @throws Error if database operation fails
+ *
+ * @example
+ * await saveOrchestratorChat('uuid-123', 'session-abc', 'Hello', 'Hi there!');
+ */
+export async function saveOrchestratorChat(
+  orchestratorId: string,
+  sessionId: string,
+  userMessage: string,
+  assistantResponse: string
+): Promise<void> {
+  try {
+    // Save both messages in a transaction
+    await prisma.$transaction([
+      // User message
+      prisma.orchestratorChat.create({
+        data: {
+          orchestratorAgentId: orchestratorId,
+          senderType: 'user',
+          receiverType: 'orchestrator',
+          message: userMessage,
+          metadata: { sessionId },
+        },
+      }),
+      // Assistant response
+      prisma.orchestratorChat.create({
+        data: {
+          orchestratorAgentId: orchestratorId,
+          senderType: 'orchestrator',
+          receiverType: 'user',
+          message: assistantResponse,
+          metadata: { sessionId },
+        },
+      }),
+    ]);
+
+    logger.debug(
+      {
+        orchestratorId,
+        sessionId,
+        userMessageLength: userMessage.length,
+        assistantResponseLength: assistantResponse.length,
+      },
+      'Saved orchestrator chat messages'
+    );
+  } catch (error) {
+    logger.error(
+      {
+        error,
+        orchestratorId,
+        sessionId,
+      },
+      'Failed to save orchestrator chat'
+    );
+    throw new Error(`Failed to save orchestrator chat: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
