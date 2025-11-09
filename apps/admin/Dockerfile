@@ -18,11 +18,14 @@ COPY package.json package-lock.json* ./
 # Install ALL dependencies (including devDependencies needed for Next.js build)
 RUN npm ci --include=dev
 
-# DEBUG: Show what was actually installed
-RUN echo "=== DEBUGGING npm ci output ===" && \
-    ls node_modules/@radix-ui/ || echo "No @radix-ui directory" && \
-    find node_modules -name "*react-icons*" -type d || echo "No react-icons found anywhere" && \
-    npm ls @radix-ui/react-icons || echo "Not in dependency tree"
+# WORKAROUND: npm ci skips @radix-ui/react-icons for unknown reason
+# Force install it explicitly (shows as "Not in dependency tree" despite being in package.json)
+RUN npm install @radix-ui/react-icons@1.3.2 --no-save
+
+# DEBUG: Verify it's now installed
+RUN echo "=== DEBUGGING after force install ===" && \
+    ls node_modules/@radix-ui/ | grep react-icons && \
+    test -d node_modules/@radix-ui/react-icons && echo "✅ react-icons NOW installed!"
 
 # Validate critical package installed
 RUN test -d node_modules/@radix-ui/react-icons || \
