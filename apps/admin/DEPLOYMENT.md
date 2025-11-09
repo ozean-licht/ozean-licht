@@ -1,194 +1,216 @@
-# Admin Dashboard Deployment
-
-## Overview
-The admin dashboard is a Next.js application for managing the Ozean Licht ecosystem, including file storage via MinIO, system health monitoring, and entity management.
+# Admin Dashboard - Coolify Deployment Guide
 
 ## Prerequisites
-- Coolify instance running
+
+- Coolify instance running at `https://coolify.ozean-licht.dev`
 - GitHub repository access
-- Environment variables configured in Coolify
+- Database (PostgreSQL) accessible from deployment
 
-## Deployment to Coolify
+## Deployment Steps
 
-### Method 1: Via Coolify Web Interface
+### 1. Login to Coolify
 
-1. **Create New Application**:
-   - Navigate to Infrastructure project in Coolify
-   - Click "New Resource" > "Application"
-   - Select "GitHub Repository"
+Navigate to: `https://coolify.ozean-licht.dev/login`
 
-2. **Configure Repository**:
-   - Repository: `ozean-licht/ozean-licht`
-   - Branch: `main`
-   - Build Path: `/projects/admin`
+### 2. Create New Application
 
-3. **Build Configuration**:
-   - Build Pack: `Dockerfile`
-   - Dockerfile Location: `/projects/admin/Dockerfile`
-   - Build Context: `/projects/admin`
+1. Click **"+ New Resource"**
+2. Select **"Application"**
+3. Choose **"Public Repository"** or connect your GitHub account
+4. Select the repository: `ozean-licht-ecosystem`
+5. Set build pack: **Dockerfile**
 
-4. **Environment Variables**:
-   ```bash
-   # Authentication
-   AUTH_SECRET=<generate-secure-secret>
-   NEXTAUTH_URL=https://dashboard.ozean-licht.dev
+### 3. Configure Build Settings
 
-   # Database
-   DATABASE_URL=postgresql://postgres:password@localhost:5432/kids-ascension-db
+**Build Configuration:**
+- **Dockerfile Location:** `apps/admin/Dockerfile`
+- **Docker Context:** `apps/admin/`
+- **Port:** `3000`
 
-   # MCP Gateway
-   MCP_GATEWAY_URL=http://mcp-gateway:8100
+### 4. Set Environment Variables
 
-   # MinIO Configuration
-   MINIO_ENDPOINT=http://138.201.139.25:9000
-   MINIO_ACCESS_KEY=<minio-access-key>
-   MINIO_SECRET_KEY=<minio-secret-key>
-   MINIO_USE_SSL=false
-   MINIO_REGION=eu-central-1
-   MINIO_DEFAULT_BUCKET=ozean-ecosystem
-   ```
+Add these environment variables in Coolify:
 
-5. **Domain Configuration**:
-   - Domain: `dashboard.ozean-licht.dev`
-   - HTTPS: Enabled
-   - Force HTTPS: Yes
-
-6. **Deploy**:
-   - Click "Deploy" to start the deployment process
-   - Monitor logs for any issues
-
-### Method 2: Via Docker Compose
-
-1. **SSH to server**:
-   ```bash
-   ssh adw-user@138.201.139.25
-   ```
-
-2. **Navigate to project**:
-   ```bash
-   cd /opt/ozean-licht-ecosystem/projects/admin
-   ```
-
-3. **Create .env file**:
-   ```bash
-   cp .env.example .env
-   # Edit .env with production values
-   ```
-
-4. **Deploy with Docker Compose**:
-   ```bash
-   docker-compose up -d
-   ```
-
-### Method 3: Manual Docker Build
-
-1. **Build the image**:
-   ```bash
-   cd /opt/ozean-licht-ecosystem/projects/admin
-   docker build -t admin-dashboard:latest .
-   ```
-
-2. **Run the container**:
-   ```bash
-   docker run -d \
-     --name admin-dashboard \
-     --network coolify \
-     -p 3000:3000 \
-     --env-file .env \
-     admin-dashboard:latest
-   ```
-
-## Environment Variables
-
-### Required Variables
-- `AUTH_SECRET`: Random string for NextAuth session encryption (min 32 characters)
-- `DATABASE_URL`: PostgreSQL connection string
-- `MCP_GATEWAY_URL`: URL to MCP Gateway service
-- `MINIO_ENDPOINT`: MinIO server endpoint
-- `MINIO_ACCESS_KEY`: MinIO access key
-- `MINIO_SECRET_KEY`: MinIO secret key
-
-### Optional Variables
-- `NEXTAUTH_URL`: Full URL where app is hosted (default: https://dashboard.ozean-licht.dev)
-- `MINIO_USE_SSL`: Use SSL for MinIO (default: false)
-- `MINIO_REGION`: MinIO region (default: eu-central-1)
-- `MINIO_DEFAULT_BUCKET`: Default bucket name (default: ozean-ecosystem)
-
-## Health Checks
-
-The application exposes the following health check endpoints:
-- `/api/health` - Basic health check
-- `/api/health/ready` - Readiness check (includes database connectivity)
-
-## Monitoring
-
-### Logs
-View application logs in Coolify or via Docker:
 ```bash
-docker logs -f admin-dashboard
+# NextAuth
+NEXTAUTH_URL=https://dashboard.ozean-licht.dev
+NEXTAUTH_SECRET=<generate-secure-secret-32-chars-minimum>
+
+# Database
+DATABASE_URL=postgresql://postgres:<password>@<host>:32771/shared-users-db
+
+# MCP Gateway (if using)
+MCP_GATEWAY_URL=http://mcp-gateway:8100
+
+# MinIO
+MINIO_ENDPOINT=<your-minio-endpoint>
+MINIO_PORT=9000
+MINIO_ACCESS_KEY=<your-access-key>
+MINIO_SECRET_KEY=<your-secret-key>
+MINIO_USE_SSL=false
+
+# Application
+NODE_ENV=production
+PORT=3000
 ```
 
-### Metrics
-The dashboard includes built-in metrics at `/dashboard/health`:
-- Database connection status
-- MinIO storage availability
-- MCP Gateway connectivity
-- System resource usage
+### 5. Configure Domain
+
+1. In Coolify, go to **"Domains"** tab
+2. Add domain: `dashboard.ozean-licht.dev`
+3. Enable **"Automatic HTTPS"** (Let's Encrypt)
+4. Coolify will automatically configure Traefik
+
+### 6. Deploy
+
+1. Click **"Deploy"** button
+2. Monitor build logs
+3. Wait for deployment to complete (usually 3-5 minutes)
+
+### 7. Verify Deployment
+
+Once deployed, access:
+- **URL:** `https://dashboard.ozean-licht.dev`
+- **Login:** `https://dashboard.ozean-licht.dev/login`
+
+**Test Credentials:**
+- Email: `super@ozean-licht.dev`
+- Password: `SuperAdmin123!`
 
 ## Troubleshooting
 
-### Build Failures
-1. Check Node.js version compatibility (requires v18+)
-2. Ensure all dependencies are properly installed
-3. Verify environment variables are set
+### Build Fails
 
-### Runtime Issues
-1. Check database connectivity
-2. Verify MinIO credentials and endpoint
-3. Ensure MCP Gateway is accessible
-4. Check network connectivity between services
+**Check:**
+1. Dockerfile path is correct: `apps/admin/Dockerfile`
+2. Build context is set to: `apps/admin/`
+3. All dependencies are in `package.json`
 
-### Common Errors
+**Solution:**
+- Review build logs in Coolify
+- Ensure `next.config.js` has `output: 'standalone'` ✅ (already set)
 
-**Error: ECONNREFUSED to MCP Gateway**
-- Solution: Ensure MCP Gateway is running and accessible on the Docker network
+### Database Connection Fails
 
-**Error: Invalid AUTH_SECRET**
-- Solution: Generate a new secret with: `openssl rand -base64 32`
+**Check:**
+1. `DATABASE_URL` is correctly set
+2. PostgreSQL is accessible from the container
+3. Database exists (`shared-users-db`)
 
-**Error: MinIO connection failed**
-- Solution: Verify MinIO endpoint and credentials
+**Solution:**
+- Use internal Docker network: `postgresql://postgres:password@coolify-db:5432/shared-users-db`
+- Or use host IP if database is external
+
+### 404 Errors on Routes
+
+**Check:**
+1. `NEXTAUTH_URL` matches the deployed domain
+2. Build completed successfully
+3. Server is running on port 3000
+
+**Solution:**
+- Ensure `NEXTAUTH_URL=https://dashboard.ozean-licht.dev` (no port number)
+- Check container logs in Coolify
+
+### Environment Variables Not Loading
+
+**Solution:**
+- Restart the deployment after adding variables
+- Ensure no quotes around values in Coolify UI
+- Check logs for "Missing required environment variable" errors
+
+## Manual Docker Build (Testing)
+
+Test the Docker build locally before deploying:
+
+```bash
+cd apps/admin
+
+# Build
+docker build -t admin-dashboard .
+
+# Run
+docker run -p 3000:3000 \
+  -e NEXTAUTH_URL=http://localhost:3000 \
+  -e NEXTAUTH_SECRET=your-secret \
+  -e DATABASE_URL=postgresql://... \
+  admin-dashboard
+```
+
+## Updating Deployment
+
+### Option 1: Auto-Deploy (Recommended)
+
+1. Push changes to GitHub
+2. Coolify will automatically detect and deploy
+
+### Option 2: Manual Deploy
+
+1. Go to Coolify dashboard
+2. Find the admin-dashboard application
+3. Click **"Redeploy"**
+
+## Health Checks
+
+Coolify automatically monitors:
+- HTTP response on port 3000
+- Container health status
+
+**Manual Health Check:**
+```bash
+curl https://dashboard.ozean-licht.dev/api/health
+```
+
+## Logs
+
+View logs in Coolify:
+1. Go to application
+2. Click **"Logs"** tab
+3. Stream real-time logs
+
+Or via Docker:
+```bash
+docker logs -f <container-id>
+```
 
 ## Rollback
 
-To rollback to a previous version:
-1. In Coolify: Navigate to deployments and click "Rollback" on a previous successful deployment
-2. Via Docker: Pull and run a previous image tag
+If deployment fails:
+1. Go to Coolify dashboard
+2. Click **"Deployments"** tab
+3. Select previous successful deployment
+4. Click **"Rollback"**
 
-## Security Considerations
+## Production Checklist
 
-1. **AUTH_SECRET**: Must be unique and secure
-2. **Database Access**: Use read-only credentials where possible
-3. **MinIO Access**: Create dedicated access keys with minimal permissions
-4. **Network Security**: Ensure services communicate over internal Docker networks
-5. **HTTPS**: Always use HTTPS in production (handled by Coolify/Traefik)
+Before going live:
 
-## Performance Optimization
+- [ ] `NEXTAUTH_SECRET` is secure (32+ random characters)
+- [ ] Database connection tested
+- [ ] HTTPS certificate valid
+- [ ] Test users can login
+- [ ] Dashboard routes accessible
+- [ ] MCP Gateway connectivity verified
+- [ ] MinIO storage accessible
+- [ ] Logs show no errors
+- [ ] DNS pointing to correct server
 
-1. **Caching**: Next.js automatic caching is enabled
-2. **Image Optimization**: Next.js Image component optimizes images automatically
-3. **Database Pooling**: Connection pooling is configured in Prisma
-4. **Static Assets**: Served via CDN when possible
+## Security Notes
 
-## Backup and Recovery
+1. **Never commit** `.env.production` with real secrets
+2. Use Coolify's encrypted environment variables
+3. Enable HTTPS (automatic with Let's Encrypt)
+4. Set strong `NEXTAUTH_SECRET`
+5. Restrict database access to known IPs if possible
 
-1. **Database**: Regular PostgreSQL backups via pg_dump
-2. **MinIO Data**: Replicated to Cloudflare R2 for redundancy
-3. **Configuration**: Store environment variables securely in Coolify
+## URLs
 
-## Support
+- **Coolify Dashboard:** https://coolify.ozean-licht.dev
+- **Admin Dashboard:** https://dashboard.ozean-licht.dev
+- **Admin Login:** https://dashboard.ozean-licht.dev/login
 
-For deployment issues:
-1. Check application logs in Coolify
-2. Review GitHub Actions for CI/CD status
-3. Contact infrastructure team for server-level issues
+---
+
+**Created:** 2025-11-09
+**Status:** Ready for deployment
+**Next:** Deploy to Coolify and test
