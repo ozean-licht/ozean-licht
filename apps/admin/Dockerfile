@@ -19,9 +19,9 @@ COPY . .
 # Disable telemetry during build
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Set build-time environment variables (won't be in runtime)
-ARG NEXTAUTH_URL
-ENV NEXTAUTH_URL=${NEXTAUTH_URL}
+# Set placeholder for build (will be overridden at runtime)
+# Next.js needs this for next.config.js evaluation
+ENV NEXTAUTH_URL=https://dashboard.ozean-licht.dev
 
 # Build the Next.js app
 RUN npm run build
