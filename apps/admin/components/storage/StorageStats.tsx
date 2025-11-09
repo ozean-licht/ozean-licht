@@ -262,7 +262,7 @@ export function StorageStats({ entityScope }: StorageStatsProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {stats.filesByEntity && Object.entries(stats.filesByEntity).map(([entity, data]) => {
+            {stats.filesByEntity && (Object.entries(stats.filesByEntity) as unknown as [string, { count: number; size: number }][]).map(([entity, data]) => {
               const entityFiles = data.count || 0;
               const entitySize = data.size || 0;
               const percentage = (entitySize / stats.totalSize) * 100;
