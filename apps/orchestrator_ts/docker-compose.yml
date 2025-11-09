@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: orchestrator-ts-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: orchestrator_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"  # Avoid conflict with existing PostgreSQL
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - orchestrator-network
+
+  orchestrator-ts:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: orchestrator-ts
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8003:8003"
+    environment:
+      # Database
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/orchestrator_db
+
+      # Server
+      PORT: 8003
+      HOST: 0.0.0.0
+      NODE_ENV: production
+
+      # Anthropic (set these in .env)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+
+      # GitHub (set these in .env)
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
+
+      # Cloudflare R2 (optional, set in .env)
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME:-}
+
+      # ADW Configuration
+      ADW_WORKING_DIR: /workspace
+      ADW_BACKEND_PORT_START: 9100
+      ADW_FRONTEND_PORT_START: 9200
+      ADW_MAX_CONCURRENT_WORKFLOWS: 15
+
+      # Orchestrator
+      ORCHESTRATOR_MODEL: claude-sonnet-4-20250514
+      ORCHESTRATOR_WORKING_DIR: /workspace
+
+      # Logging
+      LOG_LEVEL: info
+
+    volumes:
+      # Mount workspace for ADW operations
+      - workspace:/workspace
+      # Mount git config (optional, for git operations)
+      - ~/.gitconfig:/home/appuser/.gitconfig:ro
+      - ~/.ssh:/home/appuser/.ssh:ro
+
+    networks:
+      - orchestrator-network
+
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8003/health', (r) => {r.statusCode === 200 ? process.exit(0) : process.exit(1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  orchestrator-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  workspace:

@@ -1,0 +1,123 @@
+version: '3.8'
+
+# Coolify Deployment Configuration for TypeScript Orchestrator
+#
+# OPTION A: Reuse existing PostgreSQL (recommended)
+# - Add orchestrator_db database to your existing PostgreSQL instance
+# - Set DATABASE_URL to point to existing PostgreSQL container
+#
+# OPTION B: Deploy new PostgreSQL instance
+# - Uncomment the postgres service below
+# - Use this for complete isolation
+
+services:
+  # OPTION B: Uncomment this section for standalone PostgreSQL
+  # postgres:
+  #   image: postgres:17-alpine
+  #   container_name: orchestrator-ts-db
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #     POSTGRES_DB: orchestrator_db
+  #     PGDATA: /var/lib/postgresql/data/pgdata
+  #     POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=en_US.UTF-8
+  #   command:
+  #     - postgres
+  #     - -c max_connections=200
+  #     - -c shared_buffers=256MB
+  #     - -c effective_cache_size=1GB
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   networks:
+  #     - coolify
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+
+  orchestrator-ts:
+    build:
+      context: ../..  # Build from ecosystem root
+      dockerfile: apps/orchestrator_ts/Dockerfile
+    container_name: orchestrator-ts
+    restart: unless-stopped
+    ports:
+      - "8003:8003"
+
+    labels:
+      # Traefik labels for Coolify routing
+      - "traefik.enable=true"
+      - "traefik.http.services.orchestrator-ts.loadbalancer.server.port=8003"
+      # Uncomment and customize these for domain routing
+      # - "traefik.http.routers.orchestrator-ts.rule=Host(`orchestrator.ozean-licht.dev`)"
+      # - "traefik.http.routers.orchestrator-ts.entrypoints=websecure"
+      # - "traefik.http.routers.orchestrator-ts.tls.certresolver=letsencrypt"
+
+    environment:
+      # Database - OPTION A: Use existing PostgreSQL (recommended)
+      # Using container: iccc0wo0wkgsws4cowk4440c
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@iccc0wo0wkgsws4cowk4440c:5432/orchestrator-db
+
+      # Database - OPTION B: Use new PostgreSQL
+      # DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/orchestrator_db
+
+      # Server
+      PORT: 8003
+      HOST: 0.0.0.0
+      NODE_ENV: production
+
+      # Anthropic
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+
+      # GitHub
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
+
+      # Cloudflare R2 (optional)
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME:-orchestrator-storage}
+
+      # ADW Configuration
+      ADW_WORKING_DIR: /opt/ozean-licht-ecosystem
+      ADW_BACKEND_PORT_START: 9100
+      ADW_FRONTEND_PORT_START: 9200
+      ADW_MAX_CONCURRENT_WORKFLOWS: 15
+
+      # Orchestrator
+      ORCHESTRATOR_MODEL: ${ORCHESTRATOR_MODEL:-claude-sonnet-4-20250514}
+      ORCHESTRATOR_WORKING_DIR: /opt/ozean-licht-ecosystem
+
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+
+    volumes:
+      # Mount the ecosystem repository for ADW operations
+      # IMPORTANT: Update this path to match your server
+      - /opt/ozean-licht-ecosystem:/opt/ozean-licht-ecosystem
+
+      # Optional: Mount git config for ADW git operations (adw-user home)
+      # - /home/adw-user/.gitconfig:/home/adw-user/.gitconfig:ro
+      # - /home/adw-user/.ssh:/home/adw-user/.ssh:ro
+
+    networks:
+      - coolify
+
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8003/health', (r) => {r.statusCode === 200 ? process.exit(0) : process.exit(1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  coolify:
+    external: true
+    name: coolify
+
+# OPTION B only: Uncomment if using standalone PostgreSQL
+# volumes:
+#   postgres-data:

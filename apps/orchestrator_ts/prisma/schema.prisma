@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Existing orchestrator tables
+model OrchestratorAgent {
+  id           String   @id @default(uuid())
+  sessionId    String?  @map("session_id")
+  workingDir   String   @map("working_dir")
+  inputTokens  Int      @default(0) @map("input_tokens")
+  outputTokens Int      @default(0) @map("output_tokens")
+  totalCost    Float    @default(0) @map("total_cost")
+  status       String   @default("idle")
+  metadata     Json     @default("{}")
+  archived     Boolean  @default(false)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  chat OrchestratorChat[]
+
+  @@map("orchestrator_agents")
+}
+
+model OrchestratorChat {
+  id                  String   @id @default(uuid())
+  orchestratorAgentId String   @map("orchestrator_agent_id")
+  senderType          String   @map("sender_type")
+  receiverType        String   @map("receiver_type")
+  message             String
+  agentId             String?  @map("agent_id")
+  metadata            Json     @default("{}")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
+
+  orchestrator OrchestratorAgent @relation(fields: [orchestratorAgentId], references: [id])
+
+  @@map("orchestrator_chat")
+}
+
+// ADW tables
+model AdwWorkflow {
+  adwId          String    @id @map("adw_id")
+  issueNumber    Int       @map("issue_number")
+  workflowType   String    @map("workflow_type")
+  phase          String    @default("initialized")
+  status         String    @default("active")
+  branchName     String?   @map("branch_name")
+  prNumber       Int?      @map("pr_number")
+  issueTitle     String?   @map("issue_title")
+  issueBody      String?   @map("issue_body")
+  issueClass     String?   @map("issue_class")
+  worktreePath   String?   @map("worktree_path")
+  worktreeExists Boolean   @default(true) @map("worktree_exists")
+  backendPort    Int?      @map("backend_port")
+  frontendPort   Int?      @map("frontend_port")
+  modelSet       String    @default("base") @map("model_set")
+  planFile       String?   @map("plan_file")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+  completedAt    DateTime? @map("completed_at")
+
+  events       AdwWorkflowEvent[]
+  agentOutputs AdwAgentOutput[]
+
+  @@index([issueNumber])
+  @@index([status])
+  @@index([workflowType])
+  @@index([createdAt])
+  @@map("adw_workflows")
+}
+
+model AdwWorkflowEvent {
+  id           String   @id @default(uuid())
+  adwId        String   @map("adw_id")
+  eventType    String   @map("event_type")
+  eventSubtype String?  @map("event_subtype")
+  phase        String?
+  message      String?
+  data         Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  workflow AdwWorkflow @relation(fields: [adwId], references: [adwId], onDelete: Cascade)
+
+  @@index([adwId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("adw_workflow_events")
+}
+
+model AdwAgentOutput {
+  id           String   @id @default(uuid())
+  adwId        String   @map("adw_id")
+  agentName    String   @map("agent_name")
+  phase        String
+  sessionId    String?  @map("session_id")
+  model        String?
+  outputText   String?  @map("output_text")
+  outputJsonl  Json?    @map("output_jsonl")
+  success      Boolean  @default(true)
+  errorMessage String?  @map("error_message")
+  retryCount   Int      @default(0) @map("retry_count")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  workflow AdwWorkflow @relation(fields: [adwId], references: [adwId], onDelete: Cascade)
+
+  @@index([adwId])
+  @@index([agentName])
+  @@index([phase])
+  @@map("adw_agent_outputs")
+}

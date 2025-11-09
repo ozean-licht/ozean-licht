@@ -271,3 +271,4 @@ agents/**/raw_output.json
 agents/**/raw_output.jsonl
 agents/**/*.jsonl
 agents/**/prompts/
+adws/agents/*
