@@ -18,6 +18,12 @@ COPY package.json package-lock.json* ./
 # Install ALL dependencies (including devDependencies needed for Next.js build)
 RUN npm ci --include=dev
 
+# DEBUG: Show what was actually installed
+RUN echo "=== DEBUGGING npm ci output ===" && \
+    ls node_modules/@radix-ui/ || echo "No @radix-ui directory" && \
+    find node_modules -name "*react-icons*" -type d || echo "No react-icons found anywhere" && \
+    npm ls @radix-ui/react-icons || echo "Not in dependency tree"
+
 # Validate critical package installed
 RUN test -d node_modules/@radix-ui/react-icons || \
     (echo "ERROR: @radix-ui/react-icons not installed!" && exit 1)
