@@ -1,0 +1,11 @@
+{
+  "success": false,
+  "screenshots": [
+    "screenshot-error.png"
+  ],
+  "logs": [],
+  "networkRequests": [],
+  "errors": [
+    "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:9200/login\nCall log:\n\u001b[2m  - navigating to \"http://localhost:9200/login\", waiting until \"load\"\u001b[22m\n"
+  ]
+}

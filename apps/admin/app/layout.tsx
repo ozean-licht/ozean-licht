@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { ThemeProvider } from '@/lib/providers/ThemeProvider'
+import { ToastProvider } from '@/lib/providers/ToastProvider'
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard - Ozean Licht Ecosystem',
@@ -12,8 +14,18 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange={false}
+        >
+          {children}
+          <ToastProvider />
+        </ThemeProvider>
+      </body>
     </html>
   )
 }

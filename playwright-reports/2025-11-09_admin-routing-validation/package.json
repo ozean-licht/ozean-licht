@@ -1,0 +1,12 @@
+{
+  "name": "admin-routing-validation",
+  "version": "1.0.0",
+  "description": "Playwright validation script for admin dashboard routing",
+  "main": "validate-routing.js",
+  "scripts": {
+    "validate": "node validate-routing.js"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0"
+  }
+}

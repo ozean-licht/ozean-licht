@@ -1,22 +1,21 @@
 /**
  * Custom PostgreSQL Adapter for NextAuth
  *
- * Implements the NextAuth Adapter interface for database-backed sessions
- * using the MCP Gateway client.
+ * Implements the NextAuth Adapter interface using direct PostgreSQL connection.
+ * Note: With JWT strategy, session methods are not called.
  */
 
 import type { Adapter, AdapterUser, AdapterSession } from '@auth/core/adapters';
-import { MCPGatewayClientWithQueries } from '../mcp-client';
-import { SESSION_TTL_SECONDS } from './constants';
+import type { Pool } from 'pg';
 
 /**
- * Custom NextAuth adapter for PostgreSQL via MCP Gateway
+ * Custom NextAuth adapter for PostgreSQL (direct connection)
  * Implements database-backed session management
  *
- * @param mcpClient - MCP Gateway client instance
+ * @param pool - PostgreSQL connection pool
  * @returns NextAuth Adapter
  */
-export function AdminPostgreSQLAdapter(mcpClient: MCPGatewayClientWithQueries): Adapter {
+export function AdminPostgreSQLAdapter(pool: Pool): Adapter {
   return {
     // ============================================================================
     // User Operations
@@ -26,16 +25,14 @@ export function AdminPostgreSQLAdapter(mcpClient: MCPGatewayClientWithQueries): 
      * Get user by ID
      */
     async getUser(id: string): Promise<AdapterUser | null> {
-      const sql = 'SELECT id, email, email_verified_at FROM users WHERE id = $1';
-      const rows = await mcpClient.query<{
-        id: string;
-        email: string;
-        email_verified_at: string | null;
-      }>(sql, [id]);
+      const result = await pool.query(
+        'SELECT id, email, email_verified_at FROM users WHERE id = $1',
+        [id]
+      );
 
-      if (rows.length === 0) return null;
+      if (result.rows.length === 0) return null;
 
-      const user = rows[0];
+      const user = result.rows[0];
       return {
         id: user.id,
         email: user.email,
@@ -47,16 +44,14 @@ export function AdminPostgreSQLAdapter(mcpClient: MCPGatewayClientWithQueries): 
      * Get user by email
      */
     async getUserByEmail(email: string): Promise<AdapterUser | null> {
-      const sql = 'SELECT id, email, email_verified_at FROM users WHERE email = $1';
-      const rows = await mcpClient.query<{
-        id: string;
-        email: string;
-        email_verified_at: string | null;
-      }>(sql, [email]);
+      const result = await pool.query(
+        'SELECT id, email, email_verified_at FROM users WHERE id = $1',
+        [email]
+      );
 
-      if (rows.length === 0) return null;
+      if (result.rows.length === 0) return null;
 
-      const user = rows[0];
+      const user = result.rows[0];
       return {
         id: user.id,
         email: user.email,
@@ -69,106 +64,48 @@ export function AdminPostgreSQLAdapter(mcpClient: MCPGatewayClientWithQueries): 
     // ============================================================================
 
     /**
-     * Create a new session
+     * Create a new session (not used with JWT strategy)
      */
     async createSession(session: {
       sessionToken: string;
       userId: string;
       expires: Date;
     }): Promise<AdapterSession> {
-      // Get admin user by user_id
-      const adminUser = await mcpClient.getAdminUserByUserId(session.userId);
-
-      if (!adminUser) {
-        throw new Error('Admin user not found');
-      }
-
-      // Create session in admin_sessions table
-      const adminSession = await mcpClient.createSession({
-        adminUserId: adminUser.id,
-        sessionToken: session.sessionToken,
-        ipAddress: '0.0.0.0', // Will be updated by credentials provider with real IP
-        ttlSeconds: SESSION_TTL_SECONDS,
-      });
-
+      // Note: Not called when using JWT strategy
+      // If switching to database sessions, implement direct queries here
       return {
-        sessionToken: adminSession.sessionToken,
+        sessionToken: session.sessionToken,
         userId: session.userId,
-        expires: adminSession.expiresAt,
+        expires: session.expires,
       };
     },
 
     /**
-     * Get session and user by session token
+     * Get session and user by session token (not used with JWT strategy)
      */
     async getSessionAndUser(
-      sessionToken: string
+      _sessionToken: string
     ): Promise<{ session: AdapterSession; user: AdapterUser } | null> {
-      const adminSession = await mcpClient.getSessionByToken(sessionToken);
-
-      if (!adminSession) return null;
-
-      const adminUser = await mcpClient.getAdminUserById(adminSession.adminUserId);
-
-      if (!adminUser) return null;
-
-      const sql = 'SELECT id, email, email_verified_at FROM users WHERE id = $1';
-      const rows = await mcpClient.query<{
-        id: string;
-        email: string;
-        email_verified_at: string | null;
-      }>(sql, [adminUser.userId]);
-
-      if (rows.length === 0) return null;
-
-      const user = rows[0];
-
-      // Update last activity timestamp
-      await mcpClient.updateSessionActivity(sessionToken);
-
-      return {
-        session: {
-          sessionToken: adminSession.sessionToken,
-          userId: adminUser.userId,
-          expires: adminSession.expiresAt,
-        },
-        user: {
-          id: user.id,
-          email: user.email,
-          emailVerified: user.email_verified_at ? new Date(user.email_verified_at) : null,
-        },
-      };
+      // Note: Not called when using JWT strategy
+      return null;
     },
 
     /**
-     * Update session (refresh activity)
+     * Update session (not used with JWT strategy)
      */
     async updateSession(
-      session: Partial<AdapterSession> & Pick<AdapterSession, 'sessionToken'>
+      _session: Partial<AdapterSession> & Pick<AdapterSession, 'sessionToken'>
     ): Promise<AdapterSession | null | undefined> {
-      const adminSession = await mcpClient.getSessionByToken(session.sessionToken);
-
-      if (!adminSession) return null;
-
-      // Update activity timestamp
-      await mcpClient.updateSessionActivity(session.sessionToken);
-
-      const adminUser = await mcpClient.getAdminUserById(adminSession.adminUserId);
-
-      if (!adminUser) return null;
-
-      return {
-        sessionToken: adminSession.sessionToken,
-        userId: adminUser.userId,
-        expires: adminSession.expiresAt,
-      };
+      // Note: Not called when using JWT strategy
+      return null;
     },
 
     /**
-     * Delete session (logout)
+     * Delete session (not used with JWT strategy)
      */
-    async deleteSession(sessionToken: string): Promise<void> {
-      await mcpClient.deleteSession(sessionToken);
+    async deleteSession(_sessionToken: string): Promise<void> {
+      // Note: Not called when using JWT strategy
+      // JWT sessions are stateless and don't need database cleanup
     },
 
     // ============================================================================

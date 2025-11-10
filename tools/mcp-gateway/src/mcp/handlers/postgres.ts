@@ -13,7 +13,7 @@ interface PostgreSQLHandlerOptions {
 export class PostgreSQLHandler implements MCPHandler {
   private pools: Map<string, Pool>;
   private readonly options: PostgreSQLHandlerOptions;
-  private readonly allowedDatabases = ['kids-ascension', 'ozean-licht'];
+  private readonly allowedDatabases = ['kids-ascension', 'ozean-licht', 'shared-users', 'shared-users-db'];
 
   constructor(options: PostgreSQLHandlerOptions = {}) {
     this.pools = new Map();
@@ -38,6 +38,15 @@ export class PostgreSQLHandler implements MCPHandler {
       application_name: 'mcp-gateway-ol',
     };
     this.pools.set('ozean-licht', new Pool(olConfig));
+
+    // Initialize Shared Users database pool (register as both names for compatibility)
+    const sharedConfig: PoolConfig = {
+      ...dbConfig.sharedUsers,
+      application_name: 'mcp-gateway-shared',
+    };
+    const sharedPool = new Pool(sharedConfig);
+    this.pools.set('shared-users', sharedPool);
+    this.pools.set('shared-users-db', sharedPool); // Same pool, both names
 
     // Set up error handlers for pools
     this.pools.forEach((pool, name) => {
@@ -96,10 +105,18 @@ export class PostgreSQLHandler implements MCPHandler {
           break;
 
         case 'query':
-          if (!params.args || params.args.length === 0) {
+          if (!params.args || (Array.isArray(params.args) && params.args.length === 0)) {
             throw new ValidationError('SQL query required for query operation');
           }
-          result = await this.executeQuery(pool, params.args[0], params.options);
+          // Support both array format and object format
+          if (Array.isArray(params.args)) {
+            // params.args[0] is the SQL query, rest are parameters
+            const [sql, ...queryParams] = params.args;
+            result = await this.executeQuery(pool, sql, queryParams, params.options);
+          } else {
+            // Legacy object format support
+            throw new ValidationError('SQL query must be in args array format');
+          }
           break;
 
         case 'schema-info':
@@ -286,7 +303,7 @@ export class PostgreSQLHandler implements MCPHandler {
     };
   }
 
-  private async executeQuery(pool: Pool, sql: string, options?: any): Promise<any> {
+  private async executeQuery(pool: Pool, sql: string, params: any[], options?: any): Promise<any> {
     // Validate query size
     if (sql.length > this.options.maxQuerySize!) {
       throw new ValidationError(
@@ -315,7 +332,7 @@ export class PostgreSQLHandler implements MCPHandler {
       finalQuery = `${sql} LIMIT ${parseInt(options.limit)}`;
     }
 
-    const result = await this.executeWithTimeout(pool, finalQuery);
+    const result = await this.executeWithTimeout(pool, finalQuery, params);
 
     return {
       rowCount: result.rowCount,
@@ -365,11 +382,15 @@ export class PostgreSQLHandler implements MCPHandler {
   }
 
   private async getConnectionStats(database: string, pool: Pool): Promise<any> {
+    const dbKey = database === 'kids-ascension' ? 'kidsAscension'
+                : (database === 'shared-users' || database === 'shared-users-db') ? 'sharedUsers'
+                : 'ozeanLicht';
+
     const poolStats: PoolStats = {
       total: pool.totalCount,
       idle: pool.idleCount,
       waiting: pool.waitingCount,
-      maxConnections: dbConfig[database === 'kids-ascension' ? 'kidsAscension' : 'ozeanLicht'].max,
+      maxConnections: dbConfig[dbKey].max,
       connectionErrors: 0, // Would need to track this separately
     };
 

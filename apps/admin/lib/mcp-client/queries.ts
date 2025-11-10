@@ -24,6 +24,18 @@ import {
   AdminAuditLogRow,
   AdminSessionRow,
 } from '../../types/database';
+import {
+  User,
+  UserEntity,
+  UserFilters,
+  UserListResponse,
+  UserDetail,
+  EntityType,
+} from '../../types/user';
+import {
+  OAuthProviderRow,
+  UserWithEntitiesRow,
+} from '../../types/database-users';
 
 /**
  * Extended MCP Gateway Client with query operations
@@ -569,6 +581,219 @@ export class MCPGatewayClientWithQueries extends MCPGatewayClient {
       expiresAt: new Date(row.expires_at),
       createdAt: new Date(row.created_at),
       lastActivityAt: new Date(row.last_activity_at),
+    };
+  }
+
+  // ============================================================================
+  // User Operations
+  // ============================================================================
+
+  /**
+   * List users with filters and pagination
+   */
+  async listUsers(filters?: UserFilters): Promise<UserListResponse> {
+    const conditions: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
+
+    // Build WHERE clause
+    if (filters?.search) {
+      conditions.push(`(u.email ILIKE $${paramIndex} OR u.id::text ILIKE $${paramIndex})`);
+      params.push(`%${filters.search}%`);
+      paramIndex++;
+    }
+
+    if (filters?.emailVerified !== undefined) {
+      conditions.push(`u.email_verified = $${paramIndex}`);
+      params.push(filters.emailVerified);
+      paramIndex++;
+    }
+
+    if (filters?.createdAfter) {
+      conditions.push(`u.created_at >= $${paramIndex}`);
+      params.push(filters.createdAfter.toISOString());
+      paramIndex++;
+    }
+
+    if (filters?.createdBefore) {
+      conditions.push(`u.created_at <= $${paramIndex}`);
+      params.push(filters.createdBefore.toISOString());
+      paramIndex++;
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    // Handle entity filter (special case: needs subquery or join)
+    let entityFilter = '';
+    if (filters?.entityId && filters.entityId !== 'both') {
+      entityFilter = `
+        AND EXISTS (
+          SELECT 1 FROM user_entities ue
+          WHERE ue.user_id = u.id AND ue.entity_id = $${paramIndex}
+        )
+      `;
+      params.push(filters.entityId);
+      paramIndex++;
+    } else if (filters?.entityId === 'both') {
+      // User must have both entities
+      entityFilter = `
+        AND (
+          SELECT COUNT(DISTINCT ue.entity_id)
+          FROM user_entities ue
+          WHERE ue.user_id = u.id
+        ) = 2
+      `;
+    }
+
+    const limit = filters?.limit || 50;
+    const offset = filters?.offset || 0;
+
+    // Get total count
+    const countSql = `
+      SELECT COUNT(*) as count
+      FROM users u
+      ${whereClause}
+      ${entityFilter}
+    `;
+
+    const countRows = await this.query<{ count: string }>(countSql, params.slice(0, paramIndex - 1));
+    const total = parseInt(countRows[0].count, 10);
+
+    // Get users with entities (aggregated)
+    const sql = `
+      SELECT
+        u.id,
+        u.email,
+        u.email_verified,
+        u.created_at,
+        u.updated_at,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', ue.id,
+              'entity_id', ue.entity_id,
+              'role', ue.role,
+              'created_at', ue.created_at
+            )
+          ) FILTER (WHERE ue.id IS NOT NULL),
+          '[]'
+        ) as entities
+      FROM users u
+      LEFT JOIN user_entities ue ON u.id = ue.user_id
+      ${whereClause}
+      ${entityFilter}
+      GROUP BY u.id, u.email, u.email_verified, u.created_at, u.updated_at
+      ORDER BY u.created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const rows = await this.query<UserWithEntitiesRow>(sql, params);
+
+    const users = rows.map((row) => this._mapUserWithEntities(row));
+
+    return {
+      users,
+      total,
+      limit,
+      offset,
+    };
+  }
+
+  /**
+   * Get user by ID with entities
+   */
+  async getUserById(id: string): Promise<User | null> {
+    const sql = `
+      SELECT
+        u.id,
+        u.email,
+        u.email_verified,
+        u.created_at,
+        u.updated_at,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', ue.id,
+              'entity_id', ue.entity_id,
+              'role', ue.role,
+              'created_at', ue.created_at
+            )
+          ) FILTER (WHERE ue.id IS NOT NULL),
+          '[]'
+        ) as entities
+      FROM users u
+      LEFT JOIN user_entities ue ON u.id = ue.user_id
+      WHERE u.id = $1
+      GROUP BY u.id, u.email, u.email_verified, u.created_at, u.updated_at
+    `;
+
+    const rows = await this.query<UserWithEntitiesRow>(sql, [id]);
+    return rows.length > 0 ? this._mapUserWithEntities(rows[0]) : null;
+  }
+
+  /**
+   * Get user detail with OAuth providers
+   */
+  async getUserDetail(id: string): Promise<UserDetail | null> {
+    const user = await this.getUserById(id);
+
+    if (!user) {
+      return null;
+    }
+
+    // Get OAuth providers
+    const oauthSql = `
+      SELECT id, provider, provider_user_id, created_at
+      FROM oauth_providers
+      WHERE user_id = $1
+      ORDER BY created_at DESC
+    `;
+
+    const oauthRows = await this.query<OAuthProviderRow>(oauthSql, [id]);
+
+    const oauthProviders = oauthRows.map((row) => ({
+      id: row.id,
+      provider: row.provider,
+      providerUserId: row.provider_user_id,
+      createdAt: new Date(row.created_at),
+    }));
+
+    // TODO: Get activity metrics (last_login_at, login_count)
+    // This requires session tracking or audit log integration
+    // For now, return placeholder values
+
+    return {
+      ...user,
+      oauthProviders,
+      lastLoginAt: null, // TODO: Implement session tracking
+      loginCount: 0, // TODO: Implement login count
+    };
+  }
+
+  /**
+   * Map database row to User
+   */
+  private _mapUserWithEntities(row: UserWithEntitiesRow): User {
+    // Parse aggregated entities JSON
+    const entitiesArray = typeof row.entities === 'string'
+      ? JSON.parse(row.entities)
+      : row.entities;
+
+    const entities: UserEntity[] = entitiesArray.map((e: any) => ({
+      id: e.id,
+      userId: row.id,
+      entityId: e.entity_id as EntityType,
+      role: e.role,
+      createdAt: new Date(e.created_at),
+    }));
+
+    return {
+      id: row.id,
+      email: row.email,
+      emailVerified: row.email_verified,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at),
+      entities,
     };
   }
 }

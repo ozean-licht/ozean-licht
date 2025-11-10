@@ -708,6 +708,17 @@ Expected performance (via MCP Gateway):
 - Health check: < 100ms round-trip
 - Audit log creation: < 150ms
 
+## Documentation
+
+Comprehensive documentation is available in the `docs/` directory:
+
+- **[Documentation Index](./docs/README.md)** - Complete documentation overview
+- **[Platform Requirements](./docs/requirements/)** - Kids Ascension & Ozean Licht specifications
+- **[Deployment Guide](./docs/deployment/DEPLOYMENT.md)** - Production deployment instructions
+- **[Test Credentials](./docs/development/credentials.md)** - Test user accounts for local development
+- **[Architecture Decisions](./docs/archive/adw-plans/)** - Historical architecture decision records
+- **[Roadmap](./specs/admin-dashboard-roadmap.md)** - Implementation roadmap and phases
+
 ## License
 
 UNLICENSED - Private package for Ozean Licht Ecosystem

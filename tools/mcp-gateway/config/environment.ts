@@ -48,6 +48,13 @@ const envSchema = z.object({
   POSTGRES_OL_USER: z.string().default('postgres'),
   POSTGRES_OL_PASSWORD: z.string().optional().default(''),
 
+  POSTGRES_SHARED_URL: z.string().optional(),
+  POSTGRES_SHARED_HOST: z.string().default('localhost'),
+  POSTGRES_SHARED_PORT: z.string().default('32771').transform(Number),
+  POSTGRES_SHARED_DATABASE: z.string().default('shared-users-db'),
+  POSTGRES_SHARED_USER: z.string().default('postgres'),
+  POSTGRES_SHARED_PASSWORD: z.string().optional().default(''),
+
   // Service URLs
   MEM0_API_URL: z.string().url().default('http://mem0:8090'),
   N8N_API_URL: z.string().url().default('http://n8n:5678'),
@@ -159,6 +166,19 @@ export const dbConfig = {
     database: config.POSTGRES_OL_DATABASE,
     user: config.POSTGRES_OL_USER,
     password: config.POSTGRES_OL_PASSWORD,
+    min: config.DB_POOL_MIN,
+    max: config.DB_POOL_MAX,
+    idleTimeoutMillis: config.DB_IDLE_TIMEOUT_MS,
+    connectionTimeoutMillis: config.DEFAULT_TIMEOUT_MS,
+    statement_timeout: config.DB_QUERY_TIMEOUT_MS,
+  },
+  sharedUsers: {
+    connectionString: config.POSTGRES_SHARED_URL,
+    host: config.POSTGRES_SHARED_HOST,
+    port: config.POSTGRES_SHARED_PORT,
+    database: config.POSTGRES_SHARED_DATABASE,
+    user: config.POSTGRES_SHARED_USER,
+    password: config.POSTGRES_SHARED_PASSWORD,
     min: config.DB_POOL_MIN,
     max: config.DB_POOL_MAX,
     idleTimeoutMillis: config.DB_IDLE_TIMEOUT_MS,

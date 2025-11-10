@@ -1,0 +1,22 @@
+{
+  "name": "admin-login-flow-test",
+  "version": "1.0.0",
+  "description": "Playwright test suite for admin dashboard login flow validation",
+  "private": true,
+  "scripts": {
+    "test": "playwright test automated-login-test.js",
+    "test:headed": "playwright test automated-login-test.js --headed",
+    "test:debug": "playwright test automated-login-test.js --debug",
+    "install:browsers": "playwright install"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  },
+  "keywords": [
+    "playwright",
+    "testing",
+    "admin-dashboard",
+    "authentication",
+    "nextauth"
+  ]
+}

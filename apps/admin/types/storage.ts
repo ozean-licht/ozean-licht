@@ -203,7 +203,7 @@ export interface StorageStats {
   totalSize: number;
   filesByBucket: Record<string, number>;
   sizeByBucket: Record<string, number>;
-  filesByEntity: Record<EntityScope, number>;
+  filesByEntity: Record<EntityScope, { count: number; size: number }>;
   filesByStatus: Record<FileStatus, number>;
   recentUploads: StorageMetadata[];
 }

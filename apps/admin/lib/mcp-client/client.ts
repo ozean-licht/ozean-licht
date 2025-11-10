@@ -33,12 +33,12 @@ export class MCPGatewayClient {
    * @returns Query results as array of rows
    */
   async query<T = any>(sql: string, params?: any[]): Promise<T[]> {
-    const result = await this._request<T[]>('query', {
-      query: sql,
-      params: params || [],
+    const result = await this._request<any>('query', {
+      args: [sql, ...(params || [])],
     });
 
-    return result;
+    // MCP Gateway returns {rowCount, rows, fields}, extract just rows
+    return result.rows || result;
   }
 
   /**

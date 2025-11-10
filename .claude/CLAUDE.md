@@ -2,144 +2,77 @@
 
 Monorepo for two Austrian associations: **Kids Ascension** (kids-ascension.dev) - educational platform, **Ozean Licht** (ozean-licht.dev) - content platform.
 
-**CRITICAL: TypeScript migration in progress** - See `CONTEXT_MAP_RESTRUCTURE_TEMP.md`
+## Current Focus: Phase 1 - Admin Dashboard Deployment
 
-## Migration Warnings
+**Priority:** Deploy admin dashboard to production via Coolify
+- Admin dashboard: `apps/admin/` (NextAuth + MCP integration)
+- Establish MCP Gateway patterns
+- Validate authentication flow
 
-❌ **DO NOT** use Python ADW scripts (`adws/adw_*.py`) or o-commands/a-commands (deprecated)
-✅ **USE** Agent SDK (`@anthropic-ai/sdk`) + orchestrator_3_stream as foundation
-✅ **TARGET:** Convert `adws/adw_modules/*.py` → `apps/orchestrator_3_stream/backend/modules/adw/*.ts`
+**Migration Note:** Orchestrator system development paused until Phase 1 complete. Focus on admin dashboard first.
 
-## Infrastructure
+## Infrastructure Essentials
 
-**Server:** Hetzner AX42 (€50/mo) - AMD Ryzen 5, 64GB RAM, 2×512GB NVMe @ 138.201.139.25
-**Orchestration:** Coolify (self-hosted PaaS) - http://coolify.ozean-licht.dev:8000
-**Containers:** Docker + Docker Compose - all services containerized
+**Server:** Hetzner AX42 @ 138.201.139.25 (64GB RAM, 2×512GB NVMe)
+**Orchestration:** Coolify - http://coolify.ozean-licht.dev:8000
+**Monitoring:** Grafana - https://grafana.ozean-licht.dev
+**Databases:** PostgreSQL multi-tenant (shared_users_db, kids_ascension_db, ozean_licht_db)
 **Storage:** MinIO (hot) → Cloudflare R2 (cold) → Stream (CDN)
-**Databases:** PostgreSQL (multi-tenant) with connection pooling
-**Monitoring:** Grafana (https://grafana.ozean-licht.dev) + Prometheus metrics
-
-### Production Services
-```
-http://coolify.ozean-licht.dev:8000     # Coolify dashboard
-http://n8n.ozean-licht.dev              # N8N automation
-http://mem0.ozean-licht.dev             # Memory storage
-https://grafana.ozean-licht.dev         # Monitoring
-```
-
-## Architecture
-
-**Multi-Tenant DBs:** shared_users_db (auth), kids_ascension_db, ozean_licht_db, orchestrator_db
-**ADW:** Git worktree isolation, ports 9100-9114 (backend), 9200-9214 (frontend), PostgreSQL state
-**Monitoring:** Grafana dashboards at `tools/mcp-gateway/monitoring/grafana/dashboards/`
 
 ## MCP Gateway (Port 8100)
 
-**11 services** - USE THESE instead of direct API calls
-
-**Server (8):** postgres, mem0, cloudflare, github, n8n, minio, coolify, firecrawl
-**Local (3):** playwright, shadcn, magicui
+**11 services** - Use these instead of direct API calls:
 
 ```bash
+# Server services (8)
 mcp-postgres [db] query "SQL"              # DB operations
-mcp-mem0 remember|search "text"            # Memory ops
-mcp-github create-pr|merge-pr [args]       # GitHub ops
-mcp-minio upload|getUrl [bucket] [key]     # Storage ops
-mcp-coolify deploy-application [id]        # Deploy ops
+mcp-mem0 remember|search "text"            # Institutional memory
+mcp-github create-pr|merge-pr [args]       # GitHub operations
+mcp-minio upload|getUrl [bucket] [key]     # Hot storage
+mcp-cloudflare stream upload [path]        # CDN & cold storage
+mcp-coolify deploy-application [id]        # Deployment
 mcp-firecrawl scrape "url"                 # Web scraping
+mcp-n8n trigger-workflow [id]              # Automation
+
+# Local services (3)
+mcp-playwright, mcp-shadcn, mcp-magicui    # Browser/UI tools
 ```
 
-**Catalog:** `tools/mcp-gateway/config/mcp-catalog.json` (rate limits, token costs, all commands)
+**Catalog:** `tools/mcp-gateway/config/mcp-catalog.json`
+
+## Development Commands
+
+```bash
+# Start services (Phase 1 focus)
+pnpm --filter admin dev                    # Admin dashboard (port 9200)
+cd tools/mcp-gateway && npm run dev        # MCP Gateway (port 8100)
+
+# Other apps (Phase 2+)
+pnpm --filter @ka/web dev                  # Kids Ascension (port 3000)
+pnpm --filter @ol/web dev                  # Ozean Licht (port 3001)
+
+# Tests
+pnpm test                                  # All tests
+pnpm --filter admin test                   # Admin tests only
+```
 
 ## Key Paths
 
 ```
-apps/orchestrator_3_stream/  # MIGRATION TARGET - Agent SDK integration
-apps/admin/                  # Admin dashboard (NextAuth + MCP)
-apps/kids-ascension/         # Educational platform
-apps/ozean-licht/            # Content platform
-tools/mcp-gateway/           # MCP service (port 8100)
-adws/                        # LEGACY - Python ADW (being migrated)
-specs/                       # Architecture decisions
+apps/admin/          # PHASE 1: Admin dashboard (current focus)
+apps/admin/app_docs/ # Admin feature specifications
+tools/mcp-gateway/   # MCP service integration
+tools/coolify/       # Deployment configs
+specs/               # Architecture decisions
+CONTEXT_MAP.md       # Navigation guide (read first!)
 ```
-
-## Development
-
-```bash
-# Start services
-pnpm --filter @ka/web dev                # Kids Ascension (3000)
-pnpm --filter admin dev                  # Admin (9200)
-cd tools/mcp-gateway && npm run dev      # MCP Gateway (8100)
-
-# Tests
-pnpm test                                # All tests
-pnpm --filter @ka/web test:e2e           # E2E tests
-```
-
-## Docker Operations
-
-```bash
-# SSH to server (for agents with deployment permissions)
-ssh -i ~/.ssh/ozean-automation root@138.201.139.25
-
-# Docker commands
-docker ps                              # List running containers
-docker logs mcp-gateway -f             # View logs (follow)
-docker logs --tail=100 mcp-gateway     # Last 100 lines
-docker compose restart                 # Restart services
-docker compose up -d                   # Start services detached
-docker exec -it mcp-gateway sh         # Interactive shell
-
-# Health checks
-curl http://localhost:8100/health      # MCP Gateway health
-curl http://localhost:9090/metrics     # Prometheus metrics
-docker ps --format "{{.Names}}\t{{.Status}}"  # Service status
-```
-
-## Operational Hints
-
-**Port Allocation:**
-- 3000-3099: Local dev frontends
-- 8000-8999: Infrastructure services (Coolify, MCP, etc.)
-- 9100-9114: ADW worktree backends
-- 9200-9214: ADW worktree frontends
-
-**Deployment via Coolify:**
-- Changes to main branch auto-deploy via Coolify webhooks
-- Use `/mcp-coolify` commands for manual deployments
-- Each app has separate Coolify application ID
-- Check Coolify dashboard for build logs and status
-
-**Git Worktree Management:**
-```bash
-git worktree list                      # List all worktrees
-git worktree remove trees/{adw_id}     # Remove worktree
-git worktree prune                     # Cleanup stale worktrees
-lsof -i :9100-9114                     # Check backend ports
-lsof -i :9200-9214                     # Check frontend ports
-```
-
-**Database Access:**
-- Use MCP Gateway for queries (no direct psql needed)
-- Connection pooling managed by MCP Gateway
-- Each database is multi-tenant aware
-- Always specify database name in mcp-postgres commands
-
-**Environment Variables:**
-- Main repo: `.env` file (not committed)
-- Worktrees: `.ports.env` generated automatically
-- Production: Managed via Coolify dashboard
-- Never commit secrets or API keys
 
 ## Guidelines
 
-1. **Migration:** Check status before modifying ADW code (see CONTEXT_MAP_RESTRUCTURE_TEMP.md)
-2. **MCP Gateway:** Use for ALL external services (GitHub, Mem0, DBs, storage, deployments)
-3. **Monorepo:** Use `pnpm --filter @scope/package` for package operations
-4. **Worktrees:** Test ADW features in isolated worktrees, not main repo
-5. **Documentation:** Document architectural decisions in specs/ directory
-6. **Multi-tenant:** Always validate entity access in JWT tokens
-7. **Authentication:** MCP has no auth from localhost, SSH key required for remote
-8. **Docker:** All production services run in containers via Coolify
-9. **Deployments:** Use Coolify MCP tools, not manual docker commands
-10. **Secrets:** Never commit .env, credentials, or API keys to git
+1. **Phase 1 Focus:** Prioritize admin dashboard deployment over other features
+2. **MCP Gateway:** Use for ALL external services (never direct API calls)
+3. **Context Map:** Check `CONTEXT_MAP.md` for navigation before searching
+4. **Deployments:** Use Coolify MCP tools, check dashboard for build status
+5. **Multi-tenant:** Always validate entity access in JWT tokens
+6. **Monorepo:** Use `pnpm --filter <package>` for package operations
+7. **Secrets:** Never commit .env, credentials, or API keys to git

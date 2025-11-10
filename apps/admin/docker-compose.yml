@@ -10,8 +10,9 @@ services:
     ports:
       - "3000:3000"
     environment:
-      # NextAuth
+      # NextAuth (v5 uses AUTH_SECRET)
       - AUTH_SECRET=${AUTH_SECRET}
+      - NEXTAUTH_SECRET=${AUTH_SECRET}
       - NEXTAUTH_URL=https://dashboard.ozean-licht.dev
 
       # Database

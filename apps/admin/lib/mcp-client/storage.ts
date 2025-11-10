@@ -278,9 +278,9 @@ export class MCPStorageClient {
       params
     );
 
-    // Files by entity
-    const byEntity = await this._dbQuery<{ entity_scope: EntityScope; count: number }>(
-      `SELECT entity_scope, COUNT(*) as count
+    // Files by entity (count and size)
+    const byEntity = await this._dbQuery<{ entity_scope: EntityScope; count: number; total_size: number }>(
+      `SELECT entity_scope, COUNT(*) as count, COALESCE(SUM(file_size_bytes), 0) as total_size
        FROM admin_storage_metadata WHERE status = $1
        GROUP BY entity_scope`,
       ['active']
@@ -307,7 +307,7 @@ export class MCPStorageClient {
       totalSize: totals[0]?.total_size || 0,
       filesByBucket: Object.fromEntries(byBucket.map((r) => [r.bucket_name, r.count])),
       sizeByBucket: Object.fromEntries(sizeByBucket.map((r) => [r.bucket_name, r.total_size])),
-      filesByEntity: Object.fromEntries(byEntity.map((r) => [r.entity_scope, r.count])) as Record<EntityScope, number>,
+      filesByEntity: Object.fromEntries(byEntity.map((r) => [r.entity_scope, { count: r.count, size: r.total_size }])) as Record<EntityScope, { count: number; size: number }>,
       filesByStatus: Object.fromEntries(byStatus.map((r) => [r.status, r.count])) as Record<FileStatus, number>,
       recentUploads: recent,
     };

@@ -1,0 +1,4 @@
+Admin Dashboard Login Flow Validation
+Started: 2025-11-09
+Target URL: http://localhost:9200/login
+Test User: super@ozean-licht.dev

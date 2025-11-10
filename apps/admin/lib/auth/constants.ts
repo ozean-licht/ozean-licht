@@ -20,4 +20,10 @@ export const AUDIT_ACTIONS = {
   LOGOUT: 'logout',
   SESSION_REFRESH: 'session.refresh',
   SESSION_EXPIRED: 'session.expired',
+  // RBAC audit actions
+  ROLE_ASSIGNED: 'admin_user.role_assigned',
+  ROLE_UPDATED: 'admin_user.role_updated',
+  ROLE_REVOKED: 'admin_user.role_revoked',
+  ENTITY_ACCESS_GRANTED: 'admin_user.entity_access_granted',
+  ENTITY_ACCESS_REVOKED: 'admin_user.entity_access_revoked',
 } as const;

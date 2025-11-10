@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { auth } from './lib/auth/config'
+import { getMiddlewareSession } from './lib/auth/middleware-auth'
+import { canAccessRoute } from './lib/rbac/constants'
+import type { AdminRole } from './types/admin'
 
 /**
  * Next.js middleware for route protection
- * Protects dashboard routes and redirects unauthenticated users to login
+ * Protects dashboard routes and enforces role-based access control
+ *
+ * Note: Uses Edge-compatible auth check (JWT-based, no database)
  */
 export async function middleware(request: NextRequest) {
-  const session = await auth()
+  const session = await getMiddlewareSession(request)
   const { pathname } = request.nextUrl
 
   // Protect dashboard routes
@@ -16,6 +20,16 @@ export async function middleware(request: NextRequest) {
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)
+    }
+
+    // Role-based route access control
+    const userRole = session.user?.adminRole as AdminRole
+
+    if (userRole && !canAccessRoute(userRole, pathname)) {
+      // Redirect to dashboard with error message
+      const dashboardUrl = new URL('/dashboard', request.url)
+      dashboardUrl.searchParams.set('error', 'route_not_allowed')
+      return NextResponse.redirect(dashboardUrl)
     }
   }
 

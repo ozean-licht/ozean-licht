@@ -51,6 +51,7 @@ When invoked, you must follow these steps:
    - Confirm file creation/modification
    - Note any deviations from the specification
    - Flag any potential issues or concerns
+   - Output path to /apps/{app-name}/specs/reports/
 
 ## Report / Response
 
