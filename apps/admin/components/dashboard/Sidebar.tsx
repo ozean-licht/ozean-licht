@@ -208,14 +208,14 @@ export default function Sidebar({
         <div className="flex flex-col h-full">
           {/* Logo section */}
           <div className="flex items-center justify-between h-20 px-4 border-b border-primary/20">
-            <Link href="/dashboard" className="group flex items-center">
+            <Link href="/dashboard" className="group flex items-center w-full">
               <Image
                 src="/images/ozean-licht-logo-horizontal.webp"
                 alt="Ozean Licht"
-                width={isCollapsed ? 50 : 150}
-                height={isCollapsed ? 50 : 150}
-                className="transition-all duration-300 group-hover:scale-105"
-                style={{ width: isCollapsed ? '50px' : '150px', height: 'auto' }}
+                width={isCollapsed ? 50 : 240}
+                height={isCollapsed ? 50 : 70}
+                className="w-auto h-auto transition-all duration-300 group-hover:scale-105"
+                style={{ width: isCollapsed ? '50px' : 'auto', height: 'auto', maxWidth: '100%' }}
                 priority
               />
             </Link>
