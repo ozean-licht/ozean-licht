@@ -1,7 +1,5 @@
 'use client';
 
-import Link from 'next/link'
-import Image from 'next/image'
 import LogoutButton from '../auth/LogoutButton'
 import { RoleBadge } from '@/components/rbac/RoleBadge'
 import { EntityBadge } from '@/components/rbac/EntityBadge'
