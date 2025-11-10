@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+// Demo mode - no auth state needed
 import { NavButton } from "./nav-button"
-import { PrimaryButton } from "./primary-button"
+import { PrimaryButton } from "../primary-button"
 import { LanguagePicker } from "./language-picker"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -19,53 +19,12 @@ import {
 
 export function Header() {
   const pathname = usePathname()
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const { supabase } = await import('@/lib/supabase')
-        const { data: { user } } = await supabase.auth.getUser()
-        setUser(user)
-      } catch (error) {
-        console.error('Error checking auth:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    checkUser()
-
-    // Listen for auth changes
-    const setupAuthListener = async () => {
-      const { supabase } = await import('@/lib/supabase')
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          setUser(session?.user ?? null)
-        }
-      )
-      return subscription
-    }
-
-    let subscription: any
-    setupAuthListener().then((sub) => {
-      subscription = sub
-    })
-
-    return () => {
-      if (subscription) subscription.unsubscribe()
-    }
-  }, [])
-
-  const handleSignOut = async () => {
-    try {
-      const { supabase } = await import('@/lib/supabase')
-      await supabase.auth.signOut()
-      window.location.href = '/'
-    } catch (error) {
-      console.error('Error signing out:', error)
-    }
+  // Demo mode - no authentication
+  const user = null
+  const loading = false
+  const handleSignOut = () => {
+    alert('Demo-Modus: Abmelden nicht verfügbar')
   }
   return (
     <div className="fixed top-0 left-0 right-0 z-50 pt-[30px] px-[6px]">

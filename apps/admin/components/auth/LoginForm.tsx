@@ -42,17 +42,22 @@ export default function LoginForm() {
 
   return (
     <>
-      <div className="flex justify-center mb-8">
+      <div className="flex justify-center mb-6">
         <Image
-          src="/images/ozean-licht-logo.webp"
+          src="/images/ozean-licht-logo-horizontal.webp"
           alt="Ozean Licht"
-          width={80}
-          height={80}
-          className="rounded-lg"
+          width={220}
+          height={60}
+          className="object-contain"
           priority
         />
       </div>
-      <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+
+      <h1 className="text-center font-decorative text-3xl text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] mb-8">
+        Admin Dashboard
+      </h1>
+
+      <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
         {error && (
         <div className="rounded-md bg-red-50 p-4" role="alert">
           <div className="flex">
@@ -109,7 +114,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#055D75] hover:bg-[#055D75]/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#055D75] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? (
             <>
@@ -125,9 +130,9 @@ export default function LoginForm() {
         </button>
       </div>
 
-      <div className="text-sm text-center text-gray-600">
+      <div className="text-sm text-center text-white/70">
         <p className="mt-2">
-          Test credentials: <code className="text-xs bg-gray-100 px-2 py-1 rounded">super@ozean-licht.dev</code>
+          Test credentials: <code className="text-xs px-2 py-1 rounded">super@ozean-licht.dev</code>
         </p>
       </div>
       </form>

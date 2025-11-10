@@ -1,29 +1,41 @@
-export default function HomePage() {
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
+import { Hero } from "@/components/hero"
+import { OurPromise } from "@/components/our-promise"
+import { CTA1 } from "@/components/cta-1"
+import { YouTubeTicker } from "@/components/youtube-ticker"
+import { CoursePreview } from "@/components/course-preview"
+import { LoveLetterPromo } from "@/components/love-letter-promo"
+import { KidsAscensionPromo } from "@/components/kids-ascension-promo"
+import { PartnerDealPromo } from "@/components/partner-deal-promo"
+import { TestimonialsPreview } from "@/components/testimonials-preview"
+import { QuickFaq } from "@/components/quick-faq"
+import { BookPromo } from "@/components/book-promo"
+import { BlogPreview } from "@/components/blog-preview"
+import { CTA2 } from "@/components/cta-2"
+import { AuthRedirectHandler } from "@/components/auth-redirect-handler"
+
+export default function Home() {
   return (
-    <div className="min-h-screen bg-cosmic-gradient flex items-center justify-center">
-      <div className="text-center space-y-8 p-8">
-        <div className="space-y-4">
-          <h1 className="font-decorative text-6xl md:text-8xl text-primary animate-glow">
-            Ozean Licht
-          </h1>
-          <h2 className="font-decorative text-3xl md:text-4xl text-foreground">
-            Akademie™
-          </h2>
-        </div>
-
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-montserrat-alt">
-          Spirituelle Bildungsplattform für kosmisches Bewusstsein und Transformation
-        </p>
-
-        <div className="glass-card p-8 rounded-2xl max-w-md mx-auto glow">
-          <p className="text-foreground/80 font-montserrat">
-            🚧 In Entwicklung
-          </p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Die neue Ozean Licht Plattform wird bald verfügbar sein.
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-background pt-24">
+      <AuthRedirectHandler />
+      <Header />
+      <main className="space-y-20">
+        <Hero />
+        <OurPromise />
+        <CTA1 />
+        <YouTubeTicker />
+        <CoursePreview />
+        <KidsAscensionPromo />
+        <LoveLetterPromo />
+        <PartnerDealPromo />
+        <TestimonialsPreview />
+        <QuickFaq />
+        <BookPromo />
+        <BlogPreview />
+        <CTA2 />
+      </main>
+      <Footer />
     </div>
-  );
+  )
 }

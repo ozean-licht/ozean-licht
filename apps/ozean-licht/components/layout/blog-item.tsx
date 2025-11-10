@@ -1,4 +1,4 @@
-import { SpanBadge } from "./span-badge"
+import { SpanBadge } from "../span-badge"
 import Link from "next/link"
 
 interface BlogItemProps {

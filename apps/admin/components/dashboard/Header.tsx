@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image'
+import Link from 'next/link'
 import LogoutButton from '../auth/LogoutButton'
 import { RoleBadge } from '@/components/rbac/RoleBadge'
 import { EntityBadge } from '@/components/rbac/EntityBadge'
@@ -41,9 +43,21 @@ export default function Header({ user, onMenuToggle }: HeaderProps) {
               </svg>
             </button>
 
-            <h1 className="text-xl md:text-2xl font-decorative text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
-              Ecosystem Management
-            </h1>
+            {/* Logo and Title */}
+            <Link href="/dashboard" className="flex items-center space-x-3 group py-2">
+              <Image
+                src="/images/ozean-licht-logo-horizontal.webp"
+                alt="Ozean Licht"
+                width={220}
+                height={60}
+                className="w-auto h-auto transition-all duration-300 group-hover:scale-105"
+                style={{ maxWidth: '220px', height: 'auto' }}
+                priority
+              />
+              <h1 className="text-xl md:text-2xl font-decorative text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] hidden lg:block">
+                Ecosystem Management
+              </h1>
+            </Link>
           </div>
 
           <div className="flex items-center gap-3">

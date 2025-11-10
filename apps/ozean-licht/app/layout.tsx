@@ -1,38 +1,50 @@
-import type { Metadata } from "next";
-import { Inter, Cinzel, Cinzel_Decorative, Montserrat, Montserrat_Alternates } from "next/font/google";
-import "./globals.css";
+import type React from "react"
+import type { Metadata } from "next"
+import { Cinzel_Decorative, Montserrat, Montserrat_Alternates } from "next/font/google"
+import { Suspense } from "react"
+// import { SpeedInsights } from "@vercel/speed-insights/next"  // Demo mode - disabled
+import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-const cinzel = Cinzel({ subsets: ["latin"], variable: "--font-serif" });
 const cinzelDecorative = Cinzel_Decorative({
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
-  variable: "--font-decorative"
-});
-const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat" });
-const montserratAlt = Montserrat_Alternates({
+  weight: ["400", "700"],
+  variable: "--font-cinzel-decorative",
+})
+
+const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-montserrat-alt"
-});
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-montserrat",
+})
+
+const montserratAlternates = Montserrat_Alternates({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-montserrat-alternates",
+})
 
 export const metadata: Metadata = {
-  title: "Ozean Licht Akademie™",
-  description: "Spirituelle Bildungsplattform für kosmisches Bewusstsein und Transformation",
-};
+  title: "Ozean Licht",
+  description: "Ozean Licht - Your Ocean of Light",
+  generator: "v0.app",
+  icons: {
+    icon: "https://suwevnhwtmcazjugfmps.supabase.co/storage/v1/object/public/assets/FaviconOzeanLicht.png",
+  },
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html lang="de" className="dark">
+    <html lang="en" className="dark">
       <body
-        className={`${inter.variable} ${cinzel.variable} ${cinzelDecorative.variable} ${montserrat.variable} ${montserratAlt.variable} antialiased`}
+        className={`font-sans bg-background text-foreground ${cinzelDecorative.variable} ${montserrat.variable} ${montserratAlternates.variable}`}
       >
-        {children}
+        <Suspense fallback={null}>{children}</Suspense>
+        {/* <SpeedInsights /> */}
       </body>
     </html>
-  );
+  )
 }

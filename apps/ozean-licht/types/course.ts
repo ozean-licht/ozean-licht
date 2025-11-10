@@ -1,17 +1,17 @@
 export interface Course {
-  id: string;
+  id?: string;
   slug: string;
   title: string;
   subtitle?: string;
   description: string;
-  price: number;
-  is_public: boolean;
+  price?: number;
+  is_public?: boolean;
   thumbnail_url_desktop?: string;
   thumbnail_url_mobile?: string;
-  course_code: number;
+  course_code?: number;
   tags?: string[];
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CourseModule {
@@ -22,8 +22,9 @@ export interface CourseModule {
   order_index: number;
   is_published: boolean;
   estimated_duration_minutes?: number;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
+  contents?: ModuleContent[];
 }
 
 export interface ModuleContent {

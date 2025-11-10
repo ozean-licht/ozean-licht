@@ -2,76 +2,258 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: #0A0F1A;
-    --foreground: #FFFFFF;
-    --card: #1A1F2E;
-    --card-foreground: #FFFFFF;
-    --popover: #1A1F2E;
-    --popover-foreground: #FFFFFF;
-    --primary: #0ec2bc;
-    --primary-foreground: #FFFFFF;
-    --secondary: #64748B;
-    --secondary-foreground: #FFFFFF;
-    --muted: #64748B;
-    --muted-foreground: #94A3B8;
-    --accent: #2A2F3E;
-    --accent-foreground: #FFFFFF;
-    --destructive: #EF4444;
-    --destructive-foreground: #FFFFFF;
-    --border: #2A2F3E;
-    --input: #2A2F3E;
-    --ring: #0ec2bc;
-    --radius: 0.5rem;
-  }
+:root {
+  --background: #000F0F;
+  --foreground: #ffffff;
+  --card: #000d1a;
+  --card-foreground: #ffffff;
+  --popover: #020e0e;
+  --popover-foreground: #ffffff;
+  --primary: #188689;
+  --primary-foreground: #fff;
+  --secondary: #197068;
+  --secondary-foreground: #ffffff;
+  --muted: #020e0e;
+  --muted-foreground: #aeacac;
+  --accent: #073635;
+  --accent-foreground: #ffffff;
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: #ffffff;
+  --border: #052a2a;
+  --input: #134e48;
+  --ring: oklch(0.708 0 0);
+  --chart-1: #2b97aa;
+  --chart-2: #45a5a0;
+  --chart-3: #176f68;
+  --chart-4: #00a79f;
+  --chart-5: #81b3b3;
+  --radius: 0.75rem;
+  --sidebar: #020e0e;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #000000;
+  --sidebar-ring: oklch(0.708 0 0);
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-cinzel-decorative: "Cinzel Decorative", serif;
+  --font-geist-mono: "Geist Mono", monospace;
+  /* Adding Montserrat Alternates font variable */
+  --font-montserrat-alternates: "Montserrat Alternates", sans-serif;
+}
 
-  .dark {
-    --background: #0A0F1A;
-    --foreground: #FFFFFF;
-  }
+/* 🌊 Ozean Licht Card Utilities */
+/* Transparente Cards mit Backdrop-Blur für Dashboard */
+
+/* Basis Card */
+.glass-card {
+  background: rgba(10, 26, 26, 0.7); /* #0A1A1A mit 70% Opacity */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(24, 134, 137, 0.25); /* primary/25 */
+}
+
+/* Wichtige Card */
+.glass-card-strong {
+  background: rgba(10, 26, 26, 0.8); /* #0A1A1A mit 80% Opacity */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(24, 134, 137, 0.3); /* primary/30 */
+}
+
+/* Subtile Card */
+.glass-subtle {
+  background: rgba(10, 26, 26, 0.5); /* #0A1A1A mit 50% Opacity */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(24, 134, 137, 0.15); /* primary/15 */
+}
+
+/* Hover-Effekt - subtiler Glow */
+.glass-hover {
+  transition: all 0.3s ease;
+}
+
+.glass-hover:hover {
+  border-color: rgba(24, 134, 137, 0.4); /* primary/40 */
+  box-shadow: 0 0 20px rgba(24, 134, 137, 0.15);
+}
+
+.dark {
+  --background: #000F0F;
+  --foreground: #ffffff;
+  --card: #000d1a;
+  --card-foreground: #ffffff;
+  --popover: #020e0e;
+  --popover-foreground: #ffffff;
+  --primary: #188689;
+  --primary-foreground: #fff;
+  --secondary: #197068;
+  --secondary-foreground: #ffffff;
+  --muted: #020e0e;
+  --muted-foreground: #aeacac;
+  --accent: #073635;
+  --accent-foreground: #ffffff;
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: #ffffff;
+  --border: #052a2a;
+  --input: #134e48;
+  --ring: oklch(0.556 0 0);
+  --chart-1: #2b97aa;
+  --chart-2: #45a5a0;
+  --chart-3: #176f68;
+  --chart-4: #00a79f;
+  --chart-5: #81b3b3;
+  --sidebar: #020e0e;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.275 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-cinzel-decorative: "Cinzel Decorative", serif;
+  --font-geist-mono: "Geist Mono", monospace;
+  /* Adding Montserrat Alternates font variable to dark theme */
+  --font-montserrat-alternates: "Montserrat Alternates", sans-serif;
+}
+
+@theme inline {
+  --font-sans: var(--font-montserrat);
+  --font-mono: var(--font-geist-mono);
+  --font-cinzel: var(--font-cinzel-decorative);
+  /* Adding Montserrat Alternates to theme */
+  --font-montserrat-alt: var(--font-montserrat-alternates);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-sans);
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 }
 
-/* Glass effect utilities */
-@layer components {
-  .glass-card {
-    @apply bg-card/70 backdrop-blur-xl border border-primary/25;
+/* Ticker scroll animations */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0%);
   }
-
-  .glass-card-strong {
-    @apply bg-card/80 backdrop-blur-2xl border border-primary/30;
-  }
-
-  .glass-subtle {
-    @apply bg-card/50 backdrop-blur-lg border border-primary/15;
-  }
-
-  .glass-hover {
-    @apply transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/15;
-  }
-
-  .glow {
-    @apply shadow-lg shadow-primary/30;
+  100% {
+    transform: translateX(-100%);
   }
 }
 
-/* Font families */
-@layer utilities {
-  .font-cinzel-decorative {
-    font-family: 'Cinzel Decorative', Georgia, serif;
+@keyframes scroll-right {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+/* Adding global typography hierarchy */
+  h1 {
+    font-family: var(--font-cinzel-decorative);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.60);
   }
 
-  .font-montserrat-alt {
-    font-family: 'Montserrat Alternates', Montserrat, sans-serif;
+  h2 {
+    font-family: var(--font-cinzel-decorative);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.42);
+  }
+
+  h3 {
+    font-family: var(--font-cinzel-decorative);
+  }
+
+  h4 {
+    font-family: "Cinzel", serif;
+  }
+
+  h5 {
+    /* Using the proper Montserrat Alternates variable */
+    font-family: var(--font-montserrat-alternates);
+  }
+
+  h6 {
+    /* Using the proper Montserrat Alternates variable */
+    font-family: var(--font-montserrat-alternates);
+  }
+
+  /* Body text sizes with Montserrat */
+  .body-l {
+    font-family: var(--font-montserrat);
+    font-size: 1.125rem; /* 18px */
+  }
+
+  .body-m {
+    font-family: var(--font-montserrat);
+    font-size: 1rem; /* 16px */
+  }
+
+  .body-s {
+    font-family: var(--font-montserrat);
+    font-size: 0.875rem; /* 14px */
+  }
+
+  /* Adding global p tag styling with Montserrat Light */
+  p {
+    font-family: var(--font-montserrat);
+    font-weight: 300; /* Light weight */
+  }
+
+
+/* Spin animation for rotating elements */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }

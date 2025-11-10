@@ -1,8 +1,8 @@
 "use client"
 
 import { SpanDesign } from "./span-design"
-import { PrimaryButton } from "./primary-button"
-import { InfoCard } from "./info-card"
+import { PrimaryButton } from "../primary-button"
+import { InfoCard } from "../info-card"
 
 export function CTA2() {
   const peopleImages = [
