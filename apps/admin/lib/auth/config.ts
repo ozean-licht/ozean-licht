@@ -41,6 +41,19 @@ const authConfig: NextAuthConfig = {
   // Trust host for production deployment behind proxy (Coolify/Traefik)
   trustHost: true,
 
+  // Cookie configuration for HTTPS behind reverse proxy
+  cookies: {
+    sessionToken: {
+      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+  },
+
   providers: [
     CredentialsProvider({
       name: 'Credentials',
