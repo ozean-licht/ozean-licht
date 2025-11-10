@@ -14,10 +14,22 @@ import type { AdminRole } from '@/types/admin';
  * Works in Edge runtime without database access
  */
 export async function getMiddlewareSession(request: NextRequest) {
+  // CRITICAL: Must match cookie name from config.ts
+  const cookieName = process.env.NODE_ENV === 'production'
+    ? '__Secure-next-auth.session-token'
+    : 'next-auth.session-token';
+
   const token = await getToken({
     req: request,
     secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+    cookieName,  // Explicitly specify cookie name to match production config
   });
+
+  // Debug logging (remove after fix confirmed)
+  if (!token) {
+    console.log('[Middleware] No token found. Cookie name:', cookieName);
+    console.log('[Middleware] Available cookies:', request.cookies.getAll().map(c => c.name));
+  }
 
   if (!token) return null;
 

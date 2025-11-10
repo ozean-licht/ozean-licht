@@ -42,6 +42,7 @@ const authConfig: NextAuthConfig = {
   trustHost: true,
 
   // Cookie configuration for HTTPS behind reverse proxy
+  // NextAuth v5 beta.30+ requires explicit cookie domain to prevent reverse proxy issues
   cookies: {
     sessionToken: {
       name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
@@ -49,6 +50,10 @@ const authConfig: NextAuthConfig = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
+        // Explicitly set domain to prevent container hostname from being used
+        domain: process.env.NODE_ENV === 'production'
+          ? '.ozean-licht.dev'  // Wildcard allows subdomains (dashboard.ozean-licht.dev)
+          : undefined,
         secure: process.env.NODE_ENV === 'production',
       },
     },
