@@ -2,7 +2,24 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
+import {
+  ChevronLeft,
+  ChevronRight,
+  LayoutDashboard,
+  Users,
+  Activity,
+  BarChart3,
+  Video,
+  UsersRound,
+  Baby,
+  CheckCircle2,
+  BookOpen,
+  FileText,
+  Settings,
+  Lock,
+  Table
+} from 'lucide-react';
 import { NavigationSection, UserEntity, EntityScope } from '@/types/navigation';
 import { canAccessRoute } from '@/lib/rbac/constants';
 import type { AdminRole } from '@/types/admin';
@@ -41,22 +58,22 @@ export default function Sidebar({
         {
           label: 'Overview',
           href: '/dashboard',
-          icon: '📊',
+          icon: LayoutDashboard,
         },
         {
           label: 'Users',
           href: '/dashboard/users',
-          icon: '👥',
+          icon: Users,
         },
         {
           label: 'System Health',
           href: '/health',
-          icon: '💓',
+          icon: Activity,
         },
         {
           label: 'Analytics',
           href: '/dashboard/analytics',
-          icon: '📈',
+          icon: BarChart3,
         },
       ],
     },
@@ -67,22 +84,22 @@ export default function Sidebar({
         {
           label: 'Videos',
           href: '/dashboard/kids-ascension/videos',
-          icon: '🎥',
+          icon: Video,
         },
         {
           label: 'Parents',
           href: '/dashboard/kids-ascension/parents',
-          icon: '👨‍👩‍👧',
+          icon: UsersRound,
         },
         {
           label: 'Kids',
           href: '/dashboard/kids-ascension/kids',
-          icon: '👶',
+          icon: Baby,
         },
         {
           label: 'Moderation',
           href: '/dashboard/kids-ascension/moderation',
-          icon: '✅',
+          icon: CheckCircle2,
         },
       ],
     },
@@ -93,17 +110,17 @@ export default function Sidebar({
         {
           label: 'Courses',
           href: '/dashboard/ozean-licht/courses',
-          icon: '📚',
+          icon: BookOpen,
         },
         {
           label: 'Members',
           href: '/dashboard/ozean-licht/members',
-          icon: '👥',
+          icon: Users,
         },
         {
           label: 'Content',
           href: '/dashboard/ozean-licht/content',
-          icon: '📝',
+          icon: FileText,
         },
       ],
     },
@@ -113,17 +130,17 @@ export default function Sidebar({
         {
           label: 'Account',
           href: '/dashboard/settings/account',
-          icon: '⚙️',
+          icon: Settings,
         },
         {
           label: 'Team',
           href: '/dashboard/settings/team',
-          icon: '👨‍💼',
+          icon: Users,
         },
         {
           label: 'Permissions',
           href: '/dashboard/permissions',
-          icon: '🔐',
+          icon: Lock,
         },
       ],
     },
@@ -133,7 +150,7 @@ export default function Sidebar({
         {
           label: 'Data Table Demo',
           href: '/dashboard/examples/data-table',
-          icon: '📋',
+          icon: Table,
         },
       ],
     },
@@ -192,9 +209,14 @@ export default function Sidebar({
           {/* Logo section */}
           <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center text-white font-bold">
-                OL
-              </div>
+              <Image
+                src="/images/ozean-licht-logo.webp"
+                alt="Ozean Licht"
+                width={32}
+                height={32}
+                className="rounded-lg"
+                priority
+              />
               {!isCollapsed && (
                 <span className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                   Admin
@@ -229,10 +251,12 @@ export default function Sidebar({
             <div className="space-y-8">
               {visibleSections.map((section) => (
                 <div key={section.title}>
-                  <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    {section.title}
-                  </h3>
-                  <div className="mt-3 space-y-1" role="list">
+                  {!isCollapsed && (
+                    <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      {section.title}
+                    </h3>
+                  )}
+                  <div className={`${!isCollapsed ? 'mt-3' : ''} space-y-1`} role="list">
                     {section.items.map((item) => {
                       const isActive = isActiveRoute(item.href);
                       return (
@@ -250,7 +274,7 @@ export default function Sidebar({
                           title={isCollapsed ? item.label : undefined}
                         >
                           {item.icon && (
-                            <span className={isCollapsed ? 'text-lg' : 'mr-3 text-lg'}>{item.icon}</span>
+                            <item.icon className={`w-5 h-5 text-gray-400 ${isCollapsed ? '' : 'mr-3'}`} />
                           )}
                           {!isCollapsed && <span>{item.label}</span>}
                           {!isCollapsed && item.badge && (

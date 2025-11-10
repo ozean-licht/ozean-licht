@@ -3,12 +3,14 @@
  * Supports entity-aware navigation with Kids Ascension and Ozean Licht sections
  */
 
+import type { LucideIcon } from 'lucide-react';
+
 export type EntityScope = 'kids_ascension' | 'ozean_licht' | 'all';
 
 export interface NavigationItem {
   label: string;
   href: string;
-  icon?: string;
+  icon?: LucideIcon;
   entityScope?: EntityScope;
   badge?: string | number;
 }

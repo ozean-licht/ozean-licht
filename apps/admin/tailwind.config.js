@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ['class'],
+  darkMode: 'selector',
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -64,10 +64,10 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['Montserrat', 'system-ui', '-apple-system', 'sans-serif'],
-        serif: ['Cinzel', 'Georgia', 'serif'],
-        decorative: ['Cinzel Decorative', 'Georgia', 'serif'],
-        alt: ['Montserrat Alternates', 'Montserrat', 'sans-serif'],
+        sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['var(--font-serif)', 'Georgia', 'serif'],
+        decorative: ['var(--font-decorative)', 'Georgia', 'serif'],
+        alt: ['var(--font-alt)', 'Montserrat', 'sans-serif'],
         mono: ['Fira Code', 'Courier New', 'monospace'],
       },
       backgroundImage: {

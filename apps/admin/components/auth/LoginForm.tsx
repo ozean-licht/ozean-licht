@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('')
@@ -40,8 +41,19 @@ export default function LoginForm() {
   }
 
   return (
-    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-      {error && (
+    <>
+      <div className="flex justify-center mb-8">
+        <Image
+          src="/images/ozean-licht-logo.webp"
+          alt="Ozean Licht"
+          width={80}
+          height={80}
+          className="rounded-lg"
+          priority
+        />
+      </div>
+      <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        {error && (
         <div className="rounded-md bg-red-50 p-4" role="alert">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -118,6 +130,7 @@ export default function LoginForm() {
           Test credentials: <code className="text-xs bg-gray-100 px-2 py-1 rounded">super@ozean-licht.dev</code>
         </p>
       </div>
-    </form>
+      </form>
+    </>
   )
 }

@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import LogoutButton from '../auth/LogoutButton'
-import { ThemeToggle } from './ThemeToggle'
 import { RoleBadge } from '@/components/rbac/RoleBadge'
 import { EntityBadge } from '@/components/rbac/EntityBadge'
 import type { AdminRole } from '@/types/admin'
@@ -60,9 +59,6 @@ export default function Header({ user, onMenuToggle }: HeaderProps) {
                   />
                 )}
               </div>
-            </div>
-            <div className="hidden sm:block">
-              <ThemeToggle />
             </div>
             <LogoutButton />
           </div>
