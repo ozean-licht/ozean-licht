@@ -54,7 +54,7 @@ export default async function DashboardPage({
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-10">
-        <div className="glass-card glass-hover overflow-hidden rounded-2xl">
+        <div className="bg-[#00111A] border border-primary/25 overflow-hidden rounded-2xl transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/15">
           <div className="px-6 py-6">
             <dt className="text-sm font-sans font-medium text-white/90 mb-3">
               Admin Role
@@ -65,7 +65,7 @@ export default async function DashboardPage({
           </div>
         </div>
 
-        <div className="glass-card glass-hover overflow-hidden rounded-2xl">
+        <div className="bg-[#00111A] border border-primary/25 overflow-hidden rounded-2xl transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/15">
           <div className="px-6 py-6">
             <dt className="text-sm font-sans font-medium text-white/90 mb-3">
               Entity Scope
@@ -76,7 +76,7 @@ export default async function DashboardPage({
           </div>
         </div>
 
-        <div className="glass-card glass-hover overflow-hidden rounded-2xl">
+        <div className="bg-[#00111A] border border-primary/25 overflow-hidden rounded-2xl transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/15">
           <div className="px-6 py-6">
             <dt className="text-sm font-sans font-medium text-white/90 mb-3">
               Permissions

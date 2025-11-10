@@ -43,19 +43,9 @@ export default function Header({ user, onMenuToggle }: HeaderProps) {
               </svg>
             </button>
 
-            <Link href="/dashboard" className="flex items-center gap-4">
-              <Image
-                src="/images/ozean-licht-logo-horizontal.webp"
-                alt="Ozean Licht"
-                width={170}
-                height={50}
-                className="h-auto w-[170px]"
-                priority
-              />
-              <h1 className="text-xl md:text-2xl font-decorative text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
-                Ecosystem Management
-              </h1>
-            </Link>
+            <h1 className="text-xl md:text-2xl font-decorative text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
+              Ecosystem Management
+            </h1>
           </div>
 
           <div className="flex items-center gap-3">

@@ -43,7 +43,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${montserrat.variable} ${montserratAlternates.variable} ${cinzel.variable} ${cinzelDecorative.variable} font-sans antialiased`}>
+      <body className={`${montserrat.variable} ${montserratAlternates.variable} ${cinzel.variable} ${cinzelDecorative.variable} font-sans antialiased bg-[#00070F]`}>
         <ThemeProvider
           attribute="class"
           forcedTheme="dark"

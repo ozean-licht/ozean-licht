@@ -208,21 +208,16 @@ export default function Sidebar({
         <div className="flex flex-col h-full">
           {/* Logo section */}
           <div className="flex items-center justify-between h-20 px-4 border-b border-primary/20">
-            <Link href="/dashboard" className="group flex items-center gap-3">
+            <Link href="/dashboard" className="group flex items-center">
               <Image
-                src="/images/logo-ol.png"
+                src="/images/ozean-licht-logo-horizontal.webp"
                 alt="Ozean Licht"
-                width={isCollapsed ? 80 : 240}
-                height={isCollapsed ? 80 : 240}
+                width={isCollapsed ? 50 : 150}
+                height={isCollapsed ? 50 : 150}
                 className="transition-all duration-300 group-hover:scale-105"
-                style={{ width: isCollapsed ? '80px' : '60px', height: 'auto' }}
+                style={{ width: isCollapsed ? '50px' : '150px', height: 'auto' }}
                 priority
               />
-              {!isCollapsed && (
-                <span className="font-decorative text-white text-lg whitespace-nowrap">
-                  Ozean Licht Ecosystem
-                </span>
-              )}
             </Link>
             {/* Mobile close button */}
             <button
@@ -270,13 +265,13 @@ export default function Sidebar({
                           className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:ring-offset-2 focus:ring-offset-background ${
                             isActive
                               ? 'bg-primary/10 text-primary-400 shadow-[0_0_15px_rgba(14,194,188,0.15)]'
-                              : 'text-white/72 hover:text-primary-300 hover:bg-primary/5'
+                              : 'text-white/50 hover:text-primary-300 hover:bg-primary/5'
                           }`}
                           title={isCollapsed ? item.label : undefined}
                         >
                           {item.icon && (
                             <item.icon className={`w-5 h-5 flex-shrink-0 transition-colors ${
-                              isActive ? 'text-primary-400' : 'text-white/72 group-hover:text-primary-300'
+                              isActive ? 'text-primary-400' : 'text-white/50 group-hover:text-primary-300'
                             } ${isCollapsed ? '' : 'mr-3'}`} />
                           )}
                           {!isCollapsed && <span>{item.label}</span>}

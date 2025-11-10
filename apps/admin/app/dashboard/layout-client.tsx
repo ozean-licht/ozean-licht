@@ -74,7 +74,7 @@ export default function DashboardLayoutClient({
 
   return (
     <BreadcrumbProvider>
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="min-h-screen bg-[#00070F]">
         <div className="flex h-screen overflow-hidden">
           {/* Sidebar */}
           <Sidebar
