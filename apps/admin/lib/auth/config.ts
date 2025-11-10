@@ -38,6 +38,9 @@ const authConfig: NextAuthConfig = {
   // NextAuth v5 uses AUTH_SECRET, fallback to NEXTAUTH_SECRET for compatibility
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
 
+  // Trust host for production deployment behind proxy (Coolify/Traefik)
+  trustHost: true,
+
   providers: [
     CredentialsProvider({
       name: 'Credentials',
