@@ -17,14 +17,14 @@ interface HeaderProps {
 
 export default function Header({ user, onMenuToggle }: HeaderProps) {
   return (
-    <header className="bg-card/50 backdrop-blur-xl shadow-lg border-b border-primary/20">
+    <header className="bg-[#0E282E] backdrop-blur-xl shadow-lg border-b border-primary/20">
       <div className="px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
             {/* Mobile menu toggle button */}
             <button
               onClick={onMenuToggle}
-              className="md:hidden p-2 text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary/50 transition-colors"
+              className="md:hidden p-2 text-white/70 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary/50 transition-colors"
               aria-label="Toggle menu"
             >
               <svg
@@ -43,13 +43,15 @@ export default function Header({ user, onMenuToggle }: HeaderProps) {
             </button>
 
             <Link href="/dashboard" className="flex items-center">
-              <h1 className="text-xl md:text-2xl font-bold text-foreground">Admin Dashboard</h1>
+              <h1 className="text-xl md:text-2xl font-decorative font-bold text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
+                Ozean Licht Ecosystem
+              </h1>
             </Link>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-foreground">{user.email}</p>
+              <p className="text-sm font-medium text-white/90">{user.email}</p>
               <div className="flex items-center justify-end gap-2 mt-1">
                 <RoleBadge role={user.adminRole as AdminRole} />
                 {user.entityScope && (
@@ -60,7 +62,7 @@ export default function Header({ user, onMenuToggle }: HeaderProps) {
                 )}
               </div>
             </div>
-            <LogoutButton />
+            <LogoutButton className="bg-primary hover:bg-primary-600 text-white" />
           </div>
         </div>
       </div>

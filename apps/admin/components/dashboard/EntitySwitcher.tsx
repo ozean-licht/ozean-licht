@@ -9,6 +9,24 @@ interface EntitySwitcherProps {
   onEntitySwitch: (entityId: string) => void;
 }
 
+// Helper function to get simplified label
+function getSimplifiedLabel(entity: UserEntity): string {
+  // Check if entityName contains "All Entities" or entityId is 'all'
+  if (entity.entityName.includes('All Entities') || entity.entityId === 'all') {
+    return 'All';
+  }
+  // Check for Kids Ascension
+  if (entity.entityName.includes('Kids Ascension') || entity.entityId === 'kids_ascension') {
+    return 'KA';
+  }
+  // Check for Ozean Licht
+  if (entity.entityName.includes('Ozean Licht') || entity.entityId === 'ozean_licht') {
+    return 'OL';
+  }
+  // Fallback to first two letters uppercase
+  return entity.entityName.substring(0, 2).toUpperCase();
+}
+
 export default function EntitySwitcher({
   currentEntity,
   availableEntities,
@@ -29,29 +47,24 @@ export default function EntitySwitcher({
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className="flex items-center justify-between w-full px-2 py-1 text-xs font-medium text-white/90 bg-[#0E282E]/80 border border-primary/30 rounded-lg hover:bg-[#0E282E] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/50 transition-colors"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2">
           {currentEntity.logo && (
             <img
               src={currentEntity.logo}
               alt={currentEntity.entityName}
-              className="w-6 h-6 rounded"
+              className="w-4 h-4 rounded"
             />
           )}
-          <div className="text-left">
-            <p className="text-sm font-medium text-gray-900">
-              {currentEntity.entityName}
-            </p>
-            <p className="text-xs text-gray-500 capitalize">
-              {currentEntity.role}
-            </p>
-          </div>
+          <span className="font-semibold">
+            {getSimplifiedLabel(currentEntity)}
+          </span>
         </div>
         <svg
-          className={`w-5 h-5 text-gray-400 transition-transform ${
+          className={`w-4 h-4 text-white/60 transition-transform ${
             isOpen ? 'transform rotate-180' : ''
           }`}
           xmlns="http://www.w3.org/2000/svg"
@@ -72,15 +85,15 @@ export default function EntitySwitcher({
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute bottom-full left-0 z-20 w-full mb-2 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
+          <div className="absolute bottom-full left-0 z-20 w-full mb-2 bg-[#0E282E] rounded-lg shadow-lg border border-primary/30">
             <div className="py-1">
               {availableEntities.map((entity) => (
                 <button
                   key={entity.entityId}
                   onClick={() => handleSwitch(entity.entityId)}
-                  className={`flex items-center w-full px-4 py-3 text-sm hover:bg-gray-100 ${
+                  className={`flex items-center w-full px-2 py-2 text-xs text-white/90 hover:bg-primary/20 transition-colors ${
                     entity.entityId === currentEntity.entityId
-                      ? 'bg-gray-50'
+                      ? 'bg-primary/20'
                       : ''
                   }`}
                 >
@@ -88,20 +101,15 @@ export default function EntitySwitcher({
                     <img
                       src={entity.logo}
                       alt={entity.entityName}
-                      className="w-6 h-6 rounded mr-3"
+                      className="w-4 h-4 rounded mr-2"
                     />
                   )}
-                  <div className="text-left">
-                    <p className="text-sm font-medium text-gray-900">
-                      {entity.entityName}
-                    </p>
-                    <p className="text-xs text-gray-500 capitalize">
-                      {entity.role}
-                    </p>
-                  </div>
+                  <span className="font-semibold">
+                    {getSimplifiedLabel(entity)}
+                  </span>
                   {entity.entityId === currentEntity.entityId && (
                     <svg
-                      className="w-5 h-5 ml-auto text-indigo-600"
+                      className="w-4 h-4 ml-auto text-primary"
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 20 20"
                       fill="currentColor"

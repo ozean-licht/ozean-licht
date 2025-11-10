@@ -17,7 +17,7 @@ export default async function DashboardPage({
   const { user } = session
 
   return (
-    <div className="min-h-screen bg-cosmic-gradient px-4 py-6 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#00070F] px-4 py-6 sm:px-6 lg:px-8">
       {/* Error Messages */}
       {searchParams.error === 'route_not_allowed' && (
         <div className="glass-card border-destructive/40 bg-destructive/10 p-6 mb-8 rounded-2xl">
@@ -40,11 +40,11 @@ export default async function DashboardPage({
 
       {/* Welcome Section */}
       <div className="mb-10">
-        <h1 className="text-4xl font-decorative text-primary-500 mb-3">
+        <h1 className="text-4xl font-decorative text-white mb-3">
           Welcome to Ozean Licht
         </h1>
-        <p className="text-lg font-sans text-foreground/80 flex items-center gap-3">
-          <span className="text-foreground/60">Logged in as</span>
+        <p className="text-lg font-sans text-white/90 flex items-center gap-3">
+          <span className="text-white/90">Logged in as</span>
           <span className="text-primary-400">{user.email}</span>
         </p>
         <div className="mt-4">
@@ -54,9 +54,9 @@ export default async function DashboardPage({
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-10">
-        <div className="glass-card glass-hover overflow-hidden rounded-2xl glow">
+        <div className="glass-card glass-hover overflow-hidden rounded-2xl">
           <div className="px-6 py-6">
-            <dt className="text-sm font-sans font-medium text-foreground/60 mb-3">
+            <dt className="text-sm font-sans font-medium text-white/90 mb-3">
               Admin Role
             </dt>
             <dd className="mt-2">
@@ -65,9 +65,9 @@ export default async function DashboardPage({
           </div>
         </div>
 
-        <div className="glass-card glass-hover overflow-hidden rounded-2xl glow">
+        <div className="glass-card glass-hover overflow-hidden rounded-2xl">
           <div className="px-6 py-6">
-            <dt className="text-sm font-sans font-medium text-foreground/60 mb-3">
+            <dt className="text-sm font-sans font-medium text-white/90 mb-3">
               Entity Scope
             </dt>
             <dd className="mt-2 text-3xl font-serif font-semibold text-primary-400">
@@ -76,9 +76,9 @@ export default async function DashboardPage({
           </div>
         </div>
 
-        <div className="glass-card glass-hover overflow-hidden rounded-2xl glow">
+        <div className="glass-card glass-hover overflow-hidden rounded-2xl">
           <div className="px-6 py-6">
-            <dt className="text-sm font-sans font-medium text-foreground/60 mb-3">
+            <dt className="text-sm font-sans font-medium text-white/90 mb-3">
               Permissions
             </dt>
             <dd className="mt-2 text-3xl font-serif font-semibold text-primary-400">
@@ -91,8 +91,8 @@ export default async function DashboardPage({
       {/* Permissions List */}
       <div className="glass-card-strong rounded-2xl overflow-hidden">
         <div className="px-6 py-6 border-b border-primary/20">
-          <h2 className="text-2xl font-decorative text-primary-500">Your Permissions</h2>
-          <p className="mt-2 text-sm font-sans text-foreground/70">
+          <h2 className="text-2xl font-decorative text-white">Your Permissions</h2>
+          <p className="mt-2 text-sm font-sans text-white/90">
             These permissions control what actions you can perform in the admin dashboard
           </p>
         </div>

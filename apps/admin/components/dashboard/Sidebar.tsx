@@ -199,7 +199,7 @@ export default function Sidebar({
       <aside
         role="navigation"
         aria-label="Main navigation"
-        className={`fixed inset-y-0 left-0 z-50 bg-card border-r border-primary/20 transform transition-all duration-300 ease-in-out md:translate-x-0 md:static md:z-0 ${
+        className={`fixed inset-y-0 left-0 z-50 bg-[#0E282E] border-r border-primary/20 transform transition-all duration-300 ease-in-out md:translate-x-0 md:static md:z-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } ${
           isCollapsed ? 'w-16' : 'w-64'
@@ -207,16 +207,22 @@ export default function Sidebar({
       >
         <div className="flex flex-col h-full">
           {/* Logo section */}
-          <div className="flex items-center justify-center h-20 px-4 border-b border-primary/20">
-            <Link href="/dashboard" className="group">
+          <div className="flex items-center justify-between h-20 px-4 border-b border-primary/20">
+            <Link href="/dashboard" className="group flex items-center gap-3">
               <Image
-                src="/images/ozean-licht-logo.webp"
+                src="/images/logo-ol.png"
                 alt="Ozean Licht"
-                width={isCollapsed ? 40 : 120}
-                height={isCollapsed ? 40 : 120}
-                className="rounded-lg transition-all duration-300 group-hover:scale-105"
+                width={isCollapsed ? 80 : 240}
+                height={isCollapsed ? 80 : 240}
+                className="transition-all duration-300 group-hover:scale-105"
+                style={{ width: isCollapsed ? '80px' : '60px', height: 'auto' }}
                 priority
               />
+              {!isCollapsed && (
+                <span className="font-decorative text-white text-lg whitespace-nowrap">
+                  Ozean Licht Ecosystem
+                </span>
+              )}
             </Link>
             {/* Mobile close button */}
             <button
@@ -269,7 +275,7 @@ export default function Sidebar({
                           title={isCollapsed ? item.label : undefined}
                         >
                           {item.icon && (
-                            <item.icon className={`w-5 h-5 transition-colors ${
+                            <item.icon className={`w-5 h-5 flex-shrink-0 transition-colors ${
                               isActive ? 'text-primary-400' : 'text-muted-foreground group-hover:text-primary-300'
                             } ${isCollapsed ? '' : 'mr-3'}`} />
                           )}
