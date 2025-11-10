@@ -189,7 +189,7 @@ export default function Sidebar({
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 backdrop-blur-sm md:hidden transition-opacity duration-300"
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden transition-opacity duration-300"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -199,7 +199,7 @@ export default function Sidebar({
       <aside
         role="navigation"
         aria-label="Main navigation"
-        className={`fixed inset-y-0 left-0 z-50 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-all duration-300 ease-in-out md:translate-x-0 md:static md:z-0 ${
+        className={`fixed inset-y-0 left-0 z-50 bg-card border-r border-primary/20 transform transition-all duration-300 ease-in-out md:translate-x-0 md:static md:z-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } ${
           isCollapsed ? 'w-16' : 'w-64'
@@ -207,26 +207,21 @@ export default function Sidebar({
       >
         <div className="flex flex-col h-full">
           {/* Logo section */}
-          <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
-            <Link href="/dashboard" className="flex items-center space-x-2">
+          <div className="flex items-center justify-center h-20 px-4 border-b border-primary/20">
+            <Link href="/dashboard" className="group">
               <Image
                 src="/images/ozean-licht-logo.webp"
                 alt="Ozean Licht"
-                width={32}
-                height={32}
-                className="rounded-lg"
+                width={isCollapsed ? 40 : 120}
+                height={isCollapsed ? 40 : 120}
+                className="rounded-lg transition-all duration-300 group-hover:scale-105"
                 priority
               />
-              {!isCollapsed && (
-                <span className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  Admin
-                </span>
-              )}
             </Link>
             {/* Mobile close button */}
             <button
               onClick={onClose}
-              className="md:hidden p-2 text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400"
+              className="md:hidden p-2 text-muted-foreground hover:text-primary-300 transition-colors"
               aria-label="Close sidebar"
               type="button"
             >
@@ -252,7 +247,7 @@ export default function Sidebar({
               {visibleSections.map((section) => (
                 <div key={section.title}>
                   {!isCollapsed && (
-                    <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <h3 className="px-3 text-xs font-alt font-semibold text-primary-500/70 uppercase tracking-wider">
                       {section.title}
                     </h3>
                   )}
@@ -266,19 +261,21 @@ export default function Sidebar({
                           onClick={() => onClose()} // Close mobile sidebar on navigation
                           role="listitem"
                           aria-current={isActive ? 'page' : undefined}
-                          className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
+                          className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:ring-offset-2 focus:ring-offset-background ${
                             isActive
-                              ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
-                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100'
+                              ? 'bg-primary/10 text-primary-400 shadow-[0_0_15px_rgba(14,194,188,0.15)]'
+                              : 'text-muted-foreground hover:text-primary-300 hover:bg-primary/5'
                           }`}
                           title={isCollapsed ? item.label : undefined}
                         >
                           {item.icon && (
-                            <item.icon className={`w-5 h-5 text-gray-400 ${isCollapsed ? '' : 'mr-3'}`} />
+                            <item.icon className={`w-5 h-5 transition-colors ${
+                              isActive ? 'text-primary-400' : 'text-muted-foreground group-hover:text-primary-300'
+                            } ${isCollapsed ? '' : 'mr-3'}`} />
                           )}
                           {!isCollapsed && <span>{item.label}</span>}
                           {!isCollapsed && item.badge && (
-                            <span className="ml-auto px-2 py-0.5 text-xs font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                            <span className="ml-auto px-2 py-0.5 text-xs font-medium bg-primary/20 text-primary-300 rounded-full">
                               {item.badge}
                             </span>
                           )}
@@ -293,17 +290,17 @@ export default function Sidebar({
 
           {/* Collapse toggle button (desktop only) */}
           {onToggleCollapse && (
-            <div className="hidden md:flex p-4 border-t border-gray-200 dark:border-gray-700 justify-center">
+            <div className="hidden md:flex p-4 border-t border-primary/20 justify-center">
               <button
                 onClick={onToggleCollapse}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="p-2 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50"
                 aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                 title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               >
                 {isCollapsed ? (
-                  <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <ChevronRight className="w-5 h-5" />
                 ) : (
-                  <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <ChevronLeft className="w-5 h-5" />
                 )}
               </button>
             </div>
@@ -311,7 +308,7 @@ export default function Sidebar({
 
           {/* Entity switcher at bottom */}
           {!isCollapsed && (
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="p-4 border-t border-primary/20">
               <EntitySwitcher
                 currentEntity={currentEntity}
                 availableEntities={availableEntities}

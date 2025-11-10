@@ -2,12 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
+@layer base {
+  :root {
+    --background: #0A0F1A;
+    --foreground: #FFFFFF;
+    --card: #1A1F2E;
+    --card-foreground: #FFFFFF;
+    --popover: #1A1F2E;
+    --popover-foreground: #FFFFFF;
+    --primary: #0ec2bc;
+    --primary-foreground: #FFFFFF;
+    --secondary: #64748B;
+    --secondary-foreground: #FFFFFF;
+    --muted: #64748B;
+    --muted-foreground: #94A3B8;
+    --accent: #2A2F3E;
+    --accent-foreground: #FFFFFF;
+    --destructive: #EF4444;
+    --destructive-foreground: #FFFFFF;
+    --border: #2A2F3E;
+    --input: #2A2F3E;
+    --ring: #0ec2bc;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: #0A0F1A;
+    --foreground: #FFFFFF;
+  }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+}
+
+/* Glass effect utilities */
+@layer components {
+  .glass-card {
+    @apply bg-card/70 backdrop-blur-xl border border-primary/25;
+  }
+
+  .glass-card-strong {
+    @apply bg-card/80 backdrop-blur-2xl border border-primary/30;
+  }
+
+  .glass-subtle {
+    @apply bg-card/50 backdrop-blur-lg border border-primary/15;
+  }
+
+  .glass-hover {
+    @apply transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/15;
+  }
+
+  .glow {
+    @apply shadow-lg shadow-primary/30;
+  }
+}
+
+/* Font families */
+@layer utilities {
+  .font-cinzel-decorative {
+    font-family: 'Cinzel Decorative', Georgia, serif;
+  }
+
+  .font-montserrat-alt {
+    font-family: 'Montserrat Alternates', Montserrat, sans-serif;
+  }
 }
