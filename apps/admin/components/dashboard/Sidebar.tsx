@@ -199,7 +199,7 @@ export default function Sidebar({
       <aside
         role="navigation"
         aria-label="Main navigation"
-        className={`fixed inset-y-0 left-0 z-50 bg-[#0E282E] border-r border-primary/20 transform transition-all duration-300 ease-in-out md:translate-x-0 md:static md:z-0 ${
+        className={`fixed inset-y-0 left-0 z-50 bg-[#00111A] border-r border-primary/20 transform transition-all duration-300 ease-in-out md:translate-x-0 md:static md:z-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } ${
           isCollapsed ? 'w-16' : 'w-64'
@@ -253,7 +253,7 @@ export default function Sidebar({
               {visibleSections.map((section) => (
                 <div key={section.title}>
                   {!isCollapsed && (
-                    <h3 className="px-3 text-xs font-alt font-semibold text-primary-500/70 uppercase tracking-wider">
+                    <h3 className="px-3 text-xs font-alt font-semibold text-white/90 uppercase tracking-wider">
                       {section.title}
                     </h3>
                   )}
@@ -270,13 +270,13 @@ export default function Sidebar({
                           className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:ring-offset-2 focus:ring-offset-background ${
                             isActive
                               ? 'bg-primary/10 text-primary-400 shadow-[0_0_15px_rgba(14,194,188,0.15)]'
-                              : 'text-muted-foreground hover:text-primary-300 hover:bg-primary/5'
+                              : 'text-white/72 hover:text-primary-300 hover:bg-primary/5'
                           }`}
                           title={isCollapsed ? item.label : undefined}
                         >
                           {item.icon && (
                             <item.icon className={`w-5 h-5 flex-shrink-0 transition-colors ${
-                              isActive ? 'text-primary-400' : 'text-muted-foreground group-hover:text-primary-300'
+                              isActive ? 'text-primary-400' : 'text-white/72 group-hover:text-primary-300'
                             } ${isCollapsed ? '' : 'mr-3'}`} />
                           )}
                           {!isCollapsed && <span>{item.label}</span>}

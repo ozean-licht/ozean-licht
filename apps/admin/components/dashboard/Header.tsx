@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link'
+import Image from 'next/image'
 import LogoutButton from '../auth/LogoutButton'
 import { RoleBadge } from '@/components/rbac/RoleBadge'
 import { EntityBadge } from '@/components/rbac/EntityBadge'
@@ -17,7 +18,7 @@ interface HeaderProps {
 
 export default function Header({ user, onMenuToggle }: HeaderProps) {
   return (
-    <header className="bg-[#0E282E] backdrop-blur-xl shadow-lg border-b border-primary/20">
+    <header className="bg-[#00111A] backdrop-blur-xl shadow-lg border-b border-primary/20">
       <div className="px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
@@ -42,9 +43,17 @@ export default function Header({ user, onMenuToggle }: HeaderProps) {
               </svg>
             </button>
 
-            <Link href="/dashboard" className="flex items-center">
-              <h1 className="text-xl md:text-2xl font-decorative font-bold text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
-                Ozean Licht Ecosystem
+            <Link href="/dashboard" className="flex items-center gap-4">
+              <Image
+                src="/images/ozean-licht-logo-horizontal.webp"
+                alt="Ozean Licht"
+                width={170}
+                height={50}
+                className="h-auto w-[170px]"
+                priority
+              />
+              <h1 className="text-xl md:text-2xl font-decorative text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
+                Ecosystem Management
               </h1>
             </Link>
           </div>
@@ -62,7 +71,7 @@ export default function Header({ user, onMenuToggle }: HeaderProps) {
                 )}
               </div>
             </div>
-            <LogoutButton className="bg-primary hover:bg-primary-600 text-white" />
+            <LogoutButton className="bg-[#0E282E] hover:bg-[#0E282E]/80 text-white" />
           </div>
         </div>
       </div>

@@ -70,7 +70,7 @@ export default async function DashboardPage({
             <dt className="text-sm font-sans font-medium text-white/90 mb-3">
               Entity Scope
             </dt>
-            <dd className="mt-2 text-3xl font-serif font-semibold text-primary-400">
+            <dd className="mt-2 text-3xl font-sans font-semibold text-primary-400">
               {user.entityScope || 'All Platforms'}
             </dd>
           </div>
@@ -81,7 +81,7 @@ export default async function DashboardPage({
             <dt className="text-sm font-sans font-medium text-white/90 mb-3">
               Permissions
             </dt>
-            <dd className="mt-2 text-3xl font-serif font-semibold text-primary-400">
+            <dd className="mt-2 text-3xl font-sans font-semibold text-primary-400">
               {user.permissions.length}
             </dd>
           </div>
@@ -100,7 +100,7 @@ export default async function DashboardPage({
           {user.permissions.map((perm, index) => (
             <li
               key={index}
-              className="px-6 py-5 hover:bg-primary/5 transition-colors duration-200"
+              className="px-6 py-5 bg-[#00111A] border border-[#0E282E] hover:bg-primary/5 transition-colors duration-200"
             >
               <div className="flex items-center gap-4">
                 <div className="flex-shrink-0">
