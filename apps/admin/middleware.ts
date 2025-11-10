@@ -14,9 +14,17 @@ export async function middleware(request: NextRequest) {
   const session = await getMiddlewareSession(request)
   const { pathname } = request.nextUrl
 
+  // Debug logging
+  console.log('[Middleware]', {
+    pathname,
+    hasSession: !!session,
+    sessionUser: session?.user?.email,
+  })
+
   // Protect dashboard routes
   if (pathname.startsWith('/dashboard')) {
     if (!session) {
+      console.log('[Middleware] No session, redirecting to login')
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)
@@ -27,6 +35,7 @@ export async function middleware(request: NextRequest) {
 
     if (userRole && !canAccessRoute(userRole, pathname)) {
       // Redirect to dashboard with error message
+      console.log('[Middleware] Route not allowed for role:', userRole)
       const dashboardUrl = new URL('/dashboard', request.url)
       dashboardUrl.searchParams.set('error', 'route_not_allowed')
       return NextResponse.redirect(dashboardUrl)
@@ -37,6 +46,7 @@ export async function middleware(request: NextRequest) {
   if (pathname === '/login') {
     if (session) {
       const callbackUrl = request.nextUrl.searchParams.get('callbackUrl') || '/dashboard'
+      console.log('[Middleware] Session exists on login page, redirecting to:', callbackUrl)
       return NextResponse.redirect(new URL(callbackUrl, request.url))
     }
   }
