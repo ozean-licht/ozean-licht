@@ -1,36 +1,83 @@
 /**
- * Input Component
+ * Input Components
  *
- * Text input with Ozean Licht styling.
- * Supports all standard HTML input types.
+ * Ozean Licht branded form inputs extending shadcn primitives.
+ * Features turquoise focus rings, glass backgrounds, and icon support.
  *
  * @example
- * <Input type="text" placeholder="Enter name..." />
- * <Input type="email" required />
- * <Input type="password" error="Invalid password" />
+ * <Label htmlFor="email">Email</Label>
+ * <Input id="email" type="email" placeholder="you@example.com" />
+ *
+ * <Label htmlFor="message">Message</Label>
+ * <Textarea id="message" placeholder="Your message..." />
+ *
+ * <Input icon={<SearchIcon />} placeholder="Search..." />
  */
 
 import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { Input as ShadcnInput } from '../ui/input'
+import { Textarea as ShadcnTextarea } from '../ui/textarea'
+import { Label as ShadcnLabel } from '../ui/label'
 import { cn } from '../utils/cn'
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  /** Show error state */
+// ==================== Input ====================
+
+const inputVariants = cva(
+  'input-base',
+  {
+    variants: {
+      variant: {
+        default: [
+          'bg-[var(--input)] border-[var(--border)]',
+          'focus:ring-[var(--ring)] focus:border-[var(--ring)]',
+        ].join(' '),
+        glass: [
+          'glass-subtle',
+          'border-[var(--primary)]/20',
+          'focus:ring-[var(--ring)] focus:border-[var(--primary)]/40',
+        ].join(' '),
+      },
+      inputSize: {
+        sm: 'h-9 px-3 py-2 text-sm',
+        md: 'h-10 px-4 py-3 text-base',
+        lg: 'h-11 px-5 py-4 text-lg',
+      },
+      hasError: {
+        true: 'border-[var(--destructive)] focus:ring-[var(--destructive)]',
+        false: '',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      inputSize: 'md',
+      hasError: false,
+    },
+  }
+)
+
+export interface InputProps
+  extends Omit<React.ComponentProps<'input'>, 'size'>,
+    VariantProps<typeof inputVariants> {
+  /** Show error state with message */
   error?: string | boolean
-  /** Input size */
-  inputSize?: 'sm' | 'md' | 'lg'
   /** Icon before input */
   icon?: React.ReactNode
   /** Icon after input */
   iconAfter?: React.ReactNode
 }
 
+/**
+ * Input component with turquoise focus ring
+ */
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
     {
       className,
       type = 'text',
+      variant,
+      inputSize,
       error,
-      inputSize = 'md',
       icon,
       iconAfter,
       disabled,
@@ -38,60 +85,58 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
-    const sizeStyles = {
-      sm: 'px-3 py-2 text-sm',
-      md: 'px-4 py-3 text-base',
-      lg: 'px-5 py-4 text-lg',
-    }
+    const hasError = !!error
 
-    const inputClasses = cn(
-      'input-base',
-      sizeStyles[inputSize],
-      error && 'border-destructive focus:ring-destructive',
-      icon && 'pl-10',
-      iconAfter && 'pr-10',
-      disabled && 'opacity-50 cursor-not-allowed',
-      className
-    )
-
+    // If icons are present, wrap in container
     if (icon || iconAfter) {
       return (
-        <div className="relative">
+        <div className="relative w-full">
           {icon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] pointer-events-none">
               {icon}
             </div>
           )}
-          <input
+          <ShadcnInput
             type={type}
-            className={inputClasses}
+            className={cn(
+              inputVariants({ variant, inputSize, hasError }),
+              icon && 'pl-10',
+              iconAfter && 'pr-10',
+              className
+            )}
             ref={ref}
             disabled={disabled}
+            aria-invalid={hasError}
             {...props}
           />
           {iconAfter && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] pointer-events-none">
               {iconAfter}
             </div>
           )}
           {typeof error === 'string' && (
-            <p className="mt-1 text-sm text-destructive">{error}</p>
+            <p className="mt-1.5 text-sm text-[var(--destructive)]" role="alert">
+              {error}
+            </p>
           )}
         </div>
       )
     }
 
     return (
-      <div>
-        <input
+      <div className="w-full">
+        <ShadcnInput
           type={type}
-          className={inputClasses}
+          className={cn(inputVariants({ variant, inputSize, hasError }), className)}
           ref={ref}
           disabled={disabled}
+          aria-invalid={hasError}
           {...props}
         />
         {typeof error === 'string' && (
-          <p className="mt-1 text-sm text-destructive">{error}</p>
+          <p className="mt-1.5 text-sm text-[var(--destructive)]" role="alert">
+            {error}
+          </p>
         )}
       </div>
     )
@@ -100,49 +145,78 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
 Input.displayName = 'Input'
 
-/**
- * Textarea Component
- */
-export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  /** Show error state */
+// ==================== Textarea ====================
+
+const textareaVariants = cva(
+  'input-base min-h-[80px] resize-y',
+  {
+    variants: {
+      variant: {
+        default: [
+          'bg-[var(--input)] border-[var(--border)]',
+          'focus:ring-[var(--ring)] focus:border-[var(--ring)]',
+        ].join(' '),
+        glass: [
+          'glass-subtle',
+          'border-[var(--primary)]/20',
+          'focus:ring-[var(--ring)] focus:border-[var(--primary)]/40',
+        ].join(' '),
+      },
+      textareaSize: {
+        sm: 'px-3 py-2 text-sm',
+        md: 'px-4 py-3 text-base',
+        lg: 'px-5 py-4 text-lg',
+      },
+      hasError: {
+        true: 'border-[var(--destructive)] focus:ring-[var(--destructive)]',
+        false: '',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      textareaSize: 'md',
+      hasError: false,
+    },
+  }
+)
+
+export interface TextareaProps
+  extends React.ComponentProps<'textarea'>,
+    VariantProps<typeof textareaVariants> {
+  /** Show error state with message */
   error?: string | boolean
-  /** Textarea size */
-  textareaSize?: 'sm' | 'md' | 'lg'
 }
 
+/**
+ * Textarea component with turquoise focus ring
+ */
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
     {
       className,
+      variant,
+      textareaSize,
       error,
-      textareaSize = 'md',
       disabled,
       ...props
     },
     ref
   ) => {
-    const sizeStyles = {
-      sm: 'px-3 py-2 text-sm',
-      md: 'px-4 py-3 text-base',
-      lg: 'px-5 py-4 text-lg',
-    }
+    const hasError = !!error
 
     return (
-      <div>
-        <textarea
-          className={cn(
-            'input-base min-h-[80px] resize-y',
-            sizeStyles[textareaSize],
-            error && 'border-destructive focus:ring-destructive',
-            disabled && 'opacity-50 cursor-not-allowed',
-            className
-          )}
+      <div className="w-full">
+        <ShadcnTextarea
+          className={cn(textareaVariants({ variant, textareaSize, hasError }), className)}
           ref={ref}
           disabled={disabled}
+          aria-invalid={hasError}
           {...props}
         />
         {typeof error === 'string' && (
-          <p className="mt-1 text-sm text-destructive">{error}</p>
+          <p className="mt-1.5 text-sm text-[var(--destructive)]" role="alert">
+            {error}
+          </p>
         )}
       </div>
     )
@@ -151,30 +225,53 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 
 Textarea.displayName = 'Textarea'
 
-/**
- * Label Component
- */
-export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
-  /** Required indicator */
+// ==================== Label ====================
+
+const labelVariants = cva(
+  'block text-sm font-medium text-[var(--foreground)] mb-1.5',
+  {
+    variants: {
+      disabled: {
+        true: 'opacity-50 cursor-not-allowed',
+        false: '',
+      },
+    },
+    defaultVariants: {
+      disabled: false,
+    },
+  }
+)
+
+export interface LabelProps
+  extends React.ComponentPropsWithoutRef<typeof ShadcnLabel>,
+    VariantProps<typeof labelVariants> {
+  /** Show required indicator */
   required?: boolean
+  /** Disabled state */
+  disabled?: boolean
 }
 
-const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
-  ({ className, required, children, ...props }, ref) => (
-    <label
+/**
+ * Label component for form inputs
+ */
+const Label = React.forwardRef<
+  React.ElementRef<typeof ShadcnLabel>,
+  LabelProps
+>(({ className, required, disabled, children, ...props }, ref) => {
+  return (
+    <ShadcnLabel
       ref={ref}
-      className={cn(
-        'block text-sm font-medium text-foreground mb-1.5',
-        className
-      )}
+      className={cn(labelVariants({ disabled }), className)}
       {...props}
     >
       {children}
-      {required && <span className="text-destructive ml-1">*</span>}
-    </label>
+      {required && <span className="text-[var(--destructive)] ml-1" aria-label="required">*</span>}
+    </ShadcnLabel>
   )
-)
+})
 
 Label.displayName = 'Label'
 
-export { Input, Textarea, Label }
+// ==================== Exports ====================
+
+export { Input, Textarea, Label, inputVariants, textareaVariants, labelVariants }

@@ -1,70 +1,77 @@
 /**
  * Card Component
  *
- * Ozean Licht glass morphism card with hover effects.
- * Uses signature glass effect from the design system.
+ * Ozean Licht branded card with glass morphism effects.
+ * Extends shadcn Card primitive with turquoise branding and cosmic theme.
  *
  * @example
- * <Card>Basic card</Card>
- * <Card variant="strong" hover>Important content</Card>
- * <Card variant="subtle">Background content</Card>
+ * <Card>
+ *   <CardHeader>
+ *     <CardTitle>Title</CardTitle>
+ *     <CardDescription>Description</CardDescription>
+ *   </CardHeader>
+ *   <CardContent>Content</CardContent>
+ * </Card>
+ *
+ * <Card variant="strong" hover glow>
+ *   Important card with hover effects
+ * </Card>
  */
 
 import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import {
+  Card as ShadcnCard,
+  CardHeader as ShadcnCardHeader,
+  CardTitle as ShadcnCardTitle,
+  CardDescription as ShadcnCardDescription,
+  CardContent as ShadcnCardContent,
+  CardFooter as ShadcnCardFooter,
+} from '../ui/card'
 import { cn } from '../utils/cn'
 
-export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  /** Glass effect variant */
-  variant?: 'default' | 'strong' | 'subtle'
-  /** Enable hover glow effect */
-  hover?: boolean
-  /** Add glow animation */
-  glow?: boolean
-  /** Card padding size */
-  padding?: 'none' | 'sm' | 'md' | 'lg'
-}
-
-const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  (
-    {
-      className,
-      variant = 'default',
-      hover = false,
-      glow = false,
-      padding = 'none',
-      children,
-      ...props
+const cardVariants = cva(
+  'card-base',
+  {
+    variants: {
+      variant: {
+        default: 'glass-card',
+        strong: 'glass-card-strong',
+        subtle: 'glass-subtle',
+        solid: 'bg-[var(--card)] border border-[var(--border)]',
+      },
+      hover: {
+        true: 'glass-hover transition-all duration-300',
+        false: '',
+      },
+      glow: {
+        true: 'glow-subtle hover:glow',
+        false: '',
+      },
     },
-    ref
-  ) => {
-    const variantStyles = {
-      default: 'glass-card',
-      strong: 'glass-card-strong',
-      subtle: 'glass-subtle',
-    }
+    defaultVariants: {
+      variant: 'default',
+      hover: false,
+      glow: false,
+    },
+  }
+)
 
-    const paddingStyles = {
-      none: '',
-      sm: 'p-4',
-      md: 'p-6',
-      lg: 'p-8',
-    }
+export interface CardProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof cardVariants> {}
 
+/**
+ * Card component with glass morphism
+ */
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, variant, hover, glow, ...props }, ref) => {
     return (
-      <div
+      <ShadcnCard
         ref={ref}
-        className={cn(
-          'card-base',
-          variantStyles[variant],
-          hover && 'glass-hover',
-          glow && 'animate-glow',
-          paddingStyles[padding],
-          className
-        )}
+        className={cn(cardVariants({ variant, hover, glow }), className)}
         {...props}
-      >
-        {children}
-      </div>
+      />
     )
   }
 )
@@ -72,89 +79,107 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
 Card.displayName = 'Card'
 
 /**
- * Card Header Component
+ * Card Header - Contains title and description
  */
 export interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('flex flex-col space-y-1.5', className)}
-      {...props}
-    />
-  )
+  ({ className, ...props }, ref) => {
+    return (
+      <ShadcnCardHeader
+        ref={ref}
+        className={cn('flex flex-col space-y-2 p-6', className)}
+        {...props}
+      />
+    )
+  }
 )
 
 CardHeader.displayName = 'CardHeader'
 
 /**
- * Card Title Component
+ * Card Title - Main heading for card
  */
-export interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
-  /** Heading level */
+export interface CardTitleProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** Heading level for semantic HTML */
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 }
 
-const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
-  ({ className, as: Comp = 'h4', ...props }, ref) => (
-    <Comp
-      ref={ref as any}
-      className={cn('font-serif text-xl md:text-2xl font-semibold', className)}
-      {...props}
-    />
-  )
+const CardTitle = React.forwardRef<HTMLDivElement, CardTitleProps>(
+  ({ className, as, ...props }, ref) => {
+    return (
+      <ShadcnCardTitle
+        ref={ref}
+        className={cn(
+          'font-serif text-xl md:text-2xl font-semibold leading-none tracking-tight',
+          'text-[var(--foreground)]',
+          className
+        )}
+        {...props}
+      />
+    )
+  }
 )
 
 CardTitle.displayName = 'CardTitle'
 
 /**
- * Card Description Component
+ * Card Description - Subtitle or secondary text
  */
-export interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {}
+export interface CardDescriptionProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-const CardDescription = React.forwardRef<HTMLParagraphElement, CardDescriptionProps>(
-  ({ className, ...props }, ref) => (
-    <p
-      ref={ref}
-      className={cn('text-sm text-muted-foreground', className)}
-      {...props}
-    />
-  )
+const CardDescription = React.forwardRef<HTMLDivElement, CardDescriptionProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <ShadcnCardDescription
+        ref={ref}
+        className={cn('text-sm text-[var(--muted-foreground)]', className)}
+        {...props}
+      />
+    )
+  }
 )
 
 CardDescription.displayName = 'CardDescription'
 
 /**
- * Card Content Component
+ * Card Content - Main content area
  */
 export interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const CardContent = React.forwardRef<HTMLDivElement, CardContentProps>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('space-y-4', className)}
-      {...props}
-    />
-  )
+  ({ className, ...props }, ref) => {
+    return (
+      <ShadcnCardContent
+        ref={ref}
+        className={cn('p-6 pt-0 space-y-4', className)}
+        {...props}
+      />
+    )
+  }
 )
 
 CardContent.displayName = 'CardContent'
 
 /**
- * Card Footer Component
+ * Card Footer - Action area at bottom of card
  */
 export interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const CardFooter = React.forwardRef<HTMLDivElement, CardFooterProps>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('flex items-center gap-3 pt-4 border-t border-border', className)}
-      {...props}
-    />
-  )
+  ({ className, ...props }, ref) => {
+    return (
+      <ShadcnCardFooter
+        ref={ref}
+        className={cn(
+          'flex items-center gap-3 p-6 pt-0',
+          'border-t border-[var(--border)]',
+          className
+        )}
+        {...props}
+      />
+    )
+  }
 )
 
 CardFooter.displayName = 'CardFooter'
@@ -166,4 +191,5 @@ export {
   CardDescription,
   CardContent,
   CardFooter,
+  cardVariants,
 }

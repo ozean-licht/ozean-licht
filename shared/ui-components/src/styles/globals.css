@@ -171,14 +171,14 @@
     box-shadow: 0 0 20px rgba(14, 194, 188, 0.15);
   }
 
-  /* Standalone glow utility */
+  /* Standalone glow utility - softer for mystic aesthetic */
   .glow {
-    box-shadow: 0 0 20px rgba(14, 194, 188, 0.3);
+    box-shadow: 0 0 20px rgba(14, 194, 188, 0.22);
   }
 
-  /* Glow strong */
+  /* Glow strong - reduced opacity for calm feel */
   .glow-strong {
-    box-shadow: 0 0 30px rgba(14, 194, 188, 0.6);
+    box-shadow: 0 0 30px rgba(14, 194, 188, 0.35);
   }
 
   /* Glow subtle */
@@ -364,6 +364,16 @@
   to {
     transform: scale(0.95);
     opacity: 0;
+  }
+}
+
+/* Gentle pulse animation for soft, mystic aesthetic */
+@keyframes gentle-pulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
   }
 }
 
