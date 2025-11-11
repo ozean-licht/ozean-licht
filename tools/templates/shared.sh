@@ -5,13 +5,24 @@
 # Box drawing characters
 TL="╔" TR="╗" BL="╚" BR="╝" H="═" V="║" T="╠" B="╣"
 
-# Colors (using same from utils.sh)
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m'
+# Colors - respect NO_COLOR environment variable (https://no-color.org/)
+if [[ -n "${NO_COLOR}" ]] || [[ "${TERM}" == "dumb" ]]; then
+    # No colors - clean output
+    RED=''
+    GREEN=''
+    YELLOW=''
+    BLUE=''
+    CYAN=''
+    NC=''
+else
+    # Colors enabled
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[1;33m'
+    BLUE='\033[0;34m'
+    CYAN='\033[0;36m'
+    NC='\033[0m'
+fi
 
 # Print formatted header
 print_header() {
