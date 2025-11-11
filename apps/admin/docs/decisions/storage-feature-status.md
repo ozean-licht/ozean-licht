@@ -1,7 +1,7 @@
 # Storage Feature Status Decision
 
 **Decision Date**: 2025-11-11
-**Decision**: DEFER (Move to _deferred/ directory)
+**Decision**: DEFER (Move to .deferred/ directory)
 **Status**: Implemented
 
 ## Rationale
@@ -24,29 +24,29 @@ The MinIO storage management feature has been deferred to post-MVP for the follo
    - File upload, download, delete operations
    - Storage statistics and monitoring
    - Clean UI with proper error handling
-   - Can be re-enabled in minutes by moving back from `_deferred/`
+   - Can be re-enabled in minutes by moving back from `.deferred/`
 
-5. **Clean Separation**: Moving to `_deferred/` maintains the code for future use without cluttering MVP codebase
+5. **Clean Separation**: Moving to `.deferred/` maintains the code for future use without cluttering MVP codebase
 
 ## Impact
 
 ### Files Affected (9 files)
 **Page:**
-- `app/dashboard/storage/page.tsx` → `app/dashboard/_deferred/storage/page.tsx`
+- `app/dashboard/storage/page.tsx` → `app/dashboard/.deferred/storage/page.tsx`
 
 **API Routes (4 files):**
-- `app/api/storage/upload/route.ts` → `app/api/_deferred/storage/upload/route.ts`
-- `app/api/storage/delete/route.ts` → `app/api/_deferred/storage/delete/route.ts`
-- `app/api/storage/metadata/route.ts` → `app/api/_deferred/storage/metadata/route.ts`
-- `app/api/storage/stats/route.ts` → `app/api/_deferred/storage/stats/route.ts`
+- `app/api/storage/upload/route.ts` → `app/api/.deferred/storage/upload/route.ts`
+- `app/api/storage/delete/route.ts` → `app/api/.deferred/storage/delete/route.ts`
+- `app/api/storage/metadata/route.ts` → `app/api/.deferred/storage/metadata/route.ts`
+- `app/api/storage/stats/route.ts` → `app/api/.deferred/storage/stats/route.ts`
 
 **Components (3 files):**
-- `components/storage/FileList.tsx` → `components/_deferred/storage/FileList.tsx`
-- `components/storage/FileUploadForm.tsx` → `components/_deferred/storage/FileUploadForm.tsx`
-- `components/storage/StorageStats.tsx` → `components/_deferred/storage/StorageStats.tsx`
+- `components/storage/FileList.tsx` → `components/.deferred/storage/FileList.tsx`
+- `components/storage/FileUploadForm.tsx` → `components/.deferred/storage/FileUploadForm.tsx`
+- `components/storage/StorageStats.tsx` → `components/.deferred/storage/StorageStats.tsx`
 
 **Library:**
-- `lib/mcp-client/storage.ts` → `lib/mcp-client/_deferred/storage.ts`
+- `lib/mcp-client/storage.ts` → `lib/mcp-client/.deferred/storage.ts`
 
 **Total LOC Deferred**: ~1,560 lines
 
@@ -60,17 +60,17 @@ The MinIO storage management feature has been deferred to post-MVP for the follo
 
 ## Action Taken
 
-1. Created `_deferred/` directories:
-   - `app/dashboard/_deferred/storage/`
-   - `app/api/_deferred/storage/`
-   - `components/_deferred/storage/`
-   - `lib/mcp-client/_deferred/`
+1. Created `.deferred/` directories:
+   - `app/dashboard/.deferred/storage/`
+   - `app/api/.deferred/storage/`
+   - `components/.deferred/storage/`
+   - `lib/mcp-client/.deferred/`
 
-2. Moved all storage-related files to `_deferred/` directories using `git mv`
+2. Moved all storage-related files to `.deferred/` directories using `git mv`
 
 3. Removed storage navigation item from sidebar
 
-4. Updated imports in test files to point to `_deferred/` locations
+4. Updated imports in test files to point to `.deferred/` locations
 
 5. Added `.gitkeep` files to maintain directory structure
 
@@ -79,11 +79,11 @@ The MinIO storage management feature has been deferred to post-MVP for the follo
 To re-enable storage feature post-MVP:
 
 ```bash
-# 1. Move files back from _deferred/
-git mv app/dashboard/_deferred/storage app/dashboard/storage
-git mv app/api/_deferred/storage app/api/storage
-git mv components/_deferred/storage components/storage
-git mv lib/mcp-client/_deferred/storage.ts lib/mcp-client/storage.ts
+# 1. Move files back from .deferred/
+git mv app/dashboard/.deferred/storage app/dashboard/storage
+git mv app/api/.deferred/storage app/api/storage
+git mv components/.deferred/storage components/storage
+git mv lib/mcp-client/.deferred/storage.ts lib/mcp-client/storage.ts
 
 # 2. Add navigation item back to Sidebar.tsx
 # Add to System section:

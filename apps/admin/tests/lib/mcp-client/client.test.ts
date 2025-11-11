@@ -3,7 +3,7 @@
  */
 
 import { MCPGatewayClient } from '@/lib/mcp-client/client';
-import { MCPValidationError } from '@/lib/mcp-client/errors';
+import { MCPClientError } from '@/lib/mcp-client/errors';
 
 describe('MCPGatewayClient', () => {
   describe('constructor', () => {
@@ -37,7 +37,7 @@ describe('MCPGatewayClient', () => {
     it('should throw error on invalid database', () => {
       expect(() => {
         new MCPGatewayClient({ database: 'invalid-db' as any });
-      }).toThrow(MCPValidationError);
+      }).toThrow(MCPClientError);
     });
 
     it('should throw error on invalid baseUrl', () => {
@@ -46,7 +46,7 @@ describe('MCPGatewayClient', () => {
           database: 'shared-users-db',
           baseUrl: 'not-a-valid-url',
         });
-      }).toThrow(MCPValidationError);
+      }).toThrow(MCPClientError);
     });
 
     it('should throw error on invalid timeout', () => {
@@ -55,14 +55,14 @@ describe('MCPGatewayClient', () => {
           database: 'shared-users-db',
           timeout: 0,
         });
-      }).toThrow(MCPValidationError);
+      }).toThrow(MCPClientError);
 
       expect(() => {
         new MCPGatewayClient({
           database: 'shared-users-db',
           timeout: 100000,
         });
-      }).toThrow(MCPValidationError);
+      }).toThrow(MCPClientError);
     });
   });
 

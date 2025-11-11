@@ -3,6 +3,8 @@
 **Context:** Ozean Licht Ecosystem Admin Dashboard
 **Stack:** Next.js 14 + NextAuth v5 + TypeScript + MCP Gateway + Tailwind
 
+> **🤖 AI Agents:** See [CONTEXT-MAP.md](./CONTEXT-MAP.md) for smart navigation patterns and minimal reading sets.
+
 ---
 
 ## Core Principles
@@ -214,12 +216,15 @@ DATABASE_NAME=shared-users-db
 ## References
 
 - **[Branding](./BRANDING.md)** - Colors, fonts, effects
-- **[Design System](./design-system.md)** - Complete guidelines
-- **[Roadmap](./specs/admin-dashboard-roadmap.md)** - Implementation phases
+- **[Design System](./docs/design-system.md)** - Complete guidelines
+- **[Architecture](./docs/architecture.md)** - System architecture
+- **[Routes](./docs/routes.md)** - Route map and structure
+- **[Roadmap](./docs/roadmap-specs-list.md)** - Implementation phases
 - **[API Reference](./README.md)** - MCP Client API
 - **[Documentation](./docs/README.md)** - All docs
-- **[Root CLAUDE.md](../../CLAUDE.md)** - Ecosystem rules
+- **[AI Agent Guide](./.claude/CLAUDE.md)** - AI development patterns
+- **[Root CLAUDE.md](../../.claude/CLAUDE.md)** - Ecosystem rules
 
 ---
 
-**Last Updated:** 2025-11-09 | **Phase:** Foundation | **Maintainer:** Platform Team
+**Last Updated:** 2025-11-11 | **Phase:** Phase 1 - Foundation Complete | **Maintainer:** Platform Team

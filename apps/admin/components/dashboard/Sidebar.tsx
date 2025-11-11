@@ -9,16 +9,7 @@ import {
   LayoutDashboard,
   Users,
   Activity,
-  BarChart3,
-  Video,
-  UsersRound,
-  Baby,
-  CheckCircle2,
-  BookOpen,
-  FileText,
-  Settings,
   Lock,
-  Table
 } from 'lucide-react';
 import { NavigationSection, UserEntity, EntityScope } from '@/types/navigation';
 import { canAccessRoute } from '@/lib/rbac/constants';

@@ -1,0 +1,435 @@
+# Admin Dashboard - AI Agent Development Guide
+
+**Context**: Ozean Licht Ecosystem Admin Dashboard
+**Stack**: Next.js 14 + NextAuth v5 + TypeScript + MCP Gateway + Tailwind
+
+---
+
+## Agentic Navigation Patterns
+
+### Route Discovery
+
+**Always start here when navigating the admin codebase:**
+
+```bash
+# List all pages
+find apps/admin/app -name "page.tsx" -type f | grep -v node_modules
+
+# List all API routes
+find apps/admin/app/api -name "route.ts" -type f
+
+# Find specific feature
+find apps/admin/app/dashboard -name "*user*" -type f
+```
+
+### Functional Area Organization
+
+The admin dashboard is organized into **functional areas** for easy navigation:
+
+```
+/dashboard
+├── /access      # User management, permissions, RBAC
+├── /system      # Health monitoring, configuration
+└── /platforms   # Platform-specific admin (future: KA, OL)
+```
+
+**When implementing features:**
+- **User/permission features** → Place in `/dashboard/access/`
+- **System/infrastructure features** → Place in `/dashboard/system/`
+- **Platform-specific features** → Place in `/dashboard/platforms/[platform]/`
+
+### Finding Relevant Code
+
+```bash
+# Find where a component is used
+grep -r "RoleBadge" apps/admin/app --include="*.tsx"
+
+# Find all files importing from MCP client
+grep -r "from '@/lib/mcp-client'" apps/admin --include="*.ts" --include="*.tsx"
+
+# Find pages requiring specific role
+grep -r "requireAnyRole" apps/admin/app/dashboard
+
+# Find API endpoints
+ls apps/admin/app/api/
+```
+
+---
+
+## Core Development Patterns
+
+### 1. Creating Server Component Pages
+
+**Default pattern** - use unless you need client interactivity:
+
+```typescript
+// app/dashboard/access/users/page.tsx
+import { requireAuth } from '@/lib/auth-utils'
+import { requireAnyRole } from '@/lib/auth-utils'
+import { MCPGatewayClientWithQueries } from '@/lib/mcp-client'
+
+const client = new MCPGatewayClientWithQueries({ database: 'shared-users-db' })
+
+export default async function UsersPage() {
+  // ALWAYS check auth first
+  await requireAnyRole(['super_admin', 'ka_admin', 'ol_admin'])
+
+  // Fetch data on server
+  const users = await client.listAdminUsers()
+
+  // Render with data
+  return <div>{/* Your UI */}</div>
+}
+```
+
+**Pattern breakdown:**
+1. Import auth utilities
+2. Check authentication/authorization at TOP of component
+3. Fetch data via MCP client
+4. Render server component with data
+5. Pass data to client components if interactivity needed
+
+### 2. Creating Client Components
+
+**When you need interactivity** (forms, real-time updates, event handlers):
+
+```typescript
+'use client'
+
+import { useState } from 'react'
+import { useSession } from 'next-auth/react'
+
+export function UserForm({ initialData }) {
+  const { data: session } = useSession()
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(data) {
+    setLoading(true)
+    const response = await fetch('/api/users', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+    setLoading(false)
+  }
+
+  return <form onSubmit={handleSubmit}>{/* Form fields */}</form>
+}
+```
+
+**Use client components for:**
+- Forms with validation
+- Interactive tables (search, filter, sort)
+- Real-time updates
+- Event handlers (onClick, onChange)
+- Browser APIs (localStorage, window)
+
+### 3. MCP Gateway Database Operations
+
+**ALWAYS use MCP Gateway client** - never direct database access:
+
+```typescript
+import { MCPGatewayClientWithQueries } from '@/lib/mcp-client'
+
+// Initialize with target database
+const client = new MCPGatewayClientWithQueries({
+  baseUrl: process.env.MCP_GATEWAY_URL || 'http://localhost:8100',
+  database: 'shared-users-db', // or 'kids-ascension-db', 'ozean-licht-db'
+})
+
+// Query operations
+const users = await client.listAdminUsers()
+const user = await client.getAdminUserById(userId)
+
+// Mutations
+await client.updateAdminUser(userId, { adminRole: 'ka_admin' })
+await client.deleteAdminUser(userId)
+
+// Audit logging
+await client.createAuditLog({
+  adminUserId: session.user.adminUserId,
+  action: 'user.update',
+  entityType: 'admin_users',
+  entityId: userId,
+  metadata: { oldRole, newRole },
+})
+```
+
+### 4. RBAC Enforcement
+
+**Route protection (middleware)** - automatic for `/dashboard/*`:
+```typescript
+// middleware.ts already protects all dashboard routes
+// No action needed - just works
+```
+
+**Page-level protection:**
+```typescript
+import { requireAnyRole } from '@/lib/auth-utils'
+
+export default async function MyPage() {
+  // Redirect if user doesn't have required role
+  await requireAnyRole(['super_admin', 'ka_admin'])
+
+  // ... rest of page
+}
+```
+
+**Component-level checks:**
+```typescript
+import { useSession } from 'next-auth/react'
+
+export function EditButton() {
+  const { data: session } = useSession()
+
+  // Only show to super_admin
+  if (session?.user?.adminRole !== 'super_admin') {
+    return null
+  }
+
+  return <button>Edit</button>
+}
+```
+
+**Permission checks:**
+```typescript
+import { hasPermission } from '@/lib/auth-utils'
+
+const canDelete = hasPermission(session.user.permissions, 'users.delete')
+const canEditAny = hasPermission(session.user.permissions, 'users.*')
+const isSuperAdmin = hasPermission(session.user.permissions, '*')
+```
+
+### 5. Creating API Endpoints
+
+```typescript
+// app/api/users/[id]/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/lib/auth/config'
+import { MCPGatewayClientWithQueries } from '@/lib/mcp-client'
+import { z } from 'zod'
+
+const client = new MCPGatewayClientWithQueries({ database: 'shared-users-db' })
+
+// Validation schema
+const updateUserSchema = z.object({
+  adminRole: z.enum(['super_admin', 'ka_admin', 'ol_admin', 'support']),
+})
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  // 1. Check auth
+  const session = await auth()
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // 2. Check permissions
+  if (session.user.adminRole !== 'super_admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  // 3. Validate input
+  const body = await request.json()
+  const validated = updateUserSchema.parse(body)
+
+  // 4. Perform operation
+  const updated = await client.updateAdminUser(params.id, validated)
+
+  // 5. Audit log
+  await client.createAuditLog({
+    adminUserId: session.user.adminUserId,
+    action: 'user.update',
+    entityType: 'admin_users',
+    entityId: params.id,
+    metadata: validated,
+  })
+
+  // 6. Return response
+  return NextResponse.json({ success: true, user: updated })
+}
+```
+
+---
+
+## Component Patterns
+
+### UI Components
+```typescript
+// Use shadcn/ui base components
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+
+// Use admin-specific components
+import { RoleBadge } from '@/components/rbac/RoleBadge'
+import { EntityBadge } from '@/components/rbac/EntityBadge'
+```
+
+### Forms
+```typescript
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+
+const schema = z.object({ email: z.string().email() })
+
+export function MyForm() {
+  const form = useForm({ resolver: zodResolver(schema) })
+  return <form onSubmit={form.handleSubmit(onSubmit)}>...</form>
+}
+```
+
+---
+
+## Common Tasks
+
+### Task: Add New Page
+
+1. **Determine functional area** (access/system/platforms)
+2. **Create page file**:
+   ```bash
+   touch apps/admin/app/dashboard/[area]/[feature]/page.tsx
+   ```
+3. **Implement server component** with auth checks
+4. **Add to navigation** in `components/dashboard/Sidebar.tsx`
+5. **Update routes.md** with new route documentation
+
+### Task: Add Database Query
+
+1. **Open MCP client queries** (`lib/mcp-client/queries.ts`)
+2. **Add new method** to `MCPGatewayClientWithQueries` class
+3. **Implement query** using `this.query()` or `this.execute()`
+4. **Add TypeScript types** for request/response
+5. **Write unit test** in `tests/unit/mcp-client/`
+
+### Task: Add API Endpoint
+
+1. **Create route file**: `app/api/[resource]/route.ts`
+2. **Export HTTP method** function (GET, POST, PATCH, DELETE)
+3. **Check auth** with `await auth()`
+4. **Validate input** with Zod schema
+5. **Call MCP client** for database operations
+6. **Return JSON** response
+
+### Task: Implement RBAC
+
+1. **Add route protection** in page:
+   ```typescript
+   await requireAnyRole(['super_admin', 'ka_admin'])
+   ```
+2. **Hide UI elements** for unauthorized roles:
+   ```typescript
+   {session?.user?.adminRole === 'super_admin' && <EditButton />}
+   ```
+3. **Protect API endpoint** with role checks
+4. **Add audit logging** for sensitive operations
+
+---
+
+## Security Checklist
+
+Before committing code, verify:
+
+- [ ] All `/dashboard/*` pages use `requireAuth()` or `requireAnyRole()`
+- [ ] All API routes check `await auth()` for session
+- [ ] Sensitive operations (delete, role change) restricted to super_admin
+- [ ] User inputs validated with Zod schemas
+- [ ] SQL queries parameterized (via MCP client - automatic)
+- [ ] Audit logs created for admin actions
+- [ ] No credentials or secrets in code
+- [ ] No console.log() with sensitive data
+
+---
+
+## Testing Patterns
+
+### Unit Tests
+```typescript
+import { MCPGatewayClientWithQueries } from '@/lib/mcp-client'
+
+describe('User Queries', () => {
+  let client: MCPGatewayClientWithQueries
+
+  beforeEach(() => {
+    client = new MCPGatewayClientWithQueries({ database: 'shared-users-db' })
+  })
+
+  it('should list admin users', async () => {
+    const users = await client.listAdminUsers()
+    expect(users).toBeInstanceOf(Array)
+  })
+})
+```
+
+### Integration Tests
+```typescript
+import { GET } from '@/app/api/users/route'
+
+describe('Users API', () => {
+  it('should require authentication', async () => {
+    const response = await GET()
+    expect(response.status).toBe(401)
+  })
+})
+```
+
+---
+
+## Troubleshooting
+
+### MCP Gateway Connection Failed
+```bash
+# Start MCP Gateway
+cd tools/mcp-gateway
+npm run dev
+
+# Check health
+curl http://localhost:8100/health
+```
+
+### Authentication Not Working
+```bash
+# Check environment variables
+cat apps/admin/.env.local | grep NEXTAUTH
+
+# Verify secret is set
+echo $NEXTAUTH_SECRET
+```
+
+### TypeScript Errors
+```bash
+# Type check
+cd apps/admin
+npm run typecheck
+
+# Rebuild types
+rm -rf .next
+npm run build
+```
+
+---
+
+## Reference
+
+**Key Files:**
+- `middleware.ts` - Route protection
+- `lib/auth/config.ts` - NextAuth configuration
+- `lib/auth-utils.ts` - Auth helper functions
+- `lib/mcp-client/` - Database operations
+- `components/dashboard/Sidebar.tsx` - Navigation
+- `types/admin.ts` - Admin-specific types
+
+**Documentation:**
+- [routes.md](../docs/routes.md) - Route map
+- [architecture.md](../docs/architecture.md) - Architecture overview
+- [design-system.md](../docs/design-system.md) - UI/UX guidelines
+- [README.md](../README.md) - Setup and quick start
+- [DEVELOPER_GUIDE.md](../DEVELOPER_GUIDE.md) - Developer quick reference
+
+---
+
+**Last Updated**: 2025-11-11
+**Purpose**: AI agent development guide
+**Audience**: Claude Code, autonomous agents, developers
