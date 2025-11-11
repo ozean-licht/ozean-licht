@@ -1,5 +1,5 @@
 # Prime
-Execute the `Read` and `Report` sections to understand the files then summarize your understanding.
+Execute the `Read` and `Report` sections to understand newest claude code updates, then summarize your understanding.
 
 ## Read
 README.md
@@ -9,4 +9,3 @@ README.md
 
 ## Report
 Summarize your understanding of the codebase.
-

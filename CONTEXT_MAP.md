@@ -53,30 +53,74 @@ cd tools/mcp-gateway && npm run dev    # MCP Gateway (8100)
 
 ---
 
-### 2. Tool Inventory - Three-Tier Architecture
+### 2. Progressive Disclosure Tool System
 
-**19 Available Tools** across 3 tiers for optimal performance
+**54+ Commands** organized in 6 categories. **85% context reduction** through smart discovery.
 
-**Choose the right tool tier:**
-- **Tier 1 (Native Scripts):** 5x faster, direct CLI - Use for simple operations
-- **Tier 2 (API Scripts):** 3x faster, REST wrappers - Use for simple APIs
-- **Tier 3 (MCP Services):** Full featured - Use for complex auth/state
+#### Quick Start
 
-#### Tier 1: Native Scripts (Fastest - < 1s)
+**Intent Router** - Natural language to command:
+```bash
+bash tools/what.sh "deploy application"
+bash tools/what.sh "check health"
+bash tools/what.sh "backup database"
+```
 
-| Tool | Purpose | Example Command |
-|------|---------|-----------------|
-| **docker** | Container management | `bash tools/scripts/docker.sh ps_containers`<br>`bash tools/scripts/docker.sh logs_container mcp-gateway 100` |
-| **git** | Version control | `bash tools/scripts/git.sh status_enhanced`<br>`bash tools/scripts/git.sh commit_with_state "feat: Add feature"` |
-| **monitoring** | Health checks & metrics | `bash tools/scripts/monitoring.sh health_check_all`<br>`bash tools/scripts/monitoring.sh resource_usage` |
-| **database** | PostgreSQL utilities | `bash tools/scripts/database.sh backup_database kids_ascension_db /backups/ka.sql`<br>`bash tools/scripts/database.sh run_migrations admin` |
-| **ssh** | Remote operations | `bash tools/scripts/ssh.sh exec_remote "docker ps"`<br>`bash tools/scripts/ssh.sh file_upload ./config.json /opt/config.json` |
+**Category Browser** - Explore all tools:
+```bash
+bash tools/discover.sh  # Shows 6 main categories
+```
 
-#### Tier 2: API Scripts (Fast - 1-2s)
+**Learning Mode** - Educational help:
+```bash
+bash tools/learn.sh "is mcp running"
+bash tools/learn.sh "deploy vs restart"
+```
 
-| Tool | Purpose | Example Command |
-|------|---------|-----------------|
-| **coolify** | Deployment management | `bash tools/scripts/coolify.sh deploy_application 3`<br>`bash tools/scripts/coolify.sh get_application_status 3` |
+#### Six Tool Categories
+
+| Category | Purpose | Entry Point |
+|----------|---------|-------------|
+| **Deployment** | Coolify operations (6 cmds) | `bash tools/deployment/list.sh` |
+| **Containers** | Docker management (11 cmds) | `bash tools/containers/list.sh` |
+| **Monitoring** | Health & metrics (9 cmds) | `bash tools/monitoring/list.sh` |
+| **Database** | PostgreSQL ops (8 cmds) | `bash tools/database/list.sh` |
+| **Git** | Version control (11 cmds) | `bash tools/git/list.sh` |
+| **Remote** | SSH operations (9 cmds) | `bash tools/remote/list.sh` |
+
+#### Example Commands
+
+**Deployment:**
+```bash
+bash tools/deployment/deploy.sh 3         # Deploy app
+bash tools/deployment/status.sh 3         # Check status
+bash tools/deployment/logs.sh 3 100       # View logs
+```
+
+**Containers:**
+```bash
+bash tools/containers/ps.sh               # List containers
+bash tools/containers/logs.sh mcp-gateway 100  # View logs
+bash tools/containers/restart.sh mcp-gateway   # Restart
+```
+
+**Database:**
+```bash
+bash tools/database/backup.sh kids_ascension_db /backups/ka.sql
+bash tools/database/restore.sh kids_ascension_db /backups/ka.sql
+bash tools/database/size.sh kids_ascension_db
+```
+
+**All commands support `--explain` mode for detailed information**
+
+#### Legacy Scripts (Backwards Compatible)
+
+Old monolithic scripts still work:
+```bash
+bash tools/scripts/coolify.sh deploy_application 3
+bash tools/scripts/docker.sh ps_containers
+bash tools/scripts/monitoring.sh health_check_all
+```
 
 #### Tier 3: MCP Services (Full Featured - 2-10s)
 

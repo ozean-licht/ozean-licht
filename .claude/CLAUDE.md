@@ -19,34 +19,99 @@ Monorepo for two Austrian associations: **Kids Ascension** (kids-ascension.dev) 
 **Databases:** PostgreSQL multi-tenant (shared_users_db, kids_ascension_db, ozean_licht_db)
 **Storage:** MinIO (hot) → Cloudflare R2 (cold) → Stream (CDN)
 
-## Tool Selection - Three-Tier Architecture
+## Tool Selection - Progressive Disclosure System
 
-**19 available tools** across 3 tiers. Choose the right tier for optimal performance:
+**54+ commands** organized in 6 categories using progressive disclosure. Reduces context usage by 85%.
 
-### Tier 1: Native Scripts (Fastest - < 1s, 5x speedup)
-**Use for:** Simple operations, direct CLI access, maximum speed
+### Smart Discovery (Start Here)
 
+**Intent Router** - Natural language to command mapping:
 ```bash
-# Docker operations
+bash tools/what.sh "deploy application"
+bash tools/what.sh "check system health"
+bash tools/what.sh "backup database"
+bash tools/what.sh "view container logs"
+```
+
+**Category Browser** - Explore all tool categories:
+```bash
+bash tools/discover.sh  # Shows 6 main categories
+```
+
+**Learning Mode** - Educational explanations:
+```bash
+bash tools/learn.sh "is mcp running"
+bash tools/learn.sh "deploy vs restart"
+```
+
+### Six Tool Categories
+
+**1. Deployment** (Coolify operations):
+```bash
+bash tools/deployment/list.sh          # List commands
+bash tools/deployment/deploy.sh 3      # Deploy app
+bash tools/deployment/status.sh 3      # Check status
+bash tools/deployment/logs.sh 3 100    # View logs
+bash tools/deployment/health.sh        # API health
+```
+
+**2. Containers** (Docker operations):
+```bash
+bash tools/containers/list.sh             # List commands
+bash tools/containers/ps.sh               # List containers
+bash tools/containers/logs.sh mcp-gateway 100  # View logs
+bash tools/containers/restart.sh mcp-gateway   # Restart
+bash tools/containers/stats.sh            # Resource usage
+```
+
+**3. Monitoring** (Health & metrics):
+```bash
+bash tools/monitoring/list.sh          # List commands
+bash tools/monitoring/health-all.sh    # Check all services
+bash tools/monitoring/resources.sh     # System resources
+bash tools/monitoring/connectivity.sh  # Network tests
+```
+
+**4. Database** (PostgreSQL operations):
+```bash
+bash tools/database/list.sh            # List commands
+bash tools/database/backup.sh kids_ascension_db /backups/ka.sql
+bash tools/database/restore.sh kids_ascension_db /backups/ka.sql
+bash tools/database/size.sh kids_ascension_db
+```
+
+**5. Git** (Version control):
+```bash
+bash tools/git/list.sh                 # List commands
+bash tools/git/status.sh               # Working tree status
+bash tools/git/commit.sh "feat: message"  # Commit changes
+bash tools/git/push.sh                 # Push to remote
+```
+
+**6. Remote** (SSH operations):
+```bash
+bash tools/remote/list.sh              # List commands
+bash tools/remote/exec.sh "docker ps"  # Execute command
+bash tools/remote/upload.sh ./file /opt/file  # Upload file
+bash tools/remote/test.sh              # Test connection
+```
+
+### Explain Mode
+
+Every command supports `--explain` flag for detailed information:
+```bash
+bash tools/deployment/deploy.sh --explain
+bash tools/containers/logs.sh --explain
+bash tools/database/backup.sh --explain
+```
+
+### Legacy Scripts (Backwards Compatibility)
+
+Old monolithic scripts still work but show deprecation notices:
+```bash
+bash tools/scripts/coolify.sh deploy_application 3
 bash tools/scripts/docker.sh ps_containers
-bash tools/scripts/docker.sh logs_container mcp-gateway 100
-bash tools/scripts/docker.sh restart_container mcp-gateway
-
-# Git operations
-bash tools/scripts/git.sh status_enhanced
-bash tools/scripts/git.sh commit_with_state "feat: Add feature"
-
-# System monitoring
 bash tools/scripts/monitoring.sh health_check_all
-bash tools/scripts/monitoring.sh resource_usage
-
-# Database utilities
-bash tools/scripts/database.sh backup_database kids_ascension_db /backups/ka.sql
-bash tools/scripts/database.sh run_migrations admin
-
-# Remote operations
-bash tools/scripts/ssh.sh exec_remote "docker ps"
-bash tools/scripts/ssh.sh file_upload ./config.json /opt/config.json
 ```
 
 ### Tier 2: API Scripts (Fast - 1-2s, 3x speedup)
