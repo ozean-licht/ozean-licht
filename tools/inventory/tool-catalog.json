@@ -1,0 +1,1074 @@
+{
+  "version": "1.0.0",
+  "updated": "2025-11-11",
+  "schema": {
+    "description": "Master tool catalog for Ozean Licht Ecosystem",
+    "includes": "MCP services, script-based tools, and native utilities"
+  },
+  "tools": {
+    "postgres": {
+      "name": "PostgreSQL MCP",
+      "type": "mcp",
+      "tier": "tier3-mcp",
+      "description": "Database operations for kids-ascension and ozean-licht databases",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "dependencies": ["mcp-gateway"],
+      "capabilities": [
+        "list-tables",
+        "describe-table",
+        "query",
+        "schema-introspection",
+        "connection-stats"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-postgres [db] list tables",
+          "description": "List all tables in the specified database",
+          "example": "/mcp-postgres kids-ascension-db list tables",
+          "parameters": {
+            "db": {
+              "type": "string",
+              "required": true,
+              "values": ["kids-ascension-db", "ozean-licht-db", "shared-users-db", "orchestrator-db"]
+            }
+          }
+        },
+        {
+          "command": "/mcp-postgres [db] describe [table]",
+          "description": "Get schema information for a specific table",
+          "example": "/mcp-postgres kids-ascension-db describe users",
+          "parameters": {
+            "db": { "type": "string", "required": true },
+            "table": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "/mcp-postgres [db] query \"[sql]\"",
+          "description": "Execute a SQL query (read-only by default)",
+          "example": "/mcp-postgres ozean-licht-db query \"SELECT * FROM courses LIMIT 10\"",
+          "parameters": {
+            "db": { "type": "string", "required": true },
+            "sql": { "type": "string", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "http",
+        "endpoint": "http://localhost:8100/health",
+        "interval": 60
+      },
+      "tokenCost": {
+        "avgTokensPerCall": 500,
+        "costPerCall": 0.0015,
+        "complexity": "medium"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 100,
+        "burstLimit": 20
+      },
+      "rationale": "Requires connection pooling, parameterized queries, and transaction management"
+    },
+    "mem0": {
+      "name": "Mem0 MCP",
+      "type": "mcp",
+      "tier": "tier3-mcp",
+      "description": "Persistent memory and context management with vector search",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "alwaysActive": true,
+      "dependencies": ["mcp-gateway"],
+      "capabilities": [
+        "remember",
+        "search",
+        "get-context",
+        "list-memories",
+        "delete-memory"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-mem0 remember \"[content]\"",
+          "description": "Store a new memory",
+          "example": "/mcp-mem0 remember \"User prefers TypeScript for all new projects\"",
+          "parameters": {
+            "content": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "/mcp-mem0 search \"[query]\"",
+          "description": "Search through stored memories using vector similarity",
+          "example": "/mcp-mem0 search \"programming preferences\"",
+          "parameters": {
+            "query": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "/mcp-mem0 get-context [user_id]",
+          "description": "Retrieve all memories for a specific user",
+          "example": "/mcp-mem0 get-context agent_001",
+          "parameters": {
+            "user_id": { "type": "string", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "http",
+        "endpoint": "http://mem0.ozean-licht.dev:8090/health",
+        "interval": 60
+      },
+      "tokenCost": {
+        "avgTokensPerCall": 200,
+        "costPerCall": 0.0006,
+        "complexity": "low"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 200,
+        "burstLimit": 50
+      },
+      "rationale": "Vector search and persistent state management require specialized service"
+    },
+    "cloudflare": {
+      "name": "Cloudflare MCP",
+      "type": "mcp",
+      "tier": "tier3-mcp",
+      "description": "Cloud infrastructure and CDN management",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "dependencies": ["mcp-gateway", "cloudflare-api-token"],
+      "capabilities": [
+        "dns-management",
+        "stream-upload",
+        "stream-list",
+        "workers-deploy",
+        "cache-purge"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-cloudflare dns list-records [zone]",
+          "description": "List DNS records for a zone",
+          "example": "/mcp-cloudflare dns list-records ozean-licht.dev",
+          "parameters": {
+            "zone": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "/mcp-cloudflare stream upload [path]",
+          "description": "Upload a video to Cloudflare Stream",
+          "example": "/mcp-cloudflare stream upload /videos/lesson1.mp4",
+          "parameters": {
+            "path": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "/mcp-cloudflare workers deploy [name]",
+          "description": "Deploy a Cloudflare Worker",
+          "example": "/mcp-cloudflare workers deploy api-gateway",
+          "parameters": {
+            "name": { "type": "string", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "http",
+        "endpoint": "http://localhost:8100/health",
+        "interval": 60
+      },
+      "tokenCost": {
+        "avgTokensPerCall": 300,
+        "costPerCall": 0.0009,
+        "complexity": "medium"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 50,
+        "burstLimit": 10
+      },
+      "rationale": "Complex API authentication and multi-service integration"
+    },
+    "github": {
+      "name": "GitHub MCP",
+      "type": "mcp",
+      "tier": "tier3-mcp",
+      "description": "Repository and code management via GitHub App",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "dependencies": ["mcp-gateway", "github-app"],
+      "capabilities": [
+        "create-pr",
+        "list-issues",
+        "merge-pr",
+        "create-issue",
+        "list-workflows",
+        "trigger-workflow"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-github create-pr \"[title]\" \"[body]\"",
+          "description": "Create a new pull request",
+          "example": "/mcp-github create-pr \"feat: Add MCP Gateway\" \"Implements the MCP Gateway for agent tooling\"",
+          "parameters": {
+            "title": { "type": "string", "required": true },
+            "body": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "/mcp-github list-issues --label=[label]",
+          "description": "List repository issues",
+          "example": "/mcp-github list-issues --label=bug",
+          "parameters": {
+            "label": { "type": "string", "required": false }
+          }
+        },
+        {
+          "command": "/mcp-github merge-pr [number]",
+          "description": "Merge a pull request",
+          "example": "/mcp-github merge-pr 123",
+          "parameters": {
+            "number": { "type": "number", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "http",
+        "endpoint": "http://localhost:8100/health",
+        "interval": 60
+      },
+      "tokenCost": {
+        "avgTokensPerCall": 400,
+        "costPerCall": 0.0012,
+        "complexity": "medium"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 60,
+        "burstLimit": 15
+      },
+      "rationale": "GitHub App authentication with JWT token management"
+    },
+    "n8n": {
+      "name": "N8N MCP",
+      "type": "mcp",
+      "tier": "tier3-mcp",
+      "description": "Workflow automation and orchestration",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "dependencies": ["mcp-gateway"],
+      "capabilities": [
+        "execute-workflow",
+        "list-workflows",
+        "get-execution",
+        "create-webhook",
+        "test-workflow"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-n8n execute [workflow_id] {data}",
+          "description": "Execute a workflow with data",
+          "example": "/mcp-n8n execute wf_123 {\"email\": \"user@example.com\"}",
+          "parameters": {
+            "workflow_id": { "type": "string", "required": true },
+            "data": { "type": "object", "required": false }
+          }
+        },
+        {
+          "command": "/mcp-n8n list-workflows",
+          "description": "List all available workflows",
+          "example": "/mcp-n8n list-workflows"
+        },
+        {
+          "command": "/mcp-n8n get-execution [id]",
+          "description": "Get workflow execution details",
+          "example": "/mcp-n8n get-execution exec_456",
+          "parameters": {
+            "id": { "type": "string", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "http",
+        "endpoint": "http://n8n.ozean-licht.dev:5678/healthz",
+        "interval": 60
+      },
+      "tokenCost": {
+        "avgTokensPerCall": 250,
+        "costPerCall": 0.0008,
+        "complexity": "low"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 100,
+        "burstLimit": 25
+      },
+      "rationale": "Workflow state management and execution tracking"
+    },
+    "minio": {
+      "name": "MinIO MCP",
+      "type": "mcp",
+      "tier": "tier3-mcp",
+      "description": "S3-compatible object storage for file management",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "dependencies": ["mcp-gateway"],
+      "capabilities": [
+        "upload",
+        "list",
+        "getUrl",
+        "delete",
+        "stat",
+        "health"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-minio upload [bucket] [fileKey] [contentType]",
+          "description": "Upload file to MinIO bucket",
+          "example": "/mcp-minio upload kids-ascension-staging videos/2025/video.mp4 video/mp4",
+          "parameters": {
+            "bucket": { "type": "string", "required": true },
+            "fileKey": { "type": "string", "required": true },
+            "contentType": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "/mcp-minio list [bucket] --prefix=[prefix]",
+          "description": "List files in bucket",
+          "example": "/mcp-minio list kids-ascension-staging --prefix=videos/",
+          "parameters": {
+            "bucket": { "type": "string", "required": true },
+            "prefix": { "type": "string", "required": false }
+          }
+        },
+        {
+          "command": "/mcp-minio getUrl [bucket] [fileKey]",
+          "description": "Get presigned URL for file",
+          "example": "/mcp-minio getUrl kids-ascension-staging videos/2025/video.mp4",
+          "parameters": {
+            "bucket": { "type": "string", "required": true },
+            "fileKey": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "/mcp-minio delete [bucket] [fileKey]",
+          "description": "Delete file from bucket",
+          "example": "/mcp-minio delete kids-ascension-staging videos/2025/video.mp4",
+          "parameters": {
+            "bucket": { "type": "string", "required": true },
+            "fileKey": { "type": "string", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "http",
+        "endpoint": "http://138.201.139.25:9000/minio/health/live",
+        "interval": 60
+      },
+      "tokenCost": {
+        "avgTokensPerCall": 350,
+        "costPerCall": 0.001,
+        "complexity": "medium"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 100,
+        "burstLimit": 20
+      },
+      "rationale": "S3 protocol handling and presigned URL generation"
+    },
+    "coolify-mcp": {
+      "name": "Coolify MCP",
+      "type": "mcp",
+      "tier": "tier3-mcp",
+      "description": "Infrastructure and deployment management via MCP",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "dependencies": ["mcp-gateway"],
+      "capabilities": [
+        "list-applications",
+        "deploy-application",
+        "restart-application",
+        "list-databases",
+        "create-database",
+        "list-servers",
+        "get-version"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-coolify list-applications",
+          "description": "List all Coolify applications",
+          "example": "/mcp-coolify list-applications"
+        },
+        {
+          "command": "/mcp-coolify deploy-application [appId]",
+          "description": "Deploy an application (pulls latest code)",
+          "example": "/mcp-coolify deploy-application 3",
+          "parameters": {
+            "appId": { "type": "number", "required": true }
+          }
+        },
+        {
+          "command": "/mcp-coolify restart-application [appId]",
+          "description": "Restart an application",
+          "example": "/mcp-coolify restart-application 3",
+          "parameters": {
+            "appId": { "type": "number", "required": true }
+          }
+        },
+        {
+          "command": "/mcp-coolify list-databases",
+          "description": "List all databases",
+          "example": "/mcp-coolify list-databases"
+        },
+        {
+          "command": "/mcp-coolify get-version",
+          "description": "Get Coolify version",
+          "example": "/mcp-coolify get-version"
+        }
+      ],
+      "healthCheck": {
+        "method": "http",
+        "endpoint": "http://localhost:8100/health",
+        "interval": 60
+      },
+      "tokenCost": {
+        "avgTokensPerCall": 200,
+        "costPerCall": 0.0006,
+        "complexity": "low"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 60,
+        "burstLimit": 15
+      },
+      "rationale": "Available via MCP for consistency, but script version recommended for performance"
+    },
+    "firecrawl": {
+      "name": "Firecrawl MCP",
+      "type": "mcp",
+      "tier": "tier3-mcp",
+      "description": "Web scraping and content extraction service",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "alwaysActive": true,
+      "dependencies": ["mcp-gateway"],
+      "capabilities": [
+        "scrape",
+        "health"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-firecrawl scrape \"[url]\"",
+          "description": "Scrape a web page and convert to markdown",
+          "example": "/mcp-firecrawl scrape \"https://docs.anthropic.com/en/docs/claude-code/sdk\"",
+          "parameters": {
+            "url": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "/mcp-firecrawl health",
+          "description": "Check Firecrawl service health",
+          "example": "/mcp-firecrawl health"
+        }
+      ],
+      "healthCheck": {
+        "method": "http",
+        "endpoint": "http://localhost:8100/health",
+        "interval": 60
+      },
+      "tokenCost": {
+        "avgTokensPerCall": 800,
+        "costPerCall": 0.0024,
+        "complexity": "high"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 30,
+        "burstLimit": 5
+      },
+      "rationale": "Complex content extraction and markdown conversion"
+    },
+    "playwright": {
+      "name": "Playwright MCP",
+      "type": "mcp",
+      "tier": "tier3-mcp",
+      "description": "Browser automation and testing",
+      "location": "local",
+      "version": "1.0.0",
+      "status": "active",
+      "dependencies": ["playwright-cli"],
+      "capabilities": [
+        "navigate",
+        "screenshot",
+        "fill-form",
+        "click-element",
+        "extract-text"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-playwright navigate [url]",
+          "description": "Navigate to a URL",
+          "example": "/mcp-playwright navigate https://example.com",
+          "parameters": {
+            "url": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "/mcp-playwright screenshot [path]",
+          "description": "Take a screenshot",
+          "example": "/mcp-playwright screenshot /tmp/page.png",
+          "parameters": {
+            "path": { "type": "string", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "cli",
+        "command": "playwright --version",
+        "interval": 300
+      },
+      "tokenCost": {
+        "avgTokensPerCall": 1000,
+        "costPerCall": 0.003,
+        "complexity": "high"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 30,
+        "burstLimit": 5
+      },
+      "rationale": "Browser automation requires complex state management"
+    },
+    "shadcn": {
+      "name": "ShadCN MCP",
+      "type": "mcp",
+      "tier": "tier3-mcp",
+      "description": "UI component library integration",
+      "location": "local",
+      "version": "1.0.0",
+      "status": "active",
+      "dependencies": ["shadcn-cli"],
+      "capabilities": [
+        "add-component",
+        "list-components",
+        "customize-theme",
+        "generate-form"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-shadcn add [component]",
+          "description": "Add a ShadCN component",
+          "example": "/mcp-shadcn add button",
+          "parameters": {
+            "component": { "type": "string", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "cli",
+        "command": "npx shadcn-ui --version",
+        "interval": 300
+      },
+      "tokenCost": {
+        "avgTokensPerCall": 150,
+        "costPerCall": 0.0005,
+        "complexity": "low"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 100,
+        "burstLimit": 20
+      },
+      "rationale": "Component generation and theme customization"
+    },
+    "magicui": {
+      "name": "MagicUI MCP",
+      "type": "mcp",
+      "tier": "tier3-mcp",
+      "description": "Enhanced UI components",
+      "location": "local",
+      "version": "1.0.0",
+      "status": "active",
+      "dependencies": ["magicui-cli"],
+      "capabilities": [
+        "add-component",
+        "list-components",
+        "generate-animation"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-magicui add [component]",
+          "description": "Add a MagicUI component",
+          "example": "/mcp-magicui add animated-card",
+          "parameters": {
+            "component": { "type": "string", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "cli",
+        "command": "npx magicui --version",
+        "interval": 300
+      },
+      "tokenCost": {
+        "avgTokensPerCall": 150,
+        "costPerCall": 0.0005,
+        "complexity": "low"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 100,
+        "burstLimit": 20
+      },
+      "rationale": "Component generation with animations"
+    },
+    "coolify": {
+      "name": "Coolify CLI Script",
+      "type": "script-api",
+      "tier": "tier2-api",
+      "description": "Lightweight Coolify API wrapper for fast deployment operations",
+      "location": "local",
+      "version": "1.0.0",
+      "status": "active",
+      "scriptPath": "tools/scripts/coolify.sh",
+      "dependencies": ["curl", "jq"],
+      "capabilities": [
+        "list-applications",
+        "deploy-application",
+        "restart-application",
+        "get-status",
+        "list-databases",
+        "get-logs"
+      ],
+      "commands": [
+        {
+          "command": "bash tools/scripts/coolify.sh list_applications",
+          "description": "List all Coolify applications",
+          "example": "bash tools/scripts/coolify.sh list_applications",
+          "exitCodes": {
+            "0": "Success",
+            "1": "API error",
+            "2": "Authentication error"
+          }
+        },
+        {
+          "command": "bash tools/scripts/coolify.sh deploy_application [appId]",
+          "description": "Trigger deployment for an application",
+          "example": "bash tools/scripts/coolify.sh deploy_application 3",
+          "parameters": {
+            "appId": { "type": "number", "required": true }
+          },
+          "exitCodes": {
+            "0": "Deployment triggered",
+            "1": "Deployment failed"
+          }
+        },
+        {
+          "command": "bash tools/scripts/coolify.sh restart_application [appId]",
+          "description": "Restart an application",
+          "example": "bash tools/scripts/coolify.sh restart_application 3",
+          "parameters": {
+            "appId": { "type": "number", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/coolify.sh get_application_status [appId]",
+          "description": "Get current application status",
+          "example": "bash tools/scripts/coolify.sh get_application_status 3",
+          "parameters": {
+            "appId": { "type": "number", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/coolify.sh list_databases",
+          "description": "List all databases",
+          "example": "bash tools/scripts/coolify.sh list_databases"
+        },
+        {
+          "command": "bash tools/scripts/coolify.sh get_logs [appId] [lines]",
+          "description": "Fetch application logs",
+          "example": "bash tools/scripts/coolify.sh get_logs 3 100",
+          "parameters": {
+            "appId": { "type": "number", "required": true },
+            "lines": { "type": "number", "required": false, "default": 50 }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "http",
+        "endpoint": "http://coolify.ozean-licht.dev:8000/api/health",
+        "interval": 60
+      },
+      "performance": {
+        "avgExecutionTime": "1-2s",
+        "speedup": "3-5x faster than MCP"
+      },
+      "rationale": "Simple REST API - direct curl calls are faster than MCP routing"
+    },
+    "docker": {
+      "name": "Docker CLI Script",
+      "type": "script-native",
+      "tier": "tier1-native",
+      "description": "Docker container management via CLI",
+      "location": "local",
+      "version": "1.0.0",
+      "status": "active",
+      "scriptPath": "tools/scripts/docker.sh",
+      "dependencies": ["docker", "jq"],
+      "capabilities": [
+        "ps-containers",
+        "logs-container",
+        "stats-containers",
+        "restart-container",
+        "exec-container",
+        "health-check"
+      ],
+      "commands": [
+        {
+          "command": "bash tools/scripts/docker.sh ps_containers [filter]",
+          "description": "List containers with optional filter",
+          "example": "bash tools/scripts/docker.sh ps_containers mcp-gateway",
+          "parameters": {
+            "filter": { "type": "string", "required": false }
+          }
+        },
+        {
+          "command": "bash tools/scripts/docker.sh logs_container [name] [lines] [follow]",
+          "description": "Get container logs",
+          "example": "bash tools/scripts/docker.sh logs_container mcp-gateway 100",
+          "parameters": {
+            "name": { "type": "string", "required": true },
+            "lines": { "type": "number", "required": false, "default": 50 },
+            "follow": { "type": "boolean", "required": false, "default": false }
+          }
+        },
+        {
+          "command": "bash tools/scripts/docker.sh stats_containers",
+          "description": "Get resource usage statistics",
+          "example": "bash tools/scripts/docker.sh stats_containers"
+        },
+        {
+          "command": "bash tools/scripts/docker.sh restart_container [name]",
+          "description": "Restart a container",
+          "example": "bash tools/scripts/docker.sh restart_container mcp-gateway",
+          "parameters": {
+            "name": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/docker.sh exec_container [name] [command]",
+          "description": "Execute command in container",
+          "example": "bash tools/scripts/docker.sh exec_container mcp-gateway 'npm --version'",
+          "parameters": {
+            "name": { "type": "string", "required": true },
+            "command": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/docker.sh health_check [name]",
+          "description": "Check container health status",
+          "example": "bash tools/scripts/docker.sh health_check mcp-gateway",
+          "parameters": {
+            "name": { "type": "string", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "cli",
+        "command": "docker ps",
+        "interval": 60
+      },
+      "performance": {
+        "avgExecutionTime": "< 1s",
+        "speedup": "5x faster than MCP"
+      },
+      "rationale": "Native CLI is self-documenting and widely understood"
+    },
+    "git": {
+      "name": "Git Operations Script",
+      "type": "script-native",
+      "tier": "tier1-native",
+      "description": "Enhanced git operations with state tracking",
+      "location": "local",
+      "version": "1.0.0",
+      "status": "active",
+      "scriptPath": "tools/scripts/git.sh",
+      "dependencies": ["git"],
+      "capabilities": [
+        "status-enhanced",
+        "commit-with-state",
+        "push-with-validation",
+        "branch-info",
+        "recent-commits"
+      ],
+      "commands": [
+        {
+          "command": "bash tools/scripts/git.sh status_enhanced",
+          "description": "Enhanced git status with branch and remote info",
+          "example": "bash tools/scripts/git.sh status_enhanced"
+        },
+        {
+          "command": "bash tools/scripts/git.sh commit_with_state [message]",
+          "description": "Commit changes and update tool state",
+          "example": "bash tools/scripts/git.sh commit_with_state 'feat: Add feature'",
+          "parameters": {
+            "message": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/git.sh push_with_validation",
+          "description": "Push with pre-flight checks",
+          "example": "bash tools/scripts/git.sh push_with_validation"
+        },
+        {
+          "command": "bash tools/scripts/git.sh branch_info",
+          "description": "Get current branch details",
+          "example": "bash tools/scripts/git.sh branch_info"
+        },
+        {
+          "command": "bash tools/scripts/git.sh recent_commits [count]",
+          "description": "Show recent commit history",
+          "example": "bash tools/scripts/git.sh recent_commits 10",
+          "parameters": {
+            "count": { "type": "number", "required": false, "default": 5 }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "cli",
+        "command": "git --version",
+        "interval": 300
+      },
+      "performance": {
+        "avgExecutionTime": "< 1s",
+        "speedup": "Direct CLI access"
+      },
+      "rationale": "Git CLI is standard and universally available"
+    },
+    "monitoring": {
+      "name": "System Monitoring Script",
+      "type": "script-native",
+      "tier": "tier1-native",
+      "description": "Comprehensive health checks and monitoring",
+      "location": "local",
+      "version": "1.0.0",
+      "status": "active",
+      "scriptPath": "tools/scripts/monitoring.sh",
+      "dependencies": ["curl", "jq", "ssh"],
+      "capabilities": [
+        "health-check-all",
+        "health-check-service",
+        "get-metrics",
+        "get-logs-errors",
+        "resource-usage",
+        "service-uptime"
+      ],
+      "commands": [
+        {
+          "command": "bash tools/scripts/monitoring.sh health_check_all",
+          "description": "Check health of all services",
+          "example": "bash tools/scripts/monitoring.sh health_check_all"
+        },
+        {
+          "command": "bash tools/scripts/monitoring.sh health_check_service [name]",
+          "description": "Check specific service health",
+          "example": "bash tools/scripts/monitoring.sh health_check_service mcp-gateway",
+          "parameters": {
+            "name": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/monitoring.sh get_metrics [service]",
+          "description": "Get Prometheus metrics for service",
+          "example": "bash tools/scripts/monitoring.sh get_metrics mcp-gateway",
+          "parameters": {
+            "service": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/monitoring.sh get_logs_errors [service] [minutes]",
+          "description": "Get recent errors from logs",
+          "example": "bash tools/scripts/monitoring.sh get_logs_errors mcp-gateway 30",
+          "parameters": {
+            "service": { "type": "string", "required": true },
+            "minutes": { "type": "number", "required": false, "default": 60 }
+          }
+        },
+        {
+          "command": "bash tools/scripts/monitoring.sh resource_usage",
+          "description": "Get CPU, memory, disk usage",
+          "example": "bash tools/scripts/monitoring.sh resource_usage"
+        },
+        {
+          "command": "bash tools/scripts/monitoring.sh service_uptime [name]",
+          "description": "Get service uptime",
+          "example": "bash tools/scripts/monitoring.sh service_uptime mcp-gateway",
+          "parameters": {
+            "name": { "type": "string", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "cli",
+        "command": "curl --version",
+        "interval": 300
+      },
+      "performance": {
+        "avgExecutionTime": "1-3s",
+        "speedup": "Parallel checks for fast monitoring"
+      },
+      "rationale": "Simple HTTP checks and CLI commands for monitoring"
+    },
+    "database": {
+      "name": "Database Operations Script",
+      "type": "script-native",
+      "tier": "tier1-native",
+      "description": "PostgreSQL backup, restore, and utilities",
+      "location": "local",
+      "version": "1.0.0",
+      "status": "active",
+      "scriptPath": "tools/scripts/database.sh",
+      "dependencies": ["psql", "pg_dump", "pg_restore"],
+      "capabilities": [
+        "backup-database",
+        "restore-database",
+        "run-migrations",
+        "database-size",
+        "active-connections"
+      ],
+      "commands": [
+        {
+          "command": "bash tools/scripts/database.sh backup_database [db_name] [output_path]",
+          "description": "Backup a database",
+          "example": "bash tools/scripts/database.sh backup_database kids_ascension_db /backups/ka.sql",
+          "parameters": {
+            "db_name": { "type": "string", "required": true },
+            "output_path": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/database.sh restore_database [db_name] [backup_path]",
+          "description": "Restore a database from backup",
+          "example": "bash tools/scripts/database.sh restore_database kids_ascension_db /backups/ka.sql",
+          "parameters": {
+            "db_name": { "type": "string", "required": true },
+            "backup_path": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/database.sh run_migrations [app]",
+          "description": "Run database migrations",
+          "example": "bash tools/scripts/database.sh run_migrations admin",
+          "parameters": {
+            "app": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/database.sh database_size [db_name]",
+          "description": "Get database size",
+          "example": "bash tools/scripts/database.sh database_size kids_ascension_db",
+          "parameters": {
+            "db_name": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/database.sh active_connections [db_name]",
+          "description": "Show active database connections",
+          "example": "bash tools/scripts/database.sh active_connections kids_ascension_db",
+          "parameters": {
+            "db_name": { "type": "string", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "cli",
+        "command": "psql --version",
+        "interval": 300
+      },
+      "performance": {
+        "avgExecutionTime": "1-5s",
+        "speedup": "Direct PostgreSQL CLI access"
+      },
+      "rationale": "Standard PostgreSQL tools are reliable and fast"
+    },
+    "ssh": {
+      "name": "SSH Operations Script",
+      "type": "script-native",
+      "tier": "tier1-native",
+      "description": "Remote command execution and file transfer",
+      "location": "local",
+      "version": "1.0.0",
+      "status": "active",
+      "scriptPath": "tools/scripts/ssh.sh",
+      "dependencies": ["ssh", "scp"],
+      "capabilities": [
+        "exec-remote",
+        "file-upload",
+        "file-download",
+        "tunnel-create",
+        "tunnel-close"
+      ],
+      "commands": [
+        {
+          "command": "bash tools/scripts/ssh.sh exec_remote [command]",
+          "description": "Execute command on remote server",
+          "example": "bash tools/scripts/ssh.sh exec_remote 'docker ps'",
+          "parameters": {
+            "command": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/ssh.sh file_upload [local_path] [remote_path]",
+          "description": "Upload file to remote server",
+          "example": "bash tools/scripts/ssh.sh file_upload ./config.json /opt/config.json",
+          "parameters": {
+            "local_path": { "type": "string", "required": true },
+            "remote_path": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/ssh.sh file_download [remote_path] [local_path]",
+          "description": "Download file from remote server",
+          "example": "bash tools/scripts/ssh.sh file_download /var/log/app.log ./app.log",
+          "parameters": {
+            "remote_path": { "type": "string", "required": true },
+            "local_path": { "type": "string", "required": true }
+          }
+        },
+        {
+          "command": "bash tools/scripts/ssh.sh tunnel_create [local_port] [remote_port]",
+          "description": "Create SSH tunnel",
+          "example": "bash tools/scripts/ssh.sh tunnel_create 9200 9200",
+          "parameters": {
+            "local_port": { "type": "number", "required": true },
+            "remote_port": { "type": "number", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "cli",
+        "command": "ssh -V",
+        "interval": 300
+      },
+      "performance": {
+        "avgExecutionTime": "1-3s (network dependent)",
+        "speedup": "Direct SSH access"
+      },
+      "rationale": "SSH is the standard for remote operations"
+    }
+  },
+  "aggregates": {
+    "totalTools": 19,
+    "mcpServices": 11,
+    "scriptBasedTools": 8,
+    "tier1Native": 5,
+    "tier2Api": 1,
+    "tier3Mcp": 11,
+    "serverSideTools": 8,
+    "localTools": 11,
+    "averageScriptExecutionTime": "1-2s",
+    "estimatedSpeedup": "3-5x for script tools"
+  },
+  "metadata": {
+    "lastUpdated": "2025-11-11T00:00:00Z",
+    "maintainer": "Ozean Licht Infrastructure Team",
+    "documentation": "tools/inventory/README.md",
+    "schema_version": "1.0.0"
+  }
+}

@@ -19,26 +19,95 @@ Monorepo for two Austrian associations: **Kids Ascension** (kids-ascension.dev) 
 **Databases:** PostgreSQL multi-tenant (shared_users_db, kids_ascension_db, ozean_licht_db)
 **Storage:** MinIO (hot) → Cloudflare R2 (cold) → Stream (CDN)
 
-## MCP Gateway (Port 8100)
+## Tool Selection - Three-Tier Architecture
 
-**11 services** - Use these instead of direct API calls:
+**19 available tools** across 3 tiers. Choose the right tier for optimal performance:
+
+### Tier 1: Native Scripts (Fastest - < 1s, 5x speedup)
+**Use for:** Simple operations, direct CLI access, maximum speed
 
 ```bash
-# Server services (8)
-mcp-postgres [db] query "SQL"              # DB operations
-mcp-mem0 remember|search "text"            # Institutional memory
-mcp-github create-pr|merge-pr [args]       # GitHub operations
-mcp-minio upload|getUrl [bucket] [key]     # Hot storage
-mcp-cloudflare stream upload [path]        # CDN & cold storage
-mcp-coolify deploy-application [id]        # Deployment
-mcp-firecrawl scrape "url"                 # Web scraping
-mcp-n8n trigger-workflow [id]              # Automation
+# Docker operations
+bash tools/scripts/docker.sh ps_containers
+bash tools/scripts/docker.sh logs_container mcp-gateway 100
+bash tools/scripts/docker.sh restart_container mcp-gateway
 
-# Local services (3)
-mcp-playwright, mcp-shadcn, mcp-magicui    # Browser/UI tools
+# Git operations
+bash tools/scripts/git.sh status_enhanced
+bash tools/scripts/git.sh commit_with_state "feat: Add feature"
+
+# System monitoring
+bash tools/scripts/monitoring.sh health_check_all
+bash tools/scripts/monitoring.sh resource_usage
+
+# Database utilities
+bash tools/scripts/database.sh backup_database kids_ascension_db /backups/ka.sql
+bash tools/scripts/database.sh run_migrations admin
+
+# Remote operations
+bash tools/scripts/ssh.sh exec_remote "docker ps"
+bash tools/scripts/ssh.sh file_upload ./config.json /opt/config.json
 ```
 
-**Catalog:** `tools/mcp-gateway/config/mcp-catalog.json`
+### Tier 2: API Scripts (Fast - 1-2s, 3x speedup)
+**Use for:** Simple REST APIs with basic auth
+
+```bash
+# Coolify deployment
+bash tools/scripts/coolify.sh deploy_application 3
+bash tools/scripts/coolify.sh get_application_status 3
+bash tools/scripts/coolify.sh list_applications
+```
+
+### Tier 3: MCP Services (Full Featured - 2-10s)
+**Use for:** Complex auth, connection pooling, state management
+
+```bash
+# Database with connection pooling
+mcp-postgres [db] query "SQL"
+
+# Institutional memory with vector search
+mcp-mem0 remember|search "text"
+
+# GitHub App authentication
+mcp-github create-pr|merge-pr [args]
+
+# S3-compatible storage
+mcp-minio upload|getUrl [bucket] [key]
+
+# Multi-service CDN
+mcp-cloudflare stream upload [path]
+
+# Workflow state management
+mcp-n8n trigger-workflow [id]
+
+# Complex scraping
+mcp-firecrawl scrape "url"
+
+# Browser automation (local)
+mcp-playwright, mcp-shadcn, mcp-magicui
+```
+
+### Decision Rules for AI Agents
+
+**Use Scripts (Tier 1/2) when:**
+- ✅ Operation is simple and one-shot
+- ✅ Speed is important (< 2s required)
+- ✅ No complex authentication needed
+- ✅ Want transparency (see exact commands)
+- ✅ Tool has stable CLI or simple REST API
+
+**Use MCP (Tier 3) when:**
+- ✅ Complex authentication (OAuth, GitHub App, JWT)
+- ✅ Connection pooling required (databases)
+- ✅ Stateful session management needed
+- ✅ Protocol translation necessary
+- ✅ Rate limiting and cost tracking essential
+
+**Catalogs:**
+- `tools/inventory/tool-catalog.json` - Master catalog (19 tools)
+- `tools/inventory/docs/tool-selection-guide.md` - Complete decision tree
+- `tools/mcp-gateway/config/mcp-catalog.json` - MCP-specific configs
 
 ## Development Commands
 

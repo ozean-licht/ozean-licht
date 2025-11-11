@@ -53,25 +53,53 @@ cd tools/mcp-gateway && npm run dev    # MCP Gateway (8100)
 
 ---
 
-### 2. MCP Gateway (Port 8100)
+### 2. Tool Inventory - Three-Tier Architecture
 
-**11 Unified Services** - Use these instead of direct API calls
+**19 Available Tools** across 3 tiers for optimal performance
+
+**Choose the right tool tier:**
+- **Tier 1 (Native Scripts):** 5x faster, direct CLI - Use for simple operations
+- **Tier 2 (API Scripts):** 3x faster, REST wrappers - Use for simple APIs
+- **Tier 3 (MCP Services):** Full featured - Use for complex auth/state
+
+#### Tier 1: Native Scripts (Fastest - < 1s)
+
+| Tool | Purpose | Example Command |
+|------|---------|-----------------|
+| **docker** | Container management | `bash tools/scripts/docker.sh ps_containers`<br>`bash tools/scripts/docker.sh logs_container mcp-gateway 100` |
+| **git** | Version control | `bash tools/scripts/git.sh status_enhanced`<br>`bash tools/scripts/git.sh commit_with_state "feat: Add feature"` |
+| **monitoring** | Health checks & metrics | `bash tools/scripts/monitoring.sh health_check_all`<br>`bash tools/scripts/monitoring.sh resource_usage` |
+| **database** | PostgreSQL utilities | `bash tools/scripts/database.sh backup_database kids_ascension_db /backups/ka.sql`<br>`bash tools/scripts/database.sh run_migrations admin` |
+| **ssh** | Remote operations | `bash tools/scripts/ssh.sh exec_remote "docker ps"`<br>`bash tools/scripts/ssh.sh file_upload ./config.json /opt/config.json` |
+
+#### Tier 2: API Scripts (Fast - 1-2s)
+
+| Tool | Purpose | Example Command |
+|------|---------|-----------------|
+| **coolify** | Deployment management | `bash tools/scripts/coolify.sh deploy_application 3`<br>`bash tools/scripts/coolify.sh get_application_status 3` |
+
+#### Tier 3: MCP Services (Full Featured - 2-10s)
 
 | Service | Purpose | Example Command |
 |---------|---------|-----------------|
-| **postgres** | Multi-tenant databases | `/mcp-postgres kids-ascension-db query "SELECT * FROM videos LIMIT 10"` |
-| **mem0** | Institutional memory (always active) | `/mcp-mem0 remember "Pattern: Use connection pooling"`<br>`/mcp-mem0 search "deployment patterns"` |
-| **github** | PR/issue management | `/mcp-github create-pr "title" "body"`<br>`/mcp-github merge-pr 123` |
-| **minio** | S3-compatible hot storage | `/mcp-minio upload bucket key contentType`<br>`/mcp-minio getUrl bucket key` |
+| **postgres** | Multi-tenant databases with pooling | `/mcp-postgres kids-ascension-db query "SELECT * FROM videos LIMIT 10"` |
+| **mem0** | Institutional memory (vector search) | `/mcp-mem0 remember "Pattern: Use connection pooling"`<br>`/mcp-mem0 search "deployment patterns"` |
+| **github** | PR/issue management (GitHub App) | `/mcp-github create-pr "title" "body"`<br>`/mcp-github merge-pr 123` |
+| **minio** | S3-compatible storage | `/mcp-minio upload bucket key contentType`<br>`/mcp-minio getUrl bucket key` |
 | **cloudflare** | Stream CDN + R2 storage | `/mcp-cloudflare stream upload /path/video.mp4` |
-| **coolify** | Deployment orchestration | `/mcp-coolify deploy-application 3`<br>`/mcp-coolify list-applications` |
-| **firecrawl** | Web scraping (always active) | `/mcp-firecrawl scrape "https://example.com"` |
 | **n8n** | Workflow automation | `/mcp-n8n execute workflow_id {data}` |
+| **firecrawl** | Web scraping | `/mcp-firecrawl scrape "https://example.com"` |
 | **playwright** | Browser automation (local) | `/mcp-playwright navigate url` |
-| **shadcn** | UI components (local) | `/mcp-shadcn add button` |
-| **magicui** | UI components (local) | `/mcp-magicui add animated-card` |
+| **shadcn** / **magicui** | UI components (local) | `/mcp-shadcn add button` |
 
-**Service Catalog:** `tools/mcp-gateway/config/mcp-catalog.json` (rate limits, token costs, all capabilities)
+**Tool Selection:**
+- Use Scripts (Tier 1/2) when: Simple operations, speed matters, want transparency
+- Use MCP (Tier 3) when: Complex auth, connection pooling, state management, protocol translation
+
+**Catalogs:**
+- `tools/inventory/tool-catalog.json` - Master catalog (19 tools)
+- `tools/inventory/docs/tool-selection-guide.md` - Decision tree
+- `tools/mcp-gateway/config/mcp-catalog.json` - MCP-specific configs
 
 ---
 
@@ -79,7 +107,8 @@ cd tools/mcp-gateway && npm run dev    # MCP Gateway (8100)
 
 | Tool | Location | Purpose |
 |------|----------|---------|
-| **MCP Gateway** | `tools/mcp-gateway/` | Unified service interface (11 handlers) |
+| **Tool Inventory** | `tools/inventory/` | Master catalog + script-based tools (19 tools) |
+| **MCP Gateway** | `tools/mcp-gateway/` | MCP service interface (11 handlers) |
 | **Coolify** | `tools/coolify/` | Self-hosted PaaS configs |
 | **Docker** | `tools/docker/` | Container orchestration |
 | **Automation** | `tools/automation/` | N8N workflows |

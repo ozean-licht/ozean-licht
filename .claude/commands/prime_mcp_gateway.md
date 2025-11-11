@@ -3,10 +3,9 @@ Execute the `Read` and `Report` sections to understand the codebase then summari
 
 ## Read
 README.md
-/opt/ozean-licht-ecosystem/apps/admin/README.md
+/opt/ozean-licht-ecosystem/tools/README.md
 /opt/ozean-licht-ecosystem/CONTEXT_MAP.md
-
-/opt/ozean-licht-ecosystem/apps/admin/specs
+/opt/ozean-licht-ecosystem/tools/mcp-gateway/README.md
 
 ## Report
 Summarize your understanding of the codebase.

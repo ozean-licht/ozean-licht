@@ -51,107 +51,57 @@ export default function Sidebar({
   const pathname = usePathname();
 
   // Define navigation sections with entity awareness
+  // Organized by functional areas for agentic navigation
   const navigationSections: NavigationSection[] = [
     {
-      title: 'Dashboard',
+      title: 'Overview',
       items: [
         {
-          label: 'Overview',
+          label: 'Dashboard',
           href: '/dashboard',
           icon: LayoutDashboard,
         },
+      ],
+    },
+    {
+      title: 'Access Management',
+      items: [
         {
           label: 'Users',
-          href: '/dashboard/users',
-          icon: Users,
-        },
-        {
-          label: 'System Health',
-          href: '/health',
-          icon: Activity,
-        },
-        {
-          label: 'Analytics',
-          href: '/dashboard/analytics',
-          icon: BarChart3,
-        },
-      ],
-    },
-    {
-      title: 'Kids Ascension',
-      entityScope: 'kids_ascension',
-      items: [
-        {
-          label: 'Videos',
-          href: '/dashboard/kids-ascension/videos',
-          icon: Video,
-        },
-        {
-          label: 'Parents',
-          href: '/dashboard/kids-ascension/parents',
-          icon: UsersRound,
-        },
-        {
-          label: 'Kids',
-          href: '/dashboard/kids-ascension/kids',
-          icon: Baby,
-        },
-        {
-          label: 'Moderation',
-          href: '/dashboard/kids-ascension/moderation',
-          icon: CheckCircle2,
-        },
-      ],
-    },
-    {
-      title: 'Ozean Licht',
-      entityScope: 'ozean_licht',
-      items: [
-        {
-          label: 'Courses',
-          href: '/dashboard/ozean-licht/courses',
-          icon: BookOpen,
-        },
-        {
-          label: 'Members',
-          href: '/dashboard/ozean-licht/members',
-          icon: Users,
-        },
-        {
-          label: 'Content',
-          href: '/dashboard/ozean-licht/content',
-          icon: FileText,
-        },
-      ],
-    },
-    {
-      title: 'Settings',
-      items: [
-        {
-          label: 'Account',
-          href: '/dashboard/settings/account',
-          icon: Settings,
-        },
-        {
-          label: 'Team',
-          href: '/dashboard/settings/team',
+          href: '/dashboard/access/users',
           icon: Users,
         },
         {
           label: 'Permissions',
-          href: '/dashboard/permissions',
+          href: '/dashboard/access/permissions',
           icon: Lock,
         },
       ],
     },
     {
-      title: 'Examples',
+      title: 'System',
       items: [
         {
-          label: 'Data Table Demo',
-          href: '/dashboard/examples/data-table',
-          icon: Table,
+          label: 'Health',
+          href: '/dashboard/system/health',
+          icon: Activity,
         },
+      ],
+    },
+    {
+      title: 'Platforms',
+      items: [
+        // Future: Kids Ascension, Ozean Licht sections
+        // {
+        //   label: 'Kids Ascension',
+        //   href: '/dashboard/platforms/kids-ascension',
+        //   icon: Baby,
+        // },
+        // {
+        //   label: 'Ozean Licht',
+        //   href: '/dashboard/platforms/ozean-licht',
+        //   icon: BookOpen,
+        // },
       ],
     },
   ];

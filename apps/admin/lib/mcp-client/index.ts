@@ -6,10 +6,9 @@
 // Main client
 export { MCPGatewayClient } from './client';
 export { MCPGatewayClientWithQueries } from './queries';
-export { MCPStorageClient } from './storage';
 
-// Configuration
-export type { MCPClientConfig, ResolvedMCPClientConfig } from './config';
+// Configuration (now in client.ts)
+export type { MCPClientConfig, ResolvedMCPClientConfig } from './client';
 
 // Health utilities
 export {
@@ -19,13 +18,11 @@ export {
   checkDatabaseConnection,
 } from './health';
 
-// Error classes
+// Error classes (simplified to 3 types)
 export {
   MCPError,
-  MCPTimeoutError,
-  MCPConnectionError,
-  MCPValidationError,
-  MCPQueryError,
+  MCPClientError,
+  MCPServerError,
 } from './errors';
 
 // Types

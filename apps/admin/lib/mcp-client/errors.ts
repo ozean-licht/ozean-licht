@@ -1,5 +1,6 @@
 /**
  * MCP Gateway error classes
+ * Simplified to 3 error types for better clarity
  */
 
 /**
@@ -23,42 +24,25 @@ export class MCPError extends Error {
 }
 
 /**
- * Error thrown when MCP Gateway request times out
+ * Client-side error (4xx equivalent)
+ * Thrown when request validation fails or bad parameters provided
  */
-export class MCPTimeoutError extends MCPError {
-  constructor(message: string = 'Request timed out', data?: any) {
-    super(-32000, message, data);
-    this.name = 'MCPTimeoutError';
-  }
-}
-
-/**
- * Error thrown when MCP Gateway is unreachable
- */
-export class MCPConnectionError extends MCPError {
-  constructor(message: string = 'Connection failed', data?: any) {
-    super(-32001, message, data);
-    this.name = 'MCPConnectionError';
-  }
-}
-
-/**
- * Error thrown when request validation fails
- */
-export class MCPValidationError extends MCPError {
+export class MCPClientError extends MCPError {
   constructor(message: string, data?: any) {
     super(-32602, message, data);
-    this.name = 'MCPValidationError';
+    this.name = 'MCPClientError';
   }
 }
 
 /**
- * Error thrown when database query fails
+ * Server-side error (5xx equivalent)
+ * Thrown when MCP Gateway or database operations fail
+ * Includes: connection errors, timeouts, query failures
  */
-export class MCPQueryError extends MCPError {
+export class MCPServerError extends MCPError {
   constructor(message: string, data?: any) {
-    super(-32003, message, data);
-    this.name = 'MCPQueryError';
+    super(-32000, message, data);
+    this.name = 'MCPServerError';
   }
 }
 
@@ -75,8 +59,8 @@ export function parseError(error: any): MCPError {
   }
 
   if (error instanceof Error) {
-    return new MCPError(-32603, error.message);
+    return new MCPServerError(error.message);
   }
 
-  return new MCPError(-32603, 'Unknown error', error);
+  return new MCPServerError('Unknown error', error);
 }

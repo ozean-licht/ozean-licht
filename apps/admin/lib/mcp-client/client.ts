@@ -5,15 +5,104 @@
 
 import fetch from 'node-fetch';
 import { randomUUID } from 'crypto';
-import { MCPClientConfig, ResolvedMCPClientConfig, resolveConfig } from './config';
-import { MCPRequest, MCPResponse } from '../../types/mcp';
+import { MCPDatabase, MCPRequest, MCPResponse } from '../../types/mcp';
 import {
   MCPError,
-  MCPTimeoutError,
-  MCPConnectionError,
-  MCPQueryError,
+  MCPClientError,
+  MCPServerError,
   parseError,
 } from './errors';
+
+/**
+ * MCP Gateway Client configuration
+ */
+export interface MCPClientConfig {
+  /** Base URL of the MCP Gateway (default: http://localhost:8100) */
+  baseUrl?: string;
+  /** Target database name */
+  database: MCPDatabase;
+  /** Request timeout in milliseconds (default: 10000) */
+  timeout?: number;
+  /** Number of retry attempts for transient failures (default: 3) */
+  retries?: number;
+  /** Delay between retries in milliseconds (default: 1000) */
+  retryDelay?: number;
+}
+
+/**
+ * Resolved configuration with defaults applied
+ */
+export interface ResolvedMCPClientConfig {
+  baseUrl: string;
+  database: MCPDatabase;
+  timeout: number;
+  retries: number;
+  retryDelay: number;
+}
+
+/**
+ * Default configuration values
+ */
+export const DEFAULT_CONFIG: Omit<ResolvedMCPClientConfig, 'database'> = {
+  baseUrl: 'http://localhost:8100',
+  timeout: 10000,
+  retries: 3,
+  retryDelay: 1000,
+};
+
+/**
+ * Valid database names
+ */
+const VALID_DATABASES: MCPDatabase[] = [
+  'shared-users-db',
+  'kids-ascension-db',
+  'ozean-licht-db',
+];
+
+/**
+ * Validate and resolve configuration
+ */
+function resolveConfig(config: MCPClientConfig): ResolvedMCPClientConfig {
+  // Validate database
+  if (!VALID_DATABASES.includes(config.database)) {
+    throw new MCPClientError(
+      `Invalid database name: ${config.database}. Must be one of: ${VALID_DATABASES.join(', ')}`
+    );
+  }
+
+  // Validate baseUrl
+  if (config.baseUrl) {
+    try {
+      new URL(config.baseUrl);
+    } catch (error) {
+      throw new MCPClientError(`Invalid base URL: ${config.baseUrl}`);
+    }
+  }
+
+  // Validate timeout
+  if (config.timeout !== undefined && (config.timeout <= 0 || config.timeout > 60000)) {
+    throw new MCPClientError('Timeout must be between 1 and 60000 milliseconds');
+  }
+
+  // Validate retries
+  if (config.retries !== undefined && (config.retries < 0 || config.retries > 10)) {
+    throw new MCPClientError('Retries must be between 0 and 10');
+  }
+
+  // Validate retryDelay
+  if (config.retryDelay !== undefined && (config.retryDelay < 0 || config.retryDelay > 10000)) {
+    throw new MCPClientError('Retry delay must be between 0 and 10000 milliseconds');
+  }
+
+  // Return resolved config with defaults
+  return {
+    baseUrl: config.baseUrl || DEFAULT_CONFIG.baseUrl,
+    database: config.database,
+    timeout: config.timeout ?? DEFAULT_CONFIG.timeout,
+    retries: config.retries ?? DEFAULT_CONFIG.retries,
+    retryDelay: config.retryDelay ?? DEFAULT_CONFIG.retryDelay,
+  };
+}
 
 /**
  * MCP Gateway Client
@@ -57,30 +146,6 @@ export class MCPGatewayClient {
   }
 
   /**
-   * Execute multiple operations in a transaction
-   * @param callback Transaction callback
-   * @returns Result of the callback
-   */
-  async transaction<T>(callback: (client: MCPGatewayClient) => Promise<T>): Promise<T> {
-    // Start transaction
-    await this.execute('BEGIN');
-
-    try {
-      // Execute callback
-      const result = await callback(this);
-
-      // Commit transaction
-      await this.execute('COMMIT');
-
-      return result;
-    } catch (error) {
-      // Rollback on error
-      await this.execute('ROLLBACK');
-      throw error;
-    }
-  }
-
-  /**
    * Low-level request method
    * Handles JSON-RPC communication with MCP Gateway
    */
@@ -118,7 +183,7 @@ export class MCPGatewayClient {
 
       // Parse response
       if (!response.ok) {
-        throw new MCPConnectionError(
+        throw new MCPServerError(
           `MCP Gateway returned ${response.status}: ${response.statusText}`
         );
       }
@@ -127,17 +192,17 @@ export class MCPGatewayClient {
 
       // Check for JSON-RPC error
       if (data.error) {
-        throw new MCPQueryError(data.error.message, data.error.data);
+        throw new MCPServerError(data.error.message, data.error.data);
       }
 
       // Check for result
       if (!data.result) {
-        throw new MCPError(-32603, 'Invalid response: missing result');
+        throw new MCPServerError('Invalid response: missing result');
       }
 
       // Check result status
       if (data.result.status === 'error') {
-        throw new MCPQueryError('Query failed', data.result.data);
+        throw new MCPServerError('Query failed', data.result.data);
       }
 
       return data.result.data;
@@ -149,7 +214,7 @@ export class MCPGatewayClient {
           await this._sleep(this.config.retryDelay);
           return this._request<T>(operation, params, retryCount + 1);
         }
-        throw new MCPTimeoutError(`Request timed out after ${this.config.timeout}ms`);
+        throw new MCPServerError(`Request timed out after ${this.config.timeout}ms`);
       }
 
       // Handle network errors
@@ -159,7 +224,7 @@ export class MCPGatewayClient {
           await this._sleep(this.config.retryDelay);
           return this._request<T>(operation, params, retryCount + 1);
         }
-        throw new MCPConnectionError('Failed to connect to MCP Gateway', {
+        throw new MCPServerError('Failed to connect to MCP Gateway', {
           baseUrl: this.config.baseUrl,
           error: error.message,
         });
