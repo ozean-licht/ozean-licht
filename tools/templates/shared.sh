@@ -45,9 +45,15 @@ print_navigation() {
     local next="${3:-}"
 
     echo ""
-    echo -e "${CYAN}Current:${NC} $current"
-    [ -n "$previous" ] && echo -e "${CYAN}Back:${NC} bash $previous"
-    [ -n "$next" ] && echo -e "${CYAN}Next:${NC} $next"
+    if [[ -n "${NO_COLOR}" ]] || [[ "${TERM}" == "dumb" ]]; then
+        echo "Current: $current"
+        [ -n "$previous" ] && echo "Back: bash $previous"
+        [ -n "$next" ] && echo "Next: $next"
+    else
+        echo -e "${CYAN}Current:${NC} $current"
+        [ -n "$previous" ] && echo -e "${CYAN}Back:${NC} bash $previous"
+        [ -n "$next" ] && echo -e "${CYAN}Next:${NC} $next"
+    fi
     echo ""
 }
 
