@@ -1,74 +1,120 @@
-# Shared UI Components Upgrade Plan
+# Shared UI Components - Master Roadmap
 
-**Version:** 1.1.0
-**Date:** 2025-11-11
-**Status:** Phase 2 Complete ✅
+**Version:** 2.0.0
+**Last Updated:** 2025-11-11
+**Current Phase:** Phase 3 Ready
+**Status:** Phases 1-2 Complete ✅
 
 ---
 
 ## Executive Summary
 
-Upgrade `/shared/ui-components` to establish a **three-tier component architecture**:
+Master plan for upgrading `/shared/ui-components` with a **three-tier component architecture**:
 
-1. **Tier 1 - Base Layer**: shadcn/ui primitives (headless, accessible)
-2. **Tier 2 - Brand Layer**: Ozean Licht branded components
-3. **Tier 3 - Context Layer**: Application-specific compositions
+1. **Tier 1 - Base Layer**: 47 shadcn/ui primitives + 11 Catalyst layouts ✅
+2. **Tier 2 - Brand Layer**: Ozean Licht branded components (In Progress)
+3. **Tier 3 - Context Layer**: Application-specific compositions (Planned)
 
-**Goal**: Create a unified component library that serves both Ozean Licht AND Kids Ascension with proper branding separation.
-
----
-
-## Current State Analysis
-
-### Existing Components in Ozean Licht App
-
-Located in `apps/ozean-licht/components/`:
-
-**Branded Components (High Quality):**
-- `cta-button.tsx` - Gradient button with turquoise primary (#0ec2bc)
-- `layout/badge.tsx` - Glow effect badge with Montserrat Alternates
-- `layout/course-card-modern.tsx` - Complex card with Cinzel Decorative
-- `layout/header.tsx` - Navigation with glass effects
-- `layout/footer.tsx` - Footer with branding
-- Form components (login, password-reset, magic-link)
-- Video player with custom styling
-
-**Branding Elements Used:**
-- Primary: `#0ec2bc` (turquoise)
-- Background: `#001212`, `#0A0F1A` (cosmic dark)
-- Fonts: `Cinzel Decorative`, `Montserrat`, `Montserrat Alternates`
-- Effects: Glass morphism, gradients, glows, shadows
-- Already using shadcn/ui Button (imported from `@/components/ui/button`)
-
-### Current /shared/ui-components
-
-**What Exists:**
-- Basic tokens (colors, typography, spacing, animations)
-- Simple components (Button, Card, Badge, Input, Select)
-- Global styles with glass effects
-- Utility functions (cn)
-
-**What's Missing:**
-- Proper shadcn/ui integration
-- Full component catalog
-- Storybook for visual testing
-- Proper brand theming system
-- Kids Ascension theme overrides
-
-### Problems to Solve
-
-1. **Download Script Failing**: Permission error on log file owned by root
-2. **No shadcn Setup**: Not properly initialized in /shared
-3. **Incomplete Components**: Missing many essential UI primitives
-4. **No Multi-Brand Support**: Can't easily switch between OL and KA themes
-5. **Code Duplication**: Components duplicated across apps
-6. **No Visual Testing**: No Storybook or component playground
+**Goal**: Create a unified component library serving both Ozean Licht AND Kids Ascension with proper branding separation.
 
 ---
 
-## Proposed Architecture
+## Completed Work (Phases 1-2)
 
-### Three-Tier Component System
+### Phase 1: Catalyst Integration ✅ COMPLETE
+
+**Date:** 2025-11-11
+**Duration:** ~3 hours
+**Investment:** $250 (Catalyst UI Kit)
+
+**What Was Built:**
+- ✅ 11 Premium Catalyst components with Ozean Licht branding
+- ✅ Complete dashboard layouts (SidebarLayout, StackedLayout, AuthLayout)
+- ✅ Navigation components (Navbar, Sidebar) with glass effects
+- ✅ Advanced components (Table with striping, Combobox autocomplete)
+- ✅ Typography components (Heading, Text)
+- ✅ Button with turquoise color variants
+
+**Technical Details:**
+```typescript
+// Catalyst components use Headless UI (not Radix)
+import { SidebarLayout } from '@ozean-licht/shared-ui/catalyst/layouts'
+import { Navbar, Sidebar, Button } from '@ozean-licht/shared-ui/catalyst/navigation'
+import { Table } from '@ozean-licht/shared-ui/catalyst/data'
+import { Combobox } from '@ozean-licht/shared-ui/catalyst/forms'
+import { Heading, Text } from '@ozean-licht/shared-ui/catalyst/typography'
+```
+
+**Branding Applied:**
+- Primary color: `#0ec2bc` (turquoise)
+- Glass effects: `glass-card-strong + backdrop-blur-lg`
+- Borders: `border-primary/20`
+- Current indicators: `bg-primary + glow-subtle`
+- Hover states: `bg-primary/10`
+
+**Dependencies Added:**
+- `@headlessui/react@^2.2.9`
+- `motion@^12.23.24`
+
+**File Structure:**
+```
+src/catalyst/
+├── layouts/          # SidebarLayout, StackedLayout, AuthLayout
+├── navigation/       # Navbar, Sidebar, Button, Link
+├── data/            # Table
+├── forms/           # Combobox
+└── typography/      # Heading, Text
+```
+
+### Phase 2: shadcn/ui Base Components ✅ COMPLETE
+
+**Date:** 2025-11-11
+**Component Count:** 47 primitives
+**Status:** Production-ready
+
+**What Was Built:**
+- ✅ All 47 shadcn/ui primitive components installed
+- ✅ Complete Radix UI integration
+- ✅ Zero TypeScript compilation errors
+- ✅ Full type safety and exports configured
+
+**Component Inventory (47 total):**
+
+**Form Components (12):**
+Button, Input, Select, Checkbox, RadioGroup, Switch, Textarea, Form, Label, Slider, InputOtp, Sonner
+
+**Layout Components (7):**
+Card, Separator, Skeleton, AspectRatio, ScrollArea, Resizable, Collapsible
+
+**Navigation Components (7):**
+Tabs, DropdownMenu, NavigationMenu, Breadcrumb, Menubar, Command, Pagination
+
+**Overlay Components (8):**
+Dialog, Sheet, Popover, Tooltip, HoverCard, AlertDialog, ContextMenu, Drawer
+
+**Feedback Components (4):**
+Toast, Toaster, Alert, Progress
+
+**Data Display Components (4):**
+Table, Badge, Avatar, Accordion
+
+**Advanced Components (5):**
+Calendar, Carousel, Chart, Toggle, ToggleGroup
+
+**Usage:**
+```typescript
+// Import shadcn primitives
+import { Button, Card, Input, Dialog } from '@ozean-licht/shared-ui/ui'
+```
+
+**Key Fixes:**
+- Fixed 5 TypeScript import errors in Catalyst components
+- Verified all exports work correctly
+- Created comprehensive index files
+
+---
+
+## Three-Tier Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -79,493 +125,416 @@ Located in `apps/ozean-licht/components/`:
 └─────────────────────────────────────────────────────────────┘
                             ↓ imports
 ┌─────────────────────────────────────────────────────────────┐
-│  Tier 3: Context Layer (Application-Specific Compositions)  │
-│  Location: /shared/ui-components/src/compositions/         │
+│  Tier 3: Context Layer (Application Compositions)           │
+│  Location: /src/compositions/                               │
 │  - CourseCard, TestimonialCard, PricingTable, etc.        │
 │  - Pre-built sections and patterns                         │
-│  - Composed from Tier 2 components                         │
 │  - Export: @ozean-licht/shared-ui/compositions             │
 └─────────────────────────────────────────────────────────────┘
                             ↓ uses
 ┌─────────────────────────────────────────────────────────────┐
-│  Tier 2: Brand Layer (Ozean Licht Branded Components)      │
-│  Location: /shared/ui-components/src/components/           │
-│  - Applies Ozean Licht branding to Tier 1 primitives       │
+│  Tier 2: Brand Layer (Ozean Licht Branded)                 │
+│  Location: /src/components/                                 │
+│  - Applies OL branding to Tier 1 primitives                │
 │  - Uses design tokens for theming                          │
 │  - Examples: BrandedButton, GlassCard, CosmicBadge        │
 │  - Export: @ozean-licht/shared-ui (default)                │
 └─────────────────────────────────────────────────────────────┘
                             ↓ extends
 ┌─────────────────────────────────────────────────────────────┐
-│  Tier 1: Base Layer (shadcn/ui Primitives)                 │
-│  Location: /shared/ui-components/src/ui/                   │
-│  - Headless, accessible, unstyled primitives               │
-│  - Radix UI components via shadcn                          │
-│  - Examples: Button, Dialog, Dropdown, Tabs, etc.         │
+│  Tier 1: Base Layer (Primitives)                           │
+│  Location: /src/ui/ + /src/catalyst/                       │
+│  - 47 shadcn/ui components (Radix UI)                      │
+│  - 11 Catalyst components (Headless UI)                    │
 │  - Export: @ozean-licht/shared-ui/ui                       │
+│  - Export: @ozean-licht/shared-ui/catalyst                 │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### New Folder Structure
+---
+
+## Current File Structure
 
 ```
 shared/ui-components/
 ├── src/
-│   ├── ui/                           # TIER 1: shadcn primitives
-│   │   ├── button.tsx                # Base button (headless)
-│   │   ├── card.tsx                  # Base card
-│   │   ├── dialog.tsx                # Modal/dialog
-│   │   ├── dropdown-menu.tsx         # Dropdown
-│   │   ├── input.tsx                 # Form input
-│   │   ├── select.tsx                # Select dropdown
-│   │   ├── tabs.tsx                  # Tabs component
-│   │   ├── tooltip.tsx               # Tooltip
-│   │   ├── badge.tsx                 # Badge primitive
-│   │   ├── avatar.tsx                # Avatar component
-│   │   ├── skeleton.tsx              # Loading skeleton
-│   │   └── ...                       # 40+ shadcn components
-│   │
-│   ├── components/                   # TIER 2: Branded components
-│   │   ├── Button.tsx                # OL branded button
-│   │   ├── Card.tsx                  # Glass card with OL theme
-│   │   ├── Badge.tsx                 # Glow badge with gradients
-│   │   ├── Input.tsx                 # Styled input
-│   │   ├── Select.tsx                # Styled select
-│   │   ├── Dialog.tsx                # Cosmic dialog
-│   │   ├── Navigation.tsx            # Glass navigation
-│   │   ├── Hero.tsx                  # Hero section
-│   │   └── index.ts
-│   │
-│   ├── compositions/                 # TIER 3: Complex patterns
-│   │   ├── CourseCard.tsx            # Complete course card
-│   │   ├── TestimonialCard.tsx       # Testimonial display
-│   │   ├── PricingCard.tsx           # Pricing table card
-│   │   ├── FeatureSection.tsx        # Feature showcase
-│   │   ├── CTASection.tsx            # Call-to-action
-│   │   ├── AuthForms.tsx             # Login/signup forms
-│   │   └── index.ts
-│   │
-│   ├── tokens/                       # Design tokens
-│   │   ├── ozean-licht/              # OL theme tokens
-│   │   │   ├── colors.ts
-│   │   │   ├── typography.ts
-│   │   │   ├── spacing.ts
-│   │   │   └── effects.ts
-│   │   ├── kids-ascension/           # KA theme tokens
-│   │   │   ├── colors.ts
-│   │   │   ├── typography.ts
-│   │   │   └── spacing.ts
-│   │   └── index.ts
-│   │
-│   ├── themes/                       # Theme configurations
-│   │   ├── ozean-licht.ts            # OL theme config
-│   │   ├── kids-ascension.ts         # KA theme config
-│   │   ├── ThemeProvider.tsx         # Theme context
-│   │   └── index.ts
-│   │
-│   ├── hooks/                        # React hooks
-│   │   ├── use-theme.ts
-│   │   ├── use-media-query.ts
-│   │   ├── use-toast.ts
-│   │   └── index.ts
-│   │
-│   ├── utils/                        # Utilities
-│   │   ├── cn.ts                     # Class merger
-│   │   ├── colors.ts                 # Color utilities
-│   │   └── index.ts
-│   │
-│   ├── styles/                       # Global styles
-│   │   ├── globals.css               # Base styles
-│   │   ├── ozean-licht.css           # OL theme styles
-│   │   ├── kids-ascension.css        # KA theme styles
-│   │   └── animations.css            # Animation keyframes
-│   │
-│   └── index.ts                      # Main exports
-│
-├── .storybook/                       # Storybook config
-│   ├── main.ts
-│   ├── preview.ts
-│   └── manager.ts
-│
-├── stories/                          # Component stories
-│   ├── ui/                           # Tier 1 stories
-│   ├── components/                   # Tier 2 stories
-│   └── compositions/                 # Tier 3 stories
-│
-├── tailwind-plus/                    # Tailwind Plus downloads
-│   ├── components/                   # Downloaded components
-│   │   ├── full-catalog.json         # Complete download
-│   │   └── filtered/                 # Filtered components
-│   ├── scripts/                      # Download scripts
-│   │   └── download.sh               # Fixed download script
-│   └── docs/
-│       └── catalog.md                # Component catalog
-│
-├── docs/                             # Documentation
-│   ├── getting-started.md
-│   ├── theming.md
-│   ├── components/
-│   │   ├── button.md
-│   │   ├── card.md
-│   │   └── ...
-│   └── patterns/
-│       ├── forms.md
-│       ├── layouts.md
-│       └── navigation.md
-│
-├── components.json                   # shadcn config
-├── tailwind.config.js                # Tailwind config
+│   ├── ui/                      # 47 shadcn primitives ✅
+│   ├── catalyst/                # 11 Catalyst components ✅
+│   │   ├── layouts/
+│   │   ├── navigation/
+│   │   ├── data/
+│   │   ├── forms/
+│   │   └── typography/
+│   ├── components/              # Branded components (Phase 3)
+│   ├── compositions/            # Complex patterns (Phase 4)
+│   ├── tokens/                  # Design tokens ✅
+│   │   └── ozean-licht/
+│   ├── themes/                  # Theme configurations
+│   ├── hooks/                   # React hooks
+│   ├── utils/                   # Utilities ✅
+│   ├── styles/                  # Global styles ✅
+│   │   └── globals.css
+│   └── index.ts
+├── catalyst-ui/                 # Original Catalyst files (reference)
+├── package.json                 # ✅ Exports configured
 ├── tsconfig.json
-├── package.json
-└── README.md
+├── tailwind.config.js
+├── README.md                    # Package documentation
+└── UPGRADE_PLAN.md             # This file
 ```
 
 ---
 
-## Implementation Phases
-
-### Phase 1: Foundation Setup (2-3 hours)
-
-**Goal**: Fix issues and establish base infrastructure
-
-**Tasks:**
-1. ✅ Fix Tailwind Plus download script permission error
-2. ✅ Initialize shadcn/ui properly in /shared
-3. ✅ Set up Storybook for visual development
-4. ✅ Create theme system with multi-brand support
-5. ✅ Establish build pipeline
-
-**Deliverables:**
-- Working download script
-- shadcn/ui installed with 10+ base components
-- Storybook running on localhost:6006
-- Theme provider supporting OL + KA
-- Build outputs to `dist/`
-
-### Phase 2: Tier 1 - Base Components ✅ COMPLETE
-
-**Goal**: Install and configure all shadcn/ui primitives
-
-**Status:** ✅ Complete (2025-11-11)
-
-**Completed Tasks:**
-1. ✅ Installed 47 shadcn components:
-   - Form: Button, Input, Select, Checkbox, Radio, Switch, Textarea, Form, Label, Slider, InputOtp, Sonner
-   - Layout: Card, Separator, Skeleton, AspectRatio, ScrollArea, Resizable, Collapsible
-   - Navigation: Tabs, Dropdown, NavigationMenu, Breadcrumb, Menubar, Command, Pagination
-   - Overlay: Dialog, Sheet, Popover, Tooltip, HoverCard, AlertDialog, ContextMenu, Drawer
-   - Feedback: Toast, Toaster, Alert, Progress
-   - Data: Table, Badge, Avatar, Accordion
-   - Advanced: Calendar, Carousel, Chart, Toggle, ToggleGroup
-2. ✅ Verified components.json configuration
-3. ✅ Fixed TypeScript compilation errors (5 fixes)
-4. ✅ Created comprehensive documentation
-
-**Deliverables:**
-- ✅ All 47 shadcn components in `/src/ui/`
-- ✅ Index exports at `/src/ui/index.ts`
-- ✅ Zero TypeScript errors
-- ✅ Production-ready build
-- ✅ Documentation: PHASE_2_COMPLETION_REPORT.md
-- ✅ Quick start guide: QUICK_START_SHADCN.md
-- ✅ Verification script: verify-phase2.sh
-
-**Report:** See `PHASE_2_COMPLETION_REPORT.md` for full details
+## Upcoming Phases
 
 ### Phase 3: Tier 2 - Branded Components (4-5 hours)
 
-**Goal**: Create Ozean Licht branded versions
+**Goal:** Create Ozean Licht branded wrapper components
+
+**Status:** 🔜 Ready to Start
+
+**Priority Components (Week 1):**
+1. **Button** - Cosmic button with glow effects and variants
+2. **Card** - Glass card with backdrop blur
+3. **Input** - Themed input with turquoise focus ring
+4. **Dialog** - Modal with glass background
+5. **Badge** - Badge with glow effect
+
+**Migration from ozean-licht app:**
+- `cta-button.tsx` → Button variant="cta"
+- `layout/badge.tsx` → Badge with glow
+- `layout/header.tsx` → Navigation component
+- `layout/footer.tsx` → Footer component
 
 **Tasks:**
-1. Migrate existing components from ozean-licht app:
-   - CtaButton → Button (with variant="cta")
-   - Badge (with glow effects)
-   - CourseCard → composition layer
-2. Create branded wrappers for shadcn components:
-   - Apply glass effects
-   - Add turquoise accents
-   - Use Cinzel Decorative + Montserrat
-   - Add cosmic dark theme
-3. Build new components:
-   - Navigation with glass effect
-   - Hero section
-   - Footer component
-4. Create Storybook stories with OL theme
+1. Create `/src/components/` directory
+2. Build branded Button extending shadcn Button
+3. Create GlassCard component with effects
+4. Implement themed Input with focus glow
+5. Build Dialog with cosmic backdrop
+6. Create Badge with glow animations
 
 **Deliverables:**
-- 20+ branded components
-- All components themed for Ozean Licht
-- Storybook showcasing branding
-- Component documentation
+- 20+ branded components in `/src/components/`
+- All use Ozean Licht design tokens
+- Export from `@ozean-licht/shared-ui` (default)
 
 ### Phase 4: Tier 3 - Compositions (3-4 hours)
 
-**Goal**: Build complex, pre-composed patterns
+**Goal:** Build complex, pre-composed patterns
 
-**Tasks:**
-1. Extract complex components from ozean-licht:
-   - CourseCardModern → CourseCard composition
-   - TestimonialCard
-   - Auth forms (Login, PasswordReset, MagicLink)
-2. Create new compositions:
-   - PricingCard
-   - FeatureSection
-   - CTASection
-   - BlogCard
-3. Build layout templates:
-   - DashboardLayout
-   - MarketingLayout
-   - AuthLayout
+**Status:** Planned
+
+**Components to Build:**
+- CourseCard (from ozean-licht CourseCardModern)
+- TestimonialCard
+- PricingCard
+- FeatureSection
+- CTASection
+- AuthForms (Login, PasswordReset, MagicLink)
+- BlogCard
+
+**Layout Templates:**
+- DashboardLayout (using Catalyst SidebarLayout)
+- MarketingLayout
+- AuthLayout (using Catalyst AuthLayout)
 
 **Deliverables:**
 - 15+ composition components
 - Layout templates
-- Storybook stories
 - Usage examples
 
 ### Phase 5: Tailwind Plus Integration (2-3 hours)
 
-**Goal**: Download and integrate Tailwind Plus components
+**Goal:** Download and integrate Tailwind Plus components
+
+**Status:** Planned (Optional)
 
 **Tasks:**
-1. Fix download script and download full catalog
-2. Filter components for relevance:
-   - Marketing sections (heroes, features, CTAs)
-   - E-commerce (product cards, pricing)
-   - Application UI (dashboards, tables, forms)
-3. Convert selected components to React + Ozean Licht branding
-4. Document Tailwind Plus + shadcn synergy
-
-**Deliverables:**
-- Full Tailwind Plus catalog downloaded
-- 20-30 converted components
-- Documentation on usage
+1. Download full Tailwind Plus catalog
+2. Filter relevant components
+3. Convert to React + OL branding
+4. Document integration
 
 ### Phase 6: Kids Ascension Theme (2-3 hours)
 
-**Goal**: Create second brand theme
+**Goal:** Create second brand theme
+
+**Status:** Planned
 
 **Tasks:**
-1. Define Kids Ascension design tokens:
-   - Bright, playful colors
-   - Kid-friendly fonts
-   - Light background theme
+1. Define KA design tokens (bright, playful colors)
 2. Create theme overrides
 3. Test all components with KA theme
 4. Document theme switching
 
-**Deliverables:**
-- Kids Ascension theme fully functional
-- All components work with both themes
-- Theme switching documentation
-
 ### Phase 7: Documentation & Testing (3-4 hours)
 
-**Goal**: Comprehensive docs and quality assurance
+**Goal:** Comprehensive docs and QA
+
+**Status:** Planned
 
 **Tasks:**
-1. Write component documentation
-2. Create usage examples
-3. Build component playground
-4. Write tests for critical components
+1. Set up Storybook
+2. Write component documentation
+3. Create usage examples
+4. Write tests for core components
 5. Accessibility audit (WCAG AA)
 6. Performance optimization
 
-**Deliverables:**
-- Complete documentation site
-- Passing tests
-- Accessibility compliance
-- Performance benchmarks
+---
+
+## Quick Reference
+
+### Import Patterns
+
+```typescript
+// Tier 1: Base primitives
+import { Button, Card, Input } from '@ozean-licht/shared-ui/ui'
+import { SidebarLayout, Navbar } from '@ozean-licht/shared-ui/catalyst'
+
+// Tier 2: Branded components (Phase 3)
+import { Button, Card, Badge } from '@ozean-licht/shared-ui'
+
+// Tier 3: Compositions (Phase 4)
+import { CourseCard, PricingTable } from '@ozean-licht/shared-ui/compositions'
+
+// Design tokens
+import { colors, typography } from '@ozean-licht/shared-ui/tokens'
+
+// Styles
+import '@ozean-licht/shared-ui/styles'
+```
+
+### Catalyst Quick Start
+
+```typescript
+// Dashboard with glass sidebar
+import { SidebarLayout } from '@ozean-licht/shared-ui/catalyst/layouts'
+import { Sidebar, SidebarBody, SidebarItem } from '@ozean-licht/shared-ui/catalyst/navigation'
+
+<SidebarLayout
+  navbar={<YourNavbar />}
+  sidebar={
+    <Sidebar>
+      <SidebarBody>
+        <SidebarItem href="/dashboard">Dashboard</SidebarItem>
+      </SidebarBody>
+    </Sidebar>
+  }
+>
+  {children}
+</SidebarLayout>
+```
+
+### shadcn Quick Start
+
+```typescript
+// Use primitives directly
+import { Button, Card, Input } from '@ozean-licht/shared-ui/ui'
+
+<Card className="p-6 glass-card">
+  <Input type="email" placeholder="Email..." />
+  <Button>Submit</Button>
+</Card>
+```
 
 ---
 
-## Quick Start: Immediate Actions
+## Design Tokens
 
-### Action 1: Fix Download Script (5 minutes)
+### Ozean Licht Theme (Default)
 
-```bash
-# Remove root-owned log file
-cd /opt/ozean-licht-ecosystem/shared/ui-components/tailwind-download
-sudo rm -f tailwindplus-download.log
+```typescript
+// Colors
+primary: '#0ec2bc'          // Turquoise
+background: '#0A0F1A'        // Cosmic dark
+card: '#1A1F2E'             // Card background
 
-# Make script executable
-chmod +x run-download.sh
+// Fonts
+decorative: 'Cinzel Decorative'
+serif: 'Cinzel'
+sans: 'Montserrat'
+alt: 'Montserrat Alternates'
 
-# Update script to handle permissions better
+// Effects
+glass-card                   // Standard glass morphism
+glass-card-strong           // Enhanced glass
+glass-subtle                // Subtle glass
+glow                        // Turquoise glow
 ```
 
-### Action 2: Initialize shadcn (10 minutes)
+### Kids Ascension Theme (Planned)
 
-```bash
-cd /opt/ozean-licht-ecosystem/shared/ui-components
+```typescript
+// Colors (TBD)
+primary: '#FF6B6B'          // Bright, playful
+background: '#FFFFFF'        // Light background
 
-# Initialize shadcn
-npx shadcn@latest init
-
-# Install core components
-npx shadcn@latest add button card input select dialog dropdown-menu tabs badge avatar skeleton
+// Fonts (TBD)
+decorative: 'Comic Sans MS' // Kid-friendly
 ```
-
-### Action 3: Set Up Storybook (15 minutes)
-
-```bash
-cd /opt/ozean-licht-ecosystem/shared/ui-components
-
-# Install Storybook
-npx storybook@latest init
-
-# Install addons
-npm install --save-dev @storybook/addon-themes @storybook/addon-a11y
-```
-
-### Action 4: Create Theme System (20 minutes)
-
-Create `/src/themes/ozean-licht.ts` with design tokens
-Create `/src/themes/ThemeProvider.tsx` for theme context
-Update tailwind.config.js with theme variables
 
 ---
 
 ## Success Metrics
 
-### Quantitative
-- ✅ 40+ shadcn base components installed
-- ✅ 20+ branded Ozean Licht components
-- ✅ 15+ composition patterns
-- ✅ 2 complete theme systems (OL + KA)
-- ✅ 100% Storybook coverage
-- ✅ WCAG AA accessibility compliance
-- ✅ < 100kb bundle size (tree-shakeable)
+**Quantitative:**
+- ✅ 47 shadcn components installed
+- ✅ 11 Catalyst components integrated
+- 🔜 20+ branded OL components (Phase 3)
+- 🔜 15+ composition patterns (Phase 4)
+- 🔜 2 complete theme systems (OL + KA)
+- 🔜 100% Storybook coverage (Phase 7)
+- 🔜 WCAG AA accessibility compliance
 
-### Qualitative
-- ✅ Developers can build new features 3x faster
-- ✅ Consistent branding across all applications
-- ✅ Easy theme switching for Kids Ascension
-- ✅ Reduced code duplication
-- ✅ Better documentation and discoverability
-- ✅ Agentic AI can easily compose UIs from catalog
-
----
-
-## Migration Strategy
-
-### For Ozean Licht App
-
-**Before:**
-```typescript
-import { Button } from "@/components/ui/button"
-import { CourseCardModern } from "@/components/layout/course-card-modern"
-```
-
-**After:**
-```typescript
-import { Button } from "@ozean-licht/shared-ui"
-import { CourseCard } from "@ozean-licht/shared-ui/compositions"
-```
-
-**Migration Steps:**
-1. Install updated shared-ui package
-2. Replace local component imports with shared imports
-3. Remove duplicated components from app
-4. Test thoroughly
-5. Clean up unused code
-
-### For Admin Dashboard
-
-**Before:**
-```typescript
-// Custom components in apps/admin/components/
-```
-
-**After:**
-```typescript
-import { Button, Card, Dialog } from "@ozean-licht/shared-ui"
-import { DashboardLayout } from "@ozean-licht/shared-ui/compositions"
-```
-
-### For Kids Ascension (Future)
-
-```typescript
-import { ThemeProvider } from "@ozean-licht/shared-ui/themes"
-import { Button, Card } from "@ozean-licht/shared-ui"
-
-function App() {
-  return (
-    <ThemeProvider theme="kids-ascension">
-      {/* All components auto-theme */}
-      <Button>Kid-Friendly Button</Button>
-    </ThemeProvider>
-  )
-}
-```
+**Qualitative:**
+- ✅ Zero TypeScript errors
+- ✅ Production-ready builds
+- ✅ Consistent Ozean Licht branding
+- 🔜 3x faster feature development
+- 🔜 Reduced code duplication
+- 🔜 Easy theme switching for KA
 
 ---
 
-## Risk Mitigation
+## Review Results
 
-### Risks
+**Code Review Score:** 8.75/10
+**Status:** Production-ready
+**Date:** 2025-11-11
 
-1. **Breaking Changes**: Existing apps depend on current structure
-   - **Mitigation**: Gradual migration, maintain backward compatibility
+**Findings:**
+- 🚨 Blockers: 0
+- ⚠️ High Risk: 0
+- ⚡ Medium Risk: 5 (optimization opportunities)
+- 💡 Low Risk: 4 (quality improvements)
 
-2. **Bundle Size**: Adding more components increases size
-   - **Mitigation**: Tree-shaking, lazy loading, code splitting
+**Top Recommendations:**
+1. Replace hardcoded colors with CSS variables (1 hour)
+2. Add unit tests for Catalyst components (1 day)
+3. Set up Storybook for visual testing (2-3 days)
 
-3. **Theme Conflicts**: OL and KA themes might conflict
-   - **Mitigation**: Isolated theme scopes, CSS variables
-
-4. **Learning Curve**: Developers need to learn new system
-   - **Mitigation**: Comprehensive docs, examples, Storybook
+**Full Report:** `app_review/review_catalyst-shadcn-integration_2025-11-11_23-45.md`
 
 ---
 
 ## Timeline
 
-**Total Estimated Time**: 20-25 hours of focused development
+**Completed:**
+- ✅ Phase 1: Catalyst Integration (Nov 11, 2025)
+- ✅ Phase 2: shadcn Base Components (Nov 11, 2025)
 
 **Recommended Schedule:**
-- **Week 1**: Phases 1-3 (Foundation + Base + Branded)
-- **Week 2**: Phases 4-5 (Compositions + Tailwind Plus)
-- **Week 3**: Phases 6-7 (KA Theme + Docs + Testing)
+- **Week 1:** Phase 3 (Branded Components)
+- **Week 2:** Phase 4 (Compositions) + Phase 5 (Tailwind Plus)
+- **Week 3:** Phase 6 (KA Theme) + Phase 7 (Docs + Testing)
 
 **Fast Track (Priority):**
-- **Day 1**: Phase 1 (Foundation) - Get unblocked
-- **Day 2**: Phase 2 (Base Components) - Essential primitives
-- **Day 3**: Phase 3 (Branded Components) - OL identity
-- Rest can be done incrementally
+- **Today:** Start Phase 3 - core branded components
+- **Tomorrow:** Button, Card, Input, Dialog branded
+- **Day 3:** Badge, remaining components + migration
 
 ---
 
-## Next Steps
+## Next Actions
 
-**Immediate (Next 30 minutes):**
-1. ✅ Approve this plan
-2. ✅ Fix download script permission error
-3. ✅ Initialize shadcn in /shared/ui-components
-4. ✅ Install first 10 components
+### Immediate (Phase 3 Start)
 
-**Short Term (Next 2 days):**
-1. Set up Storybook
-2. Create theme system
-3. Install all shadcn components
-4. Start building branded components
+1. **Create branded Button:**
+   ```bash
+   # Extend shadcn Button with OL branding
+   # Add cosmic theme, glow effects
+   # Support all variants + new "cta" variant
+   ```
 
-**Medium Term (Next 2 weeks):**
-1. Complete all three tiers
-2. Download Tailwind Plus catalog
-3. Build Kids Ascension theme
-4. Write documentation
+2. **Create GlassCard:**
+   ```bash
+   # Extend shadcn Card
+   # Apply glass-card-strong by default
+   # Add hover glow option
+   ```
+
+3. **Create themed Input:**
+   ```bash
+   # Extend shadcn Input
+   # Turquoise focus ring
+   # Glass background
+   ```
+
+### Migration Strategy
+
+**From ozean-licht app to shared:**
+```typescript
+// Before
+import { Button } from "@/components/ui/button"
+import { CourseCardModern } from "@/components/layout/course-card-modern"
+
+// After (Phase 3)
+import { Button } from "@ozean-licht/shared-ui"
+import { CourseCard } from "@ozean-licht/shared-ui/compositions"
+```
 
 ---
 
-## Questions & Decisions Needed
+## Dependencies
 
-1. **Storybook Deployment**: Should we deploy Storybook to public URL for team collaboration?
-2. **Component Naming**: Prefer descriptive names (GlassCard) or generic (Card)?
-3. **Kids Ascension Priority**: Build KA theme now or later?
-4. **Tailwind Plus**: Download full catalog or selective components first?
-5. **Database README**: Should we update it? What needs changing?
+**Installed:**
+- `@headlessui/react@^2.2.9` (Catalyst)
+- `motion@^12.23.24` (Catalyst animations)
+- `@radix-ui/*` (24 packages for shadcn)
+- `clsx@^2.1.0` (class merging)
+- `tailwind-merge@^2.2.0` (Tailwind class merging)
+- `class-variance-authority@^0.7.1` (variant handling)
+- Plus 15+ other shadcn dependencies
+
+**Total Bundle Size:** ~130KB (Catalyst + shadcn + dependencies)
+**Tree-shakeable:** Yes ✅
 
 ---
 
-**Ready to proceed?** Let's start with Phase 1: Foundation Setup!
+## Documentation
+
+**Package Documentation:**
+- `README.md` - Package overview and usage guide
+
+**This Roadmap:**
+- `UPGRADE_PLAN.md` - Master plan (this file)
+
+**Additional Resources:**
+- `/design-system.md` - Complete design system documentation
+- `/BRANDING.md` - Brand identity and guidelines
+- `app_review/` - Code review reports
+
+---
+
+## Notes
+
+**Catalyst vs shadcn:**
+- **Catalyst:** Use for layouts, navigation, advanced tables
+- **shadcn:** Use for primitives, forms, overlays, feedback
+- **Best Approach:** Use both together (complementary)
+
+**Headless UI vs Radix UI:**
+- Both are production-ready
+- Both have excellent accessibility
+- No conflicts when used together
+- Different API patterns but both work well
+
+**Build Commands:**
+```bash
+pnpm build       # Build once
+pnpm dev         # Watch mode
+pnpm typecheck   # TypeScript check
+pnpm clean       # Clean dist/
+```
+
+---
+
+**Version History:**
+- v2.0.0 (2025-11-11) - Consolidated all documentation, Phases 1-2 complete
+- v1.1.0 (2025-11-11) - Phase 2 complete notes
+- v1.0.0 (2025-11-11) - Initial plan
+
+**Maintained by:** Ozean Licht Platform Team + AI Agents
+**Last Review:** 2025-11-11
