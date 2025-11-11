@@ -1,728 +1,463 @@
 # Admin Dashboard
 
-Unified admin dashboard for Kids Ascension and Ozean Licht platforms with NextAuth authentication, role-based access control, and comprehensive audit logging.
+**Unified admin interface for Kids Ascension (educational platform) and Ozean Licht (spiritual content platform)**
 
-## Features
+Status: **Phase 1 - Foundation** | Port: **9200** | Stack: **Next.js 14 + NextAuth v5 + MCP Gateway + TypeScript**
 
-### Authentication & Security
-- **NextAuth v5 (Auth.js)** - Modern authentication with database sessions
-- **PostgreSQL session storage** - Secure, server-side session management
-- **Role-based access control** - Super admin, KA admin, OL admin, support roles
-- **Permission system** - Granular permissions with wildcard support
-- **Audit logging** - All authentication and admin actions logged
-- **Route protection** - Middleware-based route guards
-- **CSRF protection** - Built into NextAuth
+---
 
-### Dashboard & UI
-- **Next.js 14 App Router** - Modern React with server components
-- **TypeScript** - Full type safety across the stack
-- **Tailwind CSS** - Utility-first styling
-- **Responsive design** - Mobile-friendly admin interface
-- **2FA setup page** - Placeholder UI for future implementation
+## Overview
 
-### MCP Client Library
-- **Type-safe database operations** via MCP Gateway
-- **Zero direct database connections** - All operations through MCP Gateway
-- **Comprehensive admin operations** - Users, roles, permissions, audit logs, sessions
-- **Health check utilities** - Verify connectivity and database health
-- **Automatic retries** - Transient failures automatically retried
+Centralized admin dashboard serving two legally separate Austrian associations (Vereine) with shared infrastructure:
+
+- **Ecosystem Admin** (Central) - Cross-platform user management, system health, authentication, audit logs
+- **Ozean Licht Admin** (OL) - Course management, member tracking, payment monitoring, content moderation
+- **Kids Ascension Admin** (KA) - Video content, review workflow, classroom management, safety controls
+
+Both platforms share authentication (`shared_users_db`) but maintain separate operational databases (`ozean_licht_db`, `kids_ascension_db`).
+
+---
+
+## Current Status
+
+### ✅ What's Built (Foundation Complete)
+
+**Authentication & Security**
+- NextAuth v5 with database sessions
+- Role-based access control (RBAC): `super_admin`, `ka_admin`, `ol_admin`, `support`
+- Wildcard permission system (`*`, `users.*`, `*.read`)
+- Route protection middleware for `/dashboard/*`
+- Audit logging framework
+
+**Infrastructure**
+- MCP Gateway client library (type-safe database operations)
+- System health monitoring (database, services, uptime)
+- MinIO storage management interface
+- Responsive UI with Tailwind CSS + shadcn/ui
+- Dark/light theme support
+
+**Developer Tools**
+- TypeScript strict mode
+- Test admin seeding script
+- Integration test suite
+- Breadcrumb navigation + keyboard shortcuts
+
+### ❌ What's Missing (Phases 2-4)
+
+**Ozean Licht (OL) Requirements - 28 Features**
+- 🔴 **Critical (3)**: Course management, member management, payment monitoring
+- 🟡 **Important (12)**: Content moderation, analytics, email campaigns, events, support tickets, video library, access control, system config, backups, integrations, SEO tools, performance monitoring
+- 🟢 **Nice-to-Have (13)**: Affiliate program, customer analytics, ML recommendations, segmentation, mobile management, certifications, surveys, video studio, and more
+
+**Kids Ascension (KA) Requirements - 40+ Features**
+- 🔴 **Critical (4)**: Video management, content review workflow, user management, classroom operations
+- 🟡 **Important (8)**: Creator management, parent-child controls, idea marketplace, activity monitoring, email communications, school partnerships, safety controls, reporting
+- 🟢 **Nice-to-Have (10+)**: Advanced analytics, angel donor program, compliance tools, AI moderation, internationalization
+
+---
+
+## Technology Stack
+
+**Frontend**
+- Next.js 14 (App Router, Server Components)
+- TypeScript (strict mode)
+- Tailwind CSS + shadcn/ui
+- React Hook Form + Zod validation
+- TanStack Table (data grids)
+- Recharts (analytics)
+
+**Backend**
+- NextAuth v5 (authentication)
+- MCP Gateway (database operations)
+- PostgreSQL (multi-tenant: `shared_users_db`, `ozean_licht_db`, `kids_ascension_db`)
+- Supabase Edge Functions (business logic)
+
+**Infrastructure**
+- Coolify (deployment)
+- MinIO → Cloudflare R2 → Stream (video pipeline)
+- N8N (automation workflows)
+- Sentry + Vercel Analytics (monitoring)
+
+---
 
 ## Quick Start
 
 ### Prerequisites
+```bash
+# Verify installations
+node -v       # 18+
+pnpm -v       # Latest
+```
 
-1. **MCP Gateway running** at `http://localhost:8100`
-2. **PostgreSQL database** with admin schema applied (from issue #1)
-3. **Node.js 18+** installed
-
-### Installation
-
+### Setup
 ```bash
 # Install dependencies
-npm install
-
-# Or with pnpm (recommended)
 pnpm install
-```
 
-### Configuration
-
-1. Copy environment variables:
-
-```bash
+# Configure environment
 cp .env.local.example .env.local
+# Edit .env.local with:
+# - NEXTAUTH_URL=http://localhost:9200
+# - NEXTAUTH_SECRET=$(openssl rand -base64 32)
+# - MCP_GATEWAY_URL=http://localhost:8100
+
+# Create test admin user
+pnpm run seed:test-admin
+
+# Start dev server
+pnpm run dev
 ```
 
-2. Edit `.env.local` with your values:
-
-```bash
-# NextAuth Configuration
-NEXTAUTH_URL=http://localhost:9200
-NEXTAUTH_SECRET=your-secret-key-here-generate-with-openssl-rand-base64-32
-
-# MCP Gateway
-MCP_GATEWAY_URL=http://localhost:8100
-DATABASE_NAME=shared-users-db
-
-# Ports (for isolated worktrees)
-FRONTEND_PORT=9200
-```
-
-3. Generate NextAuth secret:
-
-```bash
-openssl rand -base64 32
-```
-
-### Create Test Admin User
-
-```bash
-# Run the seed script
-npm run seed:test-admin
-```
+Visit `http://localhost:9200/login`
 
 **Test Credentials:**
 - Email: `admin@ozean-licht.dev`
 - Password: `admin123`
 - Role: `super_admin`
 
-### Run Development Server
+---
 
+## Ozean Licht Admin Requirements
+
+**Platform:** Content + course management for spiritual education (LCQ®, Herzportal, Athemirah®)
+
+### 🔴 Critical Features (Day 1-2 Operations) - 130h
+
+#### 1. Course Management (40h)
+- [ ] Course CRUD with drag-drop module builder
+- [ ] Manage modules (add/remove/reorder)
+- [ ] Content types: video, text, PDF, audio, quiz
+- [ ] Publish/unpublish workflow
+- [ ] Version history + audit log
+- **Files:** `app/(dashboard)/ozean-licht/courses/`
+- **Database:** `ozean_licht_db.courses`, `course_modules`, `module_contents`
+
+#### 2. Member Management (50h)
+- [ ] Member list with search/filters (role, status, date)
+- [ ] Profile view with course enrollments + purchase history
+- [ ] Role assignment (USER, CREATOR, EDUCATOR, ADMIN, MODERATOR)
+- [ ] Grant/revoke platform access
+- [ ] Bulk operations (export, suspend, activate)
+- **Files:** `app/(dashboard)/ozean-licht/members/`
+- **Database:** `shared_users_db.users`, `user_entities`, `ozean_licht_db.orders`
+
+#### 3. Payment & Transaction Monitoring (40h)
+- [ ] Transaction list with date filters + status
+- [ ] Order detail view (full payment info)
+- [ ] Manual order creation (emergency access grants)
+- [ ] Revenue analytics (daily/monthly charts)
+- [ ] Refund processing interface
+- [ ] Resync from Ablefy webhook
+- **Files:** `app/(dashboard)/ozean-licht/payments/`
+- **Database:** `ozean_licht_db.transactions`, `orders`, `course_mapping`
+- **Integration:** Ablefy payment processor (40,833+ transactions)
+
+### 🟡 Important Features (Week 3-6) - 340h
+
+#### 4-15. Operations Features
+- Content moderation (35h): Approval workflow, audit trail
+- Analytics dashboard (40h): Enrollment trends, engagement metrics, revenue attribution
+- Email campaigns (30h): Template editor, scheduling, A/B testing
+- Event management (35h): Livestream scheduling, RSVP tracking, recordings
+- Support tickets (35h): Auto-categorization, assignment, SLA monitoring
+- Video library (30h): Metadata editor, transcription management, bulk operations
+- Access control (25h): RBAC config, permission matrix, 2FA management
+- System config (20h): Platform settings, feature flags, notifications
+- Backup management (15h): Status monitoring, data export, GDPR compliance
+- Integrations (30h): Airtable sync, N8N workflows, Cloudflare Stream
+- SEO tools (20h): Metadata editor, sitemap, Open Graph
+- Performance monitoring (25h): Response times, error rates, resource usage
+
+### 🟢 Nice-to-Have (Post-MVP) - 500+h
+- Affiliate program, customer journey analytics, ML recommendations, segmentation, mobile app management, certifications, surveys, video studio, and more
+
+**Current Data:** 64 courses, 40,833+ transactions, 1,000+ members, €32,499+ monthly volume (Oct 2025)
+
+---
+
+## Kids Ascension Admin Requirements
+
+**Platform:** 100% free educational videos for children (ages 6-14) with teacher-quality content
+
+### 🔴 Critical Features (MVP Day 1) - 5-7 days
+
+#### 1. Content Management (2 days)
+- [ ] Video upload handler (Cloudflare Stream integration)
+- [ ] Video CRUD with metadata (title, description, age range, subject)
+- [ ] Course/lesson organization (drag-drop)
+- [ ] Meditation content management
+- [ ] Bulk operations (publish, categorize, tag)
+- **Files:** `app/(dashboard)/kids-ascension/content/`
+- **Database:** `kids_ascension_db.videos`, `courses`, `lessons`, `meditations`
+
+#### 2. Content Review Workflow (2 days)
+- [ ] Review queue with AI pre-screening (Whisper transcription)
+- [ ] Harm ranking algorithm (harmless → harmful spectrum)
+- [ ] Reviewer assignment by subject expertise
+- [ ] Timestamp-specific creator feedback
+- [ ] Multi-reviewer collaboration + voting
+- [ ] Revision & resubmit tracking
+- [ ] Judge Board escalation
+- **Files:** `app/(dashboard)/kids-ascension/moderation/`
+- **Database:** `kids_ascension_db.video_reviews`, `reviewer_feedback`
+
+#### 3. User Management (1 day)
+- [ ] Student accounts (view progress, watch history, achievements)
+- [ ] Parent accounts (parent-child linking, controls)
+- [ ] Educator accounts (classroom management)
+- [ ] Creator accounts (content portfolio, badges)
+- [ ] Status management (suspend/activate)
+- **Files:** `app/(dashboard)/kids-ascension/users/`
+- **Database:** `shared_users_db.users`, `kids_ascension_db.user_profiles`
+
+#### 4. Classroom Management (1.5 days)
+- [ ] Classroom CRUD + student rosters
+- [ ] Homework assignment with tracking
+- [ ] Student accountability (watch history)
+- [ ] Performance metrics per class
+- **Files:** `app/(dashboard)/kids-ascension/classrooms/`
+- **Database:** `kids_ascension_db.classrooms`, `classroom_students`, `homework`
+
+### 🟡 Important Features (Week 2+) - 3-4 weeks
+
+#### 5-12. Operations Features
+- Creator management (1 day): Profile verification, Trusted Creator Badge, performance metrics
+- Parent/child controls (2 days): Content restrictions, usage monitoring, approval workflows
+- Idea marketplace (1.5 days): User-submitted video ideas, voting/ranking, creator assignment
+- Activity monitoring (1 day): Engagement heatmap, inactive user identification, DAU/MAU
+- Email campaigns (1 day): Template manager, bulk sending, newsletters
+- School partnerships (1 day): Registration, admin management, quotas
+- Safety controls (2 days): Report management, investigation workflow, trust & safety
+- Reporting (2 days): User demographics, content performance, creator stats, CSV export
+
+### 🟢 Nice-to-Have (Post-MVP) - 3+ weeks
+- Advanced analytics, angel donor program, compliance tools, AI content filtering, internationalization
+
+**Key Features:** Guest mode, gamification (badges, streaks), learning portfolio export, parental preview controls
+
+---
+
+## Feature Prioritization Matrix
+
+| Priority | OL Features | KA Features | Combined Est. |
+|----------|-------------|-------------|---------------|
+| **🔴 Critical** | 3 (130h) | 4 (5-7 days) | **2-3 weeks** |
+| **🟡 Important** | 12 (340h) | 8 (3-4 weeks) | **6-8 weeks** |
+| **🟢 Nice-to-Have** | 13 (500h+) | 10+ (3+ weeks) | **12+ weeks** |
+
+**MVP Timeline:** 2-3 weeks (P1 features only)
+**Full Solution:** 18-20 weeks (all priorities)
+
+---
+
+## Implementation Roadmap
+
+### Phase 0: Foundation ✅ Complete
+- Authentication + RBAC
+- MCP Gateway client
+- Health monitoring
+- Admin dashboard layout
+
+### Phase 1: Ozean Licht Critical (Week 1-2) - **CURRENT**
+1. Course management interface
+2. Member search + management
+3. Payment monitoring + revenue charts
+4. Manual order creation tool
+
+**Deliverables:** Day-1 operational admin for OL platform
+
+### Phase 2: Kids Ascension Critical (Week 3-4)
+1. Video upload + management
+2. Content review workflow
+3. User management (students, parents, educators, creators)
+4. Classroom operations
+
+**Deliverables:** Day-1 operational admin for KA platform
+
+### Phase 3: Operations (Week 5-8)
+- Content moderation (OL + KA)
+- Analytics dashboards (both platforms)
+- Email campaign managers
+- Activity monitoring
+- Support systems
+
+**Deliverables:** Smooth post-launch operations
+
+### Phase 4: Intelligence (Week 9-12)
+- Advanced analytics (cohort, funnel, churn)
+- Creator ecosystem tools
+- Angel donor program (KA)
+- Business intelligence reporting
+
+**Deliverables:** Growth and optimization features
+
+### Phase 5: Scale (Week 13+)
+- ML recommendations
+- Advanced segmentation
+- Compliance automation
+- White-label features
+
+**Deliverables:** Enterprise-grade capabilities
+
+---
+
+## Architecture Decisions
+
+### Hybrid Admin Approach
+
+**Ecosystem Admin** (`apps/admin/`) - Centralized
+- Cross-platform user management
+- System health + monitoring
+- Authentication + authorization
+- Audit logs + compliance
+- Configuration management
+
+**Platform-Specific Admin** - Decentralized
+- **OL Admin:** Course, member, payment operations in `app/(dashboard)/ozean-licht/`
+- **KA Admin:** Video, review, classroom operations in `app/(dashboard)/kids-ascension/`
+
+**Rationale:** Separates concerns, reduces cognitive load, enables independent scaling, aligns with monorepo structure
+
+### Database Access Pattern
+1. **MCP Gateway** (preferred): All database operations via RPC
+2. **Direct Prisma** (fallback): Complex queries requiring transactions
+3. **Connection Pooling:** 2-10 connections per database via MCP Gateway
+
+### Multi-Tenancy
+- `shared_users_db` - Unified authentication (both platforms)
+- `ozean_licht_db` - OL-specific data (courses, orders, transactions)
+- `kids_ascension_db` - KA-specific data (videos, reviews, classrooms)
+- JWT tokens contain entity access: `{ entityId: "kids_ascension", role: "admin" }`
+
+---
+
+## Development Workflow
+
+### Adding New Admin Features
+
+**1. Create Page Structure**
 ```bash
-# Start Next.js dev server
-npm run dev
+# For Ozean Licht feature
+app/(dashboard)/ozean-licht/feature/page.tsx
+components/ozean-licht/FeatureTable.tsx
+lib/services/ozean-licht-service.ts
 
-# Or with custom port
-FRONTEND_PORT=9200 npm run dev
+# For Kids Ascension feature
+app/(dashboard)/kids-ascension/feature/page.tsx
+components/kids-ascension/FeatureForm.tsx
+lib/services/kids-ascension-service.ts
 ```
 
-Visit `http://localhost:9200/login` to access the dashboard.
-
-## Authentication Architecture
-
-### NextAuth Configuration
-
-The admin dashboard uses NextAuth v5 (Auth.js) with a custom PostgreSQL adapter:
-
-- **Authentication Provider:** Credentials (email/password)
-- **Session Strategy:** Database-backed sessions (stored in `admin_sessions` table)
-- **Session Duration:** 24 hours
-- **Adapter:** Custom MCP Gateway adapter for admin tables
-
-### Authentication Flow
-
-1. **Login Request:**
-   - User submits email/password → LoginForm component
-   - NextAuth Credentials provider → `authorize` function
-   - Query `admin_users` via MCP Gateway → Verify password with bcrypt
-   - Create session via adapter → Store in `admin_sessions` table
-   - Set httpOnly cookie → Redirect to dashboard
-
-2. **Protected Route Access:**
-   - Request to `/dashboard/*` → Middleware intercepts
-   - Check session cookie → Validate via NextAuth
-   - If valid: Allow access, update `last_activity_at`
-   - If invalid: Redirect to `/login`
-
-3. **Logout:**
-   - User clicks logout → Call NextAuth `signOut`
-   - Delete session from `admin_sessions` → Clear cookie
-   - Redirect to `/login`
-
-### Route Protection
-
-All routes under `/dashboard/*` are protected by Next.js middleware. The middleware:
-
-- Checks for valid session
-- Redirects unauthenticated users to `/login`
-- Preserves callback URL for post-login redirect
-- Redirects authenticated users away from `/login`
-
-### Auth Utilities
-
+**2. Add Database Operations**
 ```typescript
-import { requireAuth, hasPermission } from '@/lib/auth-utils'
+// Via MCP Gateway
+const client = new MCPGatewayClientWithQueries({ database: 'ozean_licht_db' });
+const data = await client.query('SELECT * FROM courses WHERE is_published = $1', [true]);
 
-// Server component - require authentication
-export default async function MyPage() {
-  const session = await requireAuth() // Throws redirect if not auth
-  return <div>Welcome {session.user.email}</div>
-}
-
-// Check permissions
-const canEdit = hasPermission(session.user.permissions, 'users.edit')
-
-// Wildcard permissions
-hasPermission(['*'], 'anything') // true - super admin
-hasPermission(['users.*'], 'users.create') // true - all user operations
-hasPermission(['*.read'], 'videos.read') // true - all read operations
+// Or via Prisma (complex queries)
+import { prisma } from '@/lib/prisma';
+const data = await prisma.course.findMany({ include: { modules: true } });
 ```
 
-## MCP Client Library Usage
-
-### Basic Example
-
+**3. Add to Sidebar Navigation**
 ```typescript
-import { MCPGatewayClientWithQueries } from '@/lib/mcp-client';
-
-// Initialize client
-const client = new MCPGatewayClientWithQueries({
-  database: 'shared-users-db',
-  baseUrl: 'http://localhost:8100', // Optional, defaults to localhost:8100
-  timeout: 10000, // Optional, defaults to 10s
-  retries: 3, // Optional, defaults to 3
-});
-
-// Health check
-const health = await client.healthCheck();
-console.log('Gateway healthy:', health.healthy);
-
-// Get admin user
-const adminUser = await client.getAdminUserById('user-id');
-console.log('Admin user:', adminUser);
-
-// List admin roles
-const roles = await client.listAdminRoles();
-console.log('Available roles:', roles);
+// lib/navigation.ts
+export const sidebarLinks = [
+  { href: '/dashboard/ozean-licht/courses', label: 'Courses', icon: BookIcon },
+  // ...
+];
 ```
 
-## Configuration
-
-### MCPClientConfig
-
+**4. Add Audit Logging**
 ```typescript
-interface MCPClientConfig {
-  database: 'shared-users-db' | 'kids-ascension-db' | 'ozean-licht-db';
-  baseUrl?: string; // Default: http://localhost:8100
-  timeout?: number; // Default: 10000ms
-  retries?: number; // Default: 3
-  retryDelay?: number; // Default: 1000ms
-}
-```
-
-### Environment Variables
-
-```bash
-# Optional - defaults to localhost:8100
-MCP_GATEWAY_URL=http://localhost:8100
-
-# For integration tests
-RUN_INTEGRATION_TESTS=true
-```
-
-## API Reference
-
-### Admin User Operations
-
-#### `getAdminUserById(id: string): Promise<AdminUser | null>`
-
-Get admin user by ID.
-
-```typescript
-const user = await client.getAdminUserById('user-id');
-if (user) {
-  console.log('Admin role:', user.adminRole);
-  console.log('Permissions:', user.permissions);
-}
-```
-
-#### `getAdminUserByUserId(userId: string): Promise<AdminUser | null>`
-
-Get admin user by underlying user ID.
-
-```typescript
-const user = await client.getAdminUserByUserId('base-user-id');
-```
-
-#### `createAdminUser(data: CreateAdminUserInput): Promise<AdminUser>`
-
-Create a new admin user.
-
-```typescript
-const newAdmin = await client.createAdminUser({
-  userId: 'base-user-id',
-  adminRole: 'support',
-  entityScope: null,
-  permissions: ['*.read'],
-  createdBy: 'creator-admin-id',
-});
-```
-
-#### `updateAdminUser(id: string, data: UpdateAdminUserInput): Promise<AdminUser>`
-
-Update an admin user.
-
-```typescript
-const updated = await client.updateAdminUser('admin-id', {
-  permissions: ['users.read', 'users.update'],
-  updatedBy: 'updater-admin-id',
-});
-```
-
-#### `listAdminUsers(filters?: AdminUserFilters): Promise<AdminUser[]>`
-
-List admin users with optional filters.
-
-```typescript
-// List all active KA admins
-const kaAdmins = await client.listAdminUsers({
-  adminRole: 'ka_admin',
-  isActive: true,
-  limit: 50,
-});
-
-// List all support staff
-const support = await client.listAdminUsers({
-  adminRole: 'support',
-});
-```
-
-#### `deactivateAdminUser(id: string): Promise<void>`
-
-Deactivate an admin user (soft delete).
-
-```typescript
-await client.deactivateAdminUser('admin-id');
-```
-
-### Role Operations
-
-#### `getAdminRoleById(id: string): Promise<AdminRoleDefinition | null>`
-
-Get role by ID.
-
-```typescript
-const role = await client.getAdminRoleById('role-id');
-```
-
-#### `getAdminRoleByName(name: string): Promise<AdminRoleDefinition | null>`
-
-Get role by name.
-
-```typescript
-const superAdmin = await client.getAdminRoleByName('super_admin');
-console.log('Default permissions:', superAdmin.defaultPermissions);
-```
-
-#### `listAdminRoles(): Promise<AdminRoleDefinition[]>`
-
-List all admin roles.
-
-```typescript
-const roles = await client.listAdminRoles();
-roles.forEach(role => {
-  console.log(`${role.roleLabel}: ${role.description}`);
-});
-```
-
-### Permission Operations
-
-#### `listAdminPermissions(category?: string): Promise<AdminPermission[]>`
-
-List all permissions, optionally filtered by category.
-
-```typescript
-// All permissions
-const allPerms = await client.listAdminPermissions();
-
-// User permissions only
-const userPerms = await client.listAdminPermissions('users');
-```
-
-#### `checkPermission(adminUserId: string, permissionKey: string): Promise<boolean>`
-
-Check if an admin user has a specific permission.
-
-```typescript
-// Check exact permission
-const canReadUsers = await client.checkPermission('admin-id', 'users.read');
-
-// Wildcard matching supported
-const hasAll = await client.checkPermission('admin-id', '*'); // All permissions
-const canReadAnything = await client.checkPermission('admin-id', '*.read'); // All read permissions
-const canDoUserStuff = await client.checkPermission('admin-id', 'users.*'); // All user permissions
-```
-
-### Audit Log Operations
-
-#### `createAuditLog(data: CreateAuditLogInput): Promise<AdminAuditLog>`
-
-Create an audit log entry.
-
-```typescript
-const log = await client.createAuditLog({
-  adminUserId: 'admin-id',
-  action: 'user.update',
-  entityType: 'user',
-  entityId: 'target-user-id',
-  entityScope: 'kids_ascension',
-  metadata: {
-    before: { email: 'old@example.com' },
-    after: { email: 'new@example.com' },
-  },
-  ipAddress: '192.168.1.1',
-  userAgent: 'Mozilla/5.0...',
-  requestId: 'req-123',
-});
-```
-
-#### `listAuditLogs(filters: AuditLogFilters): Promise<AdminAuditLog[]>`
-
-List audit logs with filters.
-
-```typescript
-// All logs for a user
-const userLogs = await client.listAuditLogs({
-  adminUserId: 'admin-id',
-  limit: 100,
-});
-
-// Logs for specific action
-const approvals = await client.listAuditLogs({
-  action: 'video.approve',
-  entityScope: 'kids_ascension',
-  startDate: new Date('2025-01-01'),
-  endDate: new Date('2025-12-31'),
-});
-
-// Logs for specific entity
-const entityLogs = await client.listAuditLogs({
-  entityType: 'video',
-  entityId: 'video-id',
-});
-```
-
-### Session Operations
-
-#### `createSession(data: CreateSessionInput): Promise<AdminSession>`
-
-Create a new admin session.
-
-```typescript
-const session = await client.createSession({
-  adminUserId: 'admin-id',
-  sessionToken: 'random-secure-token',
-  ipAddress: '192.168.1.1',
-  userAgent: 'Mozilla/5.0...',
-  ttlSeconds: 86400, // 24 hours
-});
-```
-
-#### `getSessionByToken(token: string): Promise<AdminSession | null>`
-
-Get session by token (only returns non-expired sessions).
-
-```typescript
-const session = await client.getSessionByToken('session-token');
-if (session) {
-  console.log('Session expires at:', session.expiresAt);
-  console.log('Last activity:', session.lastActivityAt);
-}
-```
-
-#### `updateSessionActivity(token: string): Promise<void>`
-
-Update session activity timestamp.
-
-```typescript
-await client.updateSessionActivity('session-token');
-```
-
-#### `deleteSession(token: string): Promise<void>`
-
-Delete a session (logout).
-
-```typescript
-await client.deleteSession('session-token');
-```
-
-#### `deleteExpiredSessions(): Promise<number>`
-
-Delete all expired sessions (cleanup job).
-
-```typescript
-const deleted = await client.deleteExpiredSessions();
-console.log(`Deleted ${deleted} expired sessions`);
-```
-
-### Raw Query Operations
-
-#### `query<T>(sql: string, params?: any[]): Promise<T[]>`
-
-Execute a raw SQL query.
-
-```typescript
-const result = await client.query<{ count: number }>(
-  'SELECT COUNT(*) as count FROM admin_users WHERE is_active = $1',
-  [true]
-);
-console.log('Active admins:', result[0].count);
-```
-
-#### `execute(sql: string, params?: any[]): Promise<number>`
-
-Execute a SQL statement (returns affected rows).
-
-```typescript
-const affected = await client.execute(
-  'UPDATE admin_users SET updated_at = NOW() WHERE id = $1',
-  ['user-id']
-);
-console.log(`Updated ${affected} rows`);
-```
-
-#### `transaction<T>(callback: (client) => Promise<T>): Promise<T>`
-
-Execute multiple operations in a transaction.
-
-```typescript
-const result = await client.transaction(async (tx) => {
-  const user = await tx.createAdminUser({ ... });
-  await tx.createAuditLog({ ... });
-  return user;
-});
-```
-
-### Health Check Utilities
-
-#### `healthCheck(client: MCPGatewayClient): Promise<MCPHealthResponse>`
-
-Check MCP Gateway and database health.
-
-```typescript
-import { healthCheck } from '@admin/mcp-client';
-
-const health = await healthCheck(client);
-console.log('Healthy:', health.healthy);
-console.log('Latency:', health.latency, 'ms');
-```
-
-#### `checkGatewayReachable(baseUrl?: string): Promise<boolean>`
-
-Check if MCP Gateway is reachable.
-
-```typescript
-import { checkGatewayReachable } from '@admin/mcp-client';
-
-const reachable = await checkGatewayReachable('http://localhost:8100');
-```
-
-#### `getGatewayInfo(baseUrl?: string): Promise<{ version: string; services: string[] } | null>`
-
-Get MCP Gateway version and available services.
-
-```typescript
-import { getGatewayInfo } from '@admin/mcp-client';
-
-const info = await getGatewayInfo();
-console.log('Gateway version:', info?.version);
-console.log('Services:', info?.services);
-```
-
-#### `checkDatabaseConnection(client: MCPGatewayClient): Promise<DiagnosticInfo>`
-
-Verify database connection with detailed diagnostics.
-
-```typescript
-import { checkDatabaseConnection } from '@admin/mcp-client';
-
-const diag = await checkDatabaseConnection(client);
-console.log('Connected:', diag.connected);
-console.log('DB Version:', diag.databaseVersion);
-```
-
-## Error Handling
-
-All errors extend the `MCPError` base class:
-
-```typescript
-import {
-  MCPError,
-  MCPTimeoutError,
-  MCPConnectionError,
-  MCPValidationError,
-  MCPQueryError,
-} from '@admin/mcp-client';
-
-try {
-  const user = await client.getAdminUserById('user-id');
-} catch (error) {
-  if (error instanceof MCPTimeoutError) {
-    console.error('Request timed out');
-  } else if (error instanceof MCPConnectionError) {
-    console.error('Failed to connect to MCP Gateway');
-  } else if (error instanceof MCPQueryError) {
-    console.error('Database query failed:', error.message);
-  } else if (error instanceof MCPValidationError) {
-    console.error('Invalid request:', error.message);
-  } else if (error instanceof MCPError) {
-    console.error('MCP error:', error.code, error.message);
-  }
-}
-```
-
-### Error Codes
-
-- `-32000`: Timeout error
-- `-32001`: Connection error
-- `-32002`: Not used
-- `-32003`: Query error
-- `-32602`: Validation error (invalid params)
-- `-32603`: Internal error
-
-## Testing
-
-```bash
-# Run unit tests
-npm test
-
-# Run unit tests only
-npm run test:unit
-
-# Run integration tests (requires MCP Gateway)
-RUN_INTEGRATION_TESTS=true npm run test:integration
-
-# Type checking
-npm run typecheck
-
-# Build
-npm run build
-```
-
-## Database Schema
-
-This library interacts with the following tables in `shared_users_db`:
-
-- `admin_users` - Admin user accounts
-- `admin_roles` - Role definitions
-- `admin_permissions` - Permission definitions
-- `admin_audit_logs` - Audit trail
-- `admin_sessions` - Session tracking
-
-See `migrations/001_create_admin_schema.sql` for the complete schema.
-
-## Migration
-
-To apply the database schema:
-
-```bash
-psql $SHARED_USERS_DB_URL -f projects/admin/migrations/001_create_admin_schema.sql
-```
-
-See `migrations/README.md` for detailed migration instructions.
-
-## Examples
-
-### Complete Admin User Lifecycle
-
-```typescript
-// Create admin user
-const newAdmin = await client.createAdminUser({
-  userId: 'base-user-id',
-  adminRole: 'ka_admin',
-  entityScope: 'kids_ascension',
-  permissions: ['ka.*'],
-});
-
-// Check permission
-const canApprove = await client.checkPermission(newAdmin.id, 'ka.videos.approve');
-console.log('Can approve videos:', canApprove);
-
-// Create session
-const session = await client.createSession({
-  adminUserId: newAdmin.id,
-  sessionToken: 'secure-random-token',
-  ipAddress: '192.168.1.1',
-});
-
-// Log action
 await client.createAuditLog({
-  adminUserId: newAdmin.id,
-  action: 'video.approve',
-  entityType: 'video',
-  entityId: 'video-123',
-  entityScope: 'kids_ascension',
-  metadata: { approved: true },
+  adminUserId: session.user.id,
+  action: 'course.create',
+  entityType: 'course',
+  entityId: newCourse.id,
+  entityScope: 'ozean_licht',
+  metadata: { title: newCourse.title },
 });
-
-// Update session activity
-await client.updateSessionActivity(session.sessionToken);
-
-// List user's audit logs
-const logs = await client.listAuditLogs({
-  adminUserId: newAdmin.id,
-  limit: 10,
-});
-
-// Logout
-await client.deleteSession(session.sessionToken);
-
-// Deactivate admin
-await client.deactivateAdminUser(newAdmin.id);
 ```
 
-### Permission Checking Examples
-
-```typescript
-// Super admin (has wildcard *)
-await client.checkPermission('super-admin-id', 'users.read'); // true
-await client.checkPermission('super-admin-id', 'anything'); // true
-
-// KA admin (has ka.*)
-await client.checkPermission('ka-admin-id', 'ka.videos.approve'); // true
-await client.checkPermission('ka-admin-id', 'ol.courses.create'); // false
-
-// Support (has *.read)
-await client.checkPermission('support-id', 'users.read'); // true
-await client.checkPermission('support-id', 'users.update'); // false
+### Testing
+```bash
+pnpm test              # All tests
+pnpm test:unit         # Unit tests only
+pnpm test:integration  # MCP Gateway integration (requires MCP running)
+pnpm typecheck         # TypeScript validation
 ```
 
-## Architecture
-
-This library follows a three-tier architecture:
-
-```
-Admin Dashboard Application
-         ↓
-MCP Client Library (TypeScript)
-         ↓
-MCP Gateway (JSON-RPC 2.0)
-         ↓
-PostgreSQL (shared_users_db)
-```
-
-### Key Design Decisions
-
-1. **No direct database access** - All operations go through MCP Gateway for centralized metrics, connection pooling, and future remote access
-2. **Zero authentication overhead** - Localhost/Docker network bypass for trusted internal agents
-3. **Type-safe operations** - Full TypeScript types for all operations and responses
-4. **Automatic retries** - Transient failures are automatically retried up to 3 times
-5. **Comprehensive audit logging** - All admin actions are logged for compliance and security
-
-## Performance
-
-Expected performance (via MCP Gateway):
-
-- Simple queries (by ID): < 50ms
-- List queries (paginated): < 200ms
-- Health check: < 100ms round-trip
-- Audit log creation: < 150ms
+---
 
 ## Documentation
 
-Comprehensive documentation is available in the `docs/` directory:
+**Core Documentation:**
+- [Documentation Index](./docs/README.md) - Complete docs overview
+- [OL Requirements](./docs/requirements/ozean_licht_admin_requirements.md) - 28 features, 1123 lines
+- [KA Requirements](./docs/requirements/kids_ascension_admin_requirements.md) - 40+ features, 1515 lines
+- [Deployment Guide](./docs/deployment/DEPLOYMENT.md) - Production deployment
+- [Developer Guide](./CLAUDE.md) - Quick patterns + troubleshooting
+- [Branding Guide](./BRANDING.md) - Ozean Licht design system
 
-- **[Documentation Index](./docs/README.md)** - Complete documentation overview
-- **[Platform Requirements](./docs/requirements/)** - Kids Ascension & Ozean Licht specifications
-- **[Deployment Guide](./docs/deployment/DEPLOYMENT.md)** - Production deployment instructions
-- **[Test Credentials](./docs/development/credentials.md)** - Test user accounts for local development
-- **[Architecture Decisions](./docs/archive/adw-plans/)** - Historical architecture decision records
-- **[Roadmap](./specs/admin-dashboard-roadmap.md)** - Implementation roadmap and phases
+**Technical References:**
+- [MCP Client API](./lib/mcp-client/README.md) - Database operations
+- [Design System](./design-system.md) - UI component library
+- [Test Credentials](./docs/development/credentials.md) - Local dev accounts
+
+---
+
+## Success Criteria
+
+**MVP Success (Phase 1-2):**
+- [ ] OL admins can manage courses, members, payments
+- [ ] KA admins can upload videos, manage review workflow
+- [ ] All P1 features tested and deployed
+- [ ] Performance < 2s page load
+- [ ] Zero critical security issues
+
+**Post-MVP Success (Phase 3-4):**
+- [ ] Analytics dashboards operational
+- [ ] Email campaigns functional
+- [ ] Creator programs launched
+- [ ] User satisfaction > 4.5/5
+- [ ] Support tickets < 5/day
+
+---
+
+## Contributing
+
+**Before Starting:**
+1. Review platform requirements (OL or KA)
+2. Check Phase 1 roadmap for current priorities
+3. Read [CLAUDE.md](./CLAUDE.md) for development patterns
+4. Verify MCP Gateway is running
+
+**Development Process:**
+1. Create feature branch: `feature/ol-course-management` or `feature/ka-video-upload`
+2. Implement with server components (default) + client components (interactive)
+3. Add TypeScript types in `types/`
+4. Write tests for business logic
+5. Add audit logging for admin actions
+6. Update navigation in `Sidebar.tsx`
+7. Document in `docs/` if new major feature
+
+---
 
 ## License
 
-UNLICENSED - Private package for Ozean Licht Ecosystem
+**UNLICENSED** - Private package for Ozean Licht Ecosystem
+
+---
 
 ## Support
 
-For issues, questions, or contributions, please contact the development team or refer to the main repository documentation.
+**Issues:** GitHub Issues
+**Questions:** Development team
+**Docs:** [./docs/README.md](./docs/README.md)
+
+---
+
+**Last Updated:** 2025-11-11
+**Status:** Phase 1 - Ozean Licht Critical Features
+**Maintainer:** Platform Team + Autonomous Agents
