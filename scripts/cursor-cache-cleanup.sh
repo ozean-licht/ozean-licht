@@ -75,6 +75,14 @@ log "═════════════════════════
 log "Cursor Server Cache Cleanup"
 log "════════════════════════════════════════════════════════════"
 
+# System resource information
+log "System Resources:"
+DISK_INFO=$(df -h / | awk 'NR==2 {print $3 " used / " $2 " total (" $5 " usage)"}')
+log "  - Disk: $DISK_INFO"
+RAM_INFO=$(free -h | awk 'NR==2 {print $3 " used / " $2 " total"}')
+log "  - RAM: $RAM_INFO"
+log ""
+
 # Check if Cursor server directory exists
 if [[ ! -d "$CURSOR_SERVER_DIR" ]]; then
     log_warning "Cursor server directory not found: $CURSOR_SERVER_DIR"
@@ -120,11 +128,14 @@ format_bytes() {
     numfmt --to=iec-i --suffix=B "$1" 2>/dev/null || echo "$1 bytes"
 }
 
+TOTAL_BEFORE=$((WORKSPACE_SIZE + LOGS_SIZE + CACHE_SIZE))
+
 log "Current cache sizes:"
 log "  - Workspace Storage: $(format_bytes $WORKSPACE_SIZE)"
 log "  - Logs: $(format_bytes $LOGS_SIZE)"
 log "  - Cached Data: $(format_bytes $CACHE_SIZE)"
-log "  - Total: $(format_bytes $((WORKSPACE_SIZE + LOGS_SIZE + CACHE_SIZE)))"
+log "  - Total: $(format_bytes $TOTAL_BEFORE)"
+log ""
 
 # Dry run check
 if [[ $DRY_RUN == true ]]; then
@@ -209,12 +220,27 @@ if [[ -d "$CURSOR_SERVER_DIR/data/CachedData" ]]; then
 fi
 
 # Calculate freed space
-FREED_SPACE=$((WORKSPACE_SIZE + LOGS_SIZE + CACHE_SIZE - WORKSPACE_SIZE_AFTER - LOGS_SIZE_AFTER - CACHE_SIZE_AFTER))
+TOTAL_AFTER=$((WORKSPACE_SIZE_AFTER + LOGS_SIZE_AFTER + CACHE_SIZE_AFTER))
+FREED_SPACE=$((TOTAL_BEFORE - TOTAL_AFTER))
 
 log "════════════════════════════════════════════════════════════"
-log_success "Cleanup complete!"
-log "Freed space: $(format_bytes $FREED_SPACE)"
-log "New total: $(format_bytes $((WORKSPACE_SIZE_AFTER + LOGS_SIZE_AFTER + CACHE_SIZE_AFTER)))"
+log_success "Cleanup Complete!"
+log ""
+log "📊 Cache Cleanup Summary:"
+log "  Before:  $(format_bytes $TOTAL_BEFORE)"
+log "  Cleaned: $(format_bytes $FREED_SPACE)"
+log "  After:   $(format_bytes $TOTAL_AFTER)"
+log ""
+log "📁 Breakdown by Category:"
+log "  Workspace Storage: $(format_bytes $WORKSPACE_SIZE) → $(format_bytes $WORKSPACE_SIZE_AFTER)"
+log "  Logs: $(format_bytes $LOGS_SIZE) → $(format_bytes $LOGS_SIZE_AFTER)"
+log "  Cached Data: $(format_bytes $CACHE_SIZE) → $(format_bytes $CACHE_SIZE_AFTER)"
+log ""
+DISK_INFO_AFTER=$(df -h / | awk 'NR==2 {print $3 " used / " $2 " total (" $5 " usage)"}')
+RAM_INFO_AFTER=$(free -h | awk 'NR==2 {print $3 " used / " $2 " total"}')
+log "💻 System Resources After Cleanup:"
+log "  - Disk: $DISK_INFO_AFTER"
+log "  - RAM: $RAM_INFO_AFTER"
 log "════════════════════════════════════════════════════════════"
 
 # Clean up empty directories

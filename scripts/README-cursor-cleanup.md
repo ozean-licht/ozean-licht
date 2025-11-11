@@ -130,6 +130,12 @@ sudo pkill -9 -f cursor-server
 
 **Safe to run:** Yes - only removes cache, preserves all settings and extensions
 
+**Output includes:**
+- System disk usage before/after
+- RAM usage before/after
+- Per-category breakdown (Workspace → Logs → Cached Data)
+- Clear summary: Before → Cleaned → After
+
 ## When to Run Manually
 
 - **Extension Host high CPU** - Before restarting Cursor
@@ -155,24 +161,41 @@ find "$CURSOR_SERVER_DIR/data/logs" -type f -mtime +N -delete
 ## Logs Format
 
 ```
-[2025-11-08 03:00:01] ════════════════════════════════════════════════════════════
-[2025-11-08 03:00:01] Cursor Server Cache Cleanup
-[2025-11-08 03:00:01] ════════════════════════════════════════════════════════════
-[2025-11-08 03:00:02] Calculating current cache sizes...
-[2025-11-08 03:00:02] Current cache sizes:
-[2025-11-08 03:00:02]   - Workspace Storage: 325 MiB
-[2025-11-08 03:00:02]   - Logs: 142 MiB
-[2025-11-08 03:00:02]   - Cached Data: 87 MiB
-[2025-11-08 03:00:02]   - Total: 554 MiB
-[2025-11-08 03:00:03] Starting cleanup...
-[2025-11-08 03:00:05] ✅ Cleaned 15 workspace cache directories
-[2025-11-08 03:00:06] ✅ Removed 42 old log files
-[2025-11-08 03:00:07] ✅ Removed 128 cached files
-[2025-11-08 03:00:08] ════════════════════════════════════════════════════════════
-[2025-11-08 03:00:08] ✅ Cleanup complete!
-[2025-11-08 03:00:08] Freed space: 487 MiB
-[2025-11-08 03:00:08] New total: 67 MiB
-[2025-11-08 03:00:08] ════════════════════════════════════════════════════════════
+[2025-11-11 14:30:01] ════════════════════════════════════════════════════════════
+[2025-11-11 14:30:01] Cursor Server Cache Cleanup
+[2025-11-11 14:30:01] ════════════════════════════════════════════════════════════
+[2025-11-11 14:30:01] System Resources:
+[2025-11-11 14:30:01]   - Disk: 145G used / 458G total (32% usage)
+[2025-11-11 14:30:01]   - RAM: 8.2G used / 62G total
+[2025-11-11 14:30:01]
+[2025-11-11 14:30:02] Calculating current cache sizes...
+[2025-11-11 14:30:02] Current cache sizes:
+[2025-11-11 14:30:02]   - Workspace Storage: 325 MiB
+[2025-11-11 14:30:02]   - Logs: 142 MiB
+[2025-11-11 14:30:02]   - Cached Data: 87 MiB
+[2025-11-11 14:30:02]   - Total: 554 MiB
+[2025-11-11 14:30:02]
+[2025-11-11 14:30:03] Starting cleanup...
+[2025-11-11 14:30:05] ✅ Cleaned 15 workspace cache directories
+[2025-11-11 14:30:06] ✅ Removed 42 old log files
+[2025-11-11 14:30:07] ✅ Removed 128 cached files
+[2025-11-11 14:30:08] ════════════════════════════════════════════════════════════
+[2025-11-11 14:30:08] ✅ Cleanup Complete!
+[2025-11-11 14:30:08]
+[2025-11-11 14:30:08] 📊 Cache Cleanup Summary:
+[2025-11-11 14:30:08]   Before:  554 MiB
+[2025-11-11 14:30:08]   Cleaned: 487 MiB
+[2025-11-11 14:30:08]   After:   67 MiB
+[2025-11-11 14:30:08]
+[2025-11-11 14:30:08] 📁 Breakdown by Category:
+[2025-11-11 14:30:08]   Workspace Storage: 325 MiB → 12 MiB
+[2025-11-11 14:30:08]   Logs: 142 MiB → 38 MiB
+[2025-11-11 14:30:08]   Cached Data: 87 MiB → 17 MiB
+[2025-11-11 14:30:08]
+[2025-11-11 14:30:08] 💻 System Resources After Cleanup:
+[2025-11-11 14:30:08]   - Disk: 144G used / 458G total (32% usage)
+[2025-11-11 14:30:08]   - RAM: 8.1G used / 62G total
+[2025-11-11 14:30:08] ════════════════════════════════════════════════════════════
 ```
 
 ## Uninstall
@@ -192,5 +215,6 @@ sudo rm -f /var/log/cursor-cleanup.log
 
 ---
 
-**Last Updated:** 2025-11-08
+**Last Updated:** 2025-11-11
 **Tested On:** Ubuntu 22.04 LTS, Cursor Server c6d93c13
+**Recent Changes:** Added system resource monitoring (disk/RAM) and enhanced summary output
