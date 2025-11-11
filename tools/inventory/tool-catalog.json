@@ -1053,15 +1053,123 @@
       "rationale": "SSH is the standard for remote operations"
     }
   },
+  "memory-cli": {
+    "name": "Memory CLI Tools",
+    "type": "script-native",
+    "tier": "tier1-native",
+    "description": "Institutional memory system for saving and searching patterns via Mem0",
+    "location": "local",
+    "version": "1.0.0",
+    "status": "active",
+    "scriptPath": "tools/memory/",
+    "dependencies": ["curl", "jq", "mcp-gateway", "mem0"],
+    "capabilities": [
+      "save-memory",
+      "search-memories",
+      "get-memories",
+      "list-patterns",
+      "memory-stats",
+      "health-check",
+      "delete-memory",
+      "update-memory"
+    ],
+    "commands": [
+      {
+        "command": "bash tools/memory/save.sh <content> [--category=type]",
+        "description": "Save a new memory or pattern",
+        "example": "bash tools/memory/save.sh \"Use connection pooling\" --category=pattern",
+        "parameters": {
+          "content": { "type": "string", "required": true },
+          "category": {
+            "type": "string",
+            "required": false,
+            "values": ["pattern", "decision", "solution", "error", "workflow"]
+          }
+        }
+      },
+      {
+        "command": "bash tools/memory/search.sh <query> [--limit=N]",
+        "description": "Search memories using semantic search",
+        "example": "bash tools/memory/search.sh \"database connection\" --limit=5",
+        "parameters": {
+          "query": { "type": "string", "required": true },
+          "limit": { "type": "number", "required": false, "default": 10 }
+        }
+      },
+      {
+        "command": "bash tools/memory/get.sh <user_id> [--category=type]",
+        "description": "Get all memories for user/agent",
+        "example": "bash tools/memory/get.sh agent_claude_code --category=pattern",
+        "parameters": {
+          "user_id": { "type": "string", "required": true },
+          "category": { "type": "string", "required": false }
+        }
+      },
+      {
+        "command": "bash tools/memory/patterns.sh [--category=type]",
+        "description": "List patterns grouped by category",
+        "example": "bash tools/memory/patterns.sh --category=solution",
+        "parameters": {
+          "category": { "type": "string", "required": false }
+        }
+      },
+      {
+        "command": "bash tools/memory/stats.sh",
+        "description": "Show memory usage statistics",
+        "example": "bash tools/memory/stats.sh"
+      },
+      {
+        "command": "bash tools/memory/health.sh",
+        "description": "Check Mem0 service health",
+        "example": "bash tools/memory/health.sh"
+      },
+      {
+        "command": "bash tools/memory/delete.sh <memory_id> [--force]",
+        "description": "Delete specific memory",
+        "example": "bash tools/memory/delete.sh mem_abc123",
+        "parameters": {
+          "memory_id": { "type": "string", "required": true },
+          "force": { "type": "boolean", "required": false, "default": false }
+        }
+      },
+      {
+        "command": "bash tools/memory/update.sh <memory_id> <new_content>",
+        "description": "Update existing memory",
+        "example": "bash tools/memory/update.sh mem_abc123 \"Updated content\"",
+        "parameters": {
+          "memory_id": { "type": "string", "required": true },
+          "new_content": { "type": "string", "required": true }
+        }
+      }
+    ],
+    "healthCheck": {
+      "method": "http",
+      "endpoint": "http://localhost:8100/mcp/mem0",
+      "interval": 60
+    },
+    "performance": {
+      "avgExecutionTime": "1-4s",
+      "speedup": "Direct MCP Gateway access, semantic search adds latency"
+    },
+    "rationale": "Wrapper around MCP Gateway Mem0 handler, provides CLI interface for institutional memory",
+    "useCases": [
+      "Save valuable patterns for future reference",
+      "Search institutional memory",
+      "Build agent knowledge base",
+      "Reduce friction by reusing proven solutions",
+      "Learn from past experiences"
+    ],
+    "whenToUse": "Always use before and after solving non-trivial problems to build institutional knowledge"
+  },
   "aggregates": {
-    "totalTools": 19,
+    "totalTools": 20,
     "mcpServices": 11,
-    "scriptBasedTools": 8,
-    "tier1Native": 5,
+    "scriptBasedTools": 9,
+    "tier1Native": 6,
     "tier2Api": 1,
     "tier3Mcp": 11,
     "serverSideTools": 8,
-    "localTools": 11,
+    "localTools": 12,
     "averageScriptExecutionTime": "1-2s",
     "estimatedSpeedup": "3-5x for script tools"
   },

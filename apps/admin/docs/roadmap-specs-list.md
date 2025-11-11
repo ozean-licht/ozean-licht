@@ -20,7 +20,7 @@
 
 ## Phase 1: Foundation (Week 1-2) - 8 Specs
 
-**Status:** 🔄 In Progress (7/8 implemented, testing pending)
+**Status:** ✅ Complete (8/8 implemented, testing pending)
 
 ### Track 1A: Core Infrastructure (Sequential)
 
@@ -220,6 +220,7 @@
 #### **Spec 1.8: `admin-permissions-matrix-ui.md`**
 **Time:** 16 hours | **Priority:** P2 (Important)
 **Dependencies:** 1.4 (Basic RBAC), 1.7 (Audit for permission changes)
+**Status:** ✅ **IMPLEMENTED** (not tested)
 
 **Scope:**
 - Permission matrix editor (role × resource grid)
@@ -732,7 +733,7 @@ To maximize velocity, these specs can be worked on in parallel once dependencies
 | **1** | 1.5 User List | P1 | 18 | ✅ Implemented (not tested) | 1.3, 1.4 |
 | **1** | 1.6 User Actions | P1 | 20 | ✅ Implemented (not tested) | 1.5 |
 | **1** | 1.7 Audit Logging | P1 | 24 | ✅ Implemented (not tested) | 1.6 |
-| **1** | 1.8 Permissions Matrix | P2 | 16 | ❌ Not Started | 1.4, 1.7 |
+| **1** | 1.8 Permissions Matrix | P2 | 16 | ✅ Implemented (not tested) | 1.4, 1.7 |
 | **2** | 2.1 OL Course List | P1 | 12 | ❌ Not Started | Phase 1 |
 | **2** | 2.2 OL Course CRUD | P1 | 28 | ❌ Not Started | 2.1 |
 | **2** | 2.3 OL Member List | P1 | 16 | ❌ Not Started | Phase 1, 2.1 |
@@ -762,9 +763,9 @@ To maximize velocity, these specs can be worked on in parallel once dependencies
 
 ## Implementation Notes
 
-1. ✅ **Specs 1.1-1.7 implemented** - Phase 1 core complete, testing pending
-2. **CURRENT PRIORITY:** Test all Phase 1 specs (layout, components, tables, RBAC, users, audit)
-3. **Next steps:** Spec 1.8 (Permissions Matrix - optional), then Phase 2 (Ozean Licht MVP)
+1. ✅ **Phase 1 Complete (Specs 1.1-1.8)** - All foundation specs implemented, testing pending
+2. **CURRENT PRIORITY:** Test all Phase 1 specs (layout, components, tables, RBAC, users, audit, permissions)
+3. **Next steps:** Phase 2 (Ozean Licht MVP) - Course and member management features
 4. **Validate foundation early** - 1.5 (User List) is first real feature to test tables + RBAC
 5. **Parallel Phase 2/3 if team size allows** - OL and KA tracks are independent
 6. **Defer Phase 5 until user feedback** - Nice-to-have features should respond to real usage

@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Ozean Licht Primary (Turquoise/Teal)
+        // Ozean Licht Primary (Turquoise/Teal) - Brand Color
         primary: {
           DEFAULT: '#0ec2bc',
           50: '#E6F8F7',
@@ -23,7 +23,7 @@ module.exports = {
           900: '#033A34',
           foreground: '#FFFFFF',
         },
-        // Cosmic background
+        // Cosmic background (Ozean Licht signature)
         background: '#0A0F1A',
         foreground: '#FFFFFF',
         // Muted colors
@@ -31,7 +31,7 @@ module.exports = {
           DEFAULT: '#64748B',
           foreground: '#94A3B8',
         },
-        // Card colors
+        // Card colors (elevated surfaces)
         card: {
           DEFAULT: '#1A1F2E',
           foreground: '#FFFFFF',
@@ -64,10 +64,10 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'sans-serif'],
-        serif: ['var(--font-serif)', 'Georgia', 'serif'],
-        decorative: ['var(--font-decorative)', 'Georgia', 'serif'],
-        alt: ['var(--font-alt)', 'Montserrat', 'sans-serif'],
+        sans: ['Montserrat', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['Cinzel', 'Georgia', 'serif'],
+        decorative: ['Cinzel Decorative', 'Georgia', 'serif'],
+        alt: ['Montserrat Alternates', 'Montserrat', 'sans-serif'],
         mono: ['Fira Code', 'Courier New', 'monospace'],
       },
       backgroundImage: {

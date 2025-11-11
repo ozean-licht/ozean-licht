@@ -5,7 +5,7 @@
 
 source "$(dirname "$0")/templates/shared.sh"
 
-print_header "Tool Discovery System - 6 Categories"
+print_header "Tool Discovery System - 7 Categories"
 
 cat << 'CATEGORIES'
 ║                                            ║
@@ -32,6 +32,10 @@ cat << 'CATEGORIES'
 ║ 🌐 remote - SSH & file transfer           ║
 ║    Remote execution, upload, download      ║
 ║    → bash tools/remote/list.sh             ║
+║                                            ║
+║ 🧠 memory - Institutional memory          ║
+║    Save patterns, search learnings         ║
+║    → bash tools/memory/list.sh             ║
 CATEGORIES
 
 print_footer

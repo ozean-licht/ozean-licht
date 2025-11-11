@@ -77,7 +77,7 @@ bash tools/learn.sh "is mcp running"
 bash tools/learn.sh "deploy vs restart"
 ```
 
-#### Six Tool Categories
+#### Seven Tool Categories
 
 | Category | Purpose | Entry Point |
 |----------|---------|-------------|
@@ -87,6 +87,7 @@ bash tools/learn.sh "deploy vs restart"
 | **Database** | PostgreSQL ops (8 cmds) | `bash tools/database/list.sh` |
 | **Git** | Version control (11 cmds) | `bash tools/git/list.sh` |
 | **Remote** | SSH operations (9 cmds) | `bash tools/remote/list.sh` |
+| **Memory** | Institutional memory (8 cmds) | `bash tools/memory/list.sh` |
 
 #### Example Commands
 
@@ -109,6 +110,14 @@ bash tools/containers/restart.sh mcp-gateway   # Restart
 bash tools/database/backup.sh kids_ascension_db /backups/ka.sql
 bash tools/database/restore.sh kids_ascension_db /backups/ka.sql
 bash tools/database/size.sh kids_ascension_db
+```
+
+**Memory:**
+```bash
+bash tools/memory/save.sh "content" --category=pattern  # Save memory
+bash tools/memory/search.sh "query"                     # Search
+bash tools/memory/patterns.sh --category=solution       # List patterns
+bash tools/memory/health.sh                             # Check service
 ```
 
 **All commands support `--explain` mode for detailed information**

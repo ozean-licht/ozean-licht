@@ -38,6 +38,39 @@ Both platforms share:
 -  **Three-tier storage system** (MinIO � R2 � Stream)
 -  **MCP Gateway** (unified tool access)
 
+## Design System & Branding
+
+**Ozean Licht Design System** - Complete design language with turquoise branding, glass morphism, and cosmic aesthetics.
+
+**Key Resources:**
+- [Design System](/design-system.md) - Complete design tokens, patterns, and guidelines
+- [Branding Guidelines](/BRANDING.md) - Brand identity, logos, and usage rules
+- [Shared Components](/shared/ui-components/README.md) - React component library (`@ozean-licht/shared-ui`)
+- [Component Guidelines](/shared/ui-components/COMPONENT-GUIDELINES.md) - Usage patterns and best practices
+
+**Quick Start:**
+```typescript
+// Import shared components
+import { Button, Card, Badge } from '@ozean-licht/shared-ui'
+
+// Use Ozean Licht styling
+<Card variant="default" hover padding="md">
+  <CardTitle>Dashboard Card</CardTitle>
+  <Button variant="primary">Action</Button>
+</Card>
+```
+
+**Signature Elements:**
+- Primary Color: Turquoise (#0ec2bc)
+- Background: Cosmic Dark (#0A0F1A)
+- Glass morphism effects
+- Cinzel Decorative + Montserrat fonts
+- Glow, float, and shine animations
+
+**Note:** Kids Ascension has separate branding. See `/BRANDING.md` for details.
+
+---
+
 ## =� Quick Start
 
 ### Prerequisites

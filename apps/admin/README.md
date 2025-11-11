@@ -328,8 +328,9 @@ pnpm build
 - [x] RBAC system (4 roles)
 - [x] User management interface
 - [x] System health monitoring
-- [ ] Ozean Licht critical features (Phase 1+)
-- [ ] Kids Ascension critical features (Phase 2+)
+- [x] Permissions matrix UI
+- [ ] Ozean Licht critical features (Phase 2)
+- [ ] Kids Ascension critical features (Phase 3)
 
 ## License
 

@@ -13,6 +13,7 @@ declare -A INTENT_MAP=(
     ["backup|restore|database|postgres|sql|query|migration|db"]="database"
     ["git|commit|push|pull|branch|merge|stash|diff|clone"]="git"
     ["ssh|remote|upload|download|tunnel|scp|rsync|sftp"]="remote"
+    ["memory|remember|pattern|learn|recall|search|save|knowledge|learning"]="memory"
 )
 
 # Main function

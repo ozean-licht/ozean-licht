@@ -3,6 +3,7 @@
 import LogoutButton from '../auth/LogoutButton'
 import { RoleBadge } from '@/components/rbac/RoleBadge'
 import { EntityBadge } from '@/components/rbac/EntityBadge'
+import { ThemeToggle } from './ThemeToggle'
 import type { AdminRole } from '@/types/admin'
 
 interface HeaderProps {
@@ -60,6 +61,7 @@ export default function Header({ user, onMenuToggle }: HeaderProps) {
                 )}
               </div>
             </div>
+            <ThemeToggle />
             <LogoutButton className="bg-[#0E282E] hover:bg-[#0E282E]/80 text-white" />
           </div>
         </div>
