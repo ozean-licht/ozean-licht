@@ -174,6 +174,96 @@ mcp-playwright, mcp-shadcn, mcp-magicui
 - `tools/inventory/docs/tool-selection-guide.md` - Complete decision tree
 - `tools/mcp-gateway/config/mcp-catalog.json` - MCP-specific configs
 
+## Memory & Pattern Recognition
+
+Use Mem0 to build institutional memory. Save valuable patterns to reduce friction in future workflows.
+
+**7. Memory** (Institutional memory):
+```bash
+bash tools/memory/list.sh                     # List commands
+bash tools/memory/save.sh "content"           # Save pattern
+bash tools/memory/search.sh "query"           # Search memories
+bash tools/memory/patterns.sh --category=pattern  # List patterns
+bash tools/memory/health.sh                   # Check service
+```
+
+### When to Save Memories
+
+**Save a memory when you:**
+- ✅ Solve a non-trivial problem that could recur
+- ✅ Make an architectural decision with important trade-offs
+- ✅ Discover a useful code pattern or implementation approach
+- ✅ Resolve an error that wasn't immediately obvious
+- ✅ Complete a complex workflow that worked well
+- ✅ Learn something about the codebase structure
+
+**Don't save when:**
+- ❌ Following standard documented procedures
+- ❌ Making trivial changes (typo fixes, formatting)
+- ❌ Information already in documentation
+- ❌ One-off, context-specific solutions
+
+### How to Save Memories
+
+**Quick Save (Recommended):**
+```bash
+# Save with auto-categorization
+bash tools/memory/save.sh "Use connection pooling for database queries to avoid timeout errors"
+
+# Save with specific category
+bash tools/memory/save.sh "Admin dashboard uses NextAuth for authentication" --category=decision
+
+# Save a pattern
+bash tools/memory/save.sh "Pattern: Use progressive disclosure to reduce context usage by 85%" --category=pattern
+```
+
+**Structured Save (For Complex Learnings):**
+```bash
+# Use pattern templates from tools/memory/PATTERNS.md
+bash tools/memory/save.sh "$(cat <<'EOF'
+Category: solution
+Problem: MCP Gateway container failing health checks
+Symptoms: 500 errors on /health endpoint, container restarts
+Root Cause: PostgreSQL connection pool exhausted
+Solution: Increased DB_POOL_MAX from 10 to 20 in .env
+Prevention: Monitor pool metrics at /metrics endpoint
+Files: tools/mcp-gateway/.env, tools/mcp-gateway/src/config/environment.ts
+EOF
+)" --category=solution
+```
+
+### How to Query Memories
+
+**Before starting work, search for relevant patterns:**
+```bash
+# Semantic search
+bash tools/memory/search.sh "database connection issues"
+bash tools/memory/search.sh "authentication implementation"
+
+# List patterns by category
+bash tools/memory/patterns.sh --category=pattern
+bash tools/memory/patterns.sh --category=solution
+
+# Get all memories for current context
+bash tools/memory/get.sh agent_claude_code
+```
+
+### Memory Best Practices
+
+1. **Be Specific**: Include concrete details (file paths, error messages, tool versions)
+2. **Add Context**: Explain when/why this matters
+3. **Link Related Info**: Reference related patterns, files, or tools
+4. **Use Categories**: Proper categorization improves retrieval
+5. **Update Don't Duplicate**: Search first, update existing memories when appropriate
+6. **Quality Over Quantity**: One good memory > five vague ones
+
+**Pattern Categories:**
+- `pattern` - Reusable implementation approaches
+- `decision` - Architecture and design decisions
+- `solution` - Problem-solution pairs for common issues
+- `error` - Error patterns and their resolutions
+- `workflow` - Successful workflow sequences
+
 ## Development Commands
 
 ```bash
