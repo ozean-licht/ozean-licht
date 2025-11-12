@@ -1,6 +1,5 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import { join, dirname } from 'path';
-import { injectReactShim } from './plugins/inject-react-shim';
 
 /**
  * This function is used to resolve the absolute path of a package.
@@ -38,10 +37,6 @@ const config: StorybookConfig = {
   viteFinal: async (config) => {
     return {
       ...config,
-      plugins: [
-        ...(config.plugins || []),
-        injectReactShim(),
-      ],
       optimizeDeps: {
         ...config.optimizeDeps,
         include: [
@@ -60,11 +55,18 @@ const config: StorybookConfig = {
         ...config.build,
         // Target modern browsers for smaller bundles
         target: 'es2020',
+        // Enable module preload polyfill to fix race conditions
+        modulePreload: {
+          polyfill: true,
+        },
         // Optimize chunk splitting
         rollupOptions: {
           ...config.build?.rollupOptions,
           output: {
             ...config.build?.rollupOptions?.output,
+            // Ensure consistent module format
+            format: 'es',
+            // Use manual chunks for better control
             manualChunks: (id) => {
               // Split large vendor libraries into separate chunks
               if (id.includes('node_modules')) {
