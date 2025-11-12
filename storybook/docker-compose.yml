@@ -14,12 +14,7 @@ services:
       - PORT=6006
     networks:
       - coolify
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6006/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
+    # Health check inherited from Dockerfile (uses Node.js, no curl needed)
     labels:
       # Coolify labels for Traefik
       - "traefik.enable=true"
