@@ -101,6 +101,8 @@ const config: StorybookConfig = {
           // Shared UI aliases (now using relative imports internally)
           '@shared': join(__dirname, '../../shared/ui-components/src'),
         },
+        // Deduplicate React to prevent multiple instances
+        dedupe: ['react', 'react-dom'],
       },
     };
   },
