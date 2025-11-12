@@ -8,7 +8,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/pre-tool-use"
+            "command": "/opt/ozean-licht-ecosystem/.claude/hooks/pre-tool-use"
           }
         ]
       },
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/pre-tool-use"
+            "command": "/opt/ozean-licht-ecosystem/.claude/hooks/pre-tool-use"
           }
         ]
       },
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/pre-tool-use"
+            "command": "/opt/ozean-licht-ecosystem/.claude/hooks/pre-tool-use"
           }
         ]
       }
@@ -37,7 +37,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/post-tool-use"
+            "command": "/opt/ozean-licht-ecosystem/.claude/hooks/post-tool-use"
           }
         ]
       }
@@ -47,7 +47,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/stop"
+            "command": "/opt/ozean-licht-ecosystem/.claude/hooks/stop"
           }
         ]
       }
@@ -57,7 +57,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/session-start"
+            "command": "/opt/ozean-licht-ecosystem/.claude/hooks/session-start"
           }
         ]
       }
@@ -67,7 +67,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/session-end"
+            "command": "/opt/ozean-licht-ecosystem/.claude/hooks/session-end"
           }
         ]
       }
@@ -77,7 +77,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/user-prompt-submit"
+            "command": "/opt/ozean-licht-ecosystem/.claude/hooks/user-prompt-submit"
           }
         ]
       }
@@ -87,7 +87,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/pre-compact"
+            "command": "/opt/ozean-licht-ecosystem/.claude/hooks/pre-compact"
           }
         ]
       }
