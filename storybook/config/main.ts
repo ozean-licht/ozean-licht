@@ -78,14 +78,16 @@ const config: StorybookConfig = {
                 if (id.includes('@radix-ui')) {
                   return 'radix-vendor';
                 }
-                // CRITICAL: Keep React + React DOM + Emotion TOGETHER
-                // @emotion/react has runtime dependency on useInsertionEffect
-                // Splitting them causes race condition where emotion loads before React
-                if (id.includes('react') || id.includes('react-dom') || id.includes('@emotion')) {
-                  return 'react-vendor';
-                }
-                // Storybook core (without emotion - it's now in react-vendor)
-                if (id.includes('@storybook')) {
+                // CRITICAL FIX: Bundle React + Emotion + Storybook TOGETHER
+                // Storybook vendor code needs React.useInsertionEffect immediately
+                // Splitting into separate chunks causes modulepreload race condition
+                // where storybook-vendor loads before react-vendor is available
+                if (
+                  id.includes('react') ||
+                  id.includes('react-dom') ||
+                  id.includes('@emotion') ||
+                  id.includes('@storybook')
+                ) {
                   return 'storybook-vendor';
                 }
                 // Other node_modules
@@ -101,8 +103,8 @@ const config: StorybookConfig = {
             },
           },
         },
-        // Increase chunk size warning limit (we've documented large chunks)
-        chunkSizeWarningLimit: 1000,
+        // Increase chunk size warning limit since React+Storybook are bundled together
+        chunkSizeWarningLimit: 3000,
       },
       resolve: {
         ...config.resolve,
