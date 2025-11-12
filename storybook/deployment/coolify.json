@@ -14,7 +14,7 @@
   "healthCheckRetries": 3,
   "environment": {
     "NODE_ENV": "production",
-    "NODE_VERSION": "18"
+    "NODE_VERSION": "20"
   },
   "labels": {
     "app": "storybook",

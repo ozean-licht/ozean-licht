@@ -1,6 +1,6 @@
 # Storybook Production Dockerfile
 # Multi-stage build for optimal image size
-FROM node:18-slim AS builder
+FROM node:20-slim AS builder
 
 # Set working directory
 WORKDIR /app
@@ -26,7 +26,7 @@ RUN npm run build-storybook
 RUN test -d storybook/build || (echo "ERROR: storybook/build not created!" && exit 1)
 
 # Production stage - serve static files
-FROM node:18-slim AS runner
+FROM node:20-slim AS runner
 
 # Install http-server for serving static files
 RUN npm install -g http-server@14.1.1
