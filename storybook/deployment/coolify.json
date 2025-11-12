@@ -2,7 +2,7 @@
   "name": "ozean-licht-storybook",
   "description": "Ozean Licht Component Library Documentation",
   "type": "static",
-  "buildCommand": "npm install --frozen-lockfile && npm run build:tokens && npm run build-storybook",
+  "buildCommand": "npm install --frozen-lockfile && npm run build-storybook",
   "installCommand": "npm install --frozen-lockfile",
   "startCommand": "npx http-server storybook/build -p 6006 --gzip --proxy http://localhost:6006?",
   "buildDirectory": "storybook/build",

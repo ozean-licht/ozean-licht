@@ -19,9 +19,6 @@ RUN npm ci --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Build design tokens first (required by Storybook)
-RUN npm run build:tokens
-
 # Build Storybook static site
 RUN npm run build-storybook
 
