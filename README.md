@@ -79,13 +79,11 @@ import { Button, Card, Badge } from '@ozean-licht/shared-ui'
 # Required tools
 node -v       # Node.js 18+
 pnpm -v       # PNPM package manager
-uv --version  # Python package manager for ADW
 gh --version  # GitHub CLI
 claude --version  # Claude Code CLI
 
 # Install missing tools
 npm install -g pnpm              # Package manager
-curl -LsSf https://astral.sh/uv/install.sh | sh  # UV for Python
 brew install gh                  # GitHub CLI (macOS)
 ```
 

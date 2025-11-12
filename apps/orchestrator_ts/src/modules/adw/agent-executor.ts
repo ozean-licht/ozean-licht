@@ -9,6 +9,12 @@
  * - TypeScript: Direct Agent SDK `query()` function with streaming
  * - Provides better error handling, retry logic, and real-time progress tracking
  *
+ * Phase 2.3 Enhancements:
+ * - Integrated retry strategy with exponential backoff
+ * - Circuit breaker protection for Agent SDK calls
+ * - Error enrichment with context and categorization
+ * - Automatic error notifications for critical failures
+ *
  * Migrated from Python: adws/adw_modules/agent.py
  *
  * @module modules/adw/agent-executor
@@ -27,25 +33,19 @@ import {
   RetryCode,
 } from './types.js';
 import { getWorkflowState } from './state-manager.js';
+import { withRetry, RETRY_CONFIGS } from './retry-strategy.js';
+import { withCircuitBreaker, CIRCUIT_BREAKERS } from './circuit-breaker.js';
+import {
+  enrichError,
+  logEnrichedError,
+  categorizeError,
+  ErrorCategory,
+} from './error-handler.js';
+import { notifyError, createErrorNotification } from './error-notifier.js';
 
 // ============================================================================
 // Constants
 // ============================================================================
-
-/**
- * Maximum number of retry attempts for agent execution
- */
-const MAX_RETRIES = 3;
-
-/**
- * Exponential backoff base delay in milliseconds
- */
-const RETRY_BASE_DELAY = 1000;
-
-/**
- * Maximum agent execution timeout in milliseconds (10 minutes)
- */
-const AGENT_TIMEOUT = 600000;
 
 /**
  * Model name mapping from short names to SDK model identifiers
@@ -68,10 +68,12 @@ const MODEL_NAME_MAP: Record<string, string> = {
  *
  * Features:
  * - Direct Agent SDK integration (no subprocess)
- * - Automatic retry with exponential backoff
+ * - Automatic retry with exponential backoff (via retry-strategy)
+ * - Circuit breaker protection (via circuit-breaker)
  * - Model selection based on slash command and model set
  * - Real-time streaming (optional callback)
- * - Comprehensive error handling
+ * - Comprehensive error handling with enrichment
+ * - Automatic error notifications for critical failures
  *
  * @param config - Agent execution configuration
  * @param onStreamChunk - Optional callback for streaming agent output
@@ -107,111 +109,107 @@ export async function executeAgent(
       argsCount: args.length,
       workingDir,
     },
-    'Starting agent execution'
+    'Starting agent execution with resilience'
   );
 
-  // Get model for slash command
-  const model = await getModelForSlashCommand(config);
+  try {
+    // Get model for slash command
+    const model = await getModelForSlashCommand(config);
 
-  // Build prompt with slash command and arguments
-  const prompt = buildPrompt(slashCommand, args);
+    // Build prompt with slash command and arguments
+    const prompt = buildPrompt(slashCommand, args);
 
-  // Execute with retry logic
-  let lastError: Error | undefined;
-  let attempt = 0;
+    // Execute with circuit breaker and retry protection
+    const result = await withCircuitBreaker(
+      () =>
+        withRetry(
+          () =>
+            executeAgentQuery(
+              prompt,
+              model,
+              workingDir || env.ADW_WORKING_DIR,
+              config.dangerouslySkipPermissions || false,
+              onStreamChunk
+            ),
+          RETRY_CONFIGS.agent,
+          `agent-${slashCommand}-${adwId}`
+        ),
+      'agent-sdk'
+    );
 
-  while (attempt < MAX_RETRIES) {
-    attempt++;
+    logger.info(
+      {
+        adwId,
+        agentName,
+        outputLength: result.output.length,
+        slashCommand,
+      },
+      'Agent execution completed successfully'
+    );
 
-    try {
-      logger.debug(
-        { adwId, attempt, maxRetries: MAX_RETRIES },
-        'Attempting agent execution'
-      );
-
-      const result = await executeAgentQuery(
-        prompt,
-        model,
-        workingDir || env.ADW_WORKING_DIR,
-        config.dangerouslySkipPermissions || false,
-        onStreamChunk
-      );
-
-      logger.info(
-        {
-          adwId,
-          agentName,
-          outputLength: result.output.length,
-          attempt,
-        },
-        'Agent execution completed successfully'
-      );
-
-      return {
-        success: true,
-        output: result.output,
-        sessionId: result.sessionId,
-        retryCode: 'NONE',
-      };
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-
-      logger.warn(
-        {
-          adwId,
-          attempt,
-          maxRetries: MAX_RETRIES,
-          error: lastError.message,
-        },
-        'Agent execution attempt failed'
-      );
-
-      // Determine if error is retryable
-      const retryCode = classifyError(lastError);
-
-      if (retryCode === 'EXECUTION_ERROR' || attempt >= MAX_RETRIES) {
-        // Non-retryable error or max retries reached
-        logger.error(
-          {
-            adwId,
-            agentName,
-            retryCode,
-            attempts: attempt,
-          },
-          'Agent execution failed permanently'
-        );
-
-        return {
-          success: false,
-          output: lastError.message,
-          retryCode,
-          error: lastError,
-        };
-      }
-
-      // Wait before retry (exponential backoff)
-      const delay = RETRY_BASE_DELAY * Math.pow(2, attempt - 1);
-      logger.debug({ adwId, delay, nextAttempt: attempt + 1 }, 'Waiting before retry');
-      await sleep(delay);
-    }
-  }
-
-  // Max retries exhausted
-  logger.error(
-    {
+    return {
+      success: true,
+      output: result.output,
+      sessionId: result.sessionId,
+      retryCode: 'NONE',
+    };
+  } catch (error) {
+    // Enrich error with context
+    const enrichedError = enrichError(error instanceof Error ? error : new Error(String(error)), {
       adwId,
-      agentName,
-      attempts: MAX_RETRIES,
-    },
-    'Agent execution failed after all retries'
-  );
+      phase: 'agent-execution',
+      operation: `${slashCommand}`,
+      metadata: {
+        agentName,
+        slashCommand,
+        argsCount: args.length,
+      },
+    });
 
-  return {
-    success: false,
-    output: lastError?.message || 'Unknown error after max retries',
-    retryCode: 'EXECUTION_ERROR',
-    error: lastError,
-  };
+    // Log enriched error with full context
+    logEnrichedError(enrichedError, {
+      agentName,
+      slashCommand,
+    });
+
+    // Send notification if error requires intervention
+    if (enrichedError.requiresIntervention) {
+      await notifyError(createErrorNotification(enrichedError)).catch((notifyError) => {
+        logger.warn({ error: notifyError }, 'Failed to send error notification');
+      });
+    }
+
+    // Determine retry code from error category
+    const retryCode = mapCategoryToRetryCode(enrichedError.category);
+
+    return {
+      success: false,
+      output: enrichedError.formattedMessage,
+      retryCode,
+      error: enrichedError,
+    };
+  }
+}
+
+/**
+ * Map error category to legacy retry code
+ *
+ * Maintains compatibility with existing RetryCode type.
+ *
+ * @param category - Error category
+ * @returns Corresponding retry code
+ */
+function mapCategoryToRetryCode(category: ErrorCategory): RetryCode {
+  switch (category) {
+    case ErrorCategory.TRANSIENT:
+      return 'TIMEOUT_ERROR';
+    case ErrorCategory.PERMANENT:
+      return 'EXECUTION_ERROR';
+    case ErrorCategory.UNKNOWN:
+      return 'ERROR_DURING_EXECUTION';
+    default:
+      return 'EXECUTION_ERROR';
+  }
 }
 
 /**
@@ -375,37 +373,5 @@ function buildPrompt(slashCommand: SlashCommand, args: string[]): string {
   return `${slashCommand} ${args.join(' ')}`;
 }
 
-/**
- * Classify an error to determine if it's retryable
- *
- * @param error - Error to classify
- * @returns Retry code indicating error type
- */
-function classifyError(error: Error): RetryCode {
-  const message = error.message.toLowerCase();
-
-  if (message.includes('timeout')) {
-    return 'TIMEOUT_ERROR';
-  }
-
-  if (message.includes('claude') || message.includes('api')) {
-    return 'CLAUDE_CODE_ERROR';
-  }
-
-  if (message.includes('execution')) {
-    return 'ERROR_DURING_EXECUTION';
-  }
-
-  // Default to non-retryable execution error
-  return 'EXECUTION_ERROR';
-}
-
-/**
- * Sleep utility for retry backoff
- *
- * @param ms - Milliseconds to sleep
- * @returns Promise that resolves after delay
- */
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+// Note: Old classifyError and sleep functions removed - now using
+// error-handler.categorizeError and retry-strategy.withRetry instead

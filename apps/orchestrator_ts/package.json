@@ -11,6 +11,12 @@
     "db:studio": "prisma studio",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "test:integration": "vitest --config vitest.config.integration.ts",
+    "test:integration:watch": "vitest --config vitest.config.integration.ts --watch",
+    "test:integration:ui": "vitest --config vitest.config.integration.ts --ui",
+    "test:coverage": "vitest --config vitest.config.integration.ts --coverage",
+    "test:verbose": "vitest --config vitest.config.integration.ts --reporter=verbose",
+    "test:all": "vitest && vitest --config vitest.config.integration.ts",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -21,8 +27,10 @@
     "@fastify/websocket": "^10.0.0",
     "@octokit/rest": "^20.0.0",
     "@prisma/client": "^5.8.0",
+    "@types/node-cron": "^3.0.11",
     "dotenv": "^16.3.1",
     "fastify": "^4.25.0",
+    "node-cron": "^4.2.1",
     "pino": "^8.17.0",
     "pino-pretty": "^10.3.0",
     "prisma": "^5.8.0",

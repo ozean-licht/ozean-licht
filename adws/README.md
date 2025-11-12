@@ -90,10 +90,43 @@ npm run dev
 
 ### 3. Using the ADW API
 
-The ADW system exposes HTTP endpoints for workflow management:
+#### Quick Workflow Endpoints (Recommended)
+
+The quickest way to create and execute workflows:
 
 ```bash
-# Create a new workflow from a GitHub issue
+# Plan + Build workflow
+curl -X POST http://localhost:8003/api/adw/workflows/quick/plan-build \
+  -H "Content-Type: application/json" \
+  -d '{"issueNumber": 123, "modelSet": "base"}'
+
+# Plan + Build + Test workflow
+curl -X POST http://localhost:8003/api/adw/workflows/quick/plan-build-test \
+  -H "Content-Type: application/json" \
+  -d '{"issueNumber": 123, "modelSet": "base"}'
+
+# Complete SDLC workflow
+curl -X POST http://localhost:8003/api/adw/workflows/quick/sdlc \
+  -H "Content-Type: application/json" \
+  -d '{"issueNumber": 456, "modelSet": "heavy"}'
+
+# Zero Touch Execution (auto-merge)
+curl -X POST http://localhost:8003/api/adw/workflows/quick/zte \
+  -H "Content-Type: application/json" \
+  -d '{"issueNumber": 789, "modelSet": "base"}'
+
+# Patch workflow
+curl -X POST http://localhost:8003/api/adw/workflows/patch \
+  -H "Content-Type: application/json" \
+  -d '{"issueNumber": 100, "modelSet": "base"}'
+```
+
+#### Manual Workflow Control
+
+For more granular control, create and execute phases separately:
+
+```bash
+# Create a workflow
 curl -X POST http://localhost:8003/api/adw/workflows \
   -H "Content-Type: application/json" \
   -d '{
@@ -102,25 +135,85 @@ curl -X POST http://localhost:8003/api/adw/workflows \
     "modelSet": "base"
   }'
 
-# Execute a specific phase
-curl -X POST http://localhost:8003/api/adw/workflows/{adw_id}/execute \
-  -H "Content-Type: application/json" \
-  -d '{
-    "phase": "build"
-  }'
+# Execute individual phases
+ADW_ID="<workflow-id-from-above>"
+curl -X POST http://localhost:8003/api/adw/workflows/$ADW_ID/plan
+curl -X POST http://localhost:8003/api/adw/workflows/$ADW_ID/build
+curl -X POST http://localhost:8003/api/adw/workflows/$ADW_ID/test
+curl -X POST http://localhost:8003/api/adw/workflows/$ADW_ID/review
+curl -X POST http://localhost:8003/api/adw/workflows/$ADW_ID/document
+curl -X POST http://localhost:8003/api/adw/workflows/$ADW_ID/ship
 
 # Get workflow status
-curl http://localhost:8003/api/adw/workflows/{adw_id}
+curl http://localhost:8003/api/adw/workflows/$ADW_ID
 
 # List all active workflows
 curl http://localhost:8003/api/adw/workflows
 
 # Cancel a workflow
-curl -X DELETE http://localhost:8003/api/adw/workflows/{adw_id}
-
-# GitHub webhook endpoint (automatic triggers)
-# Configure in GitHub: POST http://your-domain:8003/api/webhooks/github
+curl -X DELETE http://localhost:8003/api/adw/workflows/$ADW_ID
 ```
+
+#### GitHub Webhook Integration
+
+Configure GitHub webhooks for automatic workflow triggers:
+
+```bash
+# Webhook URL: http://your-domain:8003/api/webhooks/github
+# Events: Issues, Issue comments
+# Secret: Set GITHUB_WEBHOOK_SECRET environment variable
+```
+
+**Trigger patterns:**
+- Issue body: Include `workflow: plan-build` and `model_set: base`
+- Labels: Apply `adw:sdlc`, `adw:zte`, `adw:plan-build`, etc.
+- Comments: Post `adw sdlc heavy` or `adw zte base`
+
+#### Scheduled Workflows (Cron)
+
+Create scheduled workflow executions:
+
+```bash
+# Create a cron job
+curl -X POST http://localhost:8003/api/cron/jobs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "schedule": "0 9 * * MON",
+    "workflowType": "sdlc",
+    "issueNumber": 123,
+    "modelSet": "base",
+    "enabled": true,
+    "description": "Weekly SDLC workflow"
+  }'
+
+# List all cron jobs
+curl http://localhost:8003/api/cron/jobs
+
+# Manually trigger a cron job
+curl -X POST http://localhost:8003/api/cron/jobs/{job_id}/trigger
+
+# Cancel a cron job
+curl -X DELETE http://localhost:8003/api/cron/jobs/{job_id}
+```
+
+### 4. Using Legacy Shell Wrappers (DEPRECATED)
+
+**NOTICE:** As of 2025-11-12, all Python workflow scripts have been removed and archived. The ADW system is now 100% TypeScript.
+
+Legacy shell script wrappers are still available but will be removed in future versions:
+
+```bash
+# These scripts call the TypeScript API internally
+./adw_plan_build_iso.sh 123 base
+./adw_sdlc_iso.sh 456 heavy
+./adw_zte_iso.sh 789 base
+
+# Set custom API URL
+export ADW_API_URL=http://your-server:8003
+./adw_plan_build_iso.sh 123
+```
+
+**WARNING:** Please migrate to direct API calls. Python implementation archived at `/archive/python-cleanup-20251112/`.
 
 ### 4. Using the Orchestrator Chat Interface
 
@@ -741,16 +834,24 @@ Example: `feat-456-abc12345-add-user-authentication`
 
 ## Migration Status & Next Steps
 
-### Current State (58% Complete)
+### Current State (100% Python Migration Complete)
 - ✅ PostgreSQL database schema (`adw_workflows`, `adw_workflow_events`)
 - ✅ Core TypeScript modules (state, worktree, git, github, agent executor)
 - ✅ HTTP API endpoints for workflow management
 - ✅ WebSocket streaming for real-time updates
 - ✅ MCP tools for orchestrator integration
 - ✅ Orchestrator chat service
+- ✅ **Python cleanup completed (2025-11-12)** - All Python files archived
 - ⏳ Integration testing (pending)
 - ⏳ Production deployment (pending)
 - ⏳ Frontend UI components (pending)
+
+### Python Cleanup (Completed 2025-11-12)
+All Python workflow scripts have been migrated to TypeScript and archived:
+- **Archive Location:** `/archive/python-cleanup-20251112/`
+- **Files Archived:** 55 Python files (11 from /adws, 6 from /apps/orchestrator_db, 38 from /apps/orchestrator_3_stream)
+- **Total Size:** 214.1 MB
+- **Status:** ADW system is now 100% TypeScript
 
 ### Specifications Needed
 

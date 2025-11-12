@@ -15,6 +15,11 @@
  * - ADW_BOT_IDENTIFIER for loop prevention
  * - Comprehensive error handling and logging
  *
+ * Phase 2.3 Enhancements:
+ * - Circuit breaker protection for GitHub API calls
+ * - Retry strategy for transient failures
+ * - Rate limiting detection and handling
+ *
  * @module modules/adw/github-integration
  */
 
@@ -23,6 +28,8 @@ import { logger } from '../../config/logger.js';
 import { env } from '../../config/env.js';
 import { GitHubIssue, GitHubPullRequest } from './types.js';
 import { getGit } from './git-operations.js';
+import { withRetry, RETRY_CONFIGS } from './retry-strategy.js';
+import { withCircuitBreaker, CIRCUIT_BREAKERS } from './circuit-breaker.js';
 
 /**
  * Bot identifier used to prevent webhook loops and filter bot comments
@@ -460,6 +467,7 @@ export async function markIssueInProgress(issueNumber: number, cwd?: string): Pr
  * Create a pull request
  *
  * Creates a new pull request with the specified title, body, and branch information.
+ * Protected by circuit breaker and retry strategy for resilience.
  *
  * @param title - PR title
  * @param body - PR description/body
@@ -487,33 +495,39 @@ export async function createPullRequest(
   base: string,
   cwd?: string
 ): Promise<number> {
-  try {
-    const octokit = getOctokit();
-    const { owner, repo } = await getRepoInfo(cwd);
+  return withCircuitBreaker(
+    () =>
+      withRetry(
+        async () => {
+          const octokit = getOctokit();
+          const { owner, repo } = await getRepoInfo(cwd);
 
-    logger.debug({ title, head, base, owner, repo }, 'Creating pull request');
+          logger.debug({ title, head, base, owner, repo }, 'Creating pull request');
 
-    const { data } = await octokit.rest.pulls.create({
-      owner,
-      repo,
-      title,
-      body,
-      head,
-      base,
-    });
+          const { data } = await octokit.rest.pulls.create({
+            owner,
+            repo,
+            title,
+            body,
+            head,
+            base,
+          });
 
-    logger.info({ prNumber: data.number, title }, 'Successfully created pull request');
-    return data.number;
-  } catch (error) {
-    logger.error({ error, title, head, base }, 'Failed to create pull request');
-    throw new Error(`Failed to create pull request: ${error}`);
-  }
+          logger.info({ prNumber: data.number, title }, 'Successfully created pull request');
+          return data.number;
+        },
+        RETRY_CONFIGS.github,
+        `github-create-pr-${head}`
+      ),
+    'github-api'
+  );
 }
 
 /**
  * Merge a pull request
  *
  * Merges the specified pull request using the squash merge method.
+ * Protected by circuit breaker and retry strategy for resilience.
  *
  * @param prNumber - Pull request number to merge
  * @param mergeMethod - Merge method ('squash', 'merge', or 'rebase')
@@ -532,22 +546,27 @@ export async function mergePullRequest(
   mergeMethod: 'squash' | 'merge' | 'rebase' = 'squash',
   cwd?: string
 ): Promise<void> {
-  try {
-    const octokit = getOctokit();
-    const { owner, repo } = await getRepoInfo(cwd);
+  await withCircuitBreaker(
+    () =>
+      withRetry(
+        async () => {
+          const octokit = getOctokit();
+          const { owner, repo } = await getRepoInfo(cwd);
 
-    logger.debug({ prNumber, mergeMethod, owner, repo }, 'Merging pull request');
+          logger.debug({ prNumber, mergeMethod, owner, repo }, 'Merging pull request');
 
-    await octokit.rest.pulls.merge({
-      owner,
-      repo,
-      pull_number: prNumber,
-      merge_method: mergeMethod,
-    });
+          await octokit.rest.pulls.merge({
+            owner,
+            repo,
+            pull_number: prNumber,
+            merge_method: mergeMethod,
+          });
 
-    logger.info({ prNumber, mergeMethod }, 'Successfully merged pull request');
-  } catch (error) {
-    logger.error({ error, prNumber, mergeMethod }, 'Failed to merge pull request');
-    throw new Error(`Failed to merge pull request #${prNumber}: ${error}`);
-  }
+          logger.info({ prNumber, mergeMethod }, 'Successfully merged pull request');
+        },
+        RETRY_CONFIGS.github,
+        `github-merge-pr-${prNumber}`
+      ),
+    'github-api'
+  );
 }

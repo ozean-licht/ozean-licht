@@ -25,7 +25,7 @@ if [ -d "agents" ]; then
     for agent in agents/*/; do
         if [ -f "${agent}adw_state.json" ]; then
             echo -e "${GREEN}Agent: $(basename $agent)${NC}"
-            cat "${agent}adw_state.json" | python -m json.tool 2>/dev/null | head -10 || echo "Invalid JSON"
+            cat "${agent}adw_state.json" | jq . 2>/dev/null | head -10 || echo "Invalid JSON"
             echo ""
         fi
     done
@@ -54,7 +54,7 @@ if [ -d "agents" ]; then
         for log in $log_files; do
             if [ -s "$log" ]; then
                 echo -e "${GREEN}Log: $log${NC}"
-                tail -1 "$log" | python -m json.tool 2>/dev/null | head -5 || tail -1 "$log"
+                tail -1 "$log" | jq . 2>/dev/null | head -5 || tail -1 "$log"
                 echo ""
             fi
         done | head -20
