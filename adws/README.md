@@ -1,6 +1,6 @@
-# AI Developer Workflow (ADW) System - Isolated Workflows
+# AI Developer Workflow (ADW) System - TypeScript Edition
 
-ADW automates software development using isolated git worktrees. The `_iso` suffix stands for "isolated" - these workflows run in separate git worktrees, enabling multiple agents to run at the same time in their own respective directories. Each workflow gets its own complete copy of the repository with dedicated ports and filesystem isolation.
+ADW automates software development using isolated git worktrees and the Claude Agent SDK. Each workflow runs in a separate worktree with dedicated ports and filesystem isolation, enabling up to 15 concurrent agents. The system is built with TypeScript, PostgreSQL state management, and real-time WebSocket streaming.
 
 ## Key Concepts
 
@@ -20,10 +20,11 @@ Each workflow run is assigned a unique 8-character identifier (e.g., `a1b2c3d4`)
 - Enables resuming workflows and debugging
 
 ### State Management
-ADW uses persistent state files (`agents/{adw_id}/adw_state.json`) to:
+ADW uses PostgreSQL for persistent state management via `adw_workflows` table:
 - Share data between workflow phases
 - Track worktree locations and port assignments
 - Enable workflow composition and chaining
+- Real-time updates via WebSocket streaming
 - Track essential workflow data:
   - `adw_id`: Unique workflow identifier
   - `issue_number`: GitHub issue being processed
@@ -33,470 +34,378 @@ ADW uses persistent state files (`agents/{adw_id}/adw_state.json`) to:
   - `worktree_path`: Absolute path to isolated worktree
   - `backend_port`: Allocated backend port (9100-9114)
   - `frontend_port`: Allocated frontend port (9200-9214)
+  - `current_phase`: Current execution phase
+  - `status`: Workflow status (pending, running, completed, failed)
 
 ## Quick Start
 
-### 1. Set Environment Variables
+### 1. Environment Setup
+
+The ADW system runs as a TypeScript service integrated with the Orchestrator:
 
 ```bash
-export GITHUB_REPO_URL="https://github.com/owner/repository"
-export ANTHROPIC_API_KEY="sk-ant-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-export CLAUDE_CODE_PATH="/path/to/claude"  # Optional, defaults to "claude"
-export GITHUB_PAT="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # Optional, only if using different account than 'gh auth login'
+# Required environment variables (apps/orchestrator_ts/.env)
+NODE_ENV=development
+PORT=8003
+DATABASE_URL=postgresql://user:password@localhost:5432/orchestrator_db
+
+# Core APIs
+ANTHROPIC_API_KEY=sk-ant-xxxxx
+GITHUB_TOKEN=ghp_xxxxx
+GITHUB_OWNER=your-org
+GITHUB_REPO=your-repo
+
+# ADW Configuration
+ADW_WORKING_DIR=/opt/ozean-licht-ecosystem
+ADW_BACKEND_PORT_START=9100
+ADW_FRONTEND_PORT_START=9200
+ADW_MAX_CONCURRENT_WORKFLOWS=15
+
+# MCP Gateway (optional)
+MCP_GATEWAY_URL=http://localhost:8100
+
+# Cloudflare R2 (optional)
+R2_ENDPOINT=https://xxxxx.r2.cloudflarestorage.com
+R2_ACCESS_KEY_ID=xxxxx
+R2_SECRET_ACCESS_KEY=xxxxx
+R2_BUCKET=ozean-ecosystem
 ```
 
-### 2. Install Prerequisites
+### 2. Installation
 
 ```bash
-# GitHub CLI
-brew install gh              # macOS
-# or: sudo apt install gh    # Ubuntu/Debian
-# or: winget install --id GitHub.cli  # Windows
+cd apps/orchestrator_ts
 
-# Claude Code CLI
-# Follow instructions at https://docs.anthropic.com/en/docs/claude-code
+# Install dependencies
+npm install
 
-# Python dependency manager (uv)
-curl -LsSf https://astral.sh/uv/install.sh | sh  # macOS/Linux
-# or: powershell -c "irm https://astral.sh/uv/install.ps1 | iex"  # Windows
+# Run database migrations
+npx prisma migrate deploy
 
-# Authenticate GitHub
-gh auth login
+# Start development server
+npm run dev
+
+# Service runs on http://localhost:8003
 ```
 
-### 3. Run Isolated ADW Workflows
+### 3. Using the ADW API
+
+The ADW system exposes HTTP endpoints for workflow management:
 
 ```bash
-cd adws/
+# Create a new workflow from a GitHub issue
+curl -X POST http://localhost:8003/api/adw/workflows \
+  -H "Content-Type: application/json" \
+  -d '{
+    "issueNumber": 123,
+    "workflowType": "plan-build",
+    "modelSet": "base"
+  }'
 
-# Process a single issue in isolation (plan + build)
-uv run adw_plan_build_iso.py 123
+# Execute a specific phase
+curl -X POST http://localhost:8003/api/adw/workflows/{adw_id}/execute \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phase": "build"
+  }'
 
-# Process with testing in isolation (plan + build + test)
-uv run adw_plan_build_test_iso.py 123
+# Get workflow status
+curl http://localhost:8003/api/adw/workflows/{adw_id}
 
-# Process with review in isolation (plan + build + test + review)
-uv run adw_plan_build_test_review_iso.py 123
+# List all active workflows
+curl http://localhost:8003/api/adw/workflows
 
-# Process with review but skip tests (plan + build + review)
-uv run adw_plan_build_review_iso.py 123
+# Cancel a workflow
+curl -X DELETE http://localhost:8003/api/adw/workflows/{adw_id}
 
-# Process with documentation (plan + build + document)
-uv run adw_plan_build_document_iso.py 123
-
-# Complete SDLC workflow in isolation
-uv run adw_sdlc_iso.py 123
-
-# Zero Touch Execution - Complete SDLC with auto-ship (⚠️ merges to main!)
-uv run adw_sdlc_zte_iso.py 123
-
-# Run individual isolated phases
-uv run adw_plan_iso.py 123              # Planning phase (creates worktree)
-uv run adw_patch_iso.py 123             # Patch workflow (creates worktree)
-uv run adw_build_iso.py 123 <adw-id>    # Build phase (requires worktree)
-uv run adw_test_iso.py 123 <adw-id>     # Test phase (requires worktree)
-uv run adw_review_iso.py 123 <adw-id>   # Review phase (requires worktree)
-uv run adw_document_iso.py 123 <adw-id> # Documentation phase (requires worktree)
-uv run adw_ship_iso.py 123 <adw-id>     # Ship phase (approve & merge PR)
-
-# Run continuous monitoring (polls every 20 seconds)
-uv run adw_triggers/trigger_cron.py
-
-# Start webhook server (for instant GitHub events)
-uv run adw_triggers/trigger_webhook.py
+# GitHub webhook endpoint (automatic triggers)
+# Configure in GitHub: POST http://your-domain:8003/api/webhooks/github
 ```
 
-## ADW Isolated Workflow Scripts
+### 4. Using the Orchestrator Chat Interface
 
-### Entry Point Workflows (Create Worktrees)
+For natural language workflow management:
 
-#### adw_plan_iso.py - Isolated Planning
-Creates isolated worktree and generates implementation plans.
-
-**Usage:**
 ```bash
-uv run adw_plan_iso.py <issue-number> [adw-id]
+# Send message to orchestrator
+curl -X POST http://localhost:8003/api/orchestrator/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Create a workflow for issue #123 and execute plan phase"
+  }'
+
+# Get chat history
+curl http://localhost:8003/api/orchestrator/history
+
+# Get session metrics
+curl http://localhost:8003/api/orchestrator/metrics
+
+# Clear chat history
+curl -X DELETE http://localhost:8003/api/orchestrator/history
 ```
 
-**What it does:**
-1. Creates isolated git worktree at `trees/<adw_id>/`
-2. Allocates unique ports (backend: 9100-9114, frontend: 9200-9214)
-3. Sets up environment with `.ports.env`
-4. Fetches issue details and classifies type
-5. Creates feature branch in worktree
-6. Generates implementation plan in isolation
-7. Commits and pushes from worktree
-8. Creates/updates pull request
+## ADW Architecture
 
-#### adw_patch_iso.py - Isolated Patch Workflow
-Quick patches in isolated environment triggered by 'adw_patch' keyword.
+### Workflow Phases
 
-**Usage:**
+Each workflow phase is executed via the Agent SDK with worktree isolation:
+
+#### 1. Plan Phase
+**Creates worktree and generates implementation plan**
+- Fetches GitHub issue details and classifies type (`/chore`, `/bug`, `/feature`)
+- Creates isolated git worktree at `trees/<adw_id>/`
+- Allocates unique ports (backend: 9100-9114, frontend: 9200-9214)
+- Uses `/classify_issue` and `/plan` slash commands via Agent SDK
+- Generates implementation spec in `specs/` directory
+- Commits plan and creates/updates pull request
+- Updates PostgreSQL workflow state
+
+#### 2. Build Phase
+**Implements solution using Agent SDK**
+- Validates worktree exists and switches to correct branch
+- Locates plan file from workflow state
+- Uses `/implement` slash command with plan context
+- Agent SDK executes in worktree with streaming progress
+- Commits changes and pushes to feature branch
+- Updates workflow state with build completion
+
+#### 3. Test Phase
+**Runs tests with port isolation**
+- Validates worktree and allocated ports
+- Uses `/test` slash command in worktree context
+- Runs unit tests, integration tests, optionally E2E
+- Auto-resolves failures via Agent SDK retry logic
+- Commits test results and updates state
+
+#### 4. Review Phase
+**Reviews implementation against spec**
+- Uses `/review` slash command with spec reference
+- Validates against original plan in isolated environment
+- Captures screenshots using allocated ports (Playwright)
+- Uploads screenshots to Cloudflare R2
+- Auto-resolves blockers if configured
+- Updates workflow state with review completion
+
+#### 5. Document Phase
+**Generates comprehensive documentation**
+- Analyzes git diff and implementation changes
+- Uses `/document` slash command
+- Generates feature documentation in `app_docs/`
+- Includes technical guide, overview, and screenshots
+- Commits documentation to worktree
+
+#### 6. Ship Phase
+**Approves and merges PR**
+- Validates all workflow state fields populated
+- Verifies worktree exists and PR is ready
+- Approves PR via GitHub API
+- Merges to main using squash method
+- Cleans up worktree (optional)
+- Marks workflow as completed in PostgreSQL
+
+### Workflow Types
+
+Execute phases via `workflowType` parameter:
+
+- **`plan`** - Planning only
+- **`plan-build`** - Plan + Build
+- **`plan-build-test`** - Plan + Build + Test
+- **`plan-build-review`** - Plan + Build + Review
+- **`plan-build-test-review`** - Plan + Build + Test + Review
+- **`sdlc`** - Complete SDLC (all phases)
+- **`zte`** - Zero Touch Execution (SDLC + auto-ship)
+
+### TypeScript Module Structure
+
+```
+apps/orchestrator_ts/src/
+├── modules/adw/
+│   ├── agent-executor.ts       # Agent SDK integration with retry logic
+│   ├── state-manager.ts         # PostgreSQL state management
+│   ├── workflow-manager.ts      # Orchestrates all workflow phases
+│   ├── worktree-manager.ts      # Git worktree creation and cleanup
+│   ├── git-operations.ts        # Git commands via simple-git
+│   ├── github-integration.ts    # GitHub API operations
+│   ├── types.ts                 # TypeScript types + Zod schemas
+│   └── utils.ts                 # Utility functions
+│
+├── tools/
+│   └── adw-mcp-tools.ts         # MCP tools for orchestrator
+│
+├── routes/
+│   ├── adw.ts                   # ADW HTTP API endpoints
+│   ├── orchestrator.ts          # Orchestrator chat API
+│   └── webhooks.ts              # GitHub webhook handler
+│
+├── services/
+│   └── orchestrator-service.ts  # Unified orchestrator with ADW tools
+│
+└── database/queries/
+    ├── adw.ts                   # ADW workflow queries
+    └── orchestrator.ts          # Orchestrator chat queries
+```
+
+### GitHub Webhook Integration
+
+The system automatically processes GitHub events:
+
+**Supported Triggers:**
+- New issues created (automatic workflow initiation)
+- Comments with "adw" keyword (manual trigger)
+- Issue labels for workflow type selection
+
+**Webhook Configuration:**
 ```bash
-uv run adw_patch_iso.py <issue-number> [adw-id]
+# GitHub webhook settings
+URL: https://your-domain.com/api/webhooks/github
+Content type: application/json
+Events: Issues, Issue comments
+Secret: Set GITHUB_WEBHOOK_SECRET environment variable
 ```
 
-**What it does:**
-1. Searches for 'adw_patch' in issue/comments
-2. Creates isolated worktree with unique ports
-3. Creates targeted patch plan in isolation
-4. Implements specific changes
-5. Commits and creates PR from worktree
-
-### Dependent Workflows (Require Existing Worktree)
-
-#### adw_build_iso.py - Isolated Implementation
-Implements solutions in existing isolated environment.
-
-**Requirements:**
-- Existing worktree created by `adw_plan_iso.py` or `adw_patch_iso.py`
-- ADW ID is mandatory
-
-**Usage:**
-```bash
-uv run adw_build_iso.py <issue-number> <adw-id>
-```
-
-**What it does:**
-1. Validates worktree exists
-2. Switches to correct branch if needed
-3. Locates plan file in worktree
-4. Implements solution in isolated environment
-5. Commits and pushes from worktree
-
-#### adw_test_iso.py - Isolated Testing
-Runs tests in isolated environment.
-
-**Requirements:**
-- Existing worktree
-- ADW ID is mandatory
-
-**Usage:**
-```bash
-uv run adw_test_iso.py <issue-number> <adw-id> [--skip-e2e]
-```
-
-**What it does:**
-1. Validates worktree exists
-2. Runs tests with allocated ports
-3. Auto-resolves failures in isolation
-4. Optionally runs E2E tests
-5. Commits results from worktree
-
-#### adw_review_iso.py - Isolated Review
-Reviews implementation in isolated environment.
-
-**Requirements:**
-- Existing worktree
-- ADW ID is mandatory
-
-**Usage:**
-```bash
-uv run adw_review_iso.py <issue-number> <adw-id> [--skip-resolution]
-```
-
-**What it does:**
-1. Validates worktree exists
-2. Reviews against spec in isolation
-3. Captures screenshots using allocated ports
-4. Auto-resolves blockers in worktree
-5. Uploads screenshots and commits
-
-#### adw_document_iso.py - Isolated Documentation
-Generates documentation in isolated environment.
-
-**Requirements:**
-- Existing worktree
-- ADW ID is mandatory
-
-**Usage:**
-```bash
-uv run adw_document_iso.py <issue-number> <adw-id>
-```
-
-**What it does:**
-1. Validates worktree exists
-2. Analyzes changes in worktree
-3. Generates documentation in isolation
-4. Commits to `app_docs/` from worktree
-
-### Orchestrator Scripts
-
-#### adw_plan_build_iso.py - Isolated Plan + Build
-Runs planning and building in isolation.
-
-**Usage:**
-```bash
-uv run adw_plan_build_iso.py <issue-number> [adw-id]
-```
-
-#### adw_plan_build_test_iso.py - Isolated Plan + Build + Test
-Full pipeline with testing in isolation.
-
-**Usage:**
-```bash
-uv run adw_plan_build_test_iso.py <issue-number> [adw-id]
-```
-
-#### adw_plan_build_test_review_iso.py - Isolated Plan + Build + Test + Review
-Complete pipeline with review in isolation.
-
-**Usage:**
-```bash
-uv run adw_plan_build_test_review_iso.py <issue-number> [adw-id]
-```
-
-#### adw_plan_build_review_iso.py - Isolated Plan + Build + Review
-Pipeline with review, skipping tests.
-
-**Usage:**
-```bash
-uv run adw_plan_build_review_iso.py <issue-number> [adw-id]
-```
-
-#### adw_plan_build_document_iso.py - Isolated Plan + Build + Document
-Documentation pipeline in isolation.
-
-**Usage:**
-```bash
-uv run adw_plan_build_document_iso.py <issue-number> [adw-id]
-```
-
-#### adw_sdlc_iso.py - Complete Isolated SDLC
-Full Software Development Life Cycle in isolation.
-
-**Usage:**
-```bash
-uv run adw_sdlc_iso.py <issue-number> [adw-id] [--skip-e2e] [--skip-resolution]
-```
-
-**Phases:**
-1. **Plan**: Creates worktree and implementation spec
-2. **Build**: Implements solution in isolation
-3. **Test**: Runs tests with dedicated ports
-4. **Review**: Validates and captures screenshots
-5. **Document**: Generates comprehensive docs
-
-**Output:**
-- Isolated worktree at `trees/<adw_id>/`
-- Feature implementation on dedicated branch
-- Test results with port isolation
-- Review screenshots from isolated instance
-- Complete documentation in `app_docs/`
-
-#### adw_ship_iso.py - Approve and Merge PR
-Final shipping phase that validates state and merges to main.
-
-**Requirements:**
-- Complete ADWState with all fields populated
-- Existing worktree and PR
-- ADW ID is mandatory
-
-**Usage:**
-```bash
-uv run adw_ship_iso.py <issue-number> <adw-id>
-```
-
-**What it does:**
-1. Validates all ADWState fields have values
-2. Verifies worktree exists
-3. Finds PR for the branch
-4. Approves the PR
-5. Merges PR to main using squash method
-
-**State validation ensures:**
-- `adw_id` is set
-- `issue_number` is set
-- `branch_name` exists
-- `plan_file` was created
-- `issue_class` was determined
-- `worktree_path` exists
-- `backend_port` and `frontend_port` allocated
-
-#### adw_sdlc_zte_iso.py - Zero Touch Execution
-Complete SDLC with automatic shipping - no human intervention required.
-
-**Usage:**
-```bash
-uv run adw_sdlc_zte_iso.py <issue-number> [adw-id] [--skip-e2e] [--skip-resolution]
-```
-
-**Phases:**
-1. **Plan**: Creates worktree and implementation spec
-2. **Build**: Implements solution in isolation
-3. **Test**: Runs tests (stops on failure)
-4. **Review**: Validates implementation (stops on failure)
-5. **Document**: Generates comprehensive docs
-6. **Ship**: Automatically approves and merges PR
-
-**⚠️ WARNING:** This workflow will automatically merge code to main if all phases pass!
-
-**Output:**
-- Complete feature implementation
-- Automatic PR approval
-- Code merged to main branch
-- Production deployment
-
-### Automation Triggers
-
-#### trigger_cron.py - Polling Monitor
-Continuously monitors GitHub for triggers.
-
-**Usage:**
-```bash
-uv run adw_triggers/trigger_cron.py
-```
-
-**Triggers on:**
-- New issues with no comments
-- Any issue where latest comment is exactly "adw"
-- Polls every 20 seconds
-
-**Workflow selection:**
-- Uses `adw_plan_build_iso.py` by default
-- Supports all isolated workflows via issue body keywords
-
-#### trigger_webhook.py - Real-time Events
-Webhook server for instant GitHub event processing.
-
-**Usage:**
-```bash
-uv run adw_triggers/trigger_webhook.py
-```
-
-**Configuration:**
-- Default port: 8001
-- Endpoints:
-  - `/gh-webhook` - GitHub event receiver
-  - `/health` - Health check
-- GitHub webhook settings:
-  - Payload URL: `https://your-domain.com/gh-webhook`
-  - Content type: `application/json`
-  - Events: Issues, Issue comments
-
-**Security:**
-- Validates GitHub webhook signatures
-- Requires `GITHUB_WEBHOOK_SECRET` environment variable
+**Workflow Selection:**
+- Include `workflow: plan-build` in issue body
+- Or use labels: `adw:sdlc`, `adw:zte`, etc.
+- Defaults to `plan-build` if not specified
 
 ## How ADW Works
 
-1. **Issue Classification**: Analyzes GitHub issue and determines type:
-   - `/chore` - Maintenance, documentation, refactoring
-   - `/bug` - Bug fixes and corrections
-   - `/feature` - New features and enhancements
+### 1. Workflow Creation
+- HTTP API or GitHub webhook receives issue number
+- System fetches issue details from GitHub API
+- Classifies issue type using `/classify_issue` slash command
+- Creates database record in `adw_workflows` table
+- Generates unique `adw_id` (8-character hash)
+- Returns workflow ID to caller
 
-2. **Planning**: `sdlc_planner` agent creates implementation plan with:
-   - Technical approach
-   - Step-by-step tasks
-   - File modifications
-   - Testing requirements
+### 2. Worktree Initialization
+- Creates isolated git worktree at `trees/{adw_id}/`
+- Allocates unique ports deterministically (hash-based)
+- Creates feature branch: `{type}-{issue}-{adw_id}-{slug}`
+- Copies `.env` file to worktree
+- Creates `.ports.env` with allocated ports
+- Updates PostgreSQL with worktree path and ports
 
-3. **Implementation**: `sdlc_implementor` agent executes the plan:
-   - Analyzes codebase
-   - Implements changes
-   - Runs tests
-   - Ensures quality
+### 3. Phase Execution
+- Each phase executed via Agent SDK `query()` method
+- Slash commands loaded from `.claude/commands/`
+- Agent operates in worktree context (cwd parameter)
+- Real-time progress streamed via WebSocket
+- Database updated after each phase completion
+- Errors trigger auto-retry with exponential backoff
 
-4. **Integration**: Creates git commits and pull request:
-   - Semantic commit messages
-   - Links to original issue
-   - Implementation summary
+### 4. State Management
+- PostgreSQL stores all workflow state
+- WebSocket broadcasts state changes
+- Frontend receives real-time updates
+- State includes: current_phase, status, ports, worktree_path
+- Event history tracked in `adw_workflow_events` table
+
+### 5. Integration & Deployment
+- Commits created via simple-git in worktree
+- Pull requests managed via @octokit/rest
+- PR auto-linked to original issue
+- Optional auto-merge for ZTE workflows
+- Worktree cleanup after merge
 
 ## Common Usage Scenarios
 
-### Process a bug report in isolation
+### Via HTTP API
+
+**Create and execute workflow:**
 ```bash
-# User reports bug in issue #789
-uv run adw_plan_build_iso.py 789
-# ADW creates isolated worktree, analyzes, creates fix, and opens PR
+# Create workflow
+WORKFLOW_ID=$(curl -X POST http://localhost:8003/api/adw/workflows \
+  -H "Content-Type: application/json" \
+  -d '{"issueNumber": 789, "workflowType": "plan-build"}' \
+  | jq -r '.workflow.adw_id')
+
+# Execute plan phase
+curl -X POST http://localhost:8003/api/adw/workflows/$WORKFLOW_ID/execute \
+  -H "Content-Type: application/json" \
+  -d '{"phase": "plan"}'
+
+# Execute build phase
+curl -X POST http://localhost:8003/api/adw/workflows/$WORKFLOW_ID/execute \
+  -H "Content-Type: application/json" \
+  -d '{"phase": "build"}'
 ```
 
-### Run multiple workflows concurrently
+**Run complete SDLC:**
 ```bash
-# Process three issues in parallel
-uv run adw_plan_build_iso.py 101 &
-uv run adw_plan_build_iso.py 102 &
-uv run adw_plan_build_iso.py 103 &
-# Each gets its own worktree and ports
+curl -X POST http://localhost:8003/api/adw/workflows \
+  -H "Content-Type: application/json" \
+  -d '{
+    "issueNumber": 789,
+    "workflowType": "sdlc",
+    "modelSet": "base"
+  }'
 ```
 
-### Run complete SDLC in isolation
+**Multiple concurrent workflows:**
 ```bash
-# Full SDLC with review and documentation
-uv run adw_sdlc_iso.py 789
-# Creates worktree at trees/abc12345/
-# Runs on ports 9107 (backend) and 9207 (frontend)
-# Generates complete documentation with screenshots
+# Process three issues simultaneously
+curl -X POST http://localhost:8003/api/adw/workflows \
+  -H "Content-Type: application/json" \
+  -d '{"issueNumber": 101, "workflowType": "plan-build"}' &
+
+curl -X POST http://localhost:8003/api/adw/workflows \
+  -H "Content-Type: application/json" \
+  -d '{"issueNumber": 102, "workflowType": "plan-build"}' &
+
+curl -X POST http://localhost:8003/api/adw/workflows \
+  -H "Content-Type: application/json" \
+  -d '{"issueNumber": 103, "workflowType": "plan-build"}' &
+
+# Each workflow gets its own worktree and ports
 ```
 
-### Zero Touch Execution (Auto-ship)
+### Via Orchestrator Chat
+
+**Natural language workflow management:**
 ```bash
-# Complete SDLC with automatic PR merge
-uv run adw_sdlc_zte_iso.py 789
-# ⚠️ WARNING: Automatically merges to main if all phases pass!
-# Creates worktree, implements, tests, reviews, documents, and ships
+# Create and execute workflow
+curl -X POST http://localhost:8003/api/orchestrator/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Create a complete SDLC workflow for issue #789 using heavy model set"
+  }'
+
+# Check workflow status
+curl -X POST http://localhost:8003/api/orchestrator/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "What is the status of workflow abc12345?"
+  }'
+
+# List active workflows
+curl -X POST http://localhost:8003/api/orchestrator/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Show me all active ADW workflows"
+  }'
 ```
 
-### Manual shipping workflow
-```bash
-# After running SDLC, manually approve and merge
-uv run adw_ship_iso.py 789 abc12345
-# Validates all state fields are populated
-# Approves PR
-# Merges to main using squash method
-```
+### Via GitHub Webhook
 
-### Run individual phases
-```bash
-# Plan only (creates worktree)
-uv run adw_plan_iso.py 789
+**Automatic workflow triggers:**
 
-# Build in existing worktree
-uv run adw_build_iso.py 789 abc12345
-
-# Test in isolation
-uv run adw_test_iso.py 789 abc12345
-
-# Ship when ready
-uv run adw_ship_iso.py 789 abc12345
-```
-
-### Enable automatic processing
-```bash
-# Start cron monitoring
-uv run adw_triggers/trigger_cron.py
-# New issues are processed automatically
-# Users can comment "adw" to trigger processing
-```
-
-### Deploy webhook for instant response
-```bash
-# Start webhook server
-uv run adw_triggers/trigger_webhook.py
-# Configure in GitHub settings
-# Issues processed immediately on creation
-```
-
-### Triggering Workflows via GitHub Issues
-
-Include the workflow name in your issue body to trigger a specific isolated workflow:
-
-**Available Workflows:**
-- `adw_plan_iso` - Isolated planning only
-- `adw_patch_iso` - Quick patch in isolation
-- `adw_plan_build_iso` - Plan and build in isolation
-- `adw_plan_build_test_iso` - Plan, build, and test in isolation
-- `adw_plan_build_test_review_iso` - Plan, build, test, and review in isolation
-- `adw_sdlc_iso` - Complete SDLC in isolation
-
-**Example Issue:**
+Include workflow type in GitHub issue body:
 ```
 Title: Add export functionality
 Body: Please add the ability to export data to CSV.
-Include workflow: adw_plan_build_iso
+
+workflow: plan-build-test-review
+model_set: base
 ```
 
-**Note:** Dependent workflows (`adw_build_iso`, `adw_test_iso`, `adw_review_iso`, `adw_document_iso`) require an existing worktree and cannot be triggered directly via webhook.
+**Or use labels:**
+- `adw:plan-build` - Plan + Build
+- `adw:sdlc` - Complete SDLC
+- `adw:zte` - Zero Touch Execution (auto-merge)
+
+**Comment trigger:**
+Comment "adw" on any issue to trigger default workflow (plan-build)
 
 ## Worktree Architecture
 
@@ -507,18 +416,15 @@ trees/
 ├── abc12345/              # Complete repo copy for ADW abc12345
 │   ├── .git/              # Worktree git directory
 │   ├── .env               # Copied from main repo
-│   ├── .ports.env         # Port configuration
-│   ├── app/               # Application code
-│   ├── adws/              # ADW scripts
+│   ├── .ports.env         # Port configuration (BACKEND_PORT, FRONTEND_PORT)
+│   ├── apps/              # Application code
+│   ├── specs/             # Generated plan specs
 │   └── ...
 └── def67890/              # Another isolated instance
     └── ...
 
-agents/                    # Shared state location (not in worktree)
-├── abc12345/
-│   └── adw_state.json     # Persistent state
-└── def67890/
-    └── adw_state.json
+# State stored in PostgreSQL (adw_workflows table)
+# No local JSON files - all state in database
 ```
 
 ### Port Allocation
@@ -530,13 +436,14 @@ Each isolated instance gets unique ports:
 - Automatic fallback if preferred ports are busy
 
 **Port Assignment Algorithm:**
-```python
-def get_ports_for_adw(adw_id: str) -> Tuple[int, int]:
-    """Deterministically assign ports based on ADW ID."""
-    index = int(adw_id[:8], 36) % 15
-    backend_port = 9100 + index
-    frontend_port = 9200 + index
-    return backend_port, frontend_port
+```typescript
+function getPortsForAdw(adwId: string): { backendPort: number; frontendPort: number } {
+  // Deterministically assign ports based on ADW ID
+  const index = parseInt(adwId.substring(0, 8), 36) % 15;
+  const backendPort = 9100 + index;
+  const frontendPort = 9200 + index;
+  return { backendPort, frontendPort };
+}
 ```
 
 **Example Allocations:**
@@ -702,42 +609,69 @@ This verifies:
 - Default behavior when no state exists
 
 ### Modular Architecture
-The system uses a modular architecture optimized for isolated execution:
+The system uses a modular TypeScript architecture:
 
-- **State Management**: `ADWState` tracks worktree paths and ports
-- **Worktree Operations**: `worktree_ops.py` manages isolated environments
-- **Git Operations**: `git_ops.py` supports `cwd` parameter for worktree context
-- **Workflow Operations**: Core logic in `workflow_ops.py` with `working_dir` support
-- **Agent Integration**: `agent.py` executes Claude Code in worktree context
+- **State Management**: PostgreSQL via Prisma ORM
+- **Worktree Operations**: `worktree-manager.ts` - Git worktree CRUD
+- **Git Operations**: `git-operations.ts` - simple-git integration
+- **Workflow Operations**: `workflow-manager.ts` - Phase orchestration
+- **Agent Integration**: `agent-executor.ts` - Agent SDK with retry logic
+- **GitHub Integration**: `github-integration.ts` - @octokit/rest
+- **WebSocket Streaming**: Real-time progress updates
+- **MCP Tools**: `adw-mcp-tools.ts` - Orchestrator integration
+
+### Database Schema
+
+**adw_workflows table:**
+```sql
+CREATE TABLE adw_workflows (
+  id SERIAL PRIMARY KEY,
+  adw_id VARCHAR(8) UNIQUE NOT NULL,
+  issue_number INTEGER NOT NULL,
+  workflow_type VARCHAR(50) NOT NULL,
+  current_phase VARCHAR(50),
+  status VARCHAR(20) NOT NULL,
+  branch_name VARCHAR(255),
+  worktree_path VARCHAR(500),
+  backend_port INTEGER,
+  frontend_port INTEGER,
+  plan_file VARCHAR(500),
+  issue_class VARCHAR(50),
+  model_set VARCHAR(20) DEFAULT 'base',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+**adw_workflow_events table:**
+```sql
+CREATE TABLE adw_workflow_events (
+  id SERIAL PRIMARY KEY,
+  workflow_id INTEGER REFERENCES adw_workflows(id),
+  event_type VARCHAR(50) NOT NULL,
+  phase VARCHAR(50),
+  message TEXT,
+  metadata JSONB,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
 
 ### Workflow Output Structure
 
-Each ADW workflow creates an isolated workspace:
-
 ```
-agents/
-└── {adw_id}/                     # Unique workflow directory
-    ├── adw_state.json            # Persistent state file
-    ├── {adw_id}_plan_spec.md     # Implementation plan
-    ├── planner/                  # Planning agent output
-    │   └── raw_output.jsonl      # Claude Code session
-    ├── implementor/              # Implementation agent output
-    │   └── raw_output.jsonl
-    ├── tester/                   # Test agent output
-    │   └── raw_output.jsonl
-    ├── reviewer/                 # Review agent output
-    │   ├── raw_output.jsonl
-    │   └── review_img/           # Screenshots directory
-    ├── documenter/               # Documentation agent output
-    │   └── raw_output.jsonl
-    └── patch_*/                  # Patch resolution attempts
+trees/{adw_id}/                  # Worktree directory
+├── specs/
+│   └── {adw_id}_plan_spec.md   # Implementation plan
+├── app_docs/                    # Generated documentation
+│   └── features/{feature}/
+│       ├── overview.md
+│       ├── technical-guide.md
+│       └── images/
+└── .ports.env                   # Port configuration
 
-app_docs/                         # Generated documentation
-└── features/
-    └── {feature_name}/
-        ├── overview.md
-        ├── technical-guide.md
-        └── images/
+# State in PostgreSQL (not local files)
+# Agent output streamed via WebSocket
+# Screenshots uploaded to Cloudflare R2
 ```
 
 ## Security Best Practices
@@ -747,41 +681,121 @@ app_docs/                         # Generated documentation
 - Set up branch protection rules
 - Require PR reviews for ADW changes
 - Monitor API usage and set billing alerts
+- Validate webhook signatures from GitHub
+- Use connection pooling for PostgreSQL
+- Sanitize all user inputs (issue numbers, workflow IDs)
 
 ## Technical Details
 
-### Core Components
+### Technology Stack
 
-#### Modules
-- `adw_modules/agent.py` - Claude Code CLI integration with worktree support
-- `adw_modules/data_types.py` - Pydantic models including worktree fields
-- `adw_modules/github.py` - GitHub API operations
-- `adw_modules/git_ops.py` - Git operations with `cwd` parameter support
-- `adw_modules/state.py` - State management tracking worktrees and ports
-- `adw_modules/workflow_ops.py` - Core workflow operations with isolation
-- `adw_modules/worktree_ops.py` - Worktree and port management
-- `adw_modules/utils.py` - Utility functions
+**Core:**
+- TypeScript 5.3+
+- Node.js 18+
+- PostgreSQL 15+
+- Fastify (HTTP server)
+- WebSocket (real-time updates)
 
-#### Entry Point Workflows (Create Worktrees)
-- `adw_plan_iso.py` - Isolated planning workflow
-- `adw_patch_iso.py` - Isolated patch workflow
+**Libraries:**
+- `@anthropic-ai/claude-agent-sdk` - Agent SDK integration
+- `@octokit/rest` - GitHub API client
+- `@prisma/client` - Database ORM
+- `simple-git` - Git operations
+- `zod` - Runtime validation
+- `@aws-sdk/client-s3` - Cloudflare R2 uploads
 
-#### Dependent Workflows (Require Worktrees)
-- `adw_build_iso.py` - Isolated implementation workflow
-- `adw_test_iso.py` - Isolated testing workflow
-- `adw_review_iso.py` - Isolated review workflow
-- `adw_document_iso.py` - Isolated documentation workflow
+**Infrastructure:**
+- Coolify (deployment)
+- PostgreSQL (state management)
+- Cloudflare R2 (screenshot storage)
+- Grafana (monitoring)
 
-#### Orchestrators
-- `adw_plan_build_iso.py` - Plan & build in isolation
-- `adw_plan_build_test_iso.py` - Plan & build & test in isolation
-- `adw_plan_build_test_review_iso.py` - Plan & build & test & review in isolation
-- `adw_plan_build_review_iso.py` - Plan & build & review in isolation
-- `adw_plan_build_document_iso.py` - Plan & build & document in isolation
-- `adw_sdlc_iso.py` - Complete SDLC in isolation
+### API Endpoints
 
-### Branch Naming
+**ADW Workflows:**
+- `POST /api/adw/workflows` - Create workflow
+- `POST /api/adw/workflows/:id/execute` - Execute phase
+- `GET /api/adw/workflows/:id` - Get status
+- `GET /api/adw/workflows` - List workflows
+- `DELETE /api/adw/workflows/:id` - Cancel workflow
+
+**Orchestrator Chat:**
+- `POST /api/orchestrator/chat` - Send message
+- `GET /api/orchestrator/history` - Get history
+- `DELETE /api/orchestrator/history` - Clear history
+- `GET /api/orchestrator/metrics` - Session metrics
+
+**Webhooks:**
+- `POST /api/webhooks/github` - GitHub events
+
+### Branch Naming Convention
 ```
 {type}-{issue_number}-{adw_id}-{slug}
 ```
-Example: `feat-456-e5f6g7h8-add-user-authentication`
+Example: `feat-456-abc12345-add-user-authentication`
+
+- `type`: chore, bug, or feat
+- `issue_number`: GitHub issue number
+- `adw_id`: 8-character workflow ID
+- `slug`: Slugified issue title
+
+## Migration Status & Next Steps
+
+### Current State (58% Complete)
+- ✅ PostgreSQL database schema (`adw_workflows`, `adw_workflow_events`)
+- ✅ Core TypeScript modules (state, worktree, git, github, agent executor)
+- ✅ HTTP API endpoints for workflow management
+- ✅ WebSocket streaming for real-time updates
+- ✅ MCP tools for orchestrator integration
+- ✅ Orchestrator chat service
+- ⏳ Integration testing (pending)
+- ⏳ Production deployment (pending)
+- ⏳ Frontend UI components (pending)
+
+### Specifications Needed
+
+To complete the migration, the following specs should be created in `/adws/specs/`:
+
+1. **`phase-implementation-spec.md`** - Complete implementation of all 6 workflow phases (plan, build, test, review, document, ship) using Agent SDK
+
+2. **`workflow-orchestration-spec.md`** - Workflow type execution (plan-build, sdlc, zte) with phase chaining and error handling
+
+3. **`webhook-automation-spec.md`** - GitHub webhook processing, issue parsing, automatic workflow triggers, and label handling
+
+4. **`websocket-streaming-spec.md`** - Real-time progress updates, agent output streaming, and frontend synchronization
+
+5. **`integration-testing-spec.md`** - End-to-end tests for workflows, API endpoints, database operations, and agent execution
+
+6. **`frontend-ui-spec.md`** - Vue 3 components for workflow management, real-time status display, and orchestrator chat interface
+
+### Key Architectural Improvements Over Python
+
+**Agent SDK Integration:**
+- ✅ Direct TypeScript integration (no subprocess calls)
+- ✅ Streaming support with real-time updates
+- ✅ Retry logic with exponential backoff
+- ✅ Type-safe query execution
+
+**State Management:**
+- ✅ PostgreSQL instead of JSON files
+- ✅ Transactional updates
+- ✅ Event history tracking
+- ✅ Concurrent workflow support
+
+**Developer Experience:**
+- ✅ HTTP API for programmatic access
+- ✅ WebSocket streaming for real-time monitoring
+- ✅ Natural language control via orchestrator chat
+- ✅ Type safety throughout codebase
+
+**Observability:**
+- ✅ Structured logging with Pino
+- ✅ Database-backed event history
+- ✅ Session metrics and cost tracking
+- ✅ Ready for Grafana/Prometheus integration
+
+---
+
+**Last Updated:** 2025-11-12
+**Migration Progress:** 58% Complete
+**Next Phase:** Phase 4 Module 3 - Integration Testing

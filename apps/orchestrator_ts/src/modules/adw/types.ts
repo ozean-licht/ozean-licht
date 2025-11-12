@@ -74,8 +74,14 @@ export const WorkflowType = z.enum([
   'plan_build_test',
   'plan_build_review',
   'plan_build_document',
+  'plan_build_test_review',
+  'plan-build',
+  'plan-build-test',
+  'plan-build-review',
+  'plan-build-test-review',
   'sdlc',
   'sdlc_zte',
+  'zte',
 ]);
 export type WorkflowType = z.infer<typeof WorkflowType>;
 
@@ -160,6 +166,21 @@ export interface AgentExecutionResult {
   retryCode: RetryCode;
   /** Error object if execution failed */
   error?: Error;
+}
+
+/**
+ * Result of a workflow phase execution
+ * Contains success status, message, and optional data
+ */
+export interface WorkflowPhaseResult {
+  /** Whether the phase execution succeeded */
+  success: boolean;
+  /** Human-readable message describing the result */
+  message?: string;
+  /** Error message if execution failed */
+  error?: string;
+  /** Additional data specific to the phase */
+  data?: Record<string, any>;
 }
 
 /**
@@ -299,4 +320,49 @@ export interface WorkflowEvent {
   message?: string;
   /** Additional structured data associated with the event */
   data?: Record<string, unknown>;
+}
+
+// ============================================================================
+// Workflow Orchestration Types
+// ============================================================================
+
+/**
+ * Complete context for workflow phase execution
+ * Includes all data needed to execute any workflow phase
+ */
+export interface WorkflowContext {
+  /** Unique workflow identifier */
+  adwId: string;
+  /** GitHub issue number */
+  issueNumber: number;
+  /** Type of workflow being executed */
+  workflowType: WorkflowType;
+  /** Git worktree path for isolated execution */
+  worktreePath?: string | null;
+  /** Git branch name */
+  branchName?: string | null;
+  /** Backend development server port */
+  backendPort?: number | null;
+  /** Frontend development server port */
+  frontendPort?: number | null;
+  /** Model set to use (base/heavy) */
+  modelSet: ModelSet;
+  /** Whether to enable auto-resolution of failures */
+  autoResolve: boolean;
+  /** Whether to auto-ship (merge PR automatically) - only for ZTE workflow */
+  autoShip: boolean;
+  /** Pull request number (if created) */
+  prNumber?: number | null;
+  /** Path to plan file */
+  planFile?: string | null;
+  /** Issue classification (feature/bug/chore) */
+  issueClass?: string | null;
+  /** Issue title */
+  issueTitle?: string | null;
+  /** Issue body */
+  issueBody?: string | null;
+  /** Current workflow phase */
+  phase?: string | null;
+  /** Current workflow status */
+  status?: string | null;
 }

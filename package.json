@@ -1,5 +1,33 @@
 {
   "dependencies": {
     "@anthropic-ai/sdk": "^0.67.0"
+  },
+  "devDependencies": {
+    "@argos-ci/cli": "^3.2.1",
+    "@storybook/addon-a11y": "^8.6.14",
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/addon-interactions": "^8.6.14",
+    "@storybook/react-vite": "^8.6.14",
+    "@storybook/test": "^8.6.14",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "@vitest/ui": "^4.0.8",
+    "happy-dom": "^20.0.10",
+    "storybook": "^8.6.14",
+    "style-dictionary": "^4.4.0",
+    "vitest": "^4.0.8"
+  },
+  "scripts": {
+    "storybook": "storybook dev -p 6006 --config-dir storybook/config",
+    "build-storybook": "storybook build --config-dir storybook/config -o storybook/build",
+    "test-storybook": "test-storybook --config-dir storybook/config",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "chromatic": "chromatic --project-token=${CHROMATIC_PROJECT_TOKEN}",
+    "build:tokens": "style-dictionary build --config tokens/sd.config.js",
+    "generate-story": "node scripts/generate-story.js",
+    "argos": "argos upload storybook-static"
   }
 }

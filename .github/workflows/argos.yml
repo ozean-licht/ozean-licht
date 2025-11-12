@@ -1,0 +1,79 @@
+name: 'Argos Visual Testing'
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  argos-upload:
+    runs-on: ubuntu-latest
+    name: Upload to Argos
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - name: Upload screenshots to Argos
+        run: |
+          npx @argos-ci/cli upload storybook-static \
+            --token ${{ secrets.ARGOS_TOKEN }} \
+            --parallel \
+            --parallel-total 1
+        env:
+          ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}
+
+      - name: Comment PR with Argos link
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Argos Visual Testing')
+            );
+
+            const commentBody = `## Argos Visual Testing
+
+            🎨 Visual regression tests are running!
+
+            [View Results on Argos](https://argos.ozean-licht.dev)
+
+            Changes will be compared against the \`main\` branch baseline.`;
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }

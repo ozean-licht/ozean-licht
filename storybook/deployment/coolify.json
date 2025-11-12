@@ -1,0 +1,35 @@
+{
+  "name": "ozean-licht-storybook",
+  "description": "Ozean Licht Component Library Documentation",
+  "type": "static",
+  "buildCommand": "npm install --frozen-lockfile && npm run build-storybook",
+  "installCommand": "npm install --frozen-lockfile",
+  "startCommand": "npx http-server storybook/build -p 6006 --gzip --proxy http://localhost:6006?",
+  "buildDirectory": "storybook/build",
+  "port": 6006,
+  "domain": "storybook.ozean-licht.dev",
+  "healthCheckPath": "/",
+  "healthCheckInterval": 30,
+  "healthCheckTimeout": 10,
+  "healthCheckRetries": 3,
+  "environment": {
+    "NODE_ENV": "production",
+    "NODE_VERSION": "18"
+  },
+  "labels": {
+    "app": "storybook",
+    "project": "ozean-licht-ecosystem",
+    "tier": "documentation"
+  },
+  "resources": {
+    "cpu": "0.5",
+    "memory": "1024Mi"
+  },
+  "replicas": 1,
+  "autoScaling": false,
+  "deploymentStrategy": "rolling",
+  "git": {
+    "branch": "main",
+    "autoDeployOn": "push"
+  }
+}

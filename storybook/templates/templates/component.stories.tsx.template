@@ -1,0 +1,126 @@
+import type { Meta, StoryObj } from '@storybook/react';
+import { {{COMPONENT_NAME}} } from './{{COMPONENT_FILENAME}}';
+
+/**
+ * {{COMPONENT_NAME}} component description.
+ *
+ * ## Features
+ * - Feature 1
+ * - Feature 2
+ * - Feature 3
+ *
+ * ## Usage
+ * ```tsx
+ * import { {{COMPONENT_NAME}} } from '@/components/{{COMPONENT_FILENAME}}'
+ *
+ * <{{COMPONENT_NAME}} prop="value">
+ *   Content
+ * </{{COMPONENT_NAME}}>
+ * ```
+ *
+ * ## Accessibility
+ * - Keyboard navigation support
+ * - Screen reader friendly
+ * - WCAG AA compliant
+ */
+const meta = {
+  title: '{{STORY_PATH}}/{{COMPONENT_NAME}}',
+  component: {{COMPONENT_NAME}},
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component: 'Brief description of {{COMPONENT_NAME}} for auto-docs.',
+      },
+    },
+  },
+  tags: ['autodocs'],
+  argTypes: {
+    // Add prop documentation here
+    // variant: {
+    //   control: 'select',
+    //   options: ['primary', 'secondary'],
+    //   description: 'Visual style variant',
+    // },
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-[500px] p-4">
+        <Story />
+      </div>
+    ),
+  ],
+} satisfies Meta<typeof {{COMPONENT_NAME}}>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+/**
+ * Default {{COMPONENT_NAME}} with standard props
+ */
+export const Default: Story = {
+  args: {
+    // Add default props here
+  },
+};
+
+/**
+ * Showcase all variants of {{COMPONENT_NAME}}
+ */
+export const AllVariants: Story = {
+  render: () => (
+    <div className="space-y-4">
+      <{{COMPONENT_NAME}}>Variant 1</{{COMPONENT_NAME}}>
+      <{{COMPONENT_NAME}}>Variant 2</{{COMPONENT_NAME}}>
+      <{{COMPONENT_NAME}}>Variant 3</{{COMPONENT_NAME}}>
+    </div>
+  ),
+};
+
+/**
+ * {{COMPONENT_NAME}} in different sizes
+ */
+export const Sizes: Story = {
+  render: () => (
+    <div className="flex items-center gap-4">
+      <{{COMPONENT_NAME}} size="sm">Small</{{COMPONENT_NAME}}>
+      <{{COMPONENT_NAME}} size="md">Medium</{{COMPONENT_NAME}}>
+      <{{COMPONENT_NAME}} size="lg">Large</{{COMPONENT_NAME}}>
+    </div>
+  ),
+};
+
+/**
+ * {{COMPONENT_NAME}} in different states
+ */
+export const States: Story = {
+  render: () => (
+    <div className="space-y-4">
+      <{{COMPONENT_NAME}}>Normal</{{COMPONENT_NAME}}>
+      <{{COMPONENT_NAME}} disabled>Disabled</{{COMPONENT_NAME}}>
+      {/* Add more states as needed */}
+    </div>
+  ),
+};
+
+/**
+ * Real-world usage examples of {{COMPONENT_NAME}}
+ */
+export const RealWorldExamples: Story = {
+  render: () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold mb-2">Example 1</h3>
+        <{{COMPONENT_NAME}}>
+          Real-world example 1
+        </{{COMPONENT_NAME}}>
+      </div>
+      <div>
+        <h3 className="text-lg font-semibold mb-2">Example 2</h3>
+        <{{COMPONENT_NAME}}>
+          Real-world example 2
+        </{{COMPONENT_NAME}}>
+      </div>
+    </div>
+  ),
+};

@@ -1,20 +1,73 @@
 # Plan: Intelligent Multi-Layer Component Discovery System with Local Tailwind Plus Index
 
+**Version:** 2.0 - Updated for Current State
+**Date:** 2025-11-12
+**Status:** Ready for Implementation (Post-Storybook Phase 2)
+**Prerequisite:** Storybook Phase 1-2 Complete (Weeks 1-4)
+
 ## Task Description
-Build a sophisticated component discovery system for the Ozean Licht ecosystem that downloads and indexes Tailwind Plus components locally (no API token - web access only), implements design tokens for multiple branding kits (Ozean Licht vs Kids Ascension), and provides AI-powered component retrieval through semantic search, vector embeddings, and intelligent caching. The system will enable natural language queries like "show me glass cards with turquoise accents" or "find all form components that support dark mode" across 295+ custom components plus the entire Tailwind Plus library.
+Build a sophisticated AI-powered component discovery system that enhances the Ozean Licht Storybook platform with semantic search capabilities. The system downloads and indexes Tailwind Plus components locally (web scraping, no API token), providing natural language queries like "show me glass cards with turquoise accents" or "find composition components for authentication flows" across 84 existing production-ready components plus the entire Tailwind Plus library.
+
+## Current State Analysis
+
+### ✅ Completed Infrastructure (Phases 1-4)
+The shared UI components library now has **84 production-ready components** across three tiers:
+
+**Tier 1 - Base Layer (58 components):**
+- ✅ 47 shadcn/ui primitives (Radix UI)
+- ✅ 11 Catalyst components (Headless UI)
+- Status: Production-ready, full TypeScript support
+
+**Tier 2 - Brand Layer (7 components):**
+- ✅ Branded Button, Card, Input, Badge, Dialog, Alert, Skeleton
+- ✅ Ozean Licht design tokens applied (turquoise #0ec2bc, glass morphism)
+- Status: Brand identity established and working
+
+**Tier 3 - Composition Layer (19 components):**
+- ✅ 6 Cards (CourseCard, TestimonialCard, PricingCard, BlogCard, FeatureCard, StatsCard)
+- ✅ 5 Sections (CTA, Hero, Feature, Testimonials, Pricing)
+- ✅ 5 Forms (Login, Register, PasswordReset, MagicLink, Contact)
+- ✅ 3 Layouts (Dashboard, Marketing, Auth)
+- Status: Complete, 0 TypeScript errors
+
+**Location:** `shared/ui-components/src/`
+**Build Status:** ✅ Success (CJS: 50.68 KB, ESM: 46.10 KB)
+
+### 🔜 Upcoming: Storybook Documentation (Weeks 1-4)
+Per `storybook-unified-implementation-spec.md`, Storybook 8.4+ will be implemented to:
+- Document all 84+ existing components
+- Provide visual regression testing (Chromatic)
+- Enable interaction testing (play functions)
+- Establish design token synchronization
+
+### 🎯 This Spec: AI-Powered Discovery Layer (Weeks 5-8+)
+This system enhances Storybook with intelligent component discovery:
+1. Download and locally index Tailwind Plus components via web scraping
+2. Create semantic search across 84 existing + Tailwind Plus components
+3. Enable natural language queries via vector embeddings
+4. Build Storybook addon for AI-powered component suggestions
+5. Integrate with MCP for agent-based component management
+6. Maintain institutional memory of component usage patterns
 
 ## Objective
-Create an intelligent component discovery infrastructure that:
-1. Downloads and locally indexes Tailwind Plus components via web scraping
-2. Indexes all components (Tailwind Plus + custom) with semantic understanding
-3. Enables brand-specific component variants through design tokens
-4. Provides natural language search via vector embeddings
-5. Optimizes retrieval through Redis caching and progressive disclosure
-6. Integrates with MCP for agent-based component management
-7. Maintains institutional memory of component usage patterns
+Enhance the Storybook component platform with AI-powered discovery that:
+1. ✅ Leverages existing 84 production-ready components
+2. 🔜 Downloads and indexes Tailwind Plus components locally
+3. 🔜 Provides semantic search via vector embeddings (Mem0)
+4. 🔜 Enables natural language queries in Storybook
+5. 🔜 Optimizes retrieval through Redis caching
+6. 🔜 Integrates with MCP for agent workflows
+7. 🔜 Tracks usage patterns for intelligent suggestions
 
 ## Problem Statement
-The Ozean Licht ecosystem has 295+ component files scattered across multiple applications with no intelligent way to discover, search, or retrieve them. Developers struggle to find the right component, leading to duplication and inconsistent implementations. Tailwind Plus components are only accessible via web interface (no API token), requiring us to scrape and locally index them. The full Tailwind Plus index is ~6MB, making it too large for direct LLM context. Additionally, maintaining separate brands (Ozean Licht vs Kids Ascension) requires intelligent token swapping that preserves component logic while changing visual appearance.
+While the Ozean Licht ecosystem now has 84 well-structured, production-ready components with established branding, developers still face discovery challenges:
+- **Manual Browsing:** Finding the right component requires browsing Storybook categories
+- **No Semantic Search:** Can't query "glass cards with turquoise" or "authentication forms"
+- **Tailwind Plus Gap:** Premium Tailwind Plus components only accessible via web (no API token)
+- **Missing AI Assistance:** No intelligent suggestions based on context or usage patterns
+- **Brand Variants:** Need ability to query brand-specific component variants
+
+The full Tailwind Plus index is ~6MB, making it too large for direct LLM context injection. This system creates an intelligent discovery layer that makes both existing and Tailwind Plus components easily discoverable through natural language.
 
 ## Solution Approach
 Implement a multi-layer discovery system that combines:
@@ -29,12 +82,23 @@ Implement a multi-layer discovery system that combines:
 
 ## Relevant Files
 
-### Existing Infrastructure to Leverage
+### ✅ Completed Infrastructure to Leverage
+- `shared/ui-components/` - **84 production-ready components** (Phases 1-4 complete)
+  - `src/ui/` - 47 shadcn/ui primitives
+  - `src/catalyst/` - 11 Catalyst components
+  - `src/components/` - 7 branded Ozean Licht components
+  - `src/compositions/` - 19 composition components
+  - `UPGRADE_PLAN.md` - Complete roadmap and status
+  - `PHASE-4-COMPLETE.md` - Phase 4 implementation report
 - `tools/mcp-gateway/` - MCP service integration platform
 - `tools/memory/` - Institutional memory system (Mem0-based)
-- `shared/ui-components/` - Current component library
-- `design-system.md` - Ozean Licht design tokens
-- `BRANDING.md` - Brand guidelines for token mapping
+- `design-system.md` - Ozean Licht design tokens (turquoise #0ec2bc, glass morphism)
+- `BRANDING.md` - Brand guidelines (already applied to Tier 2 components)
+
+### 🔜 Storybook Infrastructure (In Progress)
+- `.storybook/` - Configuration and setup (Weeks 1-4)
+- `shared/ui-components/src/stories/` - Component stories (CSF 3.0)
+- `storybook-unified-implementation-spec.md` - 8-week implementation plan
 
 ### New Files
 
@@ -65,17 +129,59 @@ Implement a multi-layer discovery system that combines:
 
 ## Implementation Phases
 
-### Phase 1: Foundation & Indexing (Week 1-2)
-Build the core indexing system that scans all components, generates semantic embeddings, and creates a hierarchical categorization structure. Integrate Tailwind Plus components with proper licensing.
+**Prerequisites:**
+- ✅ Shared UI Components (Phases 1-4) - COMPLETE
+- 🔜 Storybook Setup (Phases 1-2, Weeks 1-4) - Must complete first
 
-### Phase 2: Intelligence Layer (Week 3-4)
-Implement vector embeddings using OpenAI/local models, natural language query processing, and semantic search capabilities. Build the Redis caching layer for performance.
+**Timeline:** Weeks 5-12 (8 weeks total, following Storybook Phases 1-2)
 
-### Phase 3: Multi-Brand Token System (Week 5-6)
-Create the design token engine that enables brand switching between Ozean Licht and Kids Ascension. Implement token inheritance and override mechanisms.
+### Phase 1: Foundation & Tailwind Plus Integration (Weeks 5-6)
+**Dependencies:** Storybook Phase 2 complete (66+ components documented)
 
-### Phase 4: MCP Integration & UI (Week 7-8)
-Build the MCP service for agent-based retrieval, create Storybook addon for visual discovery, and implement progressive disclosure patterns.
+Build the core discovery infrastructure:
+- Download and index Tailwind Plus components locally (~6MB → skeleton ~200KB)
+- Scan and catalog 84 existing production-ready components
+- Create unified component metadata format
+- Set up Redis caching infrastructure
+- Build hierarchical categorization system
+
+**Key Difference from Original:** We're indexing known, stable components (84), not discovering scattered files (295+). Brand tokens already exist.
+
+### Phase 2: Semantic Search Layer (Weeks 7-8)
+**Dependencies:** Component index complete, Mem0 service running
+
+Implement AI-powered semantic search:
+- Generate vector embeddings using existing Mem0 infrastructure
+- Index all components with semantic descriptions
+- Build natural language query processor
+- Implement relevance ranking algorithm
+- Create query caching strategy
+
+**Integration Point:** Leverage Storybook stories as source of component metadata and usage examples.
+
+### Phase 3: Storybook Addon & UI (Weeks 9-10)
+**Dependencies:** Storybook Phases 1-3 complete, semantic search working
+
+Build visual discovery interface:
+- Create Storybook addon panel for component discovery
+- Implement search UI with brand filter (Ozean Licht/Kids Ascension)
+- Add component preview and insertion
+- Build intelligent suggestion engine
+- Enable context-aware recommendations
+
+**Integration Point:** Addon displays Storybook stories for matched components directly in discovery panel.
+
+### Phase 4: MCP Integration & Analytics (Weeks 11-12)
+**Dependencies:** Discovery system functional, MCP Gateway operational
+
+Enable agent-based workflows:
+- Build MCP service with search/retrieve/suggest tools
+- Implement usage pattern tracking
+- Create component co-occurrence analysis
+- Build institutional memory integration
+- Enable progressive disclosure for AI agents
+
+**Integration Point:** Agents can query components and receive Storybook URLs for human review.
 
 ## Step by Step Tasks
 
@@ -232,6 +338,7 @@ interface ComponentMetadata {
   id: string;
   name: string;
   path: string;
+  tier: 'base' | 'brand' | 'composition';  // Three-tier architecture
   category: 'ui' | 'layout' | 'form' | 'data' | 'navigation' | 'feedback';
   brand: 'ozean-licht' | 'kids-ascension' | 'neutral';
   props: PropDefinition[];
@@ -242,21 +349,40 @@ interface ComponentMetadata {
   tailwind_classes: string[];
   accessibility: AccessibilityMetadata;
   performance: PerformanceMetrics;
+  storybook_url?: string;  // Link to Storybook story
 }
 
 class ComponentScanner {
+  async scanSharedUIComponents(): Promise<ComponentMetadata[]> {
+    // Scan shared/ui-components/src/ structure
+    const components: ComponentMetadata[] = [];
+
+    // Tier 1: Base layer (58 components)
+    components.push(...await this.scanDirectory('shared/ui-components/src/ui'));         // 47 shadcn
+    components.push(...await this.scanDirectory('shared/ui-components/src/catalyst'));    // 11 Catalyst
+
+    // Tier 2: Brand layer (7 components)
+    components.push(...await this.scanDirectory('shared/ui-components/src/components')); // 7 branded
+
+    // Tier 3: Composition layer (19 components)
+    components.push(...await this.scanDirectory('shared/ui-components/src/compositions')); // 19 compositions
+
+    return components; // Total: 84 components
+  }
+
   async scanDirectory(path: string): Promise<ComponentMetadata[]> {
-    // Parse TSX/JSX files
-    // Extract component metadata
-    // Identify Tailwind Plus components
-    // Map design token usage
+    // Parse TSX/JSX files in known structure
+    // Extract component metadata from TypeScript interfaces
+    // Read JSDoc comments for descriptions
+    // Link to Storybook stories (if available)
   }
 }
 ```
-- Scan all 295+ existing components
+- Scan **84 production-ready components** in organized structure
 - Parse Tailwind Plus component library
 - Extract props, dependencies, and usage patterns
 - Generate component fingerprints for deduplication
+- **Key Improvement:** Leverage existing three-tier architecture and TypeScript types
 
 ### 5. Implement Semantic Search Using Existing Mem0 Infrastructure
 ```typescript
@@ -888,64 +1014,104 @@ pnpm storybook
 ## Acceptance Criteria
 
 ### Core Functionality
-- [ ] Index all 295+ existing components successfully
-- [ ] Integrate Tailwind Plus component library
-- [ ] Generate embeddings for all components
-- [ ] Natural language search returns relevant results
-- [ ] Brand switching works without breaking components
+- [ ] Index 84 existing production-ready components successfully
+- [ ] Download and index Tailwind Plus component library (~6MB → ~200KB skeleton)
+- [ ] Generate semantic embeddings for all components (84 + Tailwind Plus)
+- [ ] Natural language search returns relevant results ranked by semantic similarity
+- [ ] Query existing brand variants (Ozean Licht turquoise vs Kids Ascension themes)
+- [ ] Link to Storybook stories for each component
 
 ### Performance
-- [ ] Search latency < 100ms with Redis cache
+- [ ] Search latency < 100ms with Redis cache (< 300ms without cache)
 - [ ] Cache hit rate > 80% for common queries
-- [ ] System handles 1000+ components efficiently
+- [ ] System handles 500+ components efficiently (84 existing + Tailwind Plus)
 - [ ] Progressive disclosure reduces initial payload by 70%
+- [ ] Skeleton file enables fast LLM queries (200KB vs 6MB full index)
 
-### Integration
-- [ ] MCP service accessible to agents
-- [ ] Storybook addon displays in panel
-- [ ] Memory system stores patterns
-- [ ] Design tokens apply correctly
+### Integration with Storybook
+- [ ] Storybook addon accessible from toolbar
+- [ ] Search panel displays in Storybook sidebar
+- [ ] Clicking result navigates to component story
+- [ ] Component metadata syncs with Storybook stories
+- [ ] Visual previews use Storybook screenshots
+
+### Integration with MCP & Memory
+- [ ] MCP service accessible to agents via tools/mcp-gateway
+- [ ] search_components, get_component, suggest_components tools functional
+- [ ] Memory system stores usage patterns
+- [ ] Institutional memory tracks successful component combinations
+- [ ] Agent queries receive progressive disclosure (summary → details)
 
 ### User Experience
-- [ ] Natural language queries feel intuitive
-- [ ] Results ranked by relevance
-- [ ] Brand switching is seamless
-- [ ] Component preview available
+- [ ] Natural language queries feel intuitive ("glass cards with turquoise")
+- [ ] Results ranked by semantic relevance + usage frequency
+- [ ] Brand filter works (Ozean Licht / Kids Ascension / Neutral)
+- [ ] Tier filter works (Base / Brand / Composition)
+- [ ] Component preview available in discovery panel
+- [ ] Code snippets copyable from search results
 
 ## Validation Commands
 
 ```bash
+# Verify shared-ui components built successfully
+cd shared/ui-components
+pnpm build
+# Should show: ✅ 0 TypeScript errors, successful build
+
+# Check component count
+cd /opt/ozean-licht-ecosystem
+find shared/ui-components/src -name "*.tsx" -type f | grep -E "(ui|catalyst|components|compositions)" | wc -l
+# Should return 84+
+
 # System health check
 curl http://localhost:8200/health
+# Should return: { "status": "ok", "components": 84, "tailwind_plus": "indexed" }
 
 # Component count verification
 curl http://localhost:8200/api/stats | jq '.total_components'
-# Should return 295+ (existing) + Tailwind Plus components
+# Should return 84 (existing) + Tailwind Plus components (~500+)
 
-# Search functionality test
+# Search functionality test - Brand-specific query
 curl -X POST http://localhost:8200/api/search \
   -H "Content-Type: application/json" \
-  -d '{"query": "buttons with hover effects"}'
-# Should return relevant button components
+  -d '{"query": "glass cards with turquoise accents", "brand": "ozean-licht"}'
+# Should return Card, GlassCard from Tier 2 + CourseCard, PricingCard from Tier 3
 
-# Brand token test
-curl http://localhost:8200/api/component/button-primary?brand=ozean-licht | grep "#0ec2bc"
-# Should contain turquoise color
+# Search by tier
+curl -X POST http://localhost:8200/api/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "authentication forms", "tier": "composition"}'
+# Should return LoginForm, RegisterForm, PasswordResetForm, MagicLinkForm
 
-curl http://localhost:8200/api/component/button-primary?brand=kids-ascension | grep "#FFD700"
-# Should contain golden color
+# Brand variant query (already applied in Tier 2)
+curl http://localhost:8200/api/component/button?brand=ozean-licht | jq '.design_tokens.primary'
+# Should return: "#0ec2bc" (turquoise)
+
+# Storybook integration test
+curl http://localhost:8200/api/component/course-card | jq '.storybook_url'
+# Should return: "http://localhost:6006/?path=/story/compositions-cards--course-card"
 
 # MCP service test
 mcp-test component-discovery
-# Should pass all tool tests
+# Should pass: search_components, get_component, suggest_components
 
 # Redis cache verification
-redis-cli -n 1 info keyspace
-# Should show keys in db1
+redis-cli -n 1 keys "component:*" | wc -l
+# Should return 84+ keys
+
+redis-cli -n 1 zrevrange popular_components 0 10 WITHSCORES
+# Should show most-used components with usage counts
 
 # Memory integration test
-bash tools/memory/search.sh "component patterns"
+bash tools/memory/search.sh "glass card components"
 # Should return saved component patterns
+
+# Verify Storybook addon
+cd /opt/ozean-licht-ecosystem
+pnpm storybook
+# Open http://localhost:6006
+# Check for "Discovery" panel in Storybook sidebar
+# Test search: "glass cards with turquoise"
 ```
 
 ## Notes
@@ -1016,3 +1182,469 @@ npm install -D eslint prettier
 6. **Version Control**: Track component evolution over time
 7. **Component Playground**: Live editing with token switching
 8. **Export System**: Generate component packages for external use
+
+---
+
+## Correct Implementation Order
+
+This section provides the complete, correct order for implementing all component infrastructure across the Ozean Licht ecosystem, from current state through full AI-powered discovery.
+
+### 📊 Master Timeline Overview (20 Weeks Total)
+
+```
+COMPLETED ✅ | IN PROGRESS 🔜 | PLANNED 📋
+════════════════════════════════════════════════════════════════════════════
+
+Phase 0 (COMPLETE): Shared UI Components Foundation        [Weeks -8 to 0] ✅
+Phase 1 (CURRENT):  Storybook Documentation Platform       [Weeks 1-4]    🔜
+Phase 2 (NEXT):     Component Discovery System              [Weeks 5-8]    📋
+Phase 3 (FUTURE):   Advanced Discovery & Analytics         [Weeks 9-12]   📋
+Phase 4 (FUTURE):   Kids Ascension Theme & Expansion       [Weeks 13-16]  📋
+Phase 5 (FUTURE):   Production Optimization & Scale        [Weeks 17-20]  📋
+```
+
+---
+
+### Phase 0: Shared UI Components Foundation ✅ COMPLETE
+
+**Status:** ✅ 100% Complete (As of 2025-11-12)
+**Duration:** 8 weeks (historical)
+**Deliverables:** 84 production-ready components
+
+#### Week -8 to -7: Phase 1 - Catalyst Integration
+- ✅ Downloaded Catalyst UI Kit ($250 investment)
+- ✅ Integrated 11 premium Catalyst components
+- ✅ Applied Ozean Licht branding (turquoise #0ec2bc, glass morphism)
+- ✅ Created SidebarLayout, StackedLayout, AuthLayout
+- ✅ Built Navbar, Sidebar with brand effects
+
+**Reference:** `shared/ui-components/UPGRADE_PLAN.md` Phase 1
+
+#### Week -6 to -5: Phase 2 - shadcn/ui Base Components
+- ✅ Installed all 47 shadcn/ui primitive components
+- ✅ Complete Radix UI integration
+- ✅ Zero TypeScript compilation errors
+- ✅ Full type safety and exports configured
+
+**Reference:** `shared/ui-components/UPGRADE_PLAN.md` Phase 2
+
+#### Week -4 to -3: Phase 3 - Branded Components (SKIPPED - Fast-tracked to Phase 4)
+- Note: Phase 3 was deferred; composition layer built first
+
+#### Week -2 to 0: Phase 4 - Composition Components
+- ✅ Created 19 composition components
+  - 6 Cards (Course, Testimonial, Pricing, Blog, Feature, Stats)
+  - 5 Sections (CTA, Hero, Feature, Testimonials, Pricing)
+  - 5 Forms (Login, Register, PasswordReset, MagicLink, Contact)
+  - 3 Layouts (Dashboard, Marketing, Auth)
+- ✅ Full TypeScript with comprehensive interfaces
+- ✅ Production build successful (CJS: 50.68 KB, ESM: 46.10 KB)
+
+**Reference:** `shared/ui-components/PHASE-4-COMPLETE.md`
+
+**Current State Summary:**
+```
+Tier 1 (Base):        58 components (shadcn + Catalyst)
+Tier 2 (Brand):        7 components (branded primitives)
+Tier 3 (Composition): 19 components (complex patterns)
+────────────────────────────────────────────────────────
+Total:                84 components ✅ Production-Ready
+```
+
+---
+
+### Phase 1: Storybook Documentation Platform 🔜 CURRENT PRIORITY
+
+**Status:** 🔜 Ready to Start
+**Duration:** 4 weeks (Weeks 1-4)
+**Prerequisite:** ✅ Phase 0 complete (84 components exist)
+**Team:** 1-2 frontend developers
+**Reference:** `specs/storybook-unified-implementation-spec.md`
+
+#### Week 1: Foundation & Core Setup
+**Days 1-2: Installation**
+```bash
+# Install Storybook 8.4+ with Vite
+pnpm add -D @storybook/react-vite@^8.4.0 @storybook/addon-essentials@^8.4.0
+npx storybook@latest init --type react --builder vite --skip-install
+
+# Install addons
+pnpm add -D @storybook/addon-interactions @storybook/addon-a11y \
+  @storybook/addon-vitest @chromatic-com/storybook
+```
+
+**Days 3-4: Configuration**
+- Configure `.storybook/main.ts` with Vite
+- Set up `.storybook/preview.ts` with Ozean Licht theme
+- Configure design token preview
+- Set up TypeScript path aliases
+
+**Days 5-7: Initial Stories**
+- Create 10 foundational stories (CSF 3.0):
+  - 5 Shared UI: Button, Card, Badge, Input, Select
+  - 5 Admin: Header, DataTable, LoginForm, Modal, Alert
+
+**Deliverable:** ✅ Working Storybook at localhost:6006 with 10 stories
+
+#### Week 2: Testing Infrastructure
+**Days 8-10: Interaction Testing**
+- Implement play functions for form components
+- Add keyboard navigation tests
+- Create async validation tests
+
+**Days 11-12: Accessibility Setup**
+- Configure axe-core integration
+- Run initial a11y audit (< 3 warnings per story)
+- Document acceptable warnings
+
+**Days 13-14: Build Optimization**
+- Verify build time < 20 seconds
+- Configure lazy loading
+- Set up production build pipeline
+
+**Deliverable:** ✅ 10+ stories with tests, a11y checks passing
+
+#### Week 3: Complete Component Documentation
+**Priority Order:**
+1. Shared UI Library (12 components) - Complete coverage
+2. Admin Critical Path (20 components) - User flows
+3. Admin Secondary (20 components) - Supporting UI
+4. Ozean Licht (10 components) - Public-facing
+
+**Each Component Gets:**
+- Default story with all props
+- 3-5 variant stories (states, sizes, themes)
+- Play function for interactive components
+- A11y validation passing
+- Chromatic parameters configured
+
+**Deliverable:** ✅ 60+ components documented with stories
+
+#### Week 4: Advanced Stories & Documentation
+**Play Functions (10 components):**
+- LoginForm, DataTable, Modal, Select, DatePicker
+- FileUpload, NavigationMenu, Tabs, Accordion, Toast
+
+**MDX Documentation:**
+- GETTING_STARTED.mdx
+- DESIGN_TOKENS.mdx
+- COMPONENT_GUIDELINES.mdx
+- MIGRATION_GUIDE.mdx
+
+**Deliverable:** ✅ 66+ stories with comprehensive documentation
+
+**Phase 1 Exit Criteria:**
+- [ ] Storybook running at localhost:6006
+- [ ] 66+ components documented with CSF 3.0 stories
+- [ ] Build time < 20 seconds
+- [ ] A11y checks passing (< 3 warnings per story)
+- [ ] TypeScript fully configured
+- [ ] Component guidelines established
+
+---
+
+### Phase 2: Component Discovery System 📋 NEXT (Weeks 5-8)
+
+**Status:** 📋 Planned (This Spec)
+**Duration:** 4 weeks
+**Prerequisite:** ✅ Storybook Phases 1-2 complete (66+ stories documented)
+**Team:** 1 backend + 1 frontend developer
+**Reference:** `specs/intelligent-component-discovery-system.md` (this document)
+
+#### Week 5: Foundation & Tailwind Plus Integration
+**Days 1-2: Infrastructure Setup**
+```bash
+# Create project structure
+mkdir -p tools/component-discovery/{src,config,schema}
+cd tools/component-discovery
+npm init -y
+
+# Install dependencies
+npm install typescript tsx chromadb ioredis langchain
+npm install @xenova/transformers  # Local embeddings
+```
+
+**Days 3-4: Tailwind Plus Download**
+```bash
+# Download Tailwind Plus components locally
+cd shared/ui-components
+npx github:richardkmichael/tailwindplus-downloader#latest
+# Enter web credentials, wait ~3-4 minutes
+
+# Create skeleton for LLM (6MB → 200KB)
+cat tailwindplus-*.json | jq 'walk(...)' > components-skeleton.json
+```
+
+**Days 5-7: Component Indexer**
+- Build ComponentScanner for 84 existing components
+- Build TailwindPlusProcessor for downloaded library
+- Create unified ComponentMetadata format
+- Set up Redis caching infrastructure
+
+**Deliverable:** ✅ 84 existing + Tailwind Plus components indexed
+
+#### Week 6: Semantic Search Layer
+**Days 8-10: Vector Embeddings**
+- Integrate with existing Mem0 infrastructure (`tools/mcp-gateway/src/mcp/handlers/mem0.ts`)
+- Generate semantic embeddings for all components
+- Store in Mem0 with metadata (tier, brand, category)
+- Test semantic search accuracy
+
+**Days 11-14: Natural Language Processor**
+- Build NLPQueryProcessor for intent extraction
+- Implement relevance ranking algorithm
+- Create query caching in Redis
+- Test queries: "glass cards with turquoise", "authentication forms"
+
+**Deliverable:** ✅ Semantic search working via API (localhost:8200)
+
+#### Week 7: Storybook Addon & UI
+**Days 15-17: Addon Development**
+```typescript
+// .storybook/addons/component-discovery.tsx
+// Create search panel for Storybook sidebar
+```
+- Build Storybook addon panel
+- Implement search UI with filters (brand, tier, category)
+- Add component preview functionality
+- Link results to Storybook stories
+
+**Days 18-21: Intelligent Suggestions**
+- Build suggestion engine based on current component
+- Implement co-occurrence analysis
+- Add context-aware recommendations
+- Test suggestion quality
+
+**Deliverable:** ✅ Storybook addon functional, suggestions working
+
+#### Week 8: MCP Integration & Polish
+**Days 22-24: MCP Service**
+```typescript
+// tools/mcp-services/component-discovery/server.ts
+// Implement search_components, get_component, suggest_components tools
+```
+- Build MCP service with 3 tools
+- Integrate with tools/mcp-gateway
+- Implement progressive disclosure for agents
+- Test agent workflows
+
+**Days 25-28: Analytics & Memory**
+- Implement usage pattern tracking
+- Create component co-occurrence analysis
+- Integrate with institutional memory (Mem0)
+- Build analytics dashboard
+
+**Deliverable:** ✅ Full discovery system operational
+
+**Phase 2 Exit Criteria:**
+- [ ] 84 + Tailwind Plus components indexed
+- [ ] Semantic search < 100ms with cache
+- [ ] Storybook addon displays in sidebar
+- [ ] MCP service accessible to agents
+- [ ] Natural language queries work
+- [ ] Usage analytics tracking
+
+---
+
+### Phase 3: Advanced Discovery & Analytics 📋 FUTURE (Weeks 9-12)
+
+**Status:** 📋 Planned
+**Prerequisite:** Phase 2 complete (discovery system operational)
+**Focus:** Visual testing, design tokens, team adoption
+
+#### Week 9-10: Visual Regression Testing
+**Reference:** `storybook-unified-implementation-spec.md` Phase 3
+- Set up Chromatic visual testing
+- Configure TurboSnap (80% cost reduction)
+- Implement Vitest addon for smoke tests
+- Create automated test pipeline
+
+#### Week 11: Design Token Synchronization
+- Set up Figma → Tokens Studio → GitHub pipeline
+- Configure Style Dictionary transformation
+- Sync tokens to Storybook
+- Enable token-based search
+
+#### Week 12: Team Enablement & Documentation
+- Create component contribution guide
+- Build story template generator
+- Conduct team training session
+- Deploy to production (storybook.ozean-licht.dev)
+
+**Phase 3 Exit Criteria:**
+- [ ] Chromatic visual testing live
+- [ ] All stories pass smoke tests
+- [ ] Design tokens synchronized
+- [ ] Production deployment complete
+- [ ] Team trained and onboarded
+
+---
+
+### Phase 4: Kids Ascension Theme & Multi-Brand 📋 FUTURE (Weeks 13-16)
+
+**Status:** 📋 Planned
+**Prerequisite:** Phase 3 complete
+**Focus:** Second brand theme, token engine expansion
+
+#### Week 13-14: Kids Ascension Design Tokens
+**Reference:** `shared/ui-components/UPGRADE_PLAN.md` Phase 6
+- Define KA design tokens (bright, playful colors)
+- Create theme overrides
+- Test all 84 components with KA theme
+- Document theme switching
+
+#### Week 15-16: Multi-Brand Discovery
+- Extend discovery system for KA brand
+- Implement brand-specific search
+- Build theme switcher in Storybook
+- Test cross-brand component variants
+
+**Phase 4 Exit Criteria:**
+- [ ] Kids Ascension theme complete
+- [ ] 84 components work in both themes
+- [ ] Discovery supports brand filtering
+- [ ] Theme switching seamless
+
+---
+
+### Phase 5: Production Optimization & Scale 📋 FUTURE (Weeks 17-20)
+
+**Status:** 📋 Planned
+**Prerequisite:** Phase 4 complete
+**Focus:** Performance, testing, accessibility
+
+#### Week 17-18: Performance Optimization
+- Bundle size analysis (target < 5MB)
+- Tree-shaking optimization
+- Lazy loading for heavy components
+- CDN configuration (Cloudflare)
+
+#### Week 19: Accessibility Audit
+- WCAG AA compliance testing
+- Automated a11y scoring
+- Screen reader testing
+- Keyboard navigation audit
+
+#### Week 20: Final Documentation & Handoff
+- Complete API documentation
+- Create video walkthroughs
+- Final team training
+- Maintenance schedule
+
+**Phase 5 Exit Criteria:**
+- [ ] Bundle size < 5MB
+- [ ] WCAG AA compliant (0 violations)
+- [ ] Performance optimized
+- [ ] Full documentation complete
+- [ ] 100% team adoption
+
+---
+
+## 📋 Quick Reference: Implementation Sequence
+
+**For AI Agents and Developers - Copy/Paste Ready:**
+
+```bash
+# COMPLETED ✅
+Phase 0.1: Catalyst Integration (Week -8 to -7) ✅
+Phase 0.2: shadcn/ui Base (Week -6 to -5) ✅
+Phase 0.3: Compositions (Week -2 to 0) ✅
+# Status: 84 production-ready components
+
+# CURRENT PRIORITY 🔜 START HERE
+Phase 1.1: Storybook Setup (Week 1) 🔜
+  → Install Storybook 8.4+ with Vite
+  → Configure with Ozean Licht theme
+  → Create 10 initial stories
+
+Phase 1.2: Testing Infrastructure (Week 2) 🔜
+  → Add play functions
+  → Set up a11y testing
+  → Optimize build (<20s)
+
+Phase 1.3: Component Documentation (Week 3) 🔜
+  → Document all 84 components
+  → Create variant stories
+  → Write MDX documentation
+
+Phase 1.4: Advanced Stories (Week 4) 🔜
+  → 10 play functions
+  → Component guidelines
+  → Migration guide
+
+# WAIT FOR STORYBOOK PHASE 1-2 ⏸️
+# Do not start Phase 2 until Storybook has 66+ documented stories
+
+# NEXT AFTER STORYBOOK 📋
+Phase 2.1: Discovery Foundation (Week 5) 📋
+  → Download Tailwind Plus (~3-4 min)
+  → Index 84 existing components
+  → Set up Redis cache
+
+Phase 2.2: Semantic Search (Week 6) 📋
+  → Generate embeddings (Mem0)
+  → Build NLP query processor
+  → Test natural language search
+
+Phase 2.3: Storybook Addon (Week 7) 📋
+  → Build discovery panel
+  → Link to Storybook stories
+  → Implement suggestions
+
+Phase 2.4: MCP Integration (Week 8) 📋
+  → Build MCP service
+  → Agent tool integration
+  → Usage analytics
+
+# FUTURE PHASES 📋
+Phase 3: Visual Testing & Tokens (Weeks 9-12) 📋
+Phase 4: Kids Ascension Theme (Weeks 13-16) 📋
+Phase 5: Production Optimization (Weeks 17-20) 📋
+```
+
+---
+
+## 🎯 Critical Success Factors
+
+### Do This ✅
+1. **Follow the sequence** - Each phase depends on the previous
+2. **Complete Phase 0 checklist** - Verify 84 components exist before starting Storybook
+3. **Wait for Storybook** - Don't start discovery until 66+ stories documented
+4. **Leverage existing work** - Use three-tier architecture, don't rebuild
+5. **Test incrementally** - Validate each week's deliverables
+6. **Reference specs** - Use UPGRADE_PLAN.md and PHASE-4-COMPLETE.md as truth
+
+### Don't Do This ❌
+1. **Skip prerequisites** - Discovery without Storybook = wasted effort
+2. **Rebuild components** - 84 production-ready components already exist
+3. **Ignore brand tokens** - Ozean Licht brand already established (#0ec2bc)
+4. **Start phases in parallel** - Dependencies will break
+5. **Assume 295+ components** - Actual count is 84 organized components
+6. **Build from scratch** - Leverage Mem0, MCP Gateway, existing tools
+
+---
+
+## 📞 Support & Questions
+
+**Primary References:**
+1. `shared/ui-components/UPGRADE_PLAN.md` - Component library roadmap
+2. `shared/ui-components/PHASE-4-COMPLETE.md` - Current state report
+3. `specs/storybook-unified-implementation-spec.md` - Storybook plan (Phase 1)
+4. `specs/intelligent-component-discovery-system.md` - This document (Phase 2)
+5. `specs/ozean-licht-brand-preservation-storybook-implementation.md` - Brand preservation
+
+**Questions to Ask Before Starting Each Phase:**
+- [ ] Is the previous phase 100% complete?
+- [ ] Do all exit criteria pass for the previous phase?
+- [ ] Are the prerequisite systems operational?
+- [ ] Has the team been briefed on this phase's objectives?
+- [ ] Do we have the required developer resources?
+
+**Contact:** AI Agents + Ozean Licht Platform Team
+
+---
+
+**Document Version:** 2.0 - Aligned with Current State
+**Last Updated:** 2025-11-12
+**Next Review:** After Storybook Phase 1 completion
+**Owner:** Platform Team

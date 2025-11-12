@@ -272,3 +272,15 @@ agents/**/raw_output.jsonl
 agents/**/*.jsonl
 agents/**/prompts/
 adws/agents/*
+
+# Generated design tokens
+tokens/build/
+
+# Storybook
+storybook/build/
+.storybook-cache/
+storybook/config/.cache/
+
+# Argos visual testing
+.argos/
+argos-screenshots/

@@ -1117,3 +1117,165 @@ export async function cleanupWorkflow(adwId: string): Promise<WorkflowResult> {
     };
   }
 }
+
+// ============================================================================
+// Phase 2.2: Workflow Orchestration
+// ============================================================================
+
+import { executePlanBuildWorkflow } from './workflows/orchestrators/plan-build.js';
+import { executePlanBuildTestWorkflow } from './workflows/orchestrators/plan-build-test.js';
+import { executePlanBuildReviewWorkflow } from './workflows/orchestrators/plan-build-review.js';
+import { executePlanBuildTestReviewWorkflow } from './workflows/orchestrators/plan-build-test-review.js';
+import { executeSdlcWorkflow } from './workflows/orchestrators/sdlc.js';
+import { executeZteWorkflow } from './workflows/orchestrators/zte.js';
+import type { WorkflowContext, WorkflowPhaseResult } from './types.js';
+
+/**
+ * Build workflow context from database state
+ *
+ * Loads complete workflow state and constructs WorkflowContext
+ * for orchestrator execution.
+ *
+ * @param adwId - Workflow identifier
+ * @returns Complete workflow context
+ * @throws Error if workflow not found
+ */
+export async function buildWorkflowContext(adwId: string): Promise<WorkflowContext> {
+  const workflow = await getWorkflowState(adwId);
+
+  if (!workflow) {
+    throw new Error(`Workflow ${adwId} not found`);
+  }
+
+  // Parse workflow type
+  const workflowType = workflow.workflowType as WorkflowType;
+
+  // Parse model set with default
+  const modelSet = (workflow.modelSet as ModelSet) || 'base';
+
+  // Determine auto-ship based on workflow type
+  const autoShip = workflowType === 'zte' || workflowType === 'sdlc_zte';
+
+  return {
+    adwId: workflow.adwId,
+    issueNumber: workflow.issueNumber,
+    workflowType,
+    worktreePath: workflow.worktreePath,
+    branchName: workflow.branchName,
+    backendPort: workflow.backendPort,
+    frontendPort: workflow.frontendPort,
+    modelSet,
+    autoResolve: true, // Can be overridden by workflow configuration
+    autoShip,
+    prNumber: workflow.prNumber,
+    planFile: workflow.planFile,
+    issueClass: workflow.issueClass,
+    issueTitle: workflow.issueTitle,
+    issueBody: workflow.issueBody,
+    phase: workflow.phase,
+    status: workflow.status,
+  };
+}
+
+/**
+ * Validate workflow type is recognized
+ *
+ * @param type - Workflow type string to validate
+ * @returns True if valid, false otherwise
+ */
+export function validateWorkflowType(type: string): boolean {
+  const validTypes = [
+    'plan-build',
+    'plan-build-test',
+    'plan-build-review',
+    'plan-build-test-review',
+    'sdlc',
+    'zte',
+    'sdlc_zte', // Alias for zte
+  ];
+
+  return validTypes.includes(type);
+}
+
+/**
+ * Execute workflow orchestrator based on workflow type
+ *
+ * Routes to appropriate orchestrator based on workflow type
+ * and executes the complete workflow.
+ *
+ * @param adwId - Workflow identifier
+ * @param workflowType - Type of workflow to execute
+ * @returns Workflow execution result
+ *
+ * @example
+ * ```typescript
+ * const result = await executeWorkflow('abc123', 'plan-build');
+ * if (result.success) {
+ *   console.log('Workflow completed successfully');
+ * }
+ * ```
+ */
+export async function executeWorkflow(
+  adwId: string,
+  workflowType?: string
+): Promise<WorkflowPhaseResult> {
+  try {
+    // Build context from database state
+    const context = await buildWorkflowContext(adwId);
+
+    // Use provided workflow type or context workflow type
+    const type = workflowType || context.workflowType;
+
+    // Validate workflow type
+    if (!validateWorkflowType(type)) {
+      return {
+        success: false,
+        error: `Unknown workflow type: ${type}`,
+        message: `Workflow type '${type}' is not recognized. Valid types: plan-build, plan-build-test, plan-build-review, plan-build-test-review, sdlc, zte`,
+      };
+    }
+
+    logger.info(
+      { adwId, workflowType: type },
+      'Executing workflow via orchestrator'
+    );
+
+    // Route to appropriate orchestrator
+    switch (type) {
+      case 'plan-build':
+        return executePlanBuildWorkflow(context);
+
+      case 'plan-build-test':
+        return executePlanBuildTestWorkflow(context);
+
+      case 'plan-build-review':
+        return executePlanBuildReviewWorkflow(context);
+
+      case 'plan-build-test-review':
+        return executePlanBuildTestReviewWorkflow(context);
+
+      case 'sdlc':
+        return executeSdlcWorkflow(context);
+
+      case 'zte':
+      case 'sdlc_zte':
+        return executeZteWorkflow(context);
+
+      default:
+        return {
+          success: false,
+          error: `Workflow type not implemented: ${type}`,
+          message: `Workflow type '${type}' routing not implemented`,
+        };
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error({ error, adwId, workflowType }, 'Failed to execute workflow');
+
+    return {
+      success: false,
+      error: errorMessage,
+      message: `Workflow execution failed: ${errorMessage}`,
+    };
+  }
+}
