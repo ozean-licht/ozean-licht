@@ -45,7 +45,11 @@ const config: StorybookConfig = {
           '@storybook/blocks',
           'react',
           'react-dom',
+          'react/jsx-runtime',
+          'react/jsx-dev-runtime',
         ],
+        // Force React to be external to prevent bundling issues
+        exclude: [],
       },
       build: {
         ...config.build,

@@ -1,5 +1,13 @@
 import type { Preview } from '@storybook/react';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import '../../apps/admin/app/globals.css';
+
+// Ensure React is globally available to prevent multiple instances
+if (typeof window !== 'undefined') {
+  (window as any).React = React;
+  (window as any).ReactDOM = ReactDOM;
+}
 
 const preview: Preview = {
   parameters: {
