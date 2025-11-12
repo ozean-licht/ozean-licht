@@ -2,6 +2,14 @@
 
 TypeScript-based hooks infrastructure for Claude Code agentic enhancement in the Ozean Licht Ecosystem.
 
+## ⚠️ Important Limitation: Subagents
+
+**Hooks do NOT work with Claude Code subagents.** Subagents run in isolated context windows and don't inherit project-level hooks. These hooks only apply to:
+- Main Claude Code interactive sessions
+- Direct tool invocations in the primary conversation
+
+If you're using subagents (`.claude/agents/*`), they will bypass all hooks defined here.
+
 ## Overview
 
 This hooks system provides automated validation, memory persistence, code review enforcement, and intelligent workflow orchestration by integrating with:
