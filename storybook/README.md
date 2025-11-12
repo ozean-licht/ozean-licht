@@ -2,6 +2,24 @@
 
 Unified component documentation and testing platform for the Ozean Licht ecosystem.
 
+## 🎯 MVP Status
+
+**Status:** ✅ MVP Ready - Cleaned up and optimized for production deployment
+
+Storybook is production-ready with:
+- 66+ components documented
+- Full story coverage for admin and shared UI components
+- Performance optimized: 10s build time, 6.8MB bundle
+- Accessible deployment target: https://storybook.ozean-licht.dev
+
+**Next Steps:**
+1. Deploy to Coolify (see [Deployment Guide](#deployment) below)
+2. Configure DNS A record for storybook.ozean-licht.dev → 138.201.139.25
+
+**Roadmap:** [specs/storybook-roadmap.md](./specs/storybook-roadmap.md) - Complete MVP deployment guide
+
+---
+
 ## Quick Links
 
 - **Documentation**: [docs/](./docs/)

@@ -11,11 +11,6 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
-    chromatic: {
-      diffThreshold: 0.1,
-      delay: 100,
-      pauseAnimationAtEnd: true,
-    },
     a11y: {
       config: {
         rules: [

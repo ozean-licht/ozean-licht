@@ -1,9 +1,0 @@
-# Environment files
-.env
-
-# Logs
-*.log
-logs/
-
-# Docker volumes
-volumes/
