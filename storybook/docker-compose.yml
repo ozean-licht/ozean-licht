@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  storybook:
+    build:
+      context: ..
+      dockerfile: storybook/docker/Dockerfile
+    container_name: ozean-licht-storybook
+    restart: unless-stopped
+    ports:
+      - "6006:6006"
+    environment:
+      - NODE_ENV=production
+      - PORT=6006
+    networks:
+      - coolify
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6006/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      # Coolify labels for Traefik
+      - "traefik.enable=true"
+      - "traefik.docker.network=coolify"
+      - "traefik.http.routers.storybook.rule=Host(`storybook.ozean-licht.dev`)"
+      - "traefik.http.routers.storybook.entrypoints=https"
+      - "traefik.http.routers.storybook.tls=true"
+      - "traefik.http.routers.storybook.tls.certresolver=letsencrypt"
+      - "traefik.http.services.storybook.loadbalancer.server.port=6006"
+
+      # Redirect HTTP to HTTPS
+      - "traefik.http.routers.storybook-http.rule=Host(`storybook.ozean-licht.dev`)"
+      - "traefik.http.routers.storybook-http.entrypoints=http"
+      - "traefik.http.routers.storybook-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+
+      # Metadata
+      - "com.ozean-licht.app=storybook"
+      - "com.ozean-licht.project=ozean-licht-ecosystem"
+      - "com.ozean-licht.tier=documentation"
+
+networks:
+  coolify:
+    external: true
