@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# SessionStart Hook - Inform user of session status
+
+set -euo pipefail
+
+# Simple health checks (don't block session)
+checks_failed=()
+
+# Quick Docker check
+if ! command -v docker &> /dev/null; then
+  checks_failed+=("Docker not found in PATH")
+fi
+
+# Quick git check
+if ! command -v git &> /dev/null; then
+  checks_failed+=("Git not found in PATH")
+fi
+
+# Build message if checks failed
+if [[ ${#checks_failed[@]} -gt 0 ]]; then
+  message="Session started with warnings:\\n$(printf '- %s\\n' "${checks_failed[@]}")"
+  echo "{\"continue\":true,\"systemMessage\":\"$message\"}" >&1
+else
+  echo '{"continue":true}' >&1
+fi
+
+exit 0

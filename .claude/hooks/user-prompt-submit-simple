@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# UserPromptSubmit Hook - Inject relevant context
+
+set -euo pipefail
+
+input=$(cat)
+project_dir="${CLAUDE_PROJECT_DIR:-.}"
+
+# Check for recent errors in logs
+recent_errors=""
+if [[ -f "$project_dir/.claude/audit/operations.jsonl" ]]; then
+  recent_errors=$(grep -i "error" "$project_dir/.claude/audit/operations.jsonl" | tail -3 | jq -s '.' 2>/dev/null || echo "[]")
+fi
+
+# Return context (becomes part of system message)
+if [[ "$recent_errors" != "[]" ]] && [[ -n "$recent_errors" ]]; then
+  echo "{\"continue\":true,\"hookSpecificOutput\":{\"recentErrors\":$recent_errors}}" >&1
+else
+  echo '{"continue":true}' >&1
+fi
+
+exit 0

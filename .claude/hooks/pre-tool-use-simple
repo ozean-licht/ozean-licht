@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# PreToolUse Hook - Validates tool usage before execution
+# Exit codes: 0 = continue, 2 = block, other = error
+
+set -euo pipefail
+
+input=$(cat)
+tool=$(echo "$input" | jq -r '.tool // ""')
+command=$(echo "$input" | jq -r '.args.command // ""')
+
+# Block dangerous Bash commands
+if [[ "$tool" == "Bash" ]]; then
+  # Block destructive commands
+  if [[ "$command" =~ "rm -rf /" ]] || [[ "$command" =~ "rm -rf \*" ]]; then
+    echo '{"continue":false,"reason":"Blocked: Dangerous rm command"}' >&1
+    exit 2
+  fi
+
+  # Block force push to main/master
+  if [[ "$command" =~ "git push".*(--force|-f).*main ]] || [[ "$command" =~ "git push".*(--force|-f).*master ]]; then
+    echo '{"continue":false,"reason":"Blocked: Force push to main/master"}' >&1
+    exit 2
+  fi
+fi
+
+# Block .env file edits
+if [[ "$tool" == "Edit" ]] || [[ "$tool" == "Write" ]]; then
+  file_path=$(echo "$input" | jq -r '.args.file_path // ""')
+  if [[ "$file_path" =~ \.env$ ]] && [[ ! "$file_path" =~ \.env\.example$ ]]; then
+    echo '{"continue":false,"reason":"Blocked: Direct .env modification"}' >&1
+    exit 2
+  fi
+fi
+
+# Allow by default
+echo '{"continue":true}' >&1
+exit 0

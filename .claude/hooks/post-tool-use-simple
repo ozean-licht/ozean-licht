@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# PostToolUse Hook - Log and track successful operations
+
+set -euo pipefail
+
+input=$(cat)
+tool=$(echo "$input" | jq -r '.tool // ""')
+success=$(echo "$input" | jq -r '.success // false')
+
+# Log successful operations to audit trail
+if [[ "$success" == "true" ]]; then
+  log_dir="${CLAUDE_PROJECT_DIR:-.}/.claude/audit"
+  mkdir -p "$log_dir"
+
+  timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  echo "{\"timestamp\":\"$timestamp\",\"tool\":\"$tool\",\"status\":\"success\"}" \
+    >> "$log_dir/operations.jsonl"
+fi
+
+# Always continue (post-execution hook)
+echo '{"continue":true}' >&1
+exit 0

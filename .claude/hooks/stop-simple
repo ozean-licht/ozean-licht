@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Stop Hook - Session summary
+
+set -euo pipefail
+
+input=$(cat)
+success=$(echo "$input" | jq -r '.success // false')
+
+if [[ "$success" == "true" ]]; then
+  message="Session completed successfully"
+else
+  message="Session completed with errors - review logs"
+fi
+
+echo "{\"continue\":true,\"systemMessage\":\"$message\"}" >&1
+exit 0

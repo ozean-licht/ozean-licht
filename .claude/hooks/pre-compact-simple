@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# PreCompact Hook - Preserve important context
+
+set -euo pipefail
+
+project_dir="${CLAUDE_PROJECT_DIR:-.}"
+
+# Backup current context if it exists
+if [[ -f "$project_dir/.claude/.context" ]]; then
+  cp "$project_dir/.claude/.context" "$project_dir/.claude/.context.backup"
+fi
+
+echo '{"continue":true}' >&1
+exit 0

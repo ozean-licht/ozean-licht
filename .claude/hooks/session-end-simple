@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# SessionEnd Hook - Minimal cleanup
+
+set -euo pipefail
+
+# Update last session timestamp
+if [[ -n "${CLAUDE_PROJECT_DIR:-}" ]]; then
+  mkdir -p "${CLAUDE_PROJECT_DIR}/.claude"
+  echo "$(date -u +%s)" > "${CLAUDE_PROJECT_DIR}/.claude/.last-session"
+fi
+
+echo '{"continue":true}' >&1
+exit 0
