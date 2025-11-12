@@ -63,21 +63,23 @@ const config: StorybookConfig = {
             manualChunks: (id) => {
               // Split large vendor libraries into separate chunks
               if (id.includes('node_modules')) {
-                // React ecosystem
-                if (id.includes('react') || id.includes('react-dom')) {
-                  return 'react-vendor';
-                }
-                // Radix UI components
-                if (id.includes('@radix-ui')) {
-                  return 'radix-vendor';
-                }
-                // Storybook core
-                if (id.includes('@storybook')) {
-                  return 'storybook-vendor';
-                }
                 // A11y testing (lazy loadable)
                 if (id.includes('axe-core')) {
                   return 'axe-vendor';
+                }
+                // Radix UI components (can be separate)
+                if (id.includes('@radix-ui')) {
+                  return 'radix-vendor';
+                }
+                // CRITICAL: Keep React + React DOM + Emotion TOGETHER
+                // @emotion/react has runtime dependency on useInsertionEffect
+                // Splitting them causes race condition where emotion loads before React
+                if (id.includes('react') || id.includes('react-dom') || id.includes('@emotion')) {
+                  return 'react-vendor';
+                }
+                // Storybook core (without emotion - it's now in react-vendor)
+                if (id.includes('@storybook')) {
+                  return 'storybook-vendor';
                 }
                 // Other node_modules
                 return 'vendor';

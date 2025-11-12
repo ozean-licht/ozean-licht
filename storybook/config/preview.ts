@@ -1,12 +1,17 @@
 import type { Preview } from '@storybook/react';
-import React from 'react';
-import ReactDOM from 'react-dom';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import '../../apps/admin/app/globals.css';
 
-// Ensure React is globally available to prevent multiple instances
+// CRITICAL: Make React globally available IMMEDIATELY
+// Storybook core tries to access React.useInsertionEffect before module initialization
+// This must happen synchronously before any Storybook code runs
 if (typeof window !== 'undefined') {
   (window as any).React = React;
   (window as any).ReactDOM = ReactDOM;
+  // Also ensure React is available on globalThis for ESM compatibility
+  (globalThis as any).React = React;
+  (globalThis as any).ReactDOM = ReactDOM;
 }
 
 const preview: Preview = {
