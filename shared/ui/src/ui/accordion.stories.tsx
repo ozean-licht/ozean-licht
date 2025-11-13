@@ -14,7 +14,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './
  * - Chevron icon rotation on open/close
  */
 const meta = {
-  title: 'Shared UI/Accordion',
+  title: 'Tier 1: Primitives/shadcn/Accordion',
   component: Accordion,
   parameters: {
     layout: 'centered',

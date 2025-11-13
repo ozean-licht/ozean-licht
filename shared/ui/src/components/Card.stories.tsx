@@ -22,7 +22,7 @@ import { Badge } from './Badge';
  * - Semantic component parts (Header, Title, Description, Content, Footer)
  */
 const meta = {
-  title: 'Shared UI/Card',
+  title: 'Tier 2: Branded/Card',
   component: Card,
   parameters: {
     layout: 'centered',

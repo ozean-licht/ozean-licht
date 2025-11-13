@@ -24,10 +24,10 @@ This plan optimizes `/shared/ui` for AI-driven development through:
 
 ```
 /shared/ui/src/
-├── ui/                 # 47 shadcn primitives (8 have stories)
+├── ui/                 # 47 shadcn primitives (28 have stories - 60% coverage)
 ├── catalyst/           # 11 Catalyst components (0 stories)
-├── components/         # 7 branded components (5 have stories)
-├── compositions/       # 19 composition components (0 stories)
+├── components/         # 7 branded components (6 have stories - 86% coverage)
+├── compositions/       # 19 composition components (19 have stories - 100% coverage)
 ├── tokens/             # Design tokens (2 themes)
 ├── styles/             # Global CSS
 ├── hooks/              # React hooks
@@ -35,10 +35,14 @@ This plan optimizes `/shared/ui` for AI-driven development through:
 └── utils/              # Utility functions
 ```
 
-### Story Coverage
+### Story Coverage (Updated: 2025-11-13)
 - **Total Components:** 84 (47 + 11 + 7 + 19)
-- **Components with Stories:** 13 (15.5%)
-- **Missing Stories:** 71 components (84.5%)
+- **Components with Stories:** 53 (63.1%)
+- **Missing Stories:** 31 components (36.9%)
+- **Phase 2 (Tier 2):** 6/7 complete (86%)
+- **Phase 3 (Tier 3):** 19/19 complete (100%) ✅
+- **Phase 4 (Tier 1 shadcn):** 28/47 (60%)
+- **Phase 4 (Tier 1 Catalyst):** 0/11 (0%)
 
 ### Key Issues Identified
 
@@ -169,7 +173,7 @@ This plan optimizes `/shared/ui` for AI-driven development through:
 - [ ] Test Storybook loads existing stories
 - [ ] Document current structure
 
-### Phase 2: Story Coverage - Tier 2 (Priority 1 - Today)
+### Phase 2: Story Coverage - Tier 2 (Priority 1 - COMPLETE ✅)
 
 Create stories for **7 branded components**:
 - [x] Button.stories.tsx ✅ (exists)
@@ -177,67 +181,93 @@ Create stories for **7 branded components**:
 - [x] Badge.stories.tsx ✅ (exists)
 - [x] Input.stories.tsx ✅ (exists)
 - [x] Select.stories.tsx ✅ (exists)
-- [ ] Dialog.stories.tsx (needs creation)
-- [ ] Textarea.stories.tsx (needs creation)
+- [x] Dialog.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [ ] Textarea.stories.tsx (covered by Input.stories.tsx)
 
-### Phase 3: Story Coverage - Tier 3 (Priority 2 - This Week)
+### Phase 3: Story Coverage - Tier 3 (Priority 2 - COMPLETE ✅)
 
 Create stories for **19 composition components**:
 
 **Cards (6 components):**
-- [ ] CourseCard.stories.tsx
-- [ ] TestimonialCard.stories.tsx
-- [ ] PricingCard.stories.tsx
-- [ ] BlogCard.stories.tsx
-- [ ] FeatureCard.stories.tsx
-- [ ] StatsCard.stories.tsx
+- [x] CourseCard.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] TestimonialCard.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] PricingCard.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] BlogCard.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] FeatureCard.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] StatsCard.stories.tsx ✅ (created 2025-11-13 - not tested)
 
 **Sections (5 components):**
-- [ ] HeroSection.stories.tsx
-- [ ] CTASection.stories.tsx
-- [ ] FeatureSection.stories.tsx
-- [ ] TestimonialsSection.stories.tsx
-- [ ] PricingSection.stories.tsx
+- [x] HeroSection.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] CTASection.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] FeatureSection.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] TestimonialsSection.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] PricingSection.stories.tsx ✅ (created 2025-11-13 - not tested)
 
 **Forms (5 components):**
-- [ ] LoginForm.stories.tsx
-- [ ] RegisterForm.stories.tsx
-- [ ] PasswordResetForm.stories.tsx
-- [ ] MagicLinkForm.stories.tsx
-- [ ] ContactForm.stories.tsx
+- [x] LoginForm.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] RegisterForm.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] PasswordResetForm.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] MagicLinkForm.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] ContactForm.stories.tsx ✅ (created 2025-11-13 - not tested)
 
 **Layouts (3 components):**
-- [ ] DashboardLayout.stories.tsx
-- [ ] MarketingLayout.stories.tsx
-- [ ] AuthLayout.stories.tsx
+- [x] DashboardLayout.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] MarketingLayout.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] AuthLayout.stories.tsx ✅ (created 2025-11-13 - not tested)
 
-### Phase 4: Story Coverage - Tier 1 Primitives (Priority 3 - Next Week)
+### Phase 4: Story Coverage - Tier 1 Primitives (Priority 3 - IN PROGRESS)
 
 **Catalyst (11 components) - 0 stories:**
 - [ ] SidebarLayout.stories.tsx
 - [ ] StackedLayout.stories.tsx
-- [ ] AuthLayout.stories.tsx
+- [ ] AuthLayout.stories.tsx (Catalyst version)
 - [ ] Navbar.stories.tsx
 - [ ] Sidebar.stories.tsx
 - [ ] Button.stories.tsx (catalyst version)
 - [ ] Link.stories.tsx
-- [ ] Table.stories.tsx
+- [ ] Table.stories.tsx (Catalyst version)
 - [ ] Combobox.stories.tsx
 - [ ] Heading.stories.tsx
 - [ ] Text.stories.tsx
 
-**shadcn Primitives (47 components) - 39 need stories:**
-Focus on most-used components first:
-- [ ] dialog.stories.tsx
-- [ ] dropdown-menu.stories.tsx
-- [ ] form.stories.tsx
-- [ ] input.stories.tsx
-- [ ] label.stories.tsx
-- [ ] popover.stories.tsx
-- [ ] select.stories.tsx
-- [ ] sheet.stories.tsx
-- [ ] table.stories.tsx
-- [ ] toast.stories.tsx
+**shadcn Primitives (47 components) - 20/47 complete (43%):**
+High-priority components completed:
+- [x] dialog.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] dropdown-menu.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] form.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] input.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] label.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] popover.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] select.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] sheet.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] table.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] toast.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] switch.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] slider.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] progress.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] separator.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] avatar.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] calendar.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] command.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] context-menu.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] menubar.stories.tsx ✅ (created 2025-11-13 - not tested)
+- [x] navigation-menu.stories.tsx ✅ (created 2025-11-13 - not tested)
+
+Remaining primitives (27 stories needed):
+- [ ] alert-dialog.stories.tsx
+- [ ] aspect-ratio.stories.tsx
+- [ ] breadcrumb.stories.tsx
+- [ ] carousel.stories.tsx
+- [ ] collapsible.stories.tsx
+- [ ] drawer.stories.tsx
+- [ ] hover-card.stories.tsx
+- [ ] pagination.stories.tsx
+- [ ] resizable.stories.tsx
+- [ ] scroll-area.stories.tsx
+- [ ] sonner.stories.tsx
+- [ ] toggle.stories.tsx
+- [ ] toggle-group.stories.tsx
+- [ ] (14 additional primitives)
 
 ### Phase 5: Component Catalog (Priority 4 - Next Week)
 

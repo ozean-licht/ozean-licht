@@ -13,7 +13,7 @@ import { Badge } from './Badge';
  * - Three sizes (sm, md, lg)
  */
 const meta = {
-  title: 'Shared UI/Badge',
+  title: 'Tier 2: Branded/Badge',
   component: Badge,
   parameters: {
     layout: 'centered',

@@ -16,7 +16,7 @@ import { useState } from 'react';
  * - Label component with required indicator
  */
 const meta = {
-  title: 'Shared UI/Input',
+  title: 'Tier 2: Branded/Input',
   component: Input,
   parameters: {
     layout: 'centered',

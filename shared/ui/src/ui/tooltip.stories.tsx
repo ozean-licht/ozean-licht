@@ -15,7 +15,7 @@ import { Info, Plus, Settings, Trash2 } from 'lucide-react';
  * - Smooth fade-in animation
  */
 const meta = {
-  title: 'Shared UI/Tooltip',
+  title: 'Tier 1: Primitives/shadcn/Tooltip',
   component: Tooltip,
   parameters: {
     layout: 'centered',

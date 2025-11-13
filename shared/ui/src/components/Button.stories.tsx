@@ -16,7 +16,7 @@ import { ArrowRight, Download, Plus } from 'lucide-react';
  * - Full width option
  */
 const meta = {
-  title: 'Shared UI/Button',
+  title: 'Tier 2: Branded/Button',
   component: Button,
   parameters: {
     layout: 'centered',

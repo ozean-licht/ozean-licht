@@ -16,7 +16,7 @@ import { Button } from '../components/Button';
  * - Multiple tabs support
  */
 const meta = {
-  title: 'Shared UI/Tabs',
+  title: 'Tier 1: Primitives/shadcn/Tabs',
   component: Tabs,
   parameters: {
     layout: 'centered',

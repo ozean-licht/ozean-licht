@@ -14,7 +14,7 @@ import { Label } from './label';
  * - Full form support
  */
 const meta = {
-  title: 'Shared UI/Textarea',
+  title: 'Tier 1: Primitives/shadcn/Textarea',
   component: Textarea,
   parameters: {
     layout: 'centered',

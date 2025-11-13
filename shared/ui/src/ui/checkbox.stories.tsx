@@ -15,7 +15,7 @@ import { Label } from './label';
  * - Works with forms and labels
  */
 const meta = {
-  title: 'Shared UI/Checkbox',
+  title: 'Tier 1: Primitives/shadcn/Checkbox',
   component: Checkbox,
   parameters: {
     layout: 'centered',

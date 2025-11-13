@@ -15,7 +15,7 @@ import { Label } from './label';
  * - Accessible ARIA attributes
  */
 const meta = {
-  title: 'Shared UI/RadioGroup',
+  title: 'Tier 1: Primitives/shadcn/RadioGroup',
   component: RadioGroup,
   parameters: {
     layout: 'centered',

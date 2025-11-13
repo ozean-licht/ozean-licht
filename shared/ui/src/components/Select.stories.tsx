@@ -14,7 +14,7 @@ import { Label } from './Input';
  * - FormGroup wrapper for complete form fields
  */
 const meta = {
-  title: 'Shared UI/Select',
+  title: 'Tier 2: Branded/Select',
   component: Select,
   parameters: {
     layout: 'centered',

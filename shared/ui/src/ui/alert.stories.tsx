@@ -13,7 +13,7 @@ import { Terminal, AlertCircle, CheckCircle2, Info as InfoIcon, AlertTriangle } 
  * - Title and description sections
  */
 const meta = {
-  title: 'Shared UI/Alert',
+  title: 'Tier 1: Primitives/shadcn/Alert',
   component: Alert,
   parameters: {
     layout: 'centered',
