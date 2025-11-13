@@ -72,26 +72,43 @@ const config: StorybookConfig = {
             // CRITICAL: Granular chunk splitting with alphabetical ordering
             manualChunks: (id) => {
               if (id.includes('node_modules')) {
-                // BUNDLE REACT WITH STORYBOOK - Ensures React is always available
-                // This prevents race conditions by including React in the main vendor chunk
+                // BUNDLE ALL REACT-DEPENDENT PACKAGES TOGETHER
+                // This prevents "Cannot read properties of undefined" errors
+                // by ensuring React is available when any dependent code executes
                 if (
+                  // Core React
                   id.includes('node_modules/react/') ||
                   id.includes('node_modules/react-dom/') ||
+                  // Storybook (uses React)
                   id.includes('node_modules/@storybook/') ||
                   id.includes('node_modules/storybook/') ||
-                  id.includes('node_modules/@emotion/')
+                  // Emotion styling (uses React hooks)
+                  id.includes('node_modules/@emotion/') ||
+                  // Radix UI (uses React)
+                  id.includes('node_modules/@radix-ui/') ||
+                  // UI libraries that use React
+                  id.includes('node_modules/lucide-react') ||
+                  id.includes('node_modules/motion') ||
+                  id.includes('node_modules/framer-motion') ||
+                  id.includes('node_modules/recharts') ||
+                  id.includes('node_modules/sonner') ||
+                  id.includes('node_modules/vaul') ||
+                  id.includes('node_modules/next-themes') ||
+                  id.includes('node_modules/react-day-picker') ||
+                  id.includes('node_modules/react-hook-form') ||
+                  id.includes('node_modules/react-resizable-panels') ||
+                  id.includes('node_modules/embla-carousel-react') ||
+                  id.includes('node_modules/cmdk') ||
+                  id.includes('node_modules/input-otp')
                 ) {
                   return 'storybook-vendor';
                 }
-                // RADIX UI - Separate chunk
-                if (id.includes('@radix-ui')) {
-                  return 'radix-vendor';
-                }
-                // A11Y TESTING - Separate chunk
+                // A11Y TESTING - Separate chunk (doesn't use React)
                 if (id.includes('axe-core')) {
                   return 'axe-vendor';
                 }
-                // OTHER VENDOR CODE
+                // PURE UTILITIES - No React dependencies
+                // (class-variance-authority, clsx, tailwind-merge, date-fns, zod, etc.)
                 return 'vendor';
               }
               // Split by application/package
