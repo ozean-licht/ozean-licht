@@ -37,6 +37,11 @@ const config: StorybookConfig = {
   viteFinal: async (config) => {
     return {
       ...config,
+      // CSS processing - Enable PostCSS/Tailwind
+      css: {
+        ...config.css,
+        postcss: join(__dirname, '../postcss.config.js'),
+      },
       // Optimize deps for determinism - Pre-bundle React FIRST
       optimizeDeps: {
         ...config.optimizeDeps,
