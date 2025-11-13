@@ -144,18 +144,20 @@ const preview: Preview = {
         root.style.backgroundColor = theme === 'dark' ? '#0A0F1A' : '#FFFFFF';
       }, [theme]);
 
-      return (
-        <div className={theme === 'dark' ? 'dark' : ''}>
-          <div
-            className="min-h-screen"
-            style={{
+      return React.createElement(
+        'div',
+        { className: theme === 'dark' ? 'dark' : '' },
+        React.createElement(
+          'div',
+          {
+            className: 'min-h-screen',
+            style: {
               backgroundColor: theme === 'dark' ? '#0A0F1A' : '#FFFFFF',
               color: theme === 'dark' ? '#FFFFFF' : '#000000',
-            }}
-          >
-            <Story />
-          </div>
-        </div>
+            },
+          },
+          React.createElement(Story)
+        )
       );
     },
   ],
