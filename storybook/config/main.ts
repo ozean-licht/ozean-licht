@@ -135,6 +135,11 @@ const config: StorybookConfig = {
           '@': join(__dirname, '../../apps/admin'),
           '@admin': join(__dirname, '../../apps/admin'),
           '@shared': join(__dirname, '../../shared/ui/src'),
+          // Mock Next.js modules for Storybook compatibility
+          'next/link': join(__dirname, '../mocks/next-link.tsx'),
+          'next/image': join(__dirname, '../mocks/next-image.tsx'),
+          'next/navigation': join(__dirname, '../mocks/next-navigation.tsx'),
+          'next/server': join(__dirname, '../mocks/next-server.tsx'),
         },
         // Deduplicate to single instance
         dedupe: ['react', 'react-dom', '@emotion/react'],
