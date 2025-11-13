@@ -21,12 +21,15 @@
         });
       }
 
-      // Block Emotion/Storybook from executing before React
-      if ((src.includes('aac-emotion') || src.includes('aad-storybook')) && !reactLoaded) {
+      // Block ALL vendor chunks from executing before React
+      // This includes Emotion, Storybook, Radix UI, Axe, and any other vendor code
+      if ((src.includes('aac-') || src.includes('aad-') || src.includes('aae-') ||
+           src.includes('aaf-') || src.includes('aag-')) && !reactLoaded) {
         console.warn('⚠️ Blocking', src, 'until React is loaded');
         const checkReact = setInterval(() => {
           if (reactLoaded || window.React) {
             clearInterval(checkReact);
+            console.log('✅ Unblocking', src, '- React is now available');
             originalAppend.call(this, child);
           }
         }, 10);
