@@ -151,7 +151,7 @@ export function CourseCard({ course, className, hover = true, glow = false, href
         {/* Content Section */}
         <CardContent className="p-6 space-y-4">
           {/* Title */}
-          <h3 className="font-serif text-xl md:text-2xl text-[var(--foreground)] leading-tight line-clamp-2">
+          <h3 className="font-decorative text-xl md:text-2xl text-[var(--foreground)] leading-tight line-clamp-2">
             {course.title}
           </h3>
 

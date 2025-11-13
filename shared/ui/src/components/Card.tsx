@@ -111,7 +111,7 @@ const CardTitle = React.forwardRef<HTMLDivElement, CardTitleProps>(
       <ShadcnCardTitle
         ref={ref}
         className={cn(
-          'font-serif text-xl md:text-2xl font-semibold leading-none tracking-tight',
+          'font-sans text-xl md:text-2xl font-normal leading-none tracking-tight',
           'text-[var(--foreground)]',
           className
         )}

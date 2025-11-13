@@ -80,7 +80,7 @@
     "lastUpdated": "2025-11-12T21:25:00Z"
   },
   "navigation": {
-    "last_command": "tools/containers/logs.sh ozean-licht-storybook 50",
-    "timestamp": "2025-11-12T21:25:00Z"
+    "last_command": "tools/deployment/list.sh",
+    "timestamp": "2025-11-13T12:08:30Z"
   }
 }

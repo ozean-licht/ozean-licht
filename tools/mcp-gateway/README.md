@@ -1,8 +1,8 @@
 # MCP Gateway
 
-> **Version:** 1.0.2
+> **Version:** 1.0.3
 > **Status:** ✅ Production Ready - Docker Tested & Verified with MinIO
-> **Last Updated:** 2025-11-03
+> **Last Updated:** 2025-11-13
 
 A unified gateway for autonomous agents to access tools and services through the Model Context Protocol (MCP). The gateway provides a standardized interface for agents to interact with backend services through slash commands, handling authentication, rate limiting, protocol translation, and service orchestration.
 
@@ -58,7 +58,7 @@ Agent → Slash Command → MCP Gateway → Service Handler → Backend Service
 **Key Components:**
 - **Express Server** (Node.js 20 + TypeScript)
 - **JSON-RPC 2.0** Protocol Handler
-- **Service Registry** with 9 MCP services
+- **Service Registry** with 10 MCP services
 - **JWT Authentication** with per-agent rate limiting
 - **Connection Pooling** for PostgreSQL
 - **Prometheus Metrics** (port 9090)
@@ -70,8 +70,8 @@ Agent → Slash Command → MCP Gateway → Service Handler → Backend Service
 
 ### Core Capabilities
 
-✅ **9 MCP Services Integrated:**
-- **Server-Side (Always Loaded):** PostgreSQL, Mem0, Cloudflare, GitHub, N8N, MinIO
+✅ **10 MCP Services Integrated:**
+- **Server-Side (Always Loaded):** PostgreSQL, Mem0, Cloudflare, GitHub, N8N, MinIO, Coolify, Firecrawl, Context7
 - **Local (Agent-Side References):** Playwright, ShadCN, MagicUI
 
 ✅ **Authentication & Security:**
@@ -158,6 +158,38 @@ Agent → Slash Command → MCP Gateway → Service Handler → Backend Service
   - File size limits (configurable, default 500MB)
 - **Endpoint:** `http://138.201.139.25:9000`
 - **Authentication:** Access Key/Secret Key
+
+#### 7. Coolify MCP
+- **Purpose:** Infrastructure and deployment management
+- **Features:**
+  - List applications and databases
+  - Deploy applications (pull latest code)
+  - Restart applications
+  - Get Coolify version and status
+- **Endpoint:** `http://coolify.ozean-licht.dev:8000`
+- **Authentication:** API Token
+
+#### 8. Firecrawl MCP
+- **Purpose:** Web scraping and content extraction service
+- **Features:**
+  - Scrape web pages and convert to markdown
+  - Extract structured content
+  - Health monitoring
+  - Always active for all agents
+- **Endpoint:** `https://api.firecrawl.dev`
+- **Authentication:** API Key
+
+#### 9. Context7 MCP
+- **Purpose:** Up-to-date, version-specific code documentation for libraries
+- **Features:**
+  - Resolve library names to Context7 IDs
+  - Fetch version-specific documentation
+  - Topic-based filtering (e.g., "hooks", "routing")
+  - Token-limited responses (1k-10k tokens)
+  - Always active for all agents
+  - Supports 100+ popular libraries (React, Next.js, FastAPI, etc.)
+- **Endpoint:** `https://mcp.context7.com/mcp`
+- **Authentication:** Optional API key (higher rate limits with key, free tier without)
 
 ### Local MCP Services (Agent-Side)
 
@@ -363,6 +395,24 @@ curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..." \
 /mcp-minio getUrl kids-ascension-staging videos/lesson1.mp4
 /mcp-minio delete kids-ascension-staging videos/old-video.mp4
 /mcp-minio stat kids-ascension-staging videos/lesson1.mp4
+
+# Coolify deployment operations
+/mcp-coolify list-applications
+/mcp-coolify deploy-application 3
+/mcp-coolify restart-application 3
+/mcp-coolify list-databases
+/mcp-coolify get-version
+
+# Firecrawl web scraping
+/mcp-firecrawl scrape "https://docs.anthropic.com/en/docs/claude-code/sdk"
+/mcp-firecrawl health
+
+# Context7 documentation service
+/mcp-context7 resolve "react"
+/mcp-context7 resolve "nextjs"
+/mcp-context7 get-docs "react@18" --topic="hooks"
+/mcp-context7 get-docs "fastapi@0.104" --tokens=3000
+/mcp-context7 health
 ```
 
 ### JSON-RPC API
@@ -522,7 +572,7 @@ curl http://localhost:9090/metrics | head -20
 
 # 5. Service Catalog
 curl http://localhost:8100/mcp/catalog
-# Expected: List of 9 MCP services
+# Expected: List of 10 MCP services
 ```
 
 ---
@@ -562,6 +612,10 @@ GITHUB_PAT=ghp_your_personal_access_token
 GITHUB_APP_ID=123456
 GITHUB_INSTALLATION_ID=78910
 GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+
+# External Services
+FIRECRAWL_API_KEY=fc-your_api_key          # Web scraping
+CONTEXT7_API_KEY=your_context7_key         # Optional: higher rate limits for docs
 
 # Security
 JWT_SECRET=minimum_32_character_secret_key_here

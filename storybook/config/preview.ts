@@ -17,6 +17,28 @@ if (typeof window !== 'undefined') {
 const preview: Preview = {
   parameters: {
     tags: ['autodocs'],
+    // Ozean Licht cosmic dark backgrounds
+    backgrounds: {
+      default: 'cosmic-dark',
+      values: [
+        {
+          name: 'cosmic-dark',
+          value: '#0A0F1A',
+        },
+        {
+          name: 'card',
+          value: '#1A1F2E',
+        },
+        {
+          name: 'cosmic-gradient',
+          value: 'linear-gradient(135deg, #0A0F1A 0%, #1A1F2E 50%, #0A0F1A 100%)',
+        },
+        {
+          name: 'white',
+          value: '#FFFFFF',
+        },
+      ],
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,
@@ -80,13 +102,13 @@ const preview: Preview = {
   globalTypes: {
     theme: {
       description: 'Global theme for all stories',
-      defaultValue: 'light',
+      defaultValue: 'dark',
       toolbar: {
         title: 'Theme',
-        icon: 'circlehollow',
+        icon: 'circle',
         items: [
           { value: 'light', icon: 'circlehollow', title: 'Light' },
-          { value: 'dark', icon: 'circle', title: 'Dark' },
+          { value: 'dark', icon: 'circle', title: 'Dark (Ozean Licht)' },
         ],
         dynamicTitle: true,
       },
@@ -106,6 +128,37 @@ const preview: Preview = {
       },
     },
   },
+  decorators: [
+    (Story, context) => {
+      const theme = context.globals.theme || 'dark';
+
+      // Apply theme class to document root for Tailwind dark mode
+      React.useEffect(() => {
+        const root = document.documentElement;
+        if (theme === 'dark') {
+          root.classList.add('dark');
+        } else {
+          root.classList.remove('dark');
+        }
+        // Apply cosmic background color
+        root.style.backgroundColor = theme === 'dark' ? '#0A0F1A' : '#FFFFFF';
+      }, [theme]);
+
+      return (
+        <div className={theme === 'dark' ? 'dark' : ''}>
+          <div
+            className="min-h-screen"
+            style={{
+              backgroundColor: theme === 'dark' ? '#0A0F1A' : '#FFFFFF',
+              color: theme === 'dark' ? '#FFFFFF' : '#000000',
+            }}
+          >
+            <Story />
+          </div>
+        </div>
+      );
+    },
+  ],
 };
 
 export default preview;

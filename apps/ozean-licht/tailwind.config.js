@@ -65,7 +65,6 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Montserrat', 'system-ui', '-apple-system', 'sans-serif'],
-        serif: ['Cinzel', 'Georgia', 'serif'],
         decorative: ['Cinzel Decorative', 'Georgia', 'serif'],
         alt: ['Montserrat Alternates', 'Montserrat', 'sans-serif'],
         mono: ['Fira Code', 'Courier New', 'monospace'],

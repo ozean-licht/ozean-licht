@@ -55,6 +55,7 @@ async function initializeServerServices(registry: MCPRegistry): Promise<void> {
     { name: 'minio', initializer: initializeMinIO },
     { name: 'coolify', initializer: initializeCoolify },
     { name: 'firecrawl', initializer: initializeFirecrawl },
+    { name: 'context7', initializer: initializeContext7 },
   ];
 
   for (const { name, initializer } of services) {
@@ -239,6 +240,25 @@ async function initializeFirecrawl(registry: MCPRegistry): Promise<void> {
   const serviceConfig = mcpCatalog.services.firecrawl;
   registry.registerService({
     name: 'firecrawl',
+    version: serviceConfig.version,
+    description: serviceConfig.description,
+    location: 'server',
+    capabilities: serviceConfig.capabilities,
+    status: 'active',
+  }, handler);
+}
+
+/**
+ * Context7 MCP Initializer
+ */
+async function initializeContext7(registry: MCPRegistry): Promise<void> {
+  const { Context7Handler } = await import('./handlers/context7');
+
+  const handler = new Context7Handler();
+
+  const serviceConfig = mcpCatalog.services.context7;
+  registry.registerService({
+    name: 'context7',
     version: serviceConfig.version,
     description: serviceConfig.description,
     location: 'server',

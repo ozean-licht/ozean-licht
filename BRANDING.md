@@ -155,46 +155,53 @@ The admin dashboard uses the Ozean Licht brand identity:
 **Ozean Licht uses three font families:**
 
 1. **Cinzel Decorative** (Display)
-   - **Usage:** H1, H2 headings, hero text, brand statements
-   - **Weights:** 400 (Regular), 700 (Bold), 900 (Black)
+   - **Usage:** ALL headings (H1-H6), hero text, brand statements, card titles
+   - **Weight:** 400 (Regular) ONLY - never use bold
    - **Character:** Elegant, sophisticated, mystical
    - **Source:** Google Fonts
+   - **Important:** Only Regular weight (400) is used for brand consistency
 
-2. **Cinzel** (Serif)
-   - **Usage:** H4 headings, subheadings, quotes
-   - **Weights:** 400 (Regular), 600 (Semi-Bold), 700 (Bold)
-   - **Character:** Classic, refined, readable
-   - **Source:** Google Fonts
-
-3. **Montserrat** (Sans-Serif)
-   - **Usage:** Body text, paragraphs, UI elements
+2. **Montserrat** (Sans-Serif)
+   - **Usage:** Body text, paragraphs, UI elements, buttons
    - **Weights:** 300 (Light), 400 (Regular), 500 (Medium), 600 (Semi-Bold), 700 (Bold)
    - **Character:** Clean, modern, highly readable
    - **Source:** Google Fonts
 
-4. **Montserrat Alternates** (Sans-Serif Alt)
-   - **Usage:** H5, H6, subheadings, labels
+3. **Montserrat Alternates** (Sans-Serif Alt)
+   - **Usage:** Labels, captions, alternative body text
    - **Weights:** 400 (Regular), 500 (Medium), 600 (Semi-Bold), 700 (Bold)
    - **Character:** Distinctive, friendly, modern
+   - **Source:** Google Fonts
+
+4. **Fira Code** (Monospace)
+   - **Usage:** Code blocks, technical content
+   - **Character:** Developer-friendly monospace
    - **Source:** Google Fonts
 
 ### Typography Hierarchy
 
 ```
-H1: Cinzel Decorative, 3rem-4rem, Bold
-H2: Cinzel Decorative, 2.25rem-3rem, Bold
-H3: Cinzel Decorative, 1.875rem-2.25rem, Regular
-H4: Cinzel, 1.5rem-1.875rem, Semi-Bold
-H5: Montserrat Alternates, 1.25rem-1.5rem, Semi-Bold
-H6: Montserrat Alternates, 1rem-1.25rem, Semi-Bold
-Body Large: Montserrat, 1.125rem, Regular
-Body Medium: Montserrat, 1rem, Regular
-Body Small: Montserrat, 0.875rem, Regular
+H1: Cinzel Decorative, 3rem-4rem, Regular (400) ← Hero/Page Titles
+H2: Cinzel Decorative, 2.25rem-3rem, Regular (400) ← Section Headings
+H3: Montserrat, 1.875rem-2.25rem, Regular (400) ← Subsections
+H4: Montserrat, 1.5rem-1.875rem, Regular (400) ← Card Titles
+H5: Montserrat Alternates, 1.25rem-1.5rem, Regular (400) ← Labels
+H6: Montserrat Alternates, 1rem-1.25rem, Regular (400) ← Small Labels
+Body Large: Montserrat, 1.125rem, Regular (400)
+Body Medium: Montserrat, 1rem, Regular (400)
+Body Small: Montserrat, 0.875rem, Regular (400)
 Paragraphs: Montserrat, Light (300)
+
+Special Cases:
+Course Card Titles: Cinzel Decorative, 1.25rem-1.5rem, Regular (400)
+Dialog Titles: Montserrat, 1.5rem-1.875rem, Regular (400)
 ```
 
 **Best Practices:**
-- Use Cinzel Decorative sparingly (H1, H2 only)
+- **CRITICAL:** Cinzel Decorative is ALWAYS Regular weight (400) - never bold, semibold, or black
+- **CRITICAL:** Use Cinzel Decorative SPARINGLY - only H1, H2, and special course cards
+- All other headings (H3-H6) use Montserrat or Montserrat Alternates
+- Size differentiation creates hierarchy, not font weight
 - Montserrat for all body text ensures readability
 - Maintain proper hierarchy (don't skip heading levels)
 - Add subtle text-shadow to H1/H2 for ethereal effect

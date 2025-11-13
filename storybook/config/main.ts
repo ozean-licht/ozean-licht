@@ -20,6 +20,15 @@ const config: StorybookConfig = {
     getAbsolutePath('@storybook/addon-interactions'),
     getAbsolutePath('@storybook/addon-a11y'),
   ],
+  // Manager customization for Ozean Licht branding
+  managerHead: (head) => `
+    ${head}
+    <style>
+      body {
+        font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+      }
+    </style>
+  `,
   framework: {
     name: getAbsolutePath('@storybook/react-vite'),
     options: {},

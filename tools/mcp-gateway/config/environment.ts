@@ -81,6 +81,9 @@ const envSchema = z.object({
   // Firecrawl - Web scraping service
   FIRECRAWL_API_KEY: z.string().optional(),
 
+  // Context7 - Documentation service (optional API key for higher rate limits)
+  CONTEXT7_API_KEY: z.string().optional(),
+
   // Security
   JWT_SECRET: z.string().min(32),
   JWT_EXPIRES_IN: z.string().default('24h'),
@@ -192,6 +195,7 @@ export const serviceUrls = {
   mem0: config.MEM0_API_URL,
   n8n: config.N8N_API_URL,
   coolify: config.COOLIFY_API_URL,
+  context7: process.env.CONTEXT7_API_URL || 'https://mcp.context7.com/mcp',
 };
 
 // Feature flags

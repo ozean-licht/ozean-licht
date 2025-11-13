@@ -67,7 +67,6 @@
 
     /* Fonts */
     --font-decorative: 'Cinzel Decorative', Georgia, serif;
-    --font-serif: 'Cinzel', Georgia, serif;
     --font-sans: 'Montserrat', system-ui, -apple-system, sans-serif;
     --font-alt: 'Montserrat Alternates', Montserrat, sans-serif;
     --font-mono: 'Fira Code', 'Courier New', monospace;
@@ -99,30 +98,38 @@
   }
 
   /* Typography hierarchy with Ozean Licht fonts */
+  /* Cinzel Decorative used SPARINGLY - only H1, H2 */
   h1 {
     font-family: var(--font-decorative);
+    font-weight: 400;
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
   }
 
   h2 {
     font-family: var(--font-decorative);
+    font-weight: 400;
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.42);
   }
 
+  /* H3-H6 use Montserrat */
   h3 {
-    font-family: var(--font-decorative);
+    font-family: var(--font-sans);
+    font-weight: 400;
   }
 
   h4 {
-    font-family: var(--font-serif);
+    font-family: var(--font-sans);
+    font-weight: 400;
   }
 
   h5 {
     font-family: var(--font-alt);
+    font-weight: 400;
   }
 
   h6 {
     font-family: var(--font-alt);
+    font-weight: 400;
   }
 
   /* Paragraph default - Light weight for readability */
@@ -195,10 +202,6 @@
   /* Font family utilities */
   .font-decorative {
     font-family: var(--font-decorative);
-  }
-
-  .font-serif {
-    font-family: var(--font-serif);
   }
 
   .font-alt {

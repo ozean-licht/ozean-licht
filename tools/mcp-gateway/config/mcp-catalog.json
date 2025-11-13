@@ -335,6 +335,50 @@
         "burstLimit": 5
       }
     },
+    "context7": {
+      "name": "Context7 MCP",
+      "description": "Up-to-date, version-specific code documentation for libraries",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "alwaysActive": true,
+      "capabilities": [
+        "resolve-library-id",
+        "get-library-docs",
+        "health"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-context7 resolve \"[library]\"",
+          "description": "Resolve library name to Context7 ID",
+          "example": "/mcp-context7 resolve \"react\""
+        },
+        {
+          "command": "/mcp-context7 get-docs \"[libraryId]\" --topic=\"[topic]\"",
+          "description": "Get version-specific documentation for a library",
+          "example": "/mcp-context7 get-docs \"react@18\" --topic=\"hooks\""
+        },
+        {
+          "command": "/mcp-context7 get-docs \"[libraryId]\" --tokens=[limit]",
+          "description": "Get documentation with custom token limit",
+          "example": "/mcp-context7 get-docs \"fastapi@0.104\" --tokens=3000"
+        },
+        {
+          "command": "/mcp-context7 health",
+          "description": "Check Context7 service health",
+          "example": "/mcp-context7 health"
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 800,
+        "costPerCall": 0.0024,
+        "complexity": "high"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 30,
+        "burstLimit": 5
+      }
+    },
     "playwright": {
       "name": "Playwright MCP",
       "description": "Browser automation and testing",
@@ -429,11 +473,11 @@
     }
   },
   "aggregates": {
-    "totalServices": 11,
-    "serverSideServices": 8,
+    "totalServices": 12,
+    "serverSideServices": 9,
     "localServices": 3,
-    "averageTokenCost": 390,
-    "averageCostPerCall": 0.00117
+    "averageTokenCost": 420,
+    "averageCostPerCall": 0.00126
   },
   "metadata": {
     "lastUpdated": "2025-11-07T15:00:00Z",
