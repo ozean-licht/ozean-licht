@@ -72,43 +72,27 @@ const config: StorybookConfig = {
             // CRITICAL: Granular chunk splitting with alphabetical ordering
             manualChunks: (id) => {
               if (id.includes('node_modules')) {
-                // 1. REACT CORE - MUST LOAD FIRST
+                // BUNDLE REACT WITH STORYBOOK - Ensures React is always available
+                // This prevents race conditions by including React in the main vendor chunk
                 if (
                   id.includes('node_modules/react/') ||
-                  id.includes('node_modules/react-dom/')
-                ) {
-                  return 'aaa-react-core';
-                }
-                // 2. REACT INTERNALS & HOOKS
-                if (
-                  id.includes('node_modules/react-dom/client') ||
-                  id.includes('node_modules/@react/')
-                ) {
-                  return 'aab-react-internals';
-                }
-                // 3. EMOTION/STYLE SYSTEM - DEPENDS ON REACT
-                if (
+                  id.includes('node_modules/react-dom/') ||
+                  id.includes('node_modules/@storybook/') ||
+                  id.includes('node_modules/storybook/') ||
                   id.includes('node_modules/@emotion/')
                 ) {
-                  return 'aac-emotion-core';
+                  return 'storybook-vendor';
                 }
-                // 4. STORYBOOK INFRASTRUCTURE
-                if (
-                  id.includes('node_modules/@storybook/') ||
-                  id.includes('node_modules/storybook/')
-                ) {
-                  return 'aad-storybook-vendor';
-                }
-                // 5. RADIX UI - Can load after core deps
+                // RADIX UI - Separate chunk
                 if (id.includes('@radix-ui')) {
-                  return 'aae-radix-vendor';
+                  return 'radix-vendor';
                 }
-                // 6. A11Y TESTING - Lazy loadable
+                // A11Y TESTING - Separate chunk
                 if (id.includes('axe-core')) {
-                  return 'aaf-axe-vendor';
+                  return 'axe-vendor';
                 }
-                // 7. OTHER VENDOR CODE
-                return 'aag-vendor';
+                // OTHER VENDOR CODE
+                return 'vendor';
               }
               // Split by application/package
               if (id.includes('apps/admin')) {
@@ -122,21 +106,8 @@ const config: StorybookConfig = {
         },
         chunkSizeWarningLimit: 3000,
       },
-      // CRITICAL: Override module preload to prevent race conditions
-      modulePreload: {
-        resolveDependencies: (filename, deps) => {
-          // Only include direct dependencies, no transitive preloads
-          return deps.filter((dep) => {
-            // Prevent Emotion/Storybook from preloading before React
-            if (dep.includes('aac-emotion') || dep.includes('aad-storybook')) {
-              // Force these to wait for React by not preloading them
-              return false;
-            }
-            return true;
-          });
-        },
-        polyfill: false, // Disable automatic preload polyfill
-      },
+      // Module preload - default behavior is fine now that React is bundled with dependencies
+      modulePreload: true,
       resolve: {
         ...config.resolve,
         alias: {

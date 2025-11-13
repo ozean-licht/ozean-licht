@@ -1,42 +1,5 @@
-<!-- CRITICAL: Load React FIRST with explicit blocking -->
-<!-- Ensures React globals are available before any dependent code -->
+<!-- React DevTools Hook -->
 <script>
   // Pre-register React devtools hook to prevent race conditions
   window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = window.__REACT_DEVTOOLS_GLOBAL_HOOK__ || {};
-
-  // Track React loading state
-  let reactLoaded = false;
-
-  // Monitor script loading to enforce React-first order
-  const originalAppend = Element.prototype.appendChild;
-  Element.prototype.appendChild = function(child) {
-    if (child.tagName === 'SCRIPT' && child.type === 'module') {
-      const src = child.src || '';
-
-      // Mark React as loaded when React chunk executes
-      if (src.includes('aaa-react-core') || src.includes('aab-react-internals')) {
-        child.addEventListener('load', () => {
-          reactLoaded = true;
-          console.log('✅ React core loaded successfully');
-        });
-      }
-
-      // Block ALL vendor chunks from executing before React
-      // This includes Emotion, Storybook, Radix UI, Axe, and any other vendor code
-      if ((src.includes('aac-') || src.includes('aad-') || src.includes('aae-') ||
-           src.includes('aaf-') || src.includes('aag-')) && !reactLoaded) {
-        console.warn('⚠️ Blocking', src, 'until React is loaded');
-        const checkReact = setInterval(() => {
-          if (reactLoaded || window.React) {
-            clearInterval(checkReact);
-            console.log('✅ Unblocking', src, '- React is now available');
-            originalAppend.call(this, child);
-          }
-        }, 10);
-        return child;
-      }
-    }
-
-    return originalAppend.call(this, child);
-  };
 </script>
