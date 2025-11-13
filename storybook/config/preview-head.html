@@ -1,0 +1,39 @@
+<!-- CRITICAL: Load React FIRST with explicit blocking -->
+<!-- Ensures React globals are available before any dependent code -->
+<script>
+  // Pre-register React devtools hook to prevent race conditions
+  window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = window.__REACT_DEVTOOLS_GLOBAL_HOOK__ || {};
+
+  // Track React loading state
+  let reactLoaded = false;
+
+  // Monitor script loading to enforce React-first order
+  const originalAppend = Element.prototype.appendChild;
+  Element.prototype.appendChild = function(child) {
+    if (child.tagName === 'SCRIPT' && child.type === 'module') {
+      const src = child.src || '';
+
+      // Mark React as loaded when React chunk executes
+      if (src.includes('aaa-react-core') || src.includes('aab-react-internals')) {
+        child.addEventListener('load', () => {
+          reactLoaded = true;
+          console.log('✅ React core loaded successfully');
+        });
+      }
+
+      // Block Emotion/Storybook from executing before React
+      if ((src.includes('aac-emotion') || src.includes('aad-storybook')) && !reactLoaded) {
+        console.warn('⚠️ Blocking', src, 'until React is loaded');
+        const checkReact = setInterval(() => {
+          if (reactLoaded || window.React) {
+            clearInterval(checkReact);
+            originalAppend.call(this, child);
+          }
+        }, 10);
+        return child;
+      }
+    }
+
+    return originalAppend.call(this, child);
+  };
+</script>
