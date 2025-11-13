@@ -13,7 +13,7 @@ const config: StorybookConfig = {
   stories: [
     '../../apps/admin/components/**/*.stories.@(js|jsx|mjs|ts|tsx)',
     '../../apps/ozean-licht/components/**/*.stories.@(js|jsx|mjs|ts|tsx)',
-    '../../shared/ui-components/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+    '../../shared/ui/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
   addons: [
     getAbsolutePath('@storybook/addon-essentials'),
@@ -97,7 +97,7 @@ const config: StorybookConfig = {
               if (id.includes('apps/admin')) {
                 return 'admin-components';
               }
-              if (id.includes('shared/ui-components')) {
+              if (id.includes('shared/ui')) {
                 return 'shared-components';
               }
             },
@@ -114,7 +114,7 @@ const config: StorybookConfig = {
           '@': join(__dirname, '../../apps/admin'),
           '@admin': join(__dirname, '../../apps/admin'),
           // Shared UI aliases (now using relative imports internally)
-          '@shared': join(__dirname, '../../shared/ui-components/src'),
+          '@shared': join(__dirname, '../../shared/ui/src'),
         },
         // Deduplicate React to prevent multiple instances
         dedupe: ['react', 'react-dom'],
