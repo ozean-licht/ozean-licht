@@ -1,6 +1,5 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import { join, dirname } from 'path';
-import { aiIterationPlugin } from '../ai-mvp/vite-plugin';
 import fs from 'fs';
 
 /**
@@ -46,9 +45,12 @@ const config: StorybookConfig = {
     disableTelemetry: true,
   },
   viteFinal: async (config) => {
-    // Add AI iteration plugin with project root
+    // Add AI iteration plugin with project root (dynamic import for ESM compatibility)
     const projectRoot = join(__dirname, '../..');
     config.plugins = config.plugins || [];
+
+    // Dynamic import to avoid ESM issues during Storybook build process
+    const { aiIterationPlugin } = await import('../ai-mvp/vite-plugin');
     config.plugins.push(aiIterationPlugin({ projectRoot }));
 
     // Serve client script as static asset
