@@ -24,11 +24,20 @@ const config: StorybookConfig = {
   // Manager customization for Ozean Licht branding
   managerHead: (head) => `
     ${head}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       body {
         font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
       }
     </style>
+  `,
+  previewHead: (head) => `
+    ${head}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   `,
   framework: {
     name: getAbsolutePath('@storybook/react-vite'),
@@ -63,15 +72,28 @@ const config: StorybookConfig = {
     }
 
     // Serve client script as static asset (development-only)
+    // Note: TypeScript will be transpiled by Vite's transform
     if (isDev) {
       config.plugins.push({
         name: 'serve-ai-client',
         configureServer(server) {
           server.middlewares.use('/ai-mvp-client.js', async (req, res) => {
-            const clientPath = join(__dirname, '../ai-mvp/client.ts');
-            const clientCode = fs.readFileSync(clientPath, 'utf-8');
-            res.writeHead(200, { 'Content-Type': 'application/javascript' });
-            res.end(clientCode);
+            try {
+              const clientPath = join(__dirname, '../ai-mvp/client.ts');
+              // Let Vite transform the TypeScript to JavaScript
+              const result = await server.transformRequest(clientPath);
+
+              if (result) {
+                res.writeHead(200, { 'Content-Type': 'application/javascript' });
+                res.end(result.code);
+              } else {
+                throw new Error('Failed to transform client script');
+              }
+            } catch (error) {
+              console.error('Error serving AI client script:', error);
+              res.writeHead(500, { 'Content-Type': 'application/javascript' });
+              res.end('console.error("Failed to load AI iteration client");');
+            }
           });
         }
       });

@@ -173,15 +173,19 @@
   };
 
   // Keyboard shortcut (Cmd+K / Ctrl+K)
+  // Use capture phase to intercept before Storybook's search
   document.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
       showModal();
     }
     if (e.key === 'Escape' && modal.style.display === 'flex') {
+      e.preventDefault();
       hideModal();
     }
-  });
+  }, true); // Use capture phase!
 
   // Iterate button handler
   document.getElementById('ai-iterate')!.onclick = async () => {

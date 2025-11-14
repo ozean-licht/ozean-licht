@@ -3,6 +3,74 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import '../../apps/admin/app/globals.css';
 
+// Inject custom CSS for Storybook docs dark mode
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = `
+    /* Storybook Docs Dark Mode Styling */
+    .sbdocs.sbdocs-wrapper {
+      background-color: #0A0F1A !important;
+      color: #FFFFFF !important;
+    }
+
+    /* Headlines styling */
+    .sbdocs h1, .sbdocs h2, .sbdocs h3, .sbdocs h4, .sbdocs h5, .sbdocs h6 {
+      color: #FFFFFF !important;
+    }
+
+    /* H1 with Cinzel Decorative */
+    .sbdocs h1 {
+      font-family: 'Cinzel Decorative', serif !important;
+      color: #0ec2bc !important;
+    }
+
+    /* Canvas container - fit content, don't force height */
+    .sbdocs-preview {
+      min-height: auto !important;
+    }
+
+    .sb-story {
+      min-height: auto !important;
+    }
+
+    /* Story wrapper should fit content */
+    .sb-show-main {
+      background-color: #0A0F1A !important;
+    }
+
+    /* Code blocks */
+    .sbdocs pre {
+      background-color: #1A1F2E !important;
+      border: 1px solid #0ec2bc33 !important;
+    }
+
+    /* Tables */
+    .sbdocs table {
+      color: #FFFFFF !important;
+    }
+
+    .sbdocs tbody tr {
+      border-color: #0ec2bc33 !important;
+    }
+
+    /* Links */
+    .sbdocs a {
+      color: #0ec2bc !important;
+    }
+
+    /* Description text */
+    .sbdocs p, .sbdocs li {
+      color: #E2E8F0 !important;
+    }
+
+    /* Canvas background */
+    .docs-story {
+      background-color: #0A0F1A !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 // CRITICAL: Make React globally available IMMEDIATELY
 // Storybook core tries to access React.useInsertionEffect before module initialization
 // This must happen synchronously before any Storybook code runs
