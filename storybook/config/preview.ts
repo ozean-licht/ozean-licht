@@ -160,6 +160,22 @@ const preview: Preview = {
         )
       );
     },
+    // AI Iteration Decorator
+    (Story) => {
+      React.useEffect(() => {
+        // Inject AI iteration client script
+        const script = document.createElement('script');
+        script.src = '/ai-mvp-client.js';
+        script.async = true;
+
+        // Only inject once
+        if (!document.querySelector('script[src="/ai-mvp-client.js"]')) {
+          document.body.appendChild(script);
+        }
+      }, []);
+
+      return React.createElement(Story);
+    },
   ],
 };
 

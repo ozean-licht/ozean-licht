@@ -1,5 +1,7 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import { join, dirname } from 'path';
+import { aiIterationPlugin } from '../ai-mvp/vite-plugin';
+import fs from 'fs';
 
 /**
  * This function is used to resolve the absolute path of a package.
@@ -44,6 +46,24 @@ const config: StorybookConfig = {
     disableTelemetry: true,
   },
   viteFinal: async (config) => {
+    // Add AI iteration plugin with project root
+    const projectRoot = join(__dirname, '../..');
+    config.plugins = config.plugins || [];
+    config.plugins.push(aiIterationPlugin({ projectRoot }));
+
+    // Serve client script as static asset
+    config.plugins.push({
+      name: 'serve-ai-client',
+      configureServer(server) {
+        server.middlewares.use('/ai-mvp-client.js', async (req, res) => {
+          const clientPath = join(__dirname, '../ai-mvp/client.ts');
+          const clientCode = fs.readFileSync(clientPath, 'utf-8');
+          res.writeHead(200, { 'Content-Type': 'application/javascript' });
+          res.end(clientCode);
+        });
+      }
+    });
+
     return {
       ...config,
       // CSS processing - Enable PostCSS/Tailwind
