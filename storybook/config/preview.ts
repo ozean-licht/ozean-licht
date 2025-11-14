@@ -18,24 +18,51 @@ if (typeof document !== 'undefined') {
       color: #FFFFFF !important;
     }
 
-    /* H1 with Cinzel Decorative */
+    /* H1 with Cinzel Decorative - white color */
     .sbdocs h1 {
       font-family: 'Cinzel Decorative', serif !important;
-      color: #0ec2bc !important;
+      font-weight: 400 !important;
+      color: #FFFFFF !important;
     }
 
     /* Canvas container - fit content, don't force height */
     .sbdocs-preview {
       min-height: auto !important;
+      height: auto !important;
+      border-color: rgba(14, 194, 188, 0.15) !important;
     }
 
     .sb-story {
       min-height: auto !important;
+      height: auto !important;
     }
 
     /* Story wrapper should fit content */
     .sb-show-main {
       background-color: #0A0F1A !important;
+      min-height: auto !important;
+      height: auto !important;
+    }
+
+    /* Iframe and canvas containers */
+    .sbdocs-preview iframe,
+    .docs-story > div {
+      min-height: fit-content !important;
+      height: auto !important;
+    }
+
+    /* Remove white border, use dark accent */
+    .sbdocs .docblock-source {
+      border-color: rgba(14, 194, 188, 0.15) !important;
+    }
+
+    /* Canvas zoom container */
+    .sb-zoom-wrapper,
+    #storybook-preview-wrapper {
+      border: 1px solid rgba(14, 194, 188, 0.15) !important;
+      background-color: #0A0F1A !important;
+      height: auto !important;
+      min-height: auto !important;
     }
 
     /* Code blocks */
@@ -228,17 +255,29 @@ const preview: Preview = {
         )
       );
     },
-    // AI Iteration Decorator
+    // AI Iteration Decorator (development-only)
     (Story) => {
       React.useEffect(() => {
-        // Inject AI iteration client script
-        const script = document.createElement('script');
-        script.src = '/ai-mvp-client.js';
-        script.async = true;
+        // Only inject in development mode (check if localhost or dev server)
+        const isDev = window.location.hostname === 'localhost' ||
+                      window.location.hostname === '127.0.0.1' ||
+                      window.location.port === '6006'; // Storybook dev server port
 
-        // Only inject once
-        if (!document.querySelector('script[src="/ai-mvp-client.js"]')) {
-          document.body.appendChild(script);
+        if (isDev) {
+          // Inject AI iteration client script
+          const script = document.createElement('script');
+          script.src = '/ai-mvp-client.js';
+          script.async = true;
+
+          // Handle errors silently (in case endpoint doesn't exist)
+          script.onerror = () => {
+            console.debug('AI iteration not available (development mode only)');
+          };
+
+          // Only inject once
+          if (!document.querySelector('script[src="/ai-mvp-client.js"]')) {
+            document.body.appendChild(script);
+          }
         }
       }, []);
 
