@@ -45,26 +45,37 @@ const config: StorybookConfig = {
     disableTelemetry: true,
   },
   viteFinal: async (config) => {
-    // Add AI iteration plugin with project root (dynamic import for ESM compatibility)
     const projectRoot = join(__dirname, '../..');
     config.plugins = config.plugins || [];
 
-    // Dynamic import to avoid ESM issues during Storybook build process
-    const { aiIterationPlugin } = await import('../ai-mvp/vite-plugin');
-    config.plugins.push(aiIterationPlugin({ projectRoot }));
+    // AI iteration plugin is development-only, skip during build
+    const isDev = process.env.NODE_ENV !== 'production';
 
-    // Serve client script as static asset
-    config.plugins.push({
-      name: 'serve-ai-client',
-      configureServer(server) {
-        server.middlewares.use('/ai-mvp-client.js', async (req, res) => {
-          const clientPath = join(__dirname, '../ai-mvp/client.ts');
-          const clientCode = fs.readFileSync(clientPath, 'utf-8');
-          res.writeHead(200, { 'Content-Type': 'application/javascript' });
-          res.end(clientCode);
-        });
+    if (isDev) {
+      try {
+        // Dynamic import to avoid ESM issues during Storybook build process
+        const { aiIterationPlugin } = await import('../ai-mvp/vite-plugin.js');
+        config.plugins.push(aiIterationPlugin({ projectRoot }));
+        console.log('✓ AI Iteration plugin loaded');
+      } catch (error) {
+        console.warn('⚠ AI Iteration plugin not available:', error.message);
       }
-    });
+    }
+
+    // Serve client script as static asset (development-only)
+    if (isDev) {
+      config.plugins.push({
+        name: 'serve-ai-client',
+        configureServer(server) {
+          server.middlewares.use('/ai-mvp-client.js', async (req, res) => {
+            const clientPath = join(__dirname, '../ai-mvp/client.ts');
+            const clientCode = fs.readFileSync(clientPath, 'utf-8');
+            res.writeHead(200, { 'Content-Type': 'application/javascript' });
+            res.end(clientCode);
+          });
+        }
+      });
+    }
 
     return {
       ...config,
