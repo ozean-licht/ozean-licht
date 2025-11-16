@@ -5,8 +5,7 @@
 # Exclude all root-level items except what we need
 /*
 !/package.json
-!/pnpm-lock.yaml
-!/pnpm-workspace.yaml
+!/package-lock.json
 !/storybook
 !/shared
 

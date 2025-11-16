@@ -8,19 +8,16 @@ FROM node:18 AS storybook-builder
 
 WORKDIR /workspace
 
-# Install pnpm
-RUN npm install -g pnpm@8.15.0
-
 # Copy monorepo files needed for Storybook build
-COPY package.json pnpm-lock.yaml ./
+COPY package.json package-lock.json ./
 COPY storybook ./storybook
 COPY shared ./shared
 
-# Install dependencies (root + storybook + shared)
-RUN pnpm install --frozen-lockfile
+# Install dependencies
+RUN npm ci
 
 # Build Storybook
-RUN pnpm run build-storybook
+RUN npm run build-storybook
 
 # Stage 2: Build Next.js wrapper
 FROM node:18 AS nextjs-builder
