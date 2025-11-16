@@ -1,23 +1,40 @@
 # Dockerignore for Storybook Auth Wrapper deployment
 # Build context: monorepo root
-# Only include storybook/build and storybook/auth-wrapper
+# Include what's needed to build Storybook + auth wrapper
 
-# Exclude all root-level items except storybook
+# Exclude all root-level items except what we need
 /*
+!/package.json
+!/pnpm-lock.yaml
+!/pnpm-workspace.yaml
 !/storybook
+!/shared
 
-# Exclude everything in storybook except build and auth-wrapper
-/storybook/*
-!/storybook/build
-!/storybook/auth-wrapper
+# Exclude unnecessary storybook subdirs
+/storybook/node_modules
+/storybook/build
+/storybook/docs
+/storybook/reports
+/storybook/templates
+/storybook/mocks
+/storybook/scripts
+/storybook/deployment
+/storybook/docker
 
-# Explicitly exclude unnecessary files from auth-wrapper
-storybook/auth-wrapper/node_modules
-storybook/auth-wrapper/.next
-storybook/auth-wrapper/out
-storybook/auth-wrapper/.env*
-storybook/auth-wrapper/*.md
-storybook/auth-wrapper/deploy-debug-log*.md
+# Exclude unnecessary from auth-wrapper
+/storybook/auth-wrapper/node_modules
+/storybook/auth-wrapper/.next
+/storybook/auth-wrapper/out
+/storybook/auth-wrapper/.env*
+/storybook/auth-wrapper/*.md
+/storybook/auth-wrapper/deploy-debug-log*.md
 
-# Remove the problematic .dockerignore from auth-wrapper subdirectory
-!storybook/auth-wrapper/.dockerignore
+# Exclude apps (not needed for storybook)
+/apps
+
+# Exclude tools
+/tools
+
+# Exclude other monorepo dirs
+/libs
+/packages
