@@ -8,6 +8,15 @@
 !/package-lock.json
 !/storybook
 !/shared
+!/apps
+
+# Include only what's needed from apps (globals.css for Storybook)
+/apps/*
+!/apps/admin
+/apps/admin/*
+!/apps/admin/app
+/apps/admin/app/*
+!/apps/admin/app/globals.css
 
 # Exclude unnecessary storybook subdirs
 /storybook/node_modules
@@ -27,9 +36,6 @@
 /storybook/auth-wrapper/.env*
 /storybook/auth-wrapper/*.md
 /storybook/auth-wrapper/deploy-debug-log*.md
-
-# Exclude apps (not needed for storybook)
-/apps
 
 # Exclude tools
 /tools

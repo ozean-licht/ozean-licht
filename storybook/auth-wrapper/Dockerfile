@@ -12,6 +12,7 @@ WORKDIR /workspace
 COPY package.json package-lock.json ./
 COPY storybook ./storybook
 COPY shared ./shared
+COPY apps/admin/app/globals.css ./apps/admin/app/globals.css
 
 # Install dependencies
 RUN npm ci
