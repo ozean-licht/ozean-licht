@@ -192,12 +192,17 @@ export class Context7Handler implements MCPHandler {
    * Resolve a library name to a Context7-compatible library ID
    */
   private async resolveLibraryId(libraryName: string): Promise<any> {
-    // Context7 MCP uses a tools/call endpoint with resolve-library-id tool
-    const response = await this.client.post('/tools/call', {
-      name: 'resolve-library-id',
-      arguments: {
-        libraryName: libraryName.trim(),
+    // Context7 MCP uses /mcp endpoint with JSON-RPC 2.0 format
+    const response = await this.client.post('/mcp', {
+      jsonrpc: '2.0',
+      method: 'tools/call',
+      params: {
+        name: 'resolve-library-id',
+        arguments: {
+          libraryName: libraryName.trim(),
+        },
       },
+      id: Date.now(),
     });
 
     const libraryInfo: Context7LibraryInfo = response.data.content?.[0]?.text
@@ -247,10 +252,15 @@ export class Context7Handler implements MCPHandler {
       args.tokens = 5000; // Default token limit
     }
 
-    // Context7 MCP uses a tools/call endpoint with get-library-docs tool
-    const response = await this.client.post('/tools/call', {
-      name: 'get-library-docs',
-      arguments: args,
+    // Context7 MCP uses /mcp endpoint with JSON-RPC 2.0 format
+    const response = await this.client.post('/mcp', {
+      jsonrpc: '2.0',
+      method: 'tools/call',
+      params: {
+        name: 'get-library-docs',
+        arguments: args,
+      },
+      id: Date.now(),
     });
 
     const docsData: Context7Documentation = response.data.content?.[0]?.text
@@ -284,11 +294,16 @@ export class Context7Handler implements MCPHandler {
       const startTime = Date.now();
 
       // Test the service by resolving a common library
-      const testResponse = await this.client.post('/tools/call', {
-        name: 'resolve-library-id',
-        arguments: {
-          libraryName: 'react',
+      const testResponse = await this.client.post('/mcp', {
+        jsonrpc: '2.0',
+        method: 'tools/call',
+        params: {
+          name: 'resolve-library-id',
+          arguments: {
+            libraryName: 'react',
+          },
         },
+        id: Date.now(),
       });
 
       const latency = Date.now() - startTime;
