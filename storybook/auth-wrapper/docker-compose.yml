@@ -7,7 +7,7 @@ services:
       dockerfile: storybook/auth-wrapper/Dockerfile
     container_name: storybook-auth-wrapper
     ports:
-      - "${STORYBOOK_AUTH_PORT:-3002}:3002"
+      - "${STORYBOOK_AUTH_PORT:-3003}:3002"
     environment:
       # NextAuth
       - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3002}
