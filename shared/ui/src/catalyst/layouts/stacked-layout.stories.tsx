@@ -99,7 +99,7 @@ import {
  * - Pages that need mobile hamburger menu
  *
  * ## Ozean Licht Branding
- * This layout uses the primary turquoise color (#0ec2bc) through:
+ * This layout uses the primary turquoise color (var(--primary)) through:
  * - NavbarItem hover and active states
  * - SidebarItem active indicators
  * - Mobile menu overlay backdrop
@@ -234,7 +234,7 @@ export const MarketingPage: Story = {
           <NavbarSection>
             <NavbarItem href="/">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#0ec2bc] rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-[var(--primary)] rounded-lg flex items-center justify-center">
                   <Zap className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-lg font-bold text-white">Ozean Licht</span>
@@ -257,7 +257,7 @@ export const MarketingPage: Story = {
               <NavbarLabel>Login</NavbarLabel>
             </NavbarItem>
             <NavbarItem href="/signup">
-              <div className="px-3 py-1.5 bg-[#0ec2bc] text-white rounded-lg font-medium text-sm">
+              <div className="px-3 py-1.5 bg-[var(--primary)] text-white rounded-lg font-medium text-sm">
                 Get Started
               </div>
             </NavbarItem>
@@ -311,7 +311,7 @@ export const MarketingPage: Story = {
             Fast, reliable, and beautiful.
           </p>
           <div className="flex gap-4 justify-center">
-            <button className="px-6 py-3 bg-[#0ec2bc] text-white rounded-lg font-semibold hover:bg-[#0db3ad] transition-colors">
+            <button className="px-6 py-3 bg-[var(--primary)] text-white rounded-lg font-semibold hover:bg-[#0db3ad] transition-colors">
               Get Started Free
             </button>
             <button className="px-6 py-3 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-lg font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
@@ -332,8 +332,8 @@ export const MarketingPage: Story = {
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-3">
-              <div className="w-12 h-12 bg-[#0ec2bc]/10 rounded-lg flex items-center justify-center">
-                <Zap className="w-6 h-6 text-[#0ec2bc]" />
+              <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-lg flex items-center justify-center">
+                <Zap className="w-6 h-6 text-[var(--primary)]" />
               </div>
               <h3 className="text-xl font-semibold text-zinc-900 dark:text-white">
                 Lightning Fast
@@ -343,8 +343,8 @@ export const MarketingPage: Story = {
               </p>
             </div>
             <div className="space-y-3">
-              <div className="w-12 h-12 bg-[#0ec2bc]/10 rounded-lg flex items-center justify-center">
-                <LayoutDashboard className="w-6 h-6 text-[#0ec2bc]" />
+              <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-lg flex items-center justify-center">
+                <LayoutDashboard className="w-6 h-6 text-[var(--primary)]" />
               </div>
               <h3 className="text-xl font-semibold text-zinc-900 dark:text-white">
                 Beautiful UI
@@ -354,8 +354,8 @@ export const MarketingPage: Story = {
               </p>
             </div>
             <div className="space-y-3">
-              <div className="w-12 h-12 bg-[#0ec2bc]/10 rounded-lg flex items-center justify-center">
-                <Settings className="w-6 h-6 text-[#0ec2bc]" />
+              <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-lg flex items-center justify-center">
+                <Settings className="w-6 h-6 text-[var(--primary)]" />
               </div>
               <h3 className="text-xl font-semibold text-zinc-900 dark:text-white">
                 Fully Customizable
@@ -368,14 +368,14 @@ export const MarketingPage: Story = {
         </div>
 
         {/* CTA Section */}
-        <div className="text-center space-y-6 py-12 bg-gradient-to-r from-[#0ec2bc]/10 to-blue-500/10 rounded-2xl">
+        <div className="text-center space-y-6 py-12 bg-gradient-to-r from-[var(--primary)]/10 to-blue-500/10 rounded-2xl">
           <h2 className="text-3xl font-bold text-zinc-900 dark:text-white">
             Ready to Get Started?
           </h2>
           <p className="text-xl text-zinc-600 dark:text-zinc-400">
             Join thousands of teams building better products.
           </p>
-          <button className="px-8 py-4 bg-[#0ec2bc] text-white rounded-lg font-semibold text-lg hover:bg-[#0db3ad] transition-colors">
+          <button className="px-8 py-4 bg-[var(--primary)] text-white rounded-lg font-semibold text-lg hover:bg-[#0db3ad] transition-colors">
             Start Building Today
           </button>
         </div>
@@ -467,7 +467,7 @@ export const BlogPost: Story = {
             Exploring the latest trends and technologies shaping modern web development.
           </p>
           <div className="flex items-center gap-3 mt-6">
-            <div className="w-12 h-12 bg-[#0ec2bc] rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-[var(--primary)] rounded-full flex items-center justify-center">
               <span className="text-white font-semibold">JD</span>
             </div>
             <div>
@@ -535,7 +535,7 @@ export const BlogPost: Story = {
               <span className="text-zinc-900 dark:text-white">12 Comments</span>
             </button>
           </div>
-          <button className="px-4 py-2 bg-[#0ec2bc] text-white rounded-lg font-medium hover:bg-[#0db3ad]">
+          <button className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg font-medium hover:bg-[#0db3ad]">
             Share Article
           </button>
         </div>
@@ -557,7 +557,7 @@ export const DocumentationPage: Story = {
           <NavbarSection>
             <NavbarItem href="/">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-[#0ec2bc]" />
+                <BookOpen className="w-5 h-5 text-[var(--primary)]" />
                 <span className="text-lg font-bold text-white">Docs</span>
               </div>
             </NavbarItem>
@@ -683,7 +683,7 @@ export default function App() {
         <div className="flex gap-4 pt-4">
           <a
             href="/docs/install"
-            className="px-6 py-3 bg-[#0ec2bc] text-white rounded-lg font-semibold hover:bg-[#0db3ad] transition-colors"
+            className="px-6 py-3 bg-[var(--primary)] text-white rounded-lg font-semibold hover:bg-[#0db3ad] transition-colors"
           >
             Installation Guide →
           </a>
@@ -852,8 +852,8 @@ export const DashboardLayout: Story = {
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-[#0ec2bc]/10 rounded-full flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-[#0ec2bc]" />
+                  <div className="w-10 h-10 bg-[var(--primary)]/10 rounded-full flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-[var(--primary)]" />
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-medium text-zinc-900 dark:text-white">
@@ -873,7 +873,7 @@ export const DashboardLayout: Story = {
               Quick Actions
             </h3>
             <div className="space-y-2">
-              <button className="w-full px-4 py-3 bg-[#0ec2bc] text-white rounded-lg font-medium hover:bg-[#0db3ad] transition-colors text-left">
+              <button className="w-full px-4 py-3 bg-[var(--primary)] text-white rounded-lg font-medium hover:bg-[#0db3ad] transition-colors text-left">
                 Create New Project
               </button>
               <button className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-lg font-medium hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left">
@@ -946,7 +946,7 @@ export const FullHeight: Story = {
 /**
  * Ozean Licht themed layout.
  *
- * Showcases the Ozean Licht turquoise branding (#0ec2bc) throughout the layout.
+ * Showcases the Ozean Licht turquoise branding (var(--primary)) throughout the layout.
  */
 export const OzeanLichtThemed: Story = {
   render: () => (
@@ -956,7 +956,7 @@ export const OzeanLichtThemed: Story = {
           <NavbarSection>
             <NavbarItem href="/">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#0ec2bc] rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-[var(--primary)] rounded-lg flex items-center justify-center">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
@@ -985,7 +985,7 @@ export const OzeanLichtThemed: Story = {
             </NavbarItem>
             <NavbarDivider />
             <NavbarItem href="/profile">
-              <div className="w-7 h-7 bg-gradient-to-br from-[#0ec2bc] to-[#087E78] rounded-full flex items-center justify-center">
+              <div className="w-7 h-7 bg-gradient-to-br from-[var(--primary)] to-[#087E78] rounded-full flex items-center justify-center">
                 <span className="text-white text-xs font-bold">OL</span>
               </div>
             </NavbarItem>
@@ -998,12 +998,12 @@ export const OzeanLichtThemed: Story = {
             <SidebarSection>
               <div className="px-2 py-3">
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="w-8 h-8 bg-[#0ec2bc] rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-[var(--primary)] rounded-lg flex items-center justify-center">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
-                  <span className="text-sm font-bold" style={{ color: '#0ec2bc' }}>
+                  <span className="text-sm font-bold" style={{ color: 'var(--primary)' }}>
                     Ozean Licht
                   </span>
                 </div>
@@ -1013,7 +1013,7 @@ export const OzeanLichtThemed: Story = {
           </SidebarHeader>
           <SidebarBody>
             <SidebarSection>
-              <SidebarHeading style={{ color: '#0ec2bc' }}>Navigation</SidebarHeading>
+              <SidebarHeading style={{ color: 'var(--primary)' }}>Navigation</SidebarHeading>
               <SidebarItem href="/" current>
                 <Home data-slot="icon" />
                 <SidebarLabel>Platform</SidebarLabel>
@@ -1045,9 +1045,9 @@ export const OzeanLichtThemed: Story = {
       <div className="space-y-12">
         {/* Hero Section */}
         <div className="text-center space-y-6 py-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#0ec2bc]/10 border border-[#0ec2bc]/20 rounded-full">
-            <Zap className="w-4 h-4" style={{ color: '#0ec2bc' }} />
-            <span className="text-sm font-medium" style={{ color: '#0ec2bc' }}>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-full">
+            <Zap className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+            <span className="text-sm font-medium" style={{ color: 'var(--primary)' }}>
               Ozean Licht Content Platform
             </span>
           </div>
@@ -1058,8 +1058,8 @@ export const OzeanLichtThemed: Story = {
             A modern content platform for Austrian associations, powered by the ocean's light.
           </p>
           <button
-            className="px-8 py-4 text-white rounded-lg font-semibold text-lg transition-all hover:shadow-lg hover:shadow-[#0ec2bc]/30"
-            style={{ backgroundColor: '#0ec2bc' }}
+            className="px-8 py-4 text-white rounded-lg font-semibold text-lg transition-all hover:shadow-lg hover:shadow-[var(--primary)]/30"
+            style={{ backgroundColor: 'var(--primary)' }}
           >
             Explore Platform
           </button>
@@ -1067,9 +1067,9 @@ export const OzeanLichtThemed: Story = {
 
         {/* Features with Turquoise Accents */}
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="p-6 border border-[#0ec2bc]/20 rounded-lg hover:border-[#0ec2bc]/40 transition-colors">
-            <div className="w-12 h-12 bg-[#0ec2bc]/10 rounded-lg flex items-center justify-center mb-4">
-              <FileText className="w-6 h-6" style={{ color: '#0ec2bc' }} />
+          <div className="p-6 border border-[var(--primary)]/20 rounded-lg hover:border-[var(--primary)]/40 transition-colors">
+            <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-lg flex items-center justify-center mb-4">
+              <FileText className="w-6 h-6" style={{ color: 'var(--primary)' }} />
             </div>
             <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
               Rich Content
@@ -1079,9 +1079,9 @@ export const OzeanLichtThemed: Story = {
             </p>
           </div>
 
-          <div className="p-6 border border-[#0ec2bc]/20 rounded-lg hover:border-[#0ec2bc]/40 transition-colors">
-            <div className="w-12 h-12 bg-[#0ec2bc]/10 rounded-lg flex items-center justify-center mb-4">
-              <Users className="w-6 h-6" style={{ color: '#0ec2bc' }} />
+          <div className="p-6 border border-[var(--primary)]/20 rounded-lg hover:border-[var(--primary)]/40 transition-colors">
+            <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-lg flex items-center justify-center mb-4">
+              <Users className="w-6 h-6" style={{ color: 'var(--primary)' }} />
             </div>
             <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
               Community
@@ -1091,9 +1091,9 @@ export const OzeanLichtThemed: Story = {
             </p>
           </div>
 
-          <div className="p-6 border border-[#0ec2bc]/20 rounded-lg hover:border-[#0ec2bc]/40 transition-colors">
-            <div className="w-12 h-12 bg-[#0ec2bc]/10 rounded-lg flex items-center justify-center mb-4">
-              <BarChart3 className="w-6 h-6" style={{ color: '#0ec2bc' }} />
+          <div className="p-6 border border-[var(--primary)]/20 rounded-lg hover:border-[var(--primary)]/40 transition-colors">
+            <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-lg flex items-center justify-center mb-4">
+              <BarChart3 className="w-6 h-6" style={{ color: 'var(--primary)' }} />
             </div>
             <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
               Analytics
@@ -1113,7 +1113,7 @@ export const OzeanLichtThemed: Story = {
           }}
         >
           <div className="flex flex-col md:flex-row gap-6 items-center">
-            <div className="w-16 h-16 bg-[#0ec2bc] rounded-2xl flex items-center justify-center flex-shrink-0">
+            <div className="w-16 h-16 bg-[var(--primary)] rounded-2xl flex items-center justify-center flex-shrink-0">
               <Zap className="w-8 h-8 text-white" />
             </div>
             <div className="flex-1 text-center md:text-left">
@@ -1121,7 +1121,7 @@ export const OzeanLichtThemed: Story = {
                 Ozean Licht Theme Notes
               </h3>
               <p className="text-zinc-600 dark:text-zinc-400">
-                This layout showcases the Ozean Licht turquoise brand color (#0ec2bc)
+                This layout showcases the Ozean Licht turquoise brand color (var(--primary))
                 applied throughout navigation, accents, buttons, and interactive elements.
                 The color represents the ocean's light and energy.
               </p>
@@ -1136,25 +1136,25 @@ export const OzeanLichtThemed: Story = {
           </h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-2">
-              <div className="h-20 rounded-lg" style={{ backgroundColor: '#0ec2bc' }} />
+              <div className="h-20 rounded-lg" style={{ backgroundColor: 'var(--primary)' }} />
               <div className="text-sm font-mono text-zinc-600 dark:text-zinc-400">
-                Primary: #0ec2bc
+                Primary: var(--primary)
               </div>
             </div>
             <div className="space-y-2">
-              <div className="h-20 bg-[#0ec2bc]/10 rounded-lg border border-[#0ec2bc]/20" />
+              <div className="h-20 bg-[var(--primary)]/10 rounded-lg border border-[var(--primary)]/20" />
               <div className="text-sm font-mono text-zinc-600 dark:text-zinc-400">
                 Primary/10: Backgrounds
               </div>
             </div>
             <div className="space-y-2">
-              <div className="h-20 bg-[#0ec2bc]/20 rounded-lg border border-[#0ec2bc]/30" />
+              <div className="h-20 bg-[var(--primary)]/20 rounded-lg border border-[var(--primary)]/30" />
               <div className="text-sm font-mono text-zinc-600 dark:text-zinc-400">
                 Primary/20: Borders
               </div>
             </div>
             <div className="space-y-2">
-              <div className="h-20 bg-gradient-to-br from-[#0ec2bc] to-[#087E78] rounded-lg" />
+              <div className="h-20 bg-gradient-to-br from-[var(--primary)] to-[#087E78] rounded-lg" />
               <div className="text-sm font-mono text-zinc-600 dark:text-zinc-400">
                 Gradient: to-darker
               </div>

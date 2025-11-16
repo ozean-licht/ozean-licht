@@ -1,0 +1,45 @@
+{
+  "name": "@storybook/auth-wrapper",
+  "version": "1.0.0",
+  "description": "NextAuth authentication wrapper for Storybook component documentation",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p ${STORYBOOK_AUTH_PORT:-3002}",
+    "build": "next build",
+    "start": "next start -p ${STORYBOOK_AUTH_PORT:-3002}",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@types/pg": "^8.15.6",
+    "bcryptjs": "^2.4.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.552.0",
+    "next": "^14.1.0",
+    "next-auth": "5.0.0-beta.30",
+    "next-themes": "^0.4.6",
+    "pg": "^8.16.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^3.3.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.10.6",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.1.0",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -256,7 +256,7 @@ export const WithBadges: Story = {
           color === 'red'
             ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
             : color === 'turquoise'
-            ? 'bg-[#0ec2bc]/10 text-[#0ec2bc] dark:bg-[#0ec2bc]/20'
+            ? 'bg-[var(--primary)]/10 text-[var(--primary)] dark:bg-[var(--primary)]/20'
             : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
         }`}
       >
@@ -570,7 +570,7 @@ export const DashboardSidebar: Story = {
         <SidebarHeader>
           <SidebarSection>
             <div className="flex items-center gap-3 px-2 py-3">
-              <div className="size-8 rounded-lg bg-[#0ec2bc] flex items-center justify-center">
+              <div className="size-8 rounded-lg bg-[var(--primary)] flex items-center justify-center">
                 <Zap className="size-5 text-white" />
               </div>
               <div className="flex-1">
@@ -747,12 +747,12 @@ export const DocumentationSidebar: Story = {
 /**
  * Ozean Licht themed sidebar.
  *
- * Showcases the Ozean Licht turquoise color (#0ec2bc) as accent throughout the sidebar.
+ * Showcases the Ozean Licht turquoise color (var(--primary)) as accent throughout the sidebar.
  */
 export const OzeanLichtThemed: Story = {
   render: () => {
     const TurquoiseBadge = ({ children }: { children: React.ReactNode }) => (
-      <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-[#0ec2bc]/10 text-[#0ec2bc] dark:bg-[#0ec2bc]/20">
+      <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-[var(--primary)]/10 text-[var(--primary)] dark:bg-[var(--primary)]/20">
         {children}
       </span>
     );
@@ -766,7 +766,7 @@ export const OzeanLichtThemed: Story = {
                 <div className="flex items-center gap-3 px-2 py-3">
                   <div
                     className="size-10 rounded-xl flex items-center justify-center"
-                    style={{ backgroundColor: '#0ec2bc' }}
+                    style={{ backgroundColor: 'var(--primary)' }}
                   >
                     <svg
                       className="size-6 text-white"
@@ -785,7 +785,7 @@ export const OzeanLichtThemed: Story = {
                   <div className="flex-1">
                     <p
                       className="text-sm font-semibold"
-                      style={{ color: '#0ec2bc' }}
+                      style={{ color: 'var(--primary)' }}
                     >
                       Ozean Licht
                     </p>
@@ -800,7 +800,7 @@ export const OzeanLichtThemed: Story = {
 
             <SidebarBody>
               <SidebarSection>
-                <SidebarHeading style={{ color: '#0ec2bc' }}>
+                <SidebarHeading style={{ color: 'var(--primary)' }}>
                   Main Navigation
                 </SidebarHeading>
                 <SidebarItem href="/dashboard" current>
@@ -823,7 +823,7 @@ export const OzeanLichtThemed: Story = {
               </SidebarSection>
 
               <SidebarSection>
-                <SidebarHeading style={{ color: '#0ec2bc' }}>
+                <SidebarHeading style={{ color: 'var(--primary)' }}>
                   Community
                 </SidebarHeading>
                 <SidebarItem href="/members">
@@ -861,7 +861,7 @@ export const OzeanLichtThemed: Story = {
                   <div className="flex items-center gap-3 w-full">
                     <div
                       className="size-9 rounded-full flex items-center justify-center text-white font-semibold"
-                      style={{ backgroundColor: '#0ec2bc' }}
+                      style={{ backgroundColor: 'var(--primary)' }}
                     >
                       OL
                     </div>
@@ -871,7 +871,7 @@ export const OzeanLichtThemed: Story = {
                       </p>
                       <p
                         className="text-xs truncate"
-                        style={{ color: '#0ec2bc' }}
+                        style={{ color: 'var(--primary)' }}
                       >
                         View Profile
                       </p>
@@ -889,24 +889,24 @@ export const OzeanLichtThemed: Story = {
               Ozean Licht Themed Sidebar
             </h1>
             <p className="text-zinc-600 dark:text-zinc-400 mb-6">
-              This sidebar showcases the Ozean Licht turquoise brand color (#0ec2bc)
+              This sidebar showcases the Ozean Licht turquoise brand color (var(--primary))
               applied throughout the navigation. The color is used for:
             </p>
             <ul className="space-y-2 text-zinc-600 dark:text-zinc-400">
               <li className="flex items-start gap-2">
-                <span style={{ color: '#0ec2bc' }}>•</span>
+                <span style={{ color: 'var(--primary)' }}>•</span>
                 <span>Brand logo background and text accents</span>
               </li>
               <li className="flex items-start gap-2">
-                <span style={{ color: '#0ec2bc' }}>•</span>
+                <span style={{ color: 'var(--primary)' }}>•</span>
                 <span>Section headings for visual hierarchy</span>
               </li>
               <li className="flex items-start gap-2">
-                <span style={{ color: '#0ec2bc' }}>•</span>
+                <span style={{ color: 'var(--primary)' }}>•</span>
                 <span>Notification badges with transparency</span>
               </li>
               <li className="flex items-start gap-2">
-                <span style={{ color: '#0ec2bc' }}>•</span>
+                <span style={{ color: 'var(--primary)' }}>•</span>
                 <span>User profile avatar and interaction hints</span>
               </li>
             </ul>
@@ -930,7 +930,7 @@ export const CompleteExample: Story = {
           variant === 'red'
             ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
             : variant === 'turquoise'
-            ? 'bg-[#0ec2bc]/10 text-[#0ec2bc] dark:bg-[#0ec2bc]/20'
+            ? 'bg-[var(--primary)]/10 text-[var(--primary)] dark:bg-[var(--primary)]/20'
             : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
         }`}
       >
@@ -945,7 +945,7 @@ export const CompleteExample: Story = {
           <SidebarHeader>
             <SidebarSection>
               <div className="flex items-center gap-3 px-2 py-3">
-                <div className="size-8 rounded-lg bg-gradient-to-br from-[#0ec2bc] to-[#087E78] flex items-center justify-center">
+                <div className="size-8 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[#087E78] flex items-center justify-center">
                   <Zap className="size-5 text-white" />
                 </div>
                 <div className="flex-1">
@@ -1036,7 +1036,7 @@ export const CompleteExample: Story = {
             <SidebarSection>
               <SidebarItem href="/profile">
                 <div className="flex items-center gap-3 w-full">
-                  <div className="size-8 rounded-full bg-gradient-to-br from-[#0ec2bc] to-[#087E78] flex items-center justify-center text-white text-sm font-semibold">
+                  <div className="size-8 rounded-full bg-gradient-to-br from-[var(--primary)] to-[#087E78] flex items-center justify-center text-white text-sm font-semibold">
                     JD
                   </div>
                   <div className="flex-1 min-w-0">

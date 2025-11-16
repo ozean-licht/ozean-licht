@@ -14,7 +14,7 @@ import {
 } from './form';
 import { Input } from './input';
 import { Textarea } from './textarea';
-import { Button } from '../components/Button';
+import { Button } from './button';
 import { Checkbox } from './checkbox';
 import { RadioGroup, RadioGroupItem } from './radio-group';
 import { Label } from './label';
@@ -384,7 +384,7 @@ export const RegistrationForm: Story = {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" variant="cta">
+          <Button type="submit" className="w-full" variant="default">
             Create Account
           </Button>
         </form>
@@ -600,7 +600,7 @@ export const ContactForm: Story = {
             )}
           />
           <div className="flex gap-4">
-            <Button type="submit" className="flex-1" variant="cta">
+            <Button type="submit" className="flex-1" variant="default">
               Send Message
             </Button>
             <Button type="button" variant="outline" onClick={() => form.reset()}>
@@ -684,9 +684,9 @@ export const AsyncSubmission: Story = {
           {submitSuccess && (
             <div
               className="rounded-md bg-green-50 p-4 border border-green-200"
-              style={{ borderColor: '#0ec2bc', backgroundColor: 'rgba(14, 194, 188, 0.1)' }}
+              style={{ borderColor: 'var(--primary)', backgroundColor: 'hsl(var(--primary) / 0.1)' }}
             >
-              <p className="text-sm font-medium" style={{ color: '#0ec2bc' }}>
+              <p className="text-sm font-medium" style={{ color: 'var(--primary)' }}>
                 ✓ Successfully submitted! Form will reset shortly.
               </p>
             </div>

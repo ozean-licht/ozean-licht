@@ -9,7 +9,7 @@ import {
   CardContent,
   CardFooter,
 } from './card';
-import { Button } from '../components/Button';
+import { Button } from './button';
 
 /**
  * Card primitive component from shadcn/ui.

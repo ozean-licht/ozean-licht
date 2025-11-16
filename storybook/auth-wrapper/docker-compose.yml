@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  storybook-auth:
+    build:
+      context: ../..
+      dockerfile: storybook/auth-wrapper/Dockerfile
+    container_name: storybook-auth-wrapper
+    ports:
+      - "${STORYBOOK_AUTH_PORT:-3002}:3002"
+    environment:
+      # NextAuth
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3002}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - AUTH_SECRET=${AUTH_SECRET}
+
+      # Database
+      - DATABASE_URL=${DATABASE_URL}
+      - POSTGRES_HOST=${POSTGRES_HOST:-localhost}
+      - POSTGRES_PORT=${POSTGRES_PORT:-32771}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE:-shared-users-db}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+      # Storybook
+      - STORYBOOK_DEV_URL=${STORYBOOK_DEV_URL:-http://localhost:6006}
+      - NEXT_PUBLIC_STORYBOOK_DEV_URL=${NEXT_PUBLIC_STORYBOOK_DEV_URL:-http://localhost:6006}
+
+      # Environment
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - ozean-licht-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3002/api/auth/session', (r) => { process.exit(r.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  ozean-licht-network:
+    external: true

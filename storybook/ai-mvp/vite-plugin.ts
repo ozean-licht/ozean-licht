@@ -1,5 +1,4 @@
 import { Plugin } from 'vite';
-import { Anthropic } from '@anthropic-ai/sdk';
 import fs from 'fs/promises';
 import path from 'path';
 import type { IterateRequest, IterateResponse } from './types';
@@ -7,23 +6,19 @@ import type { IterateRequest, IterateResponse } from './types';
 interface PluginOptions {
   projectRoot?: string;
   allowedPaths?: string[];
+  mcpGatewayUrl?: string;
 }
 
 export function aiIterationPlugin(options: PluginOptions = {}): Plugin {
   let designSystem = '';
   let projectRoot = options.projectRoot || process.cwd();
 
-  // Validate API key on initialization
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error(
-      '❌ ANTHROPIC_API_KEY environment variable is required for AI iteration. ' +
-      'Please add it to your .env file: ANTHROPIC_API_KEY=sk-ant-...'
-    );
-  }
+  // MCP Gateway URL - defaults to local development
+  const mcpGatewayUrl = options.mcpGatewayUrl ||
+    process.env.MCP_GATEWAY_URL ||
+    'http://localhost:8100';
 
-  const anthropic = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY
-  });
+  console.log(`✓ AI Iteration: Using MCP Gateway at ${mcpGatewayUrl}`);
 
   // Define allowed component directories (whitelist for security)
   const allowedPaths = options.allowedPaths || [

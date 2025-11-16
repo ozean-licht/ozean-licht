@@ -25,25 +25,25 @@
 @layer base {
   :root {
     /* Colors */
-    --background: #0A0F1A;
+    --background: #00070F;
     --foreground: #FFFFFF;
 
-    --card: #1A1F2E;
+    --card: #00111A;
     --card-foreground: #FFFFFF;
 
-    --popover: #1A1F2E;
+    --popover: #00111A;
     --popover-foreground: #FFFFFF;
 
-    --primary: #0ec2bc;
+    --primary: #0EA6C1;
     --primary-foreground: #FFFFFF;
 
-    --secondary: #64748B;
+    --secondary: #000F1F;
     --secondary-foreground: #FFFFFF;
 
-    --muted: #64748B;
-    --muted-foreground: #94A3B8;
+    --muted: #055D75;
+    --muted-foreground: #C4C8D4;
 
-    --accent: #2A2F3E;
+    --accent: #055D75;
     --accent-foreground: #FFFFFF;
 
     --destructive: #EF4444;
@@ -58,9 +58,9 @@
     --info: #3B82F6;
     --info-foreground: #FFFFFF;
 
-    --border: #2A2F3E;
-    --input: #2A2F3E;
-    --ring: #0ec2bc;
+    --border: #0E282E;
+    --input: #0E282E;
+    --ring: #0EA6C1;
 
     /* Border radius */
     --radius: 0.5rem;
@@ -74,7 +74,7 @@
 
   /* Dark mode (default for Ozean Licht) */
   .dark {
-    --background: #0A0F1A;
+    --background: #00070F;
     --foreground: #FFFFFF;
   }
 }
@@ -146,26 +146,26 @@
 @layer components {
   /* Standard glass card */
   .glass-card {
-    background: rgba(26, 31, 46, 0.7);
+    background: rgba(0, 17, 26, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(14, 194, 188, 0.25);
+    border: 1px solid rgba(14, 166, 193, 0.25);
   }
 
   /* Strong emphasis glass card */
   .glass-card-strong {
-    background: rgba(26, 31, 46, 0.8);
+    background: rgba(0, 17, 26, 0.8);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(14, 194, 188, 0.3);
+    border: 1px solid rgba(14, 166, 193, 0.3);
   }
 
   /* Subtle background glass card */
   .glass-subtle {
-    background: rgba(26, 31, 46, 0.5);
+    background: rgba(0, 17, 26, 0.5);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(14, 194, 188, 0.15);
+    border: 1px solid rgba(14, 166, 193, 0.15);
   }
 
   /* Hover effect with glow */
@@ -174,23 +174,23 @@
   }
 
   .glass-hover:hover {
-    border-color: rgba(14, 194, 188, 0.4);
-    box-shadow: 0 0 20px rgba(14, 194, 188, 0.15);
+    border-color: rgba(14, 166, 193, 0.4);
+    box-shadow: 0 0 20px rgba(14, 166, 193, 0.15);
   }
 
   /* Standalone glow utility - softer for mystic aesthetic */
   .glow {
-    box-shadow: 0 0 20px rgba(14, 194, 188, 0.22);
+    box-shadow: 0 0 20px rgba(14, 166, 193, 0.22);
   }
 
   /* Glow strong - reduced opacity for calm feel */
   .glow-strong {
-    box-shadow: 0 0 30px rgba(14, 194, 188, 0.35);
+    box-shadow: 0 0 30px rgba(14, 166, 193, 0.35);
   }
 
   /* Glow subtle */
   .glow-subtle {
-    box-shadow: 0 0 12px rgba(14, 194, 188, 0.15);
+    box-shadow: 0 0 12px rgba(14, 166, 193, 0.15);
   }
 }
 
@@ -241,7 +241,7 @@
   }
 
   .text-glow-primary {
-    text-shadow: 0 0 8px rgba(14, 194, 188, 0.6);
+    text-shadow: 0 0 8px rgba(14, 166, 193, 0.6);
   }
 }
 
@@ -251,10 +251,10 @@
 
 @keyframes glow {
   0% {
-    box-shadow: 0 0 20px rgba(14, 194, 188, 0.3);
+    box-shadow: 0 0 20px rgba(14, 166, 193, 0.3);
   }
   100% {
-    box-shadow: 0 0 30px rgba(14, 194, 188, 0.6);
+    box-shadow: 0 0 30px rgba(14, 166, 193, 0.6);
   }
 }
 
@@ -387,7 +387,7 @@
 @layer utilities {
   /* Cosmic gradient background */
   .bg-cosmic-gradient {
-    background-image: linear-gradient(135deg, #0A0F1A 0%, #1A1F2E 50%, #0A0F1A 100%);
+    background-image: linear-gradient(135deg, #00070F 0%, #00111A 50%, #00070F 100%);
   }
 
   /* Radial gradient */
@@ -406,6 +406,21 @@
    ======================================== */
 
 @layer components {
+  /* Icon sizing for Catalyst components */
+  /* Ensures SVG icons with data-slot="icon" are properly sized */
+  [data-slot="icon"] {
+    width: 1.5rem; /* 24px */
+    height: 1.5rem; /* 24px */
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 640px) {
+    [data-slot="icon"] {
+      width: 1.25rem; /* 20px */
+      height: 1.25rem; /* 20px */
+    }
+  }
+
   /* Button base styles */
   .btn-base {
     @apply inline-flex items-center justify-center;

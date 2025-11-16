@@ -34,7 +34,7 @@ export default function SpanBadge({ icon, text, children, variant = "default" }:
   const displayText = children || text
 
   return (
-    <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#5DABA3]/30 border border-[#5DABA3]/40 rounded-full text-white text-sm font-montserrat-alt">
+    <span className="inline-flex items-center gap-2 px-3 py-1 bg-secondaryBackground/50 border border-primary/30 rounded-full text-white text-sm font-montserrat-alt">
       {variant === "default" && getIcon()}
       {displayText}
     </span>

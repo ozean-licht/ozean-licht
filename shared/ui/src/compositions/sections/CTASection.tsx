@@ -47,7 +47,8 @@ export function CTASection({
           </div>
         )}
         
-        <h2 className="text-4xl md:text-5xl lg:text-6xl font-decorative text-white mb-12 text-balance">
+        <h2 className="text-3xl md:text-4xl font-decorative text-white mb-12 text-balance"
+            style={{ textShadow: '0 0 8px rgba(255, 255, 255, 0.42)' }}>
           {title}
         </h2>
         

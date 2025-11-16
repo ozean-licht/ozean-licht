@@ -15,7 +15,7 @@ interface InfoCardWithButtonProps extends InfoCardProps {
 export function InfoCard({ heading, paragraph, icon }: InfoCardProps) {
   return (
     <div
-      className="relative border border-[#0E282E] bg-[#001212] rounded-lg overflow-hidden w-full h-auto"
+      className="relative border border-border bg-card rounded-lg overflow-hidden w-full h-auto"
       style={{ maxWidth: "450px", minWidth: "350px" }}
     >
       {/* Background Frame */}
@@ -43,11 +43,11 @@ export function InfoCard({ heading, paragraph, icon }: InfoCardProps) {
               <div className="absolute inset-0 rounded-full bg-primary/20 blur-md animate-pulse"></div>
               <div className="relative z-10">
                 {icon ? (
-                  <div style={{ color: "#188689" }}>
+                  <div className="text-primary">
                     {icon}
                   </div>
                 ) : (
-                  <svg className="w-6 h-6 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#188689" }}>
+                  <svg className="w-6 h-6 drop-shadow-lg text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 )}
@@ -93,7 +93,7 @@ export function InfoCard({ heading, paragraph, icon }: InfoCardProps) {
 export function InfoCardWithButton({ heading, paragraph, icon, buttonText, buttonHref }: InfoCardWithButtonProps) {
   return (
     <div
-      className="relative border border-[#0E282E] bg-[#001212] rounded-lg overflow-hidden w-full h-auto"
+      className="relative border border-border bg-card rounded-lg overflow-hidden w-full h-auto"
       style={{ maxWidth: "450px", minWidth: "350px" }}
     >
       {/* Background Frame */}
@@ -121,11 +121,11 @@ export function InfoCardWithButton({ heading, paragraph, icon, buttonText, butto
               <div className="absolute inset-0 rounded-full bg-primary/20 blur-md animate-pulse"></div>
               <div className="relative z-10">
                 {icon ? (
-                  <div style={{ color: "#188689" }}>
+                  <div className="text-primary">
                     {icon}
                   </div>
                 ) : (
-                  <svg className="w-6 h-6 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#188689" }}>
+                  <svg className="w-6 h-6 drop-shadow-lg text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 )}

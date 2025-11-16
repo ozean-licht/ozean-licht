@@ -13,7 +13,7 @@ import {
   DialogPortal,
   DialogOverlay,
 } from './dialog';
-import { Button } from '../components/Button';
+import { Button } from './button';
 import { Label } from './label';
 import { Input } from './input';
 
@@ -229,9 +229,9 @@ export const SuccessDialog: Story = {
     <Dialog>
       <DialogTrigger asChild>
         <Button
-          variant="cta"
+          variant="default"
           style={{
-            backgroundColor: '#0ec2bc',
+            backgroundColor: 'var(--primary)',
             color: 'white',
           }}
         >
@@ -240,7 +240,7 @@ export const SuccessDialog: Story = {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle style={{ color: '#0ec2bc' }}>
+          <DialogTitle style={{ color: 'var(--primary)' }}>
             Payment Successful!
           </DialogTitle>
           <DialogDescription>
@@ -249,7 +249,7 @@ export const SuccessDialog: Story = {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button style={{ backgroundColor: '#0ec2bc', color: 'white' }}>
+          <Button style={{ backgroundColor: 'var(--primary)', color: 'white' }}>
             View Receipt
           </Button>
         </DialogFooter>
@@ -595,24 +595,24 @@ export const InteractiveTest: Story = {
 /**
  * Ozean Licht themed examples.
  *
- * Multiple dialogs showcasing the Ozean Licht turquoise color (#0ec2bc).
+ * Multiple dialogs showcasing the Ozean Licht turquoise color (var(--primary)).
  */
 export const OzeanLichtThemed: Story = {
   render: () => (
     <div className="space-y-4">
       <Dialog>
         <DialogTrigger asChild>
-          <Button style={{ backgroundColor: '#0ec2bc', color: 'white' }}>
+          <Button style={{ backgroundColor: 'var(--primary)', color: 'white' }}>
             Turquoise Accent
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle style={{ color: '#0ec2bc' }}>
+            <DialogTitle style={{ color: 'var(--primary)' }}>
               Ozean Licht Dialog
             </DialogTitle>
             <DialogDescription>
-              Using the Ozean Licht primary color (#0ec2bc) for accents.
+              Using the Ozean Licht primary color (var(--primary)) for accents.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -625,7 +625,7 @@ export const OzeanLichtThemed: Story = {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button style={{ backgroundColor: '#0ec2bc', color: 'white' }}>
+            <Button style={{ backgroundColor: 'var(--primary)', color: 'white' }}>
               Confirm
             </Button>
           </DialogFooter>
@@ -637,14 +637,14 @@ export const OzeanLichtThemed: Story = {
           <Button
             variant="outline"
             style={{
-              borderColor: '#0ec2bc',
-              color: '#0ec2bc',
+              borderColor: 'var(--primary)',
+              color: 'var(--primary)',
             }}
           >
             Turquoise Border
           </Button>
         </DialogTrigger>
-        <DialogContent style={{ borderColor: '#0ec2bc' }}>
+        <DialogContent style={{ borderColor: 'var(--primary)' }}>
           <DialogHeader>
             <DialogTitle>Dialog with Turquoise Border</DialogTitle>
             <DialogDescription>
@@ -652,7 +652,7 @@ export const OzeanLichtThemed: Story = {
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm" style={{ color: '#0ec2bc' }}>
+            <p className="text-sm" style={{ color: 'var(--primary)' }}>
               Key information can be highlighted with the turquoise accent.
             </p>
           </div>

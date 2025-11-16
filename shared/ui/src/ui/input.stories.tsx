@@ -270,11 +270,11 @@ export const WithSuccess: Story = {
         type="email"
         id="email-success"
         placeholder="email@example.com"
-        className="border-[#0ec2bc] focus-visible:ring-[#0ec2bc]"
+        className="border-[var(--primary)] focus-visible:ring-[var(--primary)]"
         value="valid@email.com"
         readOnly
       />
-      <p className="text-sm text-[#0ec2bc]">
+      <p className="text-sm text-[var(--primary)]">
         ✓ Email is valid and available
       </p>
     </div>
@@ -293,7 +293,7 @@ export const WithButton: Story = {
       />
       <button
         type="submit"
-        className="inline-flex items-center justify-center rounded-md bg-[#0ec2bc] px-4 py-2 text-sm font-medium text-white hover:bg-[#0db3ad] focus:outline-none focus:ring-2 focus:ring-[#0ec2bc] focus:ring-offset-2"
+        className="inline-flex items-center justify-center rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--primary)]/90 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
       >
         Search
       </button>
@@ -429,10 +429,10 @@ export const WithValidation: Story = {
           placeholder="email@example.com"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className={showValidation ? (isValid ? 'border-[#0ec2bc] focus-visible:ring-[#0ec2bc]' : 'border-red-500 focus-visible:ring-red-500') : ''}
+          className={showValidation ? (isValid ? 'border-[var(--primary)] focus-visible:ring-[var(--primary)]' : 'border-red-500 focus-visible:ring-red-500') : ''}
         />
         {showValidation && (
-          <p className={`text-sm ${isValid ? 'text-[#0ec2bc]' : 'text-red-500'}`}>
+          <p className={`text-sm ${isValid ? 'text-[var(--primary)]' : 'text-red-500'}`}>
             {isValid ? '✓ Valid email address' : '✗ Invalid email address'}
           </p>
         )}
@@ -542,10 +542,10 @@ export const AllStates: Story = {
         <Input
           type="text"
           value="Valid value"
-          className="border-[#0ec2bc] focus-visible:ring-[#0ec2bc]"
+          className="border-[var(--primary)] focus-visible:ring-[var(--primary)]"
           readOnly
         />
-        <p className="text-sm text-[#0ec2bc]">✓ This field is valid</p>
+        <p className="text-sm text-[var(--primary)]">✓ This field is valid</p>
       </div>
     </div>
   ),

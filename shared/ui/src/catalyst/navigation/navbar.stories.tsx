@@ -62,7 +62,7 @@ import {
  *
  * ## Ozean Licht Branding
  * NavbarItem includes Ozean Licht theme by default:
- * - Primary color (#0ec2bc) for hover/active states
+ * - Primary color (var(--primary)) for hover/active states
  * - White text on dark backgrounds
  * - Subtle glow effect on active indicator
  * - Glass morphism hover effects
@@ -598,7 +598,7 @@ export const FullFeatured: Story = {
 /**
  * Ozean Licht themed navbar.
  *
- * Demonstrates Ozean Licht branding with turquoise accent (#0ec2bc).
+ * Demonstrates Ozean Licht branding with turquoise accent (var(--primary)).
  * Shows the built-in styling that comes with NavbarItem.
  */
 export const OzeanLichtThemed: Story = {
@@ -645,7 +645,7 @@ export const OzeanLichtThemed: Story = {
       <div className="text-white/60 text-sm space-y-1 p-4 bg-zinc-800 rounded-lg">
         <p className="font-semibold text-white mb-2">Ozean Licht Theme Notes:</p>
         <ul className="space-y-1 list-disc list-inside">
-          <li>Primary color: #0ec2bc (turquoise)</li>
+          <li>Primary color: var(--primary) (turquoise)</li>
           <li>Hover state: primary/10 background with primary icon color</li>
           <li>Active state: primary/15 background with animated bottom border</li>
           <li>Active indicator has subtle glow effect (glow-subtle class)</li>

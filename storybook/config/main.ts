@@ -63,7 +63,7 @@ const config: StorybookConfig = {
     if (isDev) {
       try {
         // Dynamic import to avoid ESM issues during Storybook build process
-        const { aiIterationPlugin } = await import('../ai-mvp/vite-plugin.js');
+        const { aiIterationPlugin } = await import('../ai-mvp/vite-plugin');
         config.plugins.push(aiIterationPlugin({ projectRoot }));
         console.log('✓ AI Iteration plugin loaded');
       } catch (error) {
@@ -80,11 +80,15 @@ const config: StorybookConfig = {
           server.middlewares.use('/ai-mvp-client.js', async (req, res) => {
             try {
               const clientPath = join(__dirname, '../ai-mvp/client.ts');
-              // Let Vite transform the TypeScript to JavaScript
-              const result = await server.transformRequest(clientPath);
+              // Use Vite's /@fs/ prefix for absolute file paths
+              const viteId = `/@fs${clientPath}`;
+              const result = await server.transformRequest(viteId);
 
               if (result) {
-                res.writeHead(200, { 'Content-Type': 'application/javascript' });
+                res.writeHead(200, {
+                  'Content-Type': 'application/javascript',
+                  'Cache-Control': 'no-cache'
+                });
                 res.end(result.code);
               } else {
                 throw new Error('Failed to transform client script');
@@ -92,7 +96,7 @@ const config: StorybookConfig = {
             } catch (error) {
               console.error('Error serving AI client script:', error);
               res.writeHead(500, { 'Content-Type': 'application/javascript' });
-              res.end('console.error("Failed to load AI iteration client");');
+              res.end('console.error("Failed to load AI iteration client:", ' + JSON.stringify(error.message) + ');');
             }
           });
         }

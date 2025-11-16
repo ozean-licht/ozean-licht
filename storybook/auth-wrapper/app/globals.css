@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Ozean Licht Color Palette */
+    --color-primary: #0ec2bc;
+    --color-primary-dark: #055D75;
+    --color-background: #00070F;
+    --color-surface: #00111A;
+    --color-border: #0E282E;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-[#00070F] text-white;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-[#00111A]/80 backdrop-blur-xl border border-[#0E282E]/50;
+  }
+}

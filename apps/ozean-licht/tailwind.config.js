@@ -8,43 +8,45 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Ozean Licht Primary (Turquoise/Teal)
+        // Ozean Licht Primary (Oceanic Cyan)
         primary: {
-          DEFAULT: '#0ec2bc',
-          50: '#E6F8F7',
-          100: '#CCF1F0',
-          200: '#99E3E1',
-          300: '#66D5D2',
-          400: '#33C7C3',
-          500: '#0ec2bc',
-          600: '#0BA09A',
-          700: '#087E78',
-          800: '#065C56',
-          900: '#033A34',
+          DEFAULT: '#0EA6C1',
+          50: '#E6F7FA',
+          100: '#CCF0F5',
+          200: '#99E1EB',
+          300: '#66D1E1',
+          400: '#33C2D7',
+          500: '#0EA6C1',
+          600: '#0B859A',
+          700: '#086473',
+          800: '#055D75',
+          900: '#033B4D',
           foreground: '#FFFFFF',
         },
-        // Cosmic background
-        background: '#0A0F1A',
+        // Deep ocean background
+        background: '#00070F',
         foreground: '#FFFFFF',
+        // Secondary background (badges, spans)
+        secondaryBackground: '#000F1F',
         // Muted colors
         muted: {
-          DEFAULT: '#64748B',
-          foreground: '#94A3B8',
+          DEFAULT: '#055D75',
+          foreground: '#C4C8D4',
         },
         // Card colors
         card: {
-          DEFAULT: '#1A1F2E',
+          DEFAULT: '#00111A',
           foreground: '#FFFFFF',
         },
         // Popover
         popover: {
-          DEFAULT: '#1A1F2E',
+          DEFAULT: '#00111A',
           foreground: '#FFFFFF',
         },
         // Border
-        border: '#2A2F3E',
-        input: '#2A2F3E',
-        ring: '#0ec2bc',
+        border: '#0E282E',
+        input: '#0E282E',
+        ring: '#0EA6C1',
         // Semantic colors
         destructive: {
           DEFAULT: '#EF4444',
@@ -70,7 +72,7 @@ module.exports = {
         mono: ['Fira Code', 'Courier New', 'monospace'],
       },
       backgroundImage: {
-        'cosmic-gradient': 'linear-gradient(135deg, #0A0F1A 0%, #1A1F2E 50%, #0A0F1A 100%)',
+        'cosmic-gradient': 'linear-gradient(135deg, #00070F 0%, #00111A 50%, #00070F 100%)',
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
@@ -83,8 +85,8 @@ module.exports = {
       },
       keyframes: {
         glow: {
-          '0%': { boxShadow: '0 0 20px rgba(14, 194, 188, 0.3)' },
-          '100%': { boxShadow: '0 0 30px rgba(14, 194, 188, 0.6)' },
+          '0%': { boxShadow: '0 0 20px rgba(14, 166, 193, 0.3)' },
+          '100%': { boxShadow: '0 0 30px rgba(14, 166, 193, 0.6)' },
         },
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },

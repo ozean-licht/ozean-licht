@@ -1,95 +1,74 @@
-# Claude Code Hooks Reference Documentation
+# Claude Code Hooks Documentation
 
 ## Overview
 
-Claude Code hooks enable automated responses to system events through bash commands or LLM-based evaluations. They're configured in settings files and execute during specific lifecycle moments like tool use or session management.
+Claude Code hooks are automated scripts triggered by specific events in your development workflow. They're configured in settings files and enable custom validation, formatting, and context management.
 
-## Configuration Structure
+## Configuration Files
 
-Hooks organize around matchers and events in JSON format:
+Hooks are defined in a hierarchy:
+- `~/.claude/settings.json` (user level)
+- `.claude/settings.json` (project level)
+- `.claude/settings.local.json` (local, uncommitted)
+- Enterprise managed policies
 
-```json
-{
-  "hooks": {
-    "EventName": [
-      {
-        "matcher": "ToolPattern",
-        "hooks": [{"type": "command", "command": "bash-command"}]
-      }
-    ]
-  }
-}
-```
+## Hook Structure
 
-**Key configuration details:**
-- Matchers support exact strings, regex patterns, and wildcards
-- Stored in `~/.claude/settings.json` (user), `.claude/settings.json` (project), or `.claude/settings.local.json` (local)
-- Some events like `UserPromptSubmit` omit matchers entirely
+Each hook configuration organizes handlers by event matchers. As the documentation states: "Hooks are organized by matchers, where each matcher can have multiple hooks."
+
+Matchers support:
+- Exact string matching (`Write` matches only Write tool)
+- Regular expressions (`Edit|Write`, `Notebook.*`)
+- Wildcard patterns (`*` for all tools)
 
 ## Hook Types
 
-**Command Hooks** execute bash scripts with timeout support (default 60 seconds). They receive JSON input via stdin and communicate through exit codes and output.
+**Command Hooks** execute bash scripts with JSON input via stdin.
 
-**Prompt Hooks** query Claude Haiku for context-aware decisions, returning structured JSON with approval/block decisions. Currently available for `Stop`, `SubagentStop`, and `UserPromptSubmit` events.
+**Prompt-Based Hooks** (Stop/SubagentStop) send context to an LLM for intelligent decision-making, receiving structured JSON responses with approval or blocking decisions.
 
 ## Available Events
 
 | Event | Purpose |
 |-------|---------|
-| `PreToolUse` | Before Claude executes a tool |
-| `PostToolUse` | After successful tool completion |
-| `UserPromptSubmit` | When user submits prompt |
-| `Stop` / `SubagentStop` | When Claude finishes responding |
-| `SessionStart` / `SessionEnd` | Session lifecycle |
-| `Notification` | System notifications |
-| `PreCompact` | Before context compacting |
+| PreToolUse | Before tool execution |
+| PostToolUse | After successful tool completion |
+| UserPromptSubmit | Before processing user input |
+| Stop | When main agent finishes |
+| SubagentStop | When subagent completes |
+| SessionStart | Session initialization |
+| SessionEnd | Session termination |
+| Notification | System notifications |
+| PreCompact | Before context compaction |
 
-## Hook Output & Exit Codes
+## Hook Input/Output
 
-**Exit Code 0:** Success. Output shown in transcript (except `UserPromptSubmit` where stdout becomes context).
+Hooks receive JSON via stdin containing `session_id`, `transcript_path`, `cwd`, and event-specific fields.
 
-**Exit Code 2:** Blocking error. Stderr fed to Claude for processing.
+Output mechanisms:
+- **Exit code 0**: Success (stdout visible in some contexts)
+- **Exit code 2**: Blocking error (stderr feeds back to Claude)
+- **Other codes**: Non-blocking errors
+- **JSON output**: Structured responses for sophisticated control
 
-**Other codes:** Non-blocking. Stderr shown to user; execution continues.
+## Key Features
 
-## JSON Output Format
+**Environment Variables**: Access `$CLAUDE_PROJECT_DIR` for project-relative paths and `$CLAUDE_ENV_FILE` in SessionStart hooks to persist environment variables.
 
-Hooks can return structured responses for sophisticated control:
+**Plugin Integration**: Plugins provide hooks via `hooks/hooks.json`, automatically merged with user configurations using `${CLAUDE_PLUGIN_ROOT}`.
 
-```json
-{
-  "continue": true,
-  "stopReason": "explanation",
-  "suppressOutput": true,
-  "systemMessage": "warning",
-  "hookSpecificOutput": {
-    "hookEventName": "EventType",
-    "additionalContext": "context for Claude"
-  }
-}
-```
+**Parallelization**: Matching hooks execute simultaneously; identical commands are deduplicated.
 
-## Security Considerations
+**Timeout**: Default 60-second limit per hook, individually configurable.
 
-**Critical Warning:** "Claude Code hooks execute arbitrary shell commands...you are solely responsible for configured commands."
+## Security
 
-Essential practices include:
-- Validating and sanitizing all input data
-- Using absolute paths and quoting variables properly
-- Blocking path traversal attempts
-- Avoiding sensitive files like `.env` or `.git`
+The documentation emphasizes: "Claude Code hooks execute arbitrary shell commands on your system automatically." Users must validate inputs, quote variables properly, check for path traversal, use absolute paths, and avoid sensitive files.
 
-## Special Features
+## MCP Tool Integration
 
-**Environment Variables:**
-- `CLAUDE_PROJECT_DIR`: Project root path (available in all hooks)
-- `CLAUDE_ENV_FILE`: SessionStart hooks can persist variables here
-- `CLAUDE_CODE_REMOTE`: Indicates web vs. local execution environment
+MCP tools follow naming pattern `mcp__<server>__<tool>`. Hooks can target specific tools using matchers like `mcp__memory__.*` or `mcp__.*__write.*`.
 
-**MCP Tool Integration:** Tools follow pattern `mcp__<server>__<tool>` and can be targeted with regex matchers.
+## Debugging
 
-**Plugin Hooks:** Automatically merge with user/project hooks using `${CLAUDE_PLUGIN_ROOT}` variable reference.
-
-## Practical Examples
-
-Hook commands can implement validation, auto-approval, notifications, and context injection. Common patterns include file-type-based access control, command linting with alternative tool suggestions, and permission automation for trusted operations.
+Use `/hooks` command to verify registration and `claude --debug` for detailed execution logs showing hook execution status and output.

@@ -2,7 +2,7 @@
 
 **Shared UI Components and Design System for Ozean Licht Ecosystem**
 
-Version: 0.1.0
+Version: 0.2.0
 
 ---
 
@@ -14,7 +14,7 @@ This package contains shared UI components, design tokens, and styles used acros
 - Admin Dashboard (`apps/admin/`)
 - Any future Ozean Licht applications
 
-**Branding:** All components use Ozean Licht design system (turquoise, cosmic dark theme, glass effects).
+**Branding:** All components use Ozean Licht design system (oceanic cyan-blue, deep ocean dark theme, glass effects).
 
 **Exception:** Kids Ascension (`apps/kids-ascension/`) has separate branding but can use base component architecture with overridden tokens.
 
@@ -158,7 +158,7 @@ import { Select } from '@ozean-licht/shared-ui'
 import { colors, typography, spacing, animations } from '@ozean-licht/shared-ui/tokens'
 
 // Use in components
-const primaryColor = colors.primary.DEFAULT  // '#0ec2bc'
+const primaryColor = colors.primary.DEFAULT  // '#0EA6C1'
 const headingFont = typography.fonts.decorative  // 'Cinzel Decorative'
 const cardPadding = spacing[6]  // '1.5rem' (24px)
 ```
@@ -166,10 +166,12 @@ const cardPadding = spacing[6]  // '1.5rem' (24px)
 ### Available Tokens
 
 **Colors:**
-- `colors.primary` - Turquoise palette (50-900)
-- `colors.background` - Dark cosmic background
-- `colors.card` - Card background
-- `colors.border` - Border color
+- `colors.primary` - Oceanic cyan palette (50-900)
+- `colors.background` - Deep ocean dark background (#00070F)
+- `colors.secondaryBackground` - Secondary background for badges (#000F1F)
+- `colors.card` - Card background (#00111A)
+- `colors.border` - Border color (#0E282E)
+- `colors.mutedAccent` - Muted accent for buttons (#055D75)
 - `colors.semantic` - Success, warning, destructive, info
 
 **Typography:**
@@ -288,8 +290,11 @@ All components are built with Tailwind CSS and support className prop:
 ### Default Theme (Ozean Licht)
 
 All components use Ozean Licht theme by default:
-- Primary: Turquoise (#0ec2bc)
-- Background: Cosmic dark (#0A0F1A)
+- Primary: Oceanic Cyan (#0EA6C1)
+- Background: Deep Ocean Dark (#00070F)
+- Card Background: #00111A
+- Muted Accent: #055D75
+- Paragraph Text: #C4C8D4
 - Glass effects enabled
 - Cinzel Decorative + Montserrat fonts
 
@@ -445,6 +450,19 @@ All modern browsers with CSS Grid, CSS Variables, and `backdrop-filter` support.
 ---
 
 ## Changelog
+
+### v0.2.0 (2025-11-16)
+
+**Design System Alignment - Color Correction**
+- ✅ Updated primary color: #0ec2bc → #0EA6C1 (oceanic cyan)
+- ✅ Updated background: #0A0F1A → #00070F (deep ocean dark)
+- ✅ Updated card background: #1A1F2E → #00111A
+- ✅ Updated border color: #2A2F3E → #0E282E
+- ✅ Added secondary background color: #000F1F (badges, spans)
+- ✅ Added muted accent color: #055D75 (buttons)
+- ✅ Added specific paragraph color: #C4C8D4
+- ✅ Corrected branding from "turquoise" to "oceanic cyan-blue"
+- ✅ All colors now match true Ozean Licht branding
 
 ### v0.1.0 (2025-11-11)
 

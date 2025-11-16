@@ -631,7 +631,7 @@ export const ResponsiveTable: Story = {
             <TableCell>Education</TableCell>
             <TableCell>€45.00</TableCell>
             <TableCell>
-              <Badge variant="secondary" style={{ backgroundColor: '#0ec2bc20', color: '#0ec2bc' }}>
+              <Badge variant="secondary" style={{ backgroundColor: 'var(--primary)20', color: 'var(--primary)' }}>
                 Completed
               </Badge>
             </TableCell>
@@ -643,7 +643,7 @@ export const ResponsiveTable: Story = {
             <TableCell>Product</TableCell>
             <TableCell>€180.00</TableCell>
             <TableCell>
-              <Badge variant="secondary" style={{ backgroundColor: '#0ec2bc20', color: '#0ec2bc' }}>
+              <Badge variant="secondary" style={{ backgroundColor: 'var(--primary)20', color: 'var(--primary)' }}>
                 Completed
               </Badge>
             </TableCell>
@@ -723,7 +723,7 @@ export const DashboardTable: Story = {
       const getStatusBadge = (status: string) => {
         if (status === 'active') {
           return (
-            <Badge variant="secondary" style={{ backgroundColor: '#0ec2bc20', color: '#0ec2bc' }}>
+            <Badge variant="secondary" style={{ backgroundColor: 'var(--primary)20', color: 'var(--primary)' }}>
               Active
             </Badge>
           );
@@ -742,7 +742,7 @@ export const DashboardTable: Story = {
               <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">User Management</h2>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">Manage users across both entities</p>
             </div>
-            <Button style={{ backgroundColor: '#0ec2bc', color: 'white' }}>Add User</Button>
+            <Button style={{ backgroundColor: 'var(--primary)', color: 'white' }}>Add User</Button>
           </div>
           <Table striped>
             <TableHead>
@@ -793,13 +793,13 @@ export const DashboardTable: Story = {
 /**
  * Ozean Licht themed table.
  *
- * Demonstrates applying Ozean Licht turquoise (#0ec2bc) accents to table elements.
+ * Demonstrates applying Ozean Licht turquoise (var(--primary)) accents to table elements.
  */
 export const OzeanLichtThemed: Story = {
   render: () => (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold" style={{ color: '#0ec2bc' }}>
+        <h2 className="text-lg font-semibold" style={{ color: 'var(--primary)' }}>
           Workshop Schedule
         </h2>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -809,17 +809,17 @@ export const OzeanLichtThemed: Story = {
       <Table striped>
         <TableHead>
           <TableRow>
-            <TableHeader style={{ color: '#0ec2bc' }}>Workshop</TableHeader>
-            <TableHeader style={{ color: '#0ec2bc' }}>Instructor</TableHeader>
-            <TableHeader style={{ color: '#0ec2bc' }}>Date</TableHeader>
-            <TableHeader style={{ color: '#0ec2bc' }}>Capacity</TableHeader>
-            <TableHeader style={{ color: '#0ec2bc' }}>Status</TableHeader>
+            <TableHeader style={{ color: 'var(--primary)' }}>Workshop</TableHeader>
+            <TableHeader style={{ color: 'var(--primary)' }}>Instructor</TableHeader>
+            <TableHeader style={{ color: 'var(--primary)' }}>Date</TableHeader>
+            <TableHeader style={{ color: 'var(--primary)' }}>Capacity</TableHeader>
+            <TableHeader style={{ color: 'var(--primary)' }}>Status</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
             <TableCell>
-              <span className="font-medium" style={{ color: '#0ec2bc' }}>
+              <span className="font-medium" style={{ color: 'var(--primary)' }}>
                 Mindfulness Basics
               </span>
             </TableCell>
@@ -827,14 +827,14 @@ export const OzeanLichtThemed: Story = {
             <TableCell>Nov 20, 2025</TableCell>
             <TableCell>12 / 15</TableCell>
             <TableCell>
-              <Badge variant="secondary" style={{ backgroundColor: '#0ec2bc20', color: '#0ec2bc' }}>
+              <Badge variant="secondary" style={{ backgroundColor: 'var(--primary)20', color: 'var(--primary)' }}>
                 Available
               </Badge>
             </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>
-              <span className="font-medium" style={{ color: '#0ec2bc' }}>
+              <span className="font-medium" style={{ color: 'var(--primary)' }}>
                 Crystal Healing Workshop
               </span>
             </TableCell>
@@ -842,14 +842,14 @@ export const OzeanLichtThemed: Story = {
             <TableCell>Nov 22, 2025</TableCell>
             <TableCell>8 / 10</TableCell>
             <TableCell>
-              <Badge variant="secondary" style={{ backgroundColor: '#0ec2bc20', color: '#0ec2bc' }}>
+              <Badge variant="secondary" style={{ backgroundColor: 'var(--primary)20', color: 'var(--primary)' }}>
                 Available
               </Badge>
             </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>
-              <span className="font-medium" style={{ color: '#0ec2bc' }}>
+              <span className="font-medium" style={{ color: 'var(--primary)' }}>
                 Meditation Intensive
               </span>
             </TableCell>
@@ -857,14 +857,14 @@ export const OzeanLichtThemed: Story = {
             <TableCell>Nov 25, 2025</TableCell>
             <TableCell>15 / 20</TableCell>
             <TableCell>
-              <Badge variant="secondary" style={{ backgroundColor: '#0ec2bc20', color: '#0ec2bc' }}>
+              <Badge variant="secondary" style={{ backgroundColor: 'var(--primary)20', color: 'var(--primary)' }}>
                 Available
               </Badge>
             </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>
-              <span className="font-medium" style={{ color: '#0ec2bc' }}>
+              <span className="font-medium" style={{ color: 'var(--primary)' }}>
                 Energy Work Fundamentals
               </span>
             </TableCell>
@@ -880,10 +880,10 @@ export const OzeanLichtThemed: Story = {
         </TableBody>
       </Table>
       <div className="flex justify-end gap-2">
-        <Button variant="outline" style={{ borderColor: '#0ec2bc', color: '#0ec2bc' }}>
+        <Button variant="outline" style={{ borderColor: 'var(--primary)', color: 'var(--primary)' }}>
           View All Workshops
         </Button>
-        <Button style={{ backgroundColor: '#0ec2bc', color: 'white' }}>Create Workshop</Button>
+        <Button style={{ backgroundColor: 'var(--primary)', color: 'white' }}>Create Workshop</Button>
       </div>
     </div>
   ),
@@ -914,7 +914,7 @@ export const CombinedFeatures: Story = {
           <TableCell>coolify.ozean-licht.dev</TableCell>
           <TableCell>9200</TableCell>
           <TableCell>
-            <Badge variant="secondary" style={{ backgroundColor: '#0ec2bc20', color: '#0ec2bc' }}>
+            <Badge variant="secondary" style={{ backgroundColor: 'var(--primary)20', color: 'var(--primary)' }}>
               Running
             </Badge>
           </TableCell>
@@ -927,7 +927,7 @@ export const CombinedFeatures: Story = {
           <TableCell>coolify.ozean-licht.dev</TableCell>
           <TableCell>8100</TableCell>
           <TableCell>
-            <Badge variant="secondary" style={{ backgroundColor: '#0ec2bc20', color: '#0ec2bc' }}>
+            <Badge variant="secondary" style={{ backgroundColor: 'var(--primary)20', color: 'var(--primary)' }}>
               Running
             </Badge>
           </TableCell>
@@ -940,7 +940,7 @@ export const CombinedFeatures: Story = {
           <TableCell>138.201.139.25</TableCell>
           <TableCell>5432</TableCell>
           <TableCell>
-            <Badge variant="secondary" style={{ backgroundColor: '#0ec2bc20', color: '#0ec2bc' }}>
+            <Badge variant="secondary" style={{ backgroundColor: 'var(--primary)20', color: 'var(--primary)' }}>
               Running
             </Badge>
           </TableCell>
@@ -953,7 +953,7 @@ export const CombinedFeatures: Story = {
           <TableCell>138.201.139.25</TableCell>
           <TableCell>9000</TableCell>
           <TableCell>
-            <Badge variant="secondary" style={{ backgroundColor: '#0ec2bc20', color: '#0ec2bc' }}>
+            <Badge variant="secondary" style={{ backgroundColor: 'var(--primary)20', color: 'var(--primary)' }}>
               Running
             </Badge>
           </TableCell>
@@ -966,7 +966,7 @@ export const CombinedFeatures: Story = {
           <TableCell>grafana.ozean-licht.dev</TableCell>
           <TableCell>3000</TableCell>
           <TableCell>
-            <Badge variant="secondary" style={{ backgroundColor: '#0ec2bc20', color: '#0ec2bc' }}>
+            <Badge variant="secondary" style={{ backgroundColor: 'var(--primary)20', color: 'var(--primary)' }}>
               Running
             </Badge>
           </TableCell>

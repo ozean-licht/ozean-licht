@@ -16,7 +16,8 @@ export function PricingSection({
       {(title || subtitle) && (
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
           {subtitle && <p className="text-primary text-sm font-alt uppercase tracking-wide">{subtitle}</p>}
-          {title && <h2 className="text-4xl md:text-5xl font-decorative text-white">{title}</h2>}
+          {title && <h2 className="text-4xl md:text-5xl font-decorative text-white"
+                           style={{ textShadow: '0 0 8px rgba(255, 255, 255, 0.42)' }}>{title}</h2>}
         </div>
       )}
       

@@ -1,49 +1,97 @@
-# Agent Skills Best Practices
+# Skill Authoring Best Practices
 
 ## Core Principles
 
-**Conciseness is essential.** The context window is shared across system prompts, conversation history, and other Skills. Claude only loads SKILL.md when the Skill becomes relevant, reading additional files as needed. Default assumption: "Claude is already very smart. Only add context Claude doesn't already have."
+**Conciseness**: "The context window is a public good." Skills should assume Claude is intelligent and only include essential context. The SKILL.md body should stay under 500 lines, with additional content in separate files loaded on-demand.
 
-**Degrees of freedom should match task fragility:**
-- High freedom (text instructions): Multiple valid approaches exist
-- Medium freedom (pseudocode): Preferred patterns with some variation
-- Low freedom (specific scripts): Fragile operations requiring exact sequences
+**Degrees of Freedom**: Match specificity to task fragility:
+- High freedom (text instructions) for multi-approach tasks
+- Medium freedom (pseudocode) for preferred patterns
+- Low freedom (specific scripts) for fragile operations
 
-**Test across all models.** Skills effectiveness depends on the underlying model, so validation across Claude Haiku, Sonnet, and Opus is necessary.
+**Cross-Model Testing**: Verify Skills work with Haiku, Sonnet, and Opus, since effectiveness varies by model capability.
 
 ## Skill Structure
 
-YAML frontmatter requires two fields:
-- `name`: Maximum 64 characters, lowercase letters/numbers/hyphens only
-- `description`: Maximum 1024 characters, specifying what the Skill does and when to use it
+Skills use YAML frontmatter requiring:
+- **name**: 64 characters max, lowercase/hyphens only, no reserved words
+- **description**: 1024 characters max, specifying what the Skill does and when to use it
 
-Descriptions should use third person and include specific triggers for when Claude should activate the Skill.
+### Naming Conventions
+Use gerund form (verb + -ing): `processing-pdfs`, `analyzing-spreadsheets`. Avoid vague names like `helper` or `utils`.
 
-## Key Organizational Patterns
+### Descriptions
+Write in third person. Include both functionality and trigger contexts. "Processes Excel files and generates reports" beats generic phrases like "Helps with documents."
 
-**Progressive Disclosure:** Keep SKILL.md under 500 lines, with additional content in separate files loaded only when needed. Files should be referenced one level deep from SKILL.md to ensure complete reads.
+## Progressive Disclosure Pattern
 
-**Pattern 1 - High-level guide with references:** Main SKILL.md points to FORMS.md, REFERENCE.md, and EXAMPLES.md
+Structure Skills like a table of contents:
+1. Keep SKILL.md as overview (under 500 lines)
+2. Link to separate files: FORMS.md, REFERENCE.md, EXAMPLES.md
+3. Organize by domain when handling multiple datasets
+4. Keep reference links one level deep from SKILL.md
+5. Include table of contents in longer reference files
 
-**Pattern 2 - Domain-specific organization:** Organize by domain (finance, sales, product) so irrelevant context isn't loaded
+Example structure:
+```
+pdf-skill/
+├── SKILL.md (overview)
+├── FORMS.md (form-filling guide)
+├── reference.md (API reference)
+└── scripts/
+    ├── analyze_form.py
+    └── fill_form.py
+```
 
-**Pattern 3 - Conditional details:** Show basic content with links to advanced materials
+## Workflows and Feedback Loops
+
+**Use checklists for complex tasks**: Provide copyable progress trackers that Claude can check off step-by-step.
+
+**Implement validation loops**: Pattern: run validator → fix errors → repeat. This catches problems early, especially for batch operations or destructive changes.
 
 ## Content Guidelines
 
-Avoid time-sensitive information. Use consistent terminology throughout. Include workflows with clear sequential steps and checklists for complex tasks.
+- **Avoid time-sensitive information**: Use "old patterns" sections instead of date-based conditionals
+- **Consistent terminology**: Pick one term and use it throughout (avoid mixing "field," "box," "element")
 
-## Code and Executable Scripts
+## Common Patterns
 
-Scripts should solve problems rather than defer to Claude. Include explicit error handling, justify configuration values, and provide utility scripts for deterministic operations. Use forward slashes in file paths universally.
+**Template Pattern**: Provide exact output structure for strict requirements
+
+**Examples Pattern**: Show input/output pairs demonstrating desired style and detail level
+
+**Conditional Workflows**: Guide Claude through decision points with clear branching
 
 ## Evaluation and Iteration
 
-Build evaluations before extensive documentation. Work iteratively with Claude to create Skills, testing real usage patterns rather than hypothetical scenarios.
+Build evaluations first, before extensive documentation. Create test scenarios measuring baseline performance without the Skill, then verify improvements. Develop Skills iteratively with Claude—have one instance (Claude A) create/refine the Skill while another (Claude B) tests it on real tasks.
 
-## Anti-patterns to Avoid
+## Advanced: Executable Code
 
-- Windows-style paths (use forward slashes)
-- Offering too many implementation options
-- Time-sensitive content without deprecated sections
-- Deeply nested file references
+- **Solve, don't punt**: Handle errors explicitly rather than asking Claude to fix problems
+- **Provide utility scripts**: Pre-made scripts are more reliable than generated code
+- **Use visual analysis**: Convert PDFs to images for layout understanding
+- **Create verifiable outputs**: Use plan-validate-execute patterns
+- **Package dependencies**: List required packages and verify availability
+
+## Anti-Patterns to Avoid
+
+- Windows-style paths (use forward slashes: `scripts/helper.py`)
+- Too many options (provide defaults with escape hatches)
+- Magic constants without justification
+- Deeply nested file references (keep one level deep)
+
+## Technical Notes
+
+- Scripts execute without loading full contents into context
+- Files are read on-demand, consuming tokens only when accessed
+- Metadata loads at startup; SKILL.md loads when relevant
+- Use fully qualified MCP tool names: `ServerName:tool_name`
+
+## Final Checklist
+
+**Core Quality**: Specific descriptions, clear workflows, consistent terminology, concrete examples, progressive disclosure
+
+**Code & Scripts**: Error handling, justified constants, listed dependencies, no Windows paths, validation steps
+
+**Testing**: At least three evaluations, cross-model testing, real usage scenarios, team feedback incorporated

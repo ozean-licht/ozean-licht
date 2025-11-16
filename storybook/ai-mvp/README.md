@@ -53,6 +53,23 @@
 ✅ **Native File Access** - Plugin has direct filesystem access
 ✅ **Automatic HMR** - Vite handles reload automatically
 
+## Important: Development-Only Feature
+
+⚠️ **AI Iteration is ONLY available when running Storybook in development mode**
+
+**Works:**
+- `pnpm storybook` (local development on localhost:6006)
+- Vite dev server provides the `/__ai-iterate` and `/__ai-get-component` endpoints
+
+**Does NOT work:**
+- Production builds (`pnpm build-storybook`)
+- Deployed static Storybook (storybook.ozean-licht.dev)
+- Any non-localhost environment
+
+**Why:** Static production builds don't run a Vite dev server, so the AI iteration endpoints don't exist. Additionally, exposing file-writing APIs in production is a security risk.
+
+**For production AI features:** Deploy a separate authenticated API server with MCP Gateway integration (see Option B in implementation plan).
+
 ## Limitations (MVP)
 
 - No validation or safety checks (trusts Claude)

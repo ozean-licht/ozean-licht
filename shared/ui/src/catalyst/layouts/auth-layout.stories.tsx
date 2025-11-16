@@ -576,7 +576,7 @@ export const WithIllustration: Story = {
  * Ozean Licht themed authentication pages.
  *
  * Demonstrates complete auth pages with Ozean Licht cosmic branding.
- * Includes turquoise accent color (#0ec2bc), cosmic backgrounds, and glass morphism effects.
+ * Includes turquoise accent color (var(--primary)), cosmic backgrounds, and glass morphism effects.
  */
 export const OzeanLichtThemed: Story = {
   render: () => {
@@ -603,7 +603,7 @@ export const OzeanLichtThemed: Story = {
             ))}
           </div>
           {/* Gradient orbs */}
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#0ec2bc]/20 rounded-full blur-3xl" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[var(--primary)]/20 rounded-full blur-3xl" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
         </div>
 
@@ -618,7 +618,7 @@ export const OzeanLichtThemed: Story = {
             >
               {/* Logo and branding */}
               <div className="text-center space-y-4 mb-8">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[#0ec2bc] to-[#0a9b96] shadow-lg shadow-[#0ec2bc]/50">
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[var(--primary)] to-[#0a9b96] shadow-lg shadow-[var(--primary)]/50">
                   <svg
                     className="w-10 h-10 text-white"
                     fill="none"
@@ -636,7 +636,7 @@ export const OzeanLichtThemed: Story = {
                 <div>
                   <h2
                     className="text-3xl font-bold tracking-tight"
-                    style={{ color: '#0ec2bc' }}
+                    style={{ color: 'var(--primary)' }}
                   >
                     Ozean Licht
                   </h2>
@@ -664,7 +664,7 @@ export const OzeanLichtThemed: Story = {
                       id="ozean-email"
                       type="email"
                       placeholder="you@example.com"
-                      className="pl-10 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-[#0ec2bc] focus:ring-[#0ec2bc]"
+                      className="pl-10 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-[var(--primary)] focus:ring-[var(--primary)]"
                     />
                   </div>
                 </div>
@@ -677,7 +677,7 @@ export const OzeanLichtThemed: Story = {
                     <a
                       href="#"
                       className="text-xs hover:underline"
-                      style={{ color: '#0ec2bc' }}
+                      style={{ color: 'var(--primary)' }}
                     >
                       Forgot password?
                     </a>
@@ -688,7 +688,7 @@ export const OzeanLichtThemed: Story = {
                       id="ozean-password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="••••••••"
-                      className="pl-10 pr-10 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-[#0ec2bc] focus:ring-[#0ec2bc]"
+                      className="pl-10 pr-10 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-[var(--primary)] focus:ring-[var(--primary)]"
                     />
                     <button
                       type="button"
@@ -708,7 +708,7 @@ export const OzeanLichtThemed: Story = {
                   <input
                     type="checkbox"
                     id="ozean-remember"
-                    className="h-4 w-4 rounded border-white/20 bg-white/5 text-[#0ec2bc] focus:ring-[#0ec2bc]"
+                    className="h-4 w-4 rounded border-white/20 bg-white/5 text-[var(--primary)] focus:ring-[var(--primary)]"
                   />
                   <Label
                     htmlFor="ozean-remember"
@@ -723,7 +723,7 @@ export const OzeanLichtThemed: Story = {
                   disabled={isLoading}
                   className="w-full justify-center"
                   style={{
-                    backgroundColor: '#0ec2bc',
+                    backgroundColor: 'var(--primary)',
                     color: 'white',
                   }}
                 >
@@ -793,7 +793,7 @@ export const OzeanLichtThemed: Story = {
                 <a
                   href="#"
                   className="font-medium hover:underline"
-                  style={{ color: '#0ec2bc' }}
+                  style={{ color: 'var(--primary)' }}
                 >
                   Begin your journey
                 </a>

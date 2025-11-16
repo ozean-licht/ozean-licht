@@ -34,7 +34,8 @@ export function HeroSection({
             </div>
           )}
           
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-[var(--foreground)] text-balance">
+          <h1 className="font-decorative text-4xl md:text-5xl lg:text-6xl text-[var(--foreground)] text-balance"
+              style={{ textShadow: '0 0 8px rgba(255, 255, 255, 0.6)' }}>
             {title}
           </h1>
           

@@ -29,7 +29,15 @@ if (typeof document !== 'undefined') {
     .sbdocs-preview {
       min-height: auto !important;
       height: auto !important;
-      border-color: rgba(14, 194, 188, 0.15) !important;
+      border-color: #0A7B77 !important; /* Deep cyan border */
+      border-width: 1px !important;
+      background-color: #00111A !important; /* Dark surface instead of white */
+    }
+
+    /* Fix white preview backgrounds in docs */
+    .sbdocs .sbdocs-preview.sb-unstyled,
+    .sbdocs .css-hd7ysc {
+      background-color: #00111A !important;
     }
 
     .sb-story {
@@ -51,18 +59,31 @@ if (typeof document !== 'undefined') {
       height: auto !important;
     }
 
-    /* Remove white border, use dark accent */
+    /* Remove white border, use deep cyan */
     .sbdocs .docblock-source {
-      border-color: rgba(14, 194, 188, 0.15) !important;
+      border-color: #0A7B77 !important;
     }
 
-    /* Canvas zoom container */
+    /* Canvas zoom container - CRITICAL: Override white border */
     .sb-zoom-wrapper,
-    #storybook-preview-wrapper {
-      border: 1px solid rgba(14, 194, 188, 0.15) !important;
+    #storybook-preview-wrapper,
+    #storybook-docs .sb-zoom-wrapper,
+    .docs-story > div > div {
+      border: 1px solid #0A7B77 !important; /* Deep cyan instead of white */
       background-color: #0A0F1A !important;
       height: auto !important;
       min-height: auto !important;
+      box-shadow: 0 0 8px rgba(14, 194, 188, 0.15) !important;
+    }
+
+    /* Target the specific canvas element that has white border */
+    #storybook-docs iframe,
+    .sbdocs-preview > div,
+    .docs-story iframe {
+      border-color: #0A7B77 !important;
+      height: auto !important;
+      min-height: 100px !important;
+      max-height: fit-content !important;
     }
 
     /* Code blocks */
@@ -93,6 +114,19 @@ if (typeof document !== 'undefined') {
     /* Canvas background */
     .docs-story {
       background-color: #0A0F1A !important;
+    }
+
+    /* Sidebar active button - muted accent */
+    .sidebar-item[data-selected="true"],
+    .sidebar-item.active,
+    [aria-selected="true"] {
+      background-color: #C4C8D4 !important;
+      color: #0A0F1A !important;
+    }
+
+    /* Sidebar hover state */
+    .sidebar-item:hover {
+      background-color: rgba(196, 200, 212, 0.1) !important;
     }
   `;
   document.head.appendChild(style);
@@ -258,26 +292,36 @@ const preview: Preview = {
     // AI Iteration Decorator (development-only)
     (Story) => {
       React.useEffect(() => {
-        // Only inject in development mode (check if localhost or dev server)
+        // Only inject in development mode (localhost or 127.0.0.1)
         const isDev = window.location.hostname === 'localhost' ||
-                      window.location.hostname === '127.0.0.1' ||
-                      window.location.port === '6006'; // Storybook dev server port
+                      window.location.hostname === '127.0.0.1';
 
-        if (isDev) {
-          // Inject AI iteration client script
-          const script = document.createElement('script');
-          script.src = '/ai-mvp-client.js';
-          script.async = true;
+        if (!isDev) {
+          // Production mode: Log informational message
+          console.info(
+            '🚀 Storybook is running in production mode. ' +
+            'AI Iteration (Cmd+K) is only available in development. ' +
+            'Run `pnpm storybook` locally to use AI features.'
+          );
+          return;
+        }
 
-          // Handle errors silently (in case endpoint doesn't exist)
-          script.onerror = () => {
-            console.debug('AI iteration not available (development mode only)');
-          };
+        // Development mode: Inject AI iteration client script
+        const script = document.createElement('script');
+        script.src = '/ai-mvp-client.js';
+        script.async = true;
 
-          // Only inject once
-          if (!document.querySelector('script[src="/ai-mvp-client.js"]')) {
-            document.body.appendChild(script);
-          }
+        // Handle errors with helpful message
+        script.onerror = () => {
+          console.warn(
+            '⚠️ AI iteration client failed to load. ' +
+            'Ensure ANTHROPIC_API_KEY is set in .env and Storybook dev server is running.'
+          );
+        };
+
+        // Only inject once
+        if (!document.querySelector('script[src="/ai-mvp-client.js"]')) {
+          document.body.appendChild(script);
         }
       }, []);
 

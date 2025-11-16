@@ -1,101 +1,40 @@
-# Slash Commands in the Claude Agent SDK
+# Slash Commands in the SDK - Documentation
 
 ## Overview
-
-Slash commands provide a mechanism to control Claude Code sessions through the SDK with special commands prefixed by `/`. They enable session management and can be discovered programmatically at initialization.
+Slash commands are special commands starting with `/` that control Claude Code sessions through the SDK. They can perform actions like clearing conversation history, compacting messages, or accessing help.
 
 ## Discovering Available Commands
+The system provides information about available slash commands during session initialization. Access this through the `message.slash_commands` property when `message.type === "system"` and `message.subtype === "init"`.
 
-The system initialization message contains information about available slash commands:
+## Common Built-in Commands
 
-```typescript
-if (message.type === "system" && message.subtype === "init") {
-  console.log("Available slash commands:", message.slash_commands);
-  // Example: ["/compact", "/clear", "/help"]
-}
-```
+**`/compact`** - Reduces conversation history size by summarizing older messages while preserving important context. Returns metadata about pre-compaction token count and compaction trigger.
 
-## Built-in Commands
+**`/clear`** - Starts a fresh conversation by removing all previous history, essentially initiating a new session with a fresh session ID.
 
-### `/compact`
-**Purpose:** Reduces conversation history size by summarizing older messages while preserving context.
+## Creating Custom Slash Commands
 
-**Usage:**
-```typescript
-for await (const message of query({ prompt: "/compact", options: { maxTurns: 1 } })) {
-  if (message.subtype === "compact_boundary") {
-    console.log("Pre-compaction tokens:", message.compact_metadata.pre_tokens);
-  }
-}
-```
+Custom commands are defined as markdown files in designated directories:
+- **Project scope**: `.claude/commands/`
+- **Personal scope**: `~/.claude/commands/`
 
-### `/clear`
-**Purpose:** "Starts a fresh conversation by clearing all previous history"
+The filename (without `.md` extension) becomes the command name.
 
-**Usage:**
-```typescript
-for await (const message of query({ prompt: "/clear", options: { maxTurns: 1 } })) {
-  if (message.subtype === "init") {
-    console.log("Conversation cleared");
-  }
-}
-```
-
-## Custom Slash Commands
-
-### File Structure
-
-Store custom commands as markdown files:
-- **Project-level:** `.claude/commands/`
-- **Personal-level:** `~/.claude/commands/`
-
-### Basic Format
-
-Filename becomes the command name (without `.md` extension). Example: `refactor.md` creates `/refactor` command.
-
-### With Configuration
-
-Commands support optional YAML frontmatter for metadata:
-
-```yaml
----
-allowed-tools: Read, Grep, Glob
-description: Run security vulnerability scan
-model: claude-sonnet-4-5-20250929
----
-```
+### Basic Structure
+Commands can include optional YAML frontmatter for configuration:
+- `allowed-tools`: Specifies which tools the command can use
+- `description`: Explains what the command does
+- `model`: Specifies which Claude model to use
 
 ## Advanced Features
 
-### Arguments & Placeholders
+**Arguments**: Use `$1`, `$2` placeholders with `argument-hint` in frontmatter
 
-Use `$1`, `$2` syntax for dynamic arguments:
+**Bash Execution**: Include commands using `!` backticks syntax to execute and capture output
 
-```yaml
----
-argument-hint: [issue-number] [priority]
----
-Fix issue #$1 with priority $2.
-```
+**File References**: Use `@filename` syntax to include file contents in the prompt
 
-### Bash Integration
+**Namespacing**: Organize commands in subdirectories for better structure (though subdirectories don't affect command names)
 
-Execute bash commands using backtick syntax:
-```markdown
-- Current status: !`git status`
-```
-
-### File References
-
-Include file contents with `@` prefix:
-```markdown
-Package config: @package.json
-```
-
-### Namespacing
-
-Organize commands in subdirectories (e.g., `.claude/commands/frontend/component.md`).
-
-## SDK Integration
-
-Custom commands automatically appear in the `slash_commands` list returned during session initialization and can be invoked like built-in commands through the query function.
+## Usage Example
+Commands are sent through the SDK's `query()` function just like regular prompts, making them accessible during development workflows.

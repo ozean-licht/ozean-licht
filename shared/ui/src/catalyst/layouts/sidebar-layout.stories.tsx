@@ -955,7 +955,7 @@ export const WithBreadcrumbs: Story = {
 /**
  * Ozean Licht themed sidebar layout.
  *
- * Demonstrates Ozean Licht branding with turquoise accents (#0ec2bc).
+ * Demonstrates Ozean Licht branding with turquoise accents (var(--primary)).
  */
 export const OzeanLichtThemed: Story = {
   render: () => (
@@ -964,7 +964,7 @@ export const OzeanLichtThemed: Story = {
         navbar={
           <Navbar>
             <NavbarSection>
-              <NavbarLabel className="text-lg font-semibold" style={{ color: '#0ec2bc' }}>
+              <NavbarLabel className="text-lg font-semibold" style={{ color: 'var(--primary)' }}>
                 Ozean Licht
               </NavbarLabel>
             </NavbarSection>
@@ -986,7 +986,7 @@ export const OzeanLichtThemed: Story = {
                 <div className="flex items-center gap-3 px-2">
                   <div
                     className="flex size-10 items-center justify-center rounded-lg text-white"
-                    style={{ backgroundColor: '#0ec2bc' }}
+                    style={{ backgroundColor: 'var(--primary)' }}
                   >
                     <span className="text-lg font-bold">OL</span>
                   </div>
@@ -1059,7 +1059,7 @@ export const OzeanLichtThemed: Story = {
           <div
             className="relative overflow-hidden rounded-2xl p-8"
             style={{
-              background: 'linear-gradient(135deg, #0ec2bc 0%, #087E78 100%)',
+              background: 'linear-gradient(135deg, var(--primary) 0%, #087E78 100%)',
             }}
           >
             <div className="relative z-10">
@@ -1095,7 +1095,7 @@ export const OzeanLichtThemed: Story = {
                     <div className="text-sm text-zinc-400">{stat.label}</div>
                     <div
                       className="text-2xl font-bold"
-                      style={{ color: '#0ec2bc' }}
+                      style={{ color: 'var(--primary)' }}
                     >
                       {stat.value}
                     </div>
@@ -1111,7 +1111,7 @@ export const OzeanLichtThemed: Story = {
               <h2 className="text-xl font-semibold text-white">Recent Content</h2>
               <button
                 className="text-sm font-medium hover:underline"
-                style={{ color: '#0ec2bc' }}
+                style={{ color: 'var(--primary)' }}
               >
                 View all
               </button>
@@ -1120,7 +1120,7 @@ export const OzeanLichtThemed: Story = {
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="group rounded-lg border border-zinc-800 bg-zinc-900 p-6 transition-all hover:border-[#0ec2bc]/50"
+                  className="group rounded-lg border border-zinc-800 bg-zinc-900 p-6 transition-all hover:border-[var(--primary)]/50"
                 >
                   <div className="flex items-start justify-between">
                     <div>
@@ -1131,7 +1131,7 @@ export const OzeanLichtThemed: Story = {
                     </div>
                     <button
                       className="opacity-0 transition-opacity group-hover:opacity-100"
-                      style={{ color: '#0ec2bc' }}
+                      style={{ color: 'var(--primary)' }}
                     >
                       →
                     </button>

@@ -1,131 +1,65 @@
-# Custom Tools in Claude Agent SDK
+# Custom Tools for Claude Agent SDK
 
 ## Overview
 
-Custom tools extend the Agent SDK's functionality through in-process MCP (Model Context Protocol) servers. This allows Claude to interact with external services, APIs, or perform specialized operations.
+Custom tools extend Claude Agent SDK functionality through in-process MCP (Model Context Protocol) servers, enabling Claude to interact with external services, APIs, and specialized operations.
 
-## Creating Custom Tools
+## Core Concepts
 
-Define type-safe custom tools using `createSdkMcpServer` and `tool` helper functions:
+### Creating Custom Tools
 
-```typescript
-import { query, tool, createSdkMcpServer } from "@anthropic-ai/claude-agent-sdk";
-import { z } from "zod";
+The SDK provides `createSdkMcpServer` and `tool` helper functions for defining type-safe custom tools:
 
-const customServer = createSdkMcpServer({
-  name: "my-custom-tools",
-  version: "1.0.0",
-  tools: [
-    tool(
-      "get_weather",
-      "Get current temperature for a location using coordinates",
-      {
-        latitude: z.number().describe("Latitude coordinate"),
-        longitude: z.number().describe("Longitude coordinate")
-      },
-      async (args) => {
-        const response = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${args.latitude}&longitude=${args.longitude}&current=temperature_2m&temperature_unit=fahrenheit`
-        );
-        const data = await response.json();
-        return {
-          content: [{
-            type: "text",
-            text: `Temperature: ${data.current.temperature_2m}°F`
-          }]
-        };
-      }
-    )
-  ]
-});
-```
+**Key Components:**
+- Server definition with name and version
+- Tool definitions using Zod schemas for validation
+- Async handler functions that process arguments
 
-## Using Custom Tools
+### Tool Naming Convention
 
-Pass custom servers to the `query` function via `mcpServers` option. **Important:** Custom MCP tools require streaming input mode—use async generators for the `prompt` parameter.
+Custom tools follow a specific naming pattern when exposed to Claude:
+- Format: `mcp__{server_name}__{tool_name}`
+- Example: A tool named `get_weather` in server `my-custom-tools` becomes `mcp__my-custom-tools__get_weather`
 
-```typescript
-async function* generateMessages() {
-  yield {
-    type: "user" as const,
-    message: {
-      role: "user" as const,
-      content: "What's the weather in San Francisco?"
-    }
-  };
-}
+## Implementation Requirements
 
-for await (const message of query({
-  prompt: generateMessages(),
-  options: {
-    mcpServers: {
-      "my-custom-tools": customServer
-    },
-    allowedTools: [
-      "mcp__my-custom-tools__get_weather"
-    ],
-    maxTurns: 3
-  }
-})) {
-  if (message.type === "result" && message.subtype === "success") {
-    console.log(message.result);
-  }
-}
-```
+### Streaming Input Requirement
 
-## Tool Name Format
+Custom MCP tools require streaming input mode. You must use an async generator/iterable for the `prompt` parameter — a simple string won't work.
 
-Tools follow the pattern: `mcp__{server_name}__{tool_name}`. A tool named `get_weather` in server `my-custom-tools` becomes `mcp__my-custom-tools__get_weather`.
+### Passing Custom Servers
 
-## Key Configuration Options
+Custom servers are passed to the `query` function via the `mcpServers` option as a dictionary/object (not an array).
 
-- **allowedTools**: Control which tools Claude can access by specifying their full names
-- **mcpServers**: Pass servers as object/dictionary, not array
-- **Streaming Input**: Required for MCP tool support
+## Configuration Options
+
+### Allowed Tools
+
+Control which tools Claude can access using the `allowedTools` option, specifying tool names by their full qualified names.
+
+### Multiple Tools
+
+A single MCP server can contain multiple tools with selective access control for each.
+
+## Type Safety
+
+Zod schemas define both runtime validation and TypeScript types, ensuring arguments match expected structures with proper type inference.
 
 ## Error Handling
 
-Wrap tool logic in try-catch blocks to provide meaningful feedback:
+Tools should gracefully handle errors by returning meaningful feedback rather than throwing exceptions, maintaining conversation continuity.
 
-```typescript
-tool(
-  "fetch_data",
-  "Fetch data from an API",
-  { endpoint: z.string().url().describe("API endpoint URL") },
-  async (args) => {
-    try {
-      const response = await fetch(args.endpoint);
-      if (!response.ok) {
-        return {
-          content: [{
-            type: "text",
-            text: `API error: ${response.status} ${response.statusText}`
-          }]
-        };
-      }
-      const data = await response.json();
-      return {
-        content: [{
-          type: "text",
-          text: JSON.stringify(data, null, 2)
-        }]
-      };
-    } catch (error) {
-      return {
-        content: [{
-          type: "text",
-          text: `Failed to fetch data: ${error.message}`
-        }]
-      };
-    }
-  }
-)
-```
+## Practical Examples
 
-## Example Tool Patterns
+The documentation provides three complete implementation examples:
 
-**Database Query Tool**: Execute SQL queries and return results
-**API Gateway Tool**: Make authenticated requests to services (Stripe, GitHub, OpenAI, Slack)
-**Calculator Tool**: Perform mathematical operations and compound interest calculations
+1. **Database Query Tool** — Execute parameterized SQL queries
+2. **API Gateway Tool** — Make authenticated requests to services (Stripe, GitHub, OpenAI, Slack)
+3. **Calculator Tool** — Perform mathematical operations and compound interest calculations
 
-All examples use Zod schemas for type safety and runtime validation.
+## Related Resources
+
+- TypeScript SDK Reference
+- Python SDK Reference
+- Model Context Protocol documentation
+- Agent SDK Overview
