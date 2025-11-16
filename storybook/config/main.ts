@@ -105,6 +105,9 @@ const config: StorybookConfig = {
 
     return {
       ...config,
+      // Set base path for proxied deployment through auth wrapper
+      // In production, Storybook is accessed via /storybook-content/ proxy
+      base: process.env.NODE_ENV === 'production' ? '/storybook-content/' : '/',
       // CSS processing - Enable PostCSS/Tailwind
       css: {
         ...config.css,
