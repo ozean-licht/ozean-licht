@@ -14,11 +14,11 @@ import type { NextRequest } from 'next/server'
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Allow public access to login, auth routes, and static files
+  // Allow public access to login, auth routes, and proxied Storybook
+  // Note: /storybook-iframe is only accessible after auth check below
   if (
     pathname.startsWith('/login') ||
-    pathname.startsWith('/api/auth') ||
-    pathname.startsWith('/storybook-static/')
+    pathname.startsWith('/api/auth')
   ) {
     return NextResponse.next()
   }

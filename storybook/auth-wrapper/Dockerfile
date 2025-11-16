@@ -1,18 +1,11 @@
 # Multi-stage Dockerfile for Storybook Auth Wrapper
-# Stage 1: Build Storybook from source
-# Stage 2: Build Next.js application
-# Stage 3: Production runtime
+# Stage 1: Build Next.js application
+# Stage 2: Production runtime
+#
+# Note: This wrapper proxies to a separate Storybook container
+# No need to copy Storybook static files anymore
 
-# Stage 1: Copy pre-built Storybook (built locally with `npm run build-storybook`)
-FROM node:18-alpine AS storybook-provider
-
-WORKDIR /build
-
-# Copy pre-built Storybook static files
-# IMPORTANT: Run `npm run build-storybook` locally before Docker build
-COPY storybook/build ./storybook-static
-
-# Stage 2: Build Next.js wrapper
+# Stage 1: Build Next.js wrapper
 FROM node:18 AS nextjs-builder
 
 WORKDIR /app
@@ -24,15 +17,12 @@ RUN npm ci
 # Copy source code
 COPY storybook/auth-wrapper .
 
-# Copy Storybook build from previous stage
-COPY --from=storybook-provider /build/storybook-static ./public/storybook-static
-
 # Build Next.js application
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
 RUN npm run build
 
-# Stage 3: Production runtime
+# Stage 2: Production runtime
 FROM node:18-alpine AS runner
 
 WORKDIR /app
