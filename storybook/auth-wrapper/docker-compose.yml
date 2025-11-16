@@ -8,6 +8,12 @@ services:
     container_name: storybook-auth-wrapper
     ports:
       - "${STORYBOOK_AUTH_PORT:-3003}:3002"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.storybook-auth.loadbalancer.server.port=3002"
+      - "traefik.http.routers.storybook-auth.rule=Host(`components.ozean-licht.dev`)"
+      - "traefik.http.routers.storybook-auth.entrypoints=https"
+      - "traefik.http.routers.storybook-auth.tls.certresolver=letsencrypt"
     environment:
       # NextAuth
       - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3002}
