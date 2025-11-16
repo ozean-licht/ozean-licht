@@ -36,6 +36,7 @@ export class Context7Handler implements MCPHandler {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'Accept': 'application/json, text/event-stream',
       'User-Agent': 'MCP-Gateway/1.0.0',
     };
 
@@ -192,8 +193,8 @@ export class Context7Handler implements MCPHandler {
    * Resolve a library name to a Context7-compatible library ID
    */
   private async resolveLibraryId(libraryName: string): Promise<any> {
-    // Context7 MCP uses /mcp endpoint with JSON-RPC 2.0 format
-    const response = await this.client.post('/mcp', {
+    // Context7 MCP uses JSON-RPC 2.0 format (baseURL already includes /mcp)
+    const response = await this.client.post('', {
       jsonrpc: '2.0',
       method: 'tools/call',
       params: {
@@ -239,7 +240,7 @@ export class Context7Handler implements MCPHandler {
     tokenLimit?: number
   ): Promise<any> {
     const args: Record<string, any> = {
-      libraryId: libraryId.trim(),
+      context7CompatibleLibraryID: libraryId.trim(),
     };
 
     // Add optional parameters
@@ -252,8 +253,8 @@ export class Context7Handler implements MCPHandler {
       args.tokens = 5000; // Default token limit
     }
 
-    // Context7 MCP uses /mcp endpoint with JSON-RPC 2.0 format
-    const response = await this.client.post('/mcp', {
+    // Context7 MCP uses JSON-RPC 2.0 format (baseURL already includes /mcp)
+    const response = await this.client.post('', {
       jsonrpc: '2.0',
       method: 'tools/call',
       params: {
@@ -294,7 +295,7 @@ export class Context7Handler implements MCPHandler {
       const startTime = Date.now();
 
       // Test the service by resolving a common library
-      const testResponse = await this.client.post('/mcp', {
+      const testResponse = await this.client.post('', {
         jsonrpc: '2.0',
         method: 'tools/call',
         params: {
