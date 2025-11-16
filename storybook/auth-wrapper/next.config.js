@@ -1,18 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Serve Storybook static files in production
-  async rewrites() {
-    // In development, proxy to Storybook dev server
-    // In production, serve from build directory
-    if (process.env.NODE_ENV === 'development') {
-      return [
-        {
-          source: '/storybook-static/:path*',
-          destination: `${process.env.STORYBOOK_DEV_URL || 'http://localhost:6006'}/:path*`,
-        },
-      ]
-    }
-    return []
+  // Trailing slash configuration
+  trailingSlash: false,
+
+  // Public runtime config for static files
+  publicRuntimeConfig: {
+    staticFolder: '/public',
   },
 
   // Security headers
