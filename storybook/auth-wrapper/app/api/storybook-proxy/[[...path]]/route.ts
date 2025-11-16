@@ -29,11 +29,27 @@ export async function GET(
       },
     })
 
-    // Get response data
-    const data = await response.arrayBuffer()
-
-    // Forward response with appropriate headers
+    // Get content type
     const contentType = response.headers.get('content-type') || 'text/html'
+
+    // For HTML files, rewrite relative paths to fix Storybook asset loading
+    if (contentType.includes('text/html')) {
+      let html = await response.text()
+
+      // Replace relative paths (./) with absolute proxy paths
+      html = html.replace(/\.\//g, '/api/storybook-proxy/')
+
+      return new NextResponse(html, {
+        status: response.status,
+        headers: {
+          'Content-Type': contentType,
+          'Cache-Control': 'public, max-age=3600',
+        },
+      })
+    }
+
+    // For non-HTML files (JS, CSS, images, etc.), pass through as-is
+    const data = await response.arrayBuffer()
 
     return new NextResponse(data, {
       status: response.status,
