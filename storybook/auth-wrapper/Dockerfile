@@ -56,4 +56,7 @@ EXPOSE 3002
 ENV PORT 3002
 ENV HOSTNAME "0.0.0.0"
 
+# Copy custom server for static file serving
+COPY storybook/auth-wrapper/server.js ./
+
 CMD ["node", "server.js"]
