@@ -3,10 +3,11 @@ node_modules
 npm-debug.log
 yarn-error.log
 
-# Next.js
+# Next.js (but allow storybook/build from parent context)
 .next
 out
-build
+auth-wrapper/build
+!../build
 
 # Environment files
 .env
