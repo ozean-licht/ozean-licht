@@ -73,7 +73,6 @@ export default function StorybookViewer({ path, session }: StorybookViewerProps)
             className="w-full h-full border-0"
             title="Storybook Documentation"
             allow="clipboard-write"
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"
           />
         )}
       </div>
