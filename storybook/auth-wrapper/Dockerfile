@@ -45,9 +45,9 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy necessary files
-COPY --from=nextjs-builder /app/public ./public
 COPY --from=nextjs-builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=nextjs-builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=nextjs-builder /app/public ./public
 
 USER nextjs
 
