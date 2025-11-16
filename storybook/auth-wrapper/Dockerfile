@@ -25,8 +25,8 @@ COPY shared/ui ./shared/ui
 COPY apps/admin/app/globals.css ./apps/admin/app/globals.css
 COPY apps/admin/tailwind.config.js ./apps/admin/
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies (allow lockfile updates for Docker build)
+RUN pnpm install --no-frozen-lockfile
 
 # Build Storybook static files
 RUN pnpm build-storybook
