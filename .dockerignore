@@ -24,7 +24,6 @@
 /storybook/docs
 /storybook/reports
 /storybook/templates
-/storybook/mocks
 /storybook/scripts
 /storybook/deployment
 /storybook/docker
