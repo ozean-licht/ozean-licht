@@ -84,9 +84,9 @@
     "zod": "^4.1.12"
   },
   "scripts": {
-    "storybook": "storybook dev -p 6006 --config-dir storybook/config",
-    "build-storybook": "storybook build --config-dir storybook/config -o storybook/build",
-    "test-storybook": "test-storybook --config-dir storybook/config",
+    "storybook": "pnpm --filter @ozean-licht/storybook dev",
+    "build-storybook": "pnpm --filter @ozean-licht/storybook build",
+    "test-storybook": "pnpm --filter @ozean-licht/storybook test-storybook",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",

@@ -12,8 +12,8 @@ function getAbsolutePath(value: string): any {
 
 const config: StorybookConfig = {
   stories: [
-    '../../apps/admin/components/**/*.stories.@(js|jsx|mjs|ts|tsx)',
-    '../../apps/ozean-licht/components/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+    '../admin/components/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+    '../ozean-licht/components/**/*.stories.@(js|jsx|mjs|ts|tsx)',
     '../../shared/ui/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
   addons: [
@@ -54,7 +54,7 @@ const config: StorybookConfig = {
     disableTelemetry: true,
   },
   viteFinal: async (config) => {
-    const projectRoot = join(__dirname, '../..');
+    const projectRoot = join(__dirname, '../../..');
     config.plugins = config.plugins || [];
 
     // AI iteration plugin is development-only, skip during build
@@ -192,9 +192,9 @@ const config: StorybookConfig = {
         ...config.resolve,
         alias: {
           ...config.resolve?.alias,
-          '@': join(__dirname, '../../apps/admin'),
-          '@admin': join(__dirname, '../../apps/admin'),
-          '@shared': join(__dirname, '../../shared/ui/src'),
+          '@': join(__dirname, '../../admin'),
+          '@admin': join(__dirname, '../../admin'),
+          '@shared': join(__dirname, '../../../shared/ui/src'),
           // Mock Next.js modules for Storybook compatibility
           'next/link': join(__dirname, '../mocks/next-link.tsx'),
           'next/image': join(__dirname, '../mocks/next-image.tsx'),
