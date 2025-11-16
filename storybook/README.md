@@ -101,6 +101,29 @@ npm run test-storybook
 # (Configured in deployment pipeline)
 ```
 
+## Authentication
+
+Storybook is protected with HTTP BasicAuth via Traefik middleware.
+
+**Credentials:**
+- Username: `admin`
+- Password: `OzeanLicht2025!` (or ask team lead)
+
+**To change password:**
+```bash
+# Generate new hash
+docker run --rm httpd:2.4-alpine htpasswd -nbB admin "NewPassword"
+
+# Update storybook/docker-compose.yml
+# Find the basicauth.users label and replace hash
+# Remember to escape $ as $$
+# Redeploy: docker-compose up -d
+```
+
+**Access:** https://storybook.ozean-licht.dev
+- Browser will prompt for username/password on first visit
+- Credentials cached by browser for future visits
+
 ## Deployment
 
 ### Production URL

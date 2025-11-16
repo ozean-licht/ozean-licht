@@ -105,9 +105,7 @@ const config: StorybookConfig = {
 
     return {
       ...config,
-      // Set base path for proxied deployment through auth wrapper
-      // In production, Storybook is accessed via /storybook-content/ proxy
-      base: process.env.NODE_ENV === 'production' ? '/storybook-content/' : '/',
+      // Base path removed - Storybook exposed directly at storybook.ozean-licht.dev
       // CSS processing - Enable PostCSS/Tailwind
       css: {
         ...config.css,
