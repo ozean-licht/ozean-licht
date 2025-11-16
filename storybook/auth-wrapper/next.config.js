@@ -5,22 +5,6 @@ const nextConfig = {
     return 'storybook-auth'
   },
 
-  // Proxy Storybook requests to internal container
-  async rewrites() {
-    const storybookUrl = process.env.STORYBOOK_INTERNAL_URL || 'http://10.0.1.22:6006'
-
-    return [
-      {
-        source: '/storybook-iframe/:path*',
-        destination: `${storybookUrl}/:path*`,
-      },
-      {
-        source: '/storybook-iframe',
-        destination: `${storybookUrl}/`,
-      },
-    ]
-  },
-
   // Security headers
   async headers() {
     return [

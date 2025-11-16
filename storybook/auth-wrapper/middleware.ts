@@ -14,11 +14,11 @@ import type { NextRequest } from 'next/server'
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Allow public access to login, auth routes, and proxied Storybook
-  // Note: /storybook-iframe is only accessible after auth check below
+  // Allow public access to login and auth routes
+  // API routes handle their own authentication
   if (
     pathname.startsWith('/login') ||
-    pathname.startsWith('/api/auth')
+    pathname.startsWith('/api/')
   ) {
     return NextResponse.next()
   }
@@ -26,6 +26,7 @@ export default async function middleware(request: NextRequest) {
   // Check authentication for protected routes
   const session = await getMiddlewareSession(request)
 
+  // Protect /storybook routes - require authentication
   if (!session && pathname.startsWith('/storybook')) {
     // Redirect to login with callback URL
     const loginUrl = new URL('/login', request.url)

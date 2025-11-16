@@ -14,13 +14,13 @@ export default function StorybookViewer({ path, session }: StorybookViewerProps)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Use proxied Storybook URL
-    // In production, /storybook-iframe proxies to internal Storybook container
+    // Use API proxy route for Storybook
+    // In production, /api/storybook-proxy proxies to internal Storybook container
     // In development, use local Storybook server
     const isDev = process.env.NODE_ENV === 'development'
     const baseUrl = isDev
       ? (process.env.NEXT_PUBLIC_STORYBOOK_DEV_URL || 'http://localhost:6006')
-      : '/storybook-iframe'
+      : '/api/storybook-proxy'
 
     const pathSegment = path ? `/${path.join('/')}` : ''
     const url = `${baseUrl}${pathSegment}`
