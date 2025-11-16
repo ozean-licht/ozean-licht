@@ -10,7 +10,6 @@ WORKDIR /build
 
 # Copy package files first for better caching
 COPY package.json pnpm-lock.yaml* ./
-COPY storybook/package.json ./storybook/
 
 # Install pnpm
 RUN npm install -g pnpm
