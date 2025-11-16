@@ -3,8 +3,8 @@
 # Stage 2: Build Next.js application
 # Stage 3: Production runtime
 
-# Stage 1: Build Storybook
-FROM node:18-alpine AS storybook-builder
+# Stage 1: Build Storybook (use full image for crypto support)
+FROM node:18 AS storybook-builder
 
 WORKDIR /build
 
@@ -31,8 +31,8 @@ RUN pnpm install --no-frozen-lockfile
 # Build Storybook static files
 RUN pnpm build-storybook
 
-# Stage 2: Build Next.js wrapper
-FROM node:18-alpine AS nextjs-builder
+# Stage 2: Build Next.js wrapper (use full image for consistency)
+FROM node:18 AS nextjs-builder
 
 WORKDIR /app
 
