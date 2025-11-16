@@ -3,35 +3,17 @@
 # Stage 2: Build Next.js application
 # Stage 3: Production runtime
 
-# Stage 1: Build Storybook (use full image for crypto support)
-FROM node:18 AS storybook-builder
+# Stage 1: Copy pre-built Storybook files
+FROM node:18-alpine AS storybook-provider
 
 WORKDIR /build
 
-# Copy package files first for better caching
-COPY package.json pnpm-lock.yaml* ./
+# IMPORTANT: Storybook must be built BEFORE Docker build
+# Run: pnpm build-storybook
+# This copies the pre-built static files instead of building in Docker
+COPY storybook/build ./storybook-static
 
-# Install pnpm
-RUN npm install -g pnpm
-
-# Copy source files needed for Storybook build
-COPY storybook/config ./storybook/config
-COPY storybook/ai-mvp ./storybook/ai-mvp
-COPY storybook/mocks ./storybook/mocks
-COPY storybook/templates ./storybook/templates
-COPY storybook/postcss.config.js ./storybook/
-COPY storybook/tailwind.config.js ./storybook/
-COPY shared/ui ./shared/ui
-COPY apps/admin/app/globals.css ./apps/admin/app/globals.css
-COPY apps/admin/tailwind.config.js ./apps/admin/
-
-# Install dependencies (allow lockfile updates for Docker build)
-RUN pnpm install --no-frozen-lockfile
-
-# Build Storybook static files
-RUN pnpm build-storybook
-
-# Stage 2: Build Next.js wrapper (use full image for consistency)
+# Stage 2: Build Next.js wrapper
 FROM node:18 AS nextjs-builder
 
 WORKDIR /app
@@ -44,7 +26,7 @@ RUN npm ci --only=production
 COPY storybook/auth-wrapper .
 
 # Copy Storybook build from previous stage
-COPY --from=storybook-builder /build/storybook-static ./public/storybook-static
+COPY --from=storybook-provider /build/storybook-static ./public/storybook-static
 
 # Build Next.js application
 ENV NEXT_TELEMETRY_DISABLED 1
