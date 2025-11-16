@@ -7,89 +7,170 @@ import '../globals.css';
 if (typeof document !== 'undefined') {
   const style = document.createElement('style');
   style.textContent = `
-    /* Storybook Docs Dark Mode Styling */
+    /* ===== GLOBAL FIXES ===== */
+
+    /* Fix: Border radius everywhere (Ozean Licht Design System) */
+    * {
+      border-radius: 0.5rem !important;
+    }
+
+    /* Reset border-radius for elements that should be sharp */
+    .sbdocs-wrapper,
+    .sb-show-main,
+    html, body, #storybook-root {
+      border-radius: 0 !important;
+    }
+
+    /* ===== STORYBOOK UI FIXES ===== */
+
+    /* Storybook Docs Dark Mode */
     .sbdocs.sbdocs-wrapper {
       background-color: #0A0F1A !important;
       color: #FFFFFF !important;
     }
+
+    /* Fix: White backgrounds in Storybook UI classes */
+    .css-p1dfi6,
+    .css-4ii5m,
+    .css-14m39zm {
+      background-color: #00111A !important;
+      color: #FFFFFF !important;
+    }
+
+    /* Fix: Zoom controls styling */
+    .css-171onha,
+    button[title*="Zoom"],
+    button[title*="zoom"] {
+      color: #FFFFFF !important;
+      background-color: #0A7B77 !important;
+      border: 1px solid #0A7B77 !important;
+    }
+
+    .css-171onha:hover,
+    button[title*="Zoom"]:hover,
+    button[title*="zoom"]:hover {
+      background-color: #0ec2bc !important;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
 
     /* Headlines styling */
     .sbdocs h1, .sbdocs h2, .sbdocs h3, .sbdocs h4, .sbdocs h5, .sbdocs h6 {
       color: #FFFFFF !important;
     }
 
-    /* H1 with Cinzel Decorative - white color */
+    /* H1 with Cinzel Decorative */
     .sbdocs h1 {
       font-family: 'Cinzel Decorative', serif !important;
       font-weight: 400 !important;
       color: #FFFFFF !important;
     }
 
+    /* Description text */
+    .sbdocs p, .sbdocs li {
+      color: #E2E8F0 !important;
+    }
+
+    /* Links */
+    .sbdocs a {
+      color: #0ec2bc !important;
+    }
+
+    /* ===== CANVAS & PREVIEW CONTAINERS ===== */
+
     /* Canvas container - fit content, don't force height */
     .sbdocs-preview {
       min-height: auto !important;
       height: auto !important;
-      border-color: #0A7B77 !important; /* Deep cyan border */
+      border-color: #0A7B77 !important;
       border-width: 1px !important;
-      background-color: #00111A !important; /* Dark surface instead of white */
-    }
-
-    /* Fix white preview backgrounds in docs */
-    .sbdocs .sbdocs-preview.sb-unstyled,
-    .sbdocs .css-hd7ysc {
       background-color: #00111A !important;
     }
 
-    .sb-story {
-      min-height: auto !important;
-      height: auto !important;
-    }
-
-    /* Story wrapper should fit content */
-    .sb-show-main {
+    /* Fix: docs-story container with proper border */
+    .docs-story,
+    .css-kdwx3d {
       background-color: #0A0F1A !important;
+      border: 1px solid #0A7B77 !important;
       min-height: auto !important;
       height: auto !important;
+      padding: 1rem !important;
     }
 
-    /* Iframe and canvas containers */
-    .sbdocs-preview iframe,
-    .docs-story > div {
+    /* Fix: Remove double border bug from innerZoomElementWrapper */
+    .innerZoomElementWrapper {
+      border: none !important;
+      background-color: transparent !important;
+    }
+
+    /* Fix: Full-height container issues - use fit-content */
+    [id^="anchor--"] {
       min-height: fit-content !important;
       height: auto !important;
+      max-height: none !important;
     }
 
-    /* Remove white border, use deep cyan */
-    .sbdocs .docblock-source {
-      border-color: #0A7B77 !important;
-    }
-
-    /* Canvas zoom container - CRITICAL: Override white border */
+    /* Canvas zoom container - Override white border */
     .sb-zoom-wrapper,
     #storybook-preview-wrapper,
-    #storybook-docs .sb-zoom-wrapper,
-    .docs-story > div > div {
-      border: 1px solid #0A7B77 !important; /* Deep cyan instead of white */
+    #storybook-docs .sb-zoom-wrapper {
+      border: 1px solid #0A7B77 !important;
       background-color: #0A0F1A !important;
       height: auto !important;
       min-height: auto !important;
       box-shadow: 0 0 8px rgba(14, 194, 188, 0.15) !important;
     }
 
-    /* Target the specific canvas element that has white border */
+    /* Story wrapper - fit content */
+    .sb-story,
+    .sb-show-main {
+      background-color: #0A0F1A !important;
+      min-height: auto !important;
+      height: auto !important;
+    }
+
+    /* Iframe containers */
+    .sbdocs-preview iframe,
+    .docs-story > div,
     #storybook-docs iframe,
     .sbdocs-preview > div,
     .docs-story iframe {
       border-color: #0A7B77 !important;
       height: auto !important;
-      min-height: 100px !important;
+      min-height: fit-content !important;
       max-height: fit-content !important;
     }
+
+    /* Fix: White preview backgrounds */
+    .sbdocs .sbdocs-preview.sb-unstyled,
+    .sbdocs .css-hd7ysc {
+      background-color: #00111A !important;
+    }
+
+    /* ===== COMPONENT-SPECIFIC FIXES ===== */
+
+    /* Fix: Accordion primitives sizing */
+    [id*="accordion"] .sb-story,
+    [id*="accordion"] .docs-story {
+      max-width: 600px !important;
+      margin: 0 auto !important;
+    }
+
+    [data-radix-accordion-item] {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    /* ===== CODE & TABLES ===== */
 
     /* Code blocks */
     .sbdocs pre {
       background-color: #1A1F2E !important;
       border: 1px solid #0ec2bc33 !important;
+    }
+
+    .sbdocs .docblock-source {
+      border-color: #0A7B77 !important;
     }
 
     /* Tables */
@@ -101,22 +182,9 @@ if (typeof document !== 'undefined') {
       border-color: #0ec2bc33 !important;
     }
 
-    /* Links */
-    .sbdocs a {
-      color: #0ec2bc !important;
-    }
+    /* ===== SIDEBAR ===== */
 
-    /* Description text */
-    .sbdocs p, .sbdocs li {
-      color: #E2E8F0 !important;
-    }
-
-    /* Canvas background */
-    .docs-story {
-      background-color: #0A0F1A !important;
-    }
-
-    /* Sidebar active button - muted accent */
+    /* Sidebar active button */
     .sidebar-item[data-selected="true"],
     .sidebar-item.active,
     [aria-selected="true"] {
