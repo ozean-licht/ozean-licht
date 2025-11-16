@@ -1,11 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Trailing slash configuration
-  trailingSlash: false,
-
-  // Public runtime config for static files
-  publicRuntimeConfig: {
-    staticFolder: '/public',
+  // Serve Storybook static files in production
+  async rewrites() {
+    return [
+      {
+        source: '/storybook-static/:path*',
+        destination: '/public/storybook-static/:path*',
+      },
+    ]
   },
 
   // Security headers
