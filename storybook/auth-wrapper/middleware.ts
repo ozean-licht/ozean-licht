@@ -14,8 +14,12 @@ import type { NextRequest } from 'next/server'
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Allow public access to login and auth routes
-  if (pathname.startsWith('/login') || pathname.startsWith('/api/auth')) {
+  // Allow public access to login, auth routes, and static files
+  if (
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/storybook-static/')
+  ) {
     return NextResponse.next()
   }
 
