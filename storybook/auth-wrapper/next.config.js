@@ -1,14 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Serve Storybook static files in production
-  async rewrites() {
-    return [
-      {
-        source: '/storybook-static/:path*',
-        destination: '/public/storybook-static/:path*',
-      },
-    ]
-  },
 
   // Security headers
   async headers() {
