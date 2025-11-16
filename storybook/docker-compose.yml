@@ -16,13 +16,30 @@ services:
       - coolify
     # Health check inherited from Dockerfile (uses Node.js, no curl needed)
     labels:
-      # Traefik routing with BasicAuth (configured in Coolify UI)
+      # Traefik routing with BasicAuth middleware
       - "traefik.enable=true"
       - "traefik.docker.network=coolify"
+
+      # HTTP Router (redirect to HTTPS)
+      - "traefik.http.routers.storybook-http.rule=Host(`storybook.ozean-licht.dev`)"
+      - "traefik.http.routers.storybook-http.entrypoints=http"
+      - "traefik.http.routers.storybook-http.middlewares=https-redirect"
+
+      # HTTPS Router with BasicAuth
       - "traefik.http.routers.storybook.rule=Host(`storybook.ozean-licht.dev`)"
       - "traefik.http.routers.storybook.entrypoints=https"
       - "traefik.http.routers.storybook.tls=true"
       - "traefik.http.routers.storybook.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.storybook.middlewares=storybook-auth"
+
+      # BasicAuth Middleware (user: admin, pass: YourPasswordHere)
+      - "traefik.http.middlewares.storybook-auth.basicauth.users=admin:$$2y$$05$$p919lOSTnY4iY1Mi2.qrNOPllDZby09Q7aLJlpGcvAYRBcMt53j7C"
+
+      # HTTPS Redirect Middleware
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
+
+      # Service
       - "traefik.http.services.storybook.loadbalancer.server.port=6006"
 
       # Metadata
