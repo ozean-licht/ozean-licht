@@ -4,16 +4,17 @@
 # Exclude everything by default
 *
 
-# Include only what we need for the auth wrapper build
+# Unignore storybook directory and its required subdirectories
+!storybook/
 !storybook/build/
 !storybook/build/**
 !storybook/auth-wrapper/
 !storybook/auth-wrapper/**
 
 # Exclude unnecessary files from auth-wrapper
-storybook/auth-wrapper/node_modules
-storybook/auth-wrapper/.next
-storybook/auth-wrapper/out
+storybook/auth-wrapper/node_modules/
+storybook/auth-wrapper/.next/
+storybook/auth-wrapper/out/
 storybook/auth-wrapper/.env*
 storybook/auth-wrapper/*.md
 storybook/auth-wrapper/deploy-debug-log*.md
