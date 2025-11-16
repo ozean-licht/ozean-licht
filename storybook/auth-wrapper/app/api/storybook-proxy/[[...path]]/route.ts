@@ -8,7 +8,7 @@ import { auth } from '@/lib/auth/config'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: { path?: string[] } }
 ) {
   // Check authentication
   const session = await auth()
@@ -18,7 +18,7 @@ export async function GET(
 
   // Get Storybook URL
   const storybookUrl = process.env.STORYBOOK_INTERNAL_URL || 'http://10.0.1.22:6006'
-  const path = params.path ? `/${params.path.join('/')}` : ''
+  const path = params.path?.length ? `/${params.path.join('/')}` : ''
   const targetUrl = `${storybookUrl}${path}`
 
   try {
