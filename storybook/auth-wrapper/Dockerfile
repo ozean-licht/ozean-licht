@@ -20,7 +20,7 @@ WORKDIR /app
 
 # Copy package files
 COPY storybook/auth-wrapper/package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy source code
 COPY storybook/auth-wrapper .

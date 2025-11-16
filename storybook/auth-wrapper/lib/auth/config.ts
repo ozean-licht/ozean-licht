@@ -64,7 +64,7 @@ const authConfig: NextAuthConfig = {
         password: { label: 'Password', type: 'password' },
       },
 
-      async authorize(credentials): Promise<any> {
+      async authorize(credentials): Promise<{ id: string; email: string; adminUserId: string; adminRole: string } | null> {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
