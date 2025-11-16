@@ -20,10 +20,10 @@ services:
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - AUTH_SECRET=${AUTH_SECRET}
 
-      # Database
-      - DATABASE_URL=${DATABASE_URL}
-      - POSTGRES_HOST=${POSTGRES_HOST:-localhost}
-      - POSTGRES_PORT=${POSTGRES_PORT:-32771}
+      # Database (use container name or IP on coolify network)
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:${POSTGRES_PASSWORD}@10.0.1.7:5432/shared-users-db}
+      - POSTGRES_HOST=${POSTGRES_HOST:-10.0.1.7}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
       - POSTGRES_DATABASE=${POSTGRES_DATABASE:-shared-users-db}
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -36,6 +36,7 @@ services:
       - NODE_ENV=${NODE_ENV:-production}
     networks:
       - ozean-licht-network
+      - coolify
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get({hostname:'127.0.0.1',port:3002,path:'/api/auth/session',family:4},(r)=>{process.exit(r.statusCode===200?0:1)})"]
@@ -47,3 +48,5 @@ services:
 networks:
   ozean-licht-network:
     driver: bridge
+  coolify:
+    external: true
