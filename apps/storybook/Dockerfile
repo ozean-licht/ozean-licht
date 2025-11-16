@@ -4,12 +4,16 @@ WORKDIR /app
 
 # Copy workspace files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Copy all workspace package.json files for proper dependency resolution
 COPY apps/storybook/package.json ./apps/storybook/
+COPY shared/ui/package.json ./shared/ui/
+COPY apps/admin/package.json ./apps/admin/
 
 # Install pnpm
 RUN npm install -g pnpm@9.15.0
 
-# Install dependencies
+# Install all workspace dependencies
 RUN pnpm install --frozen-lockfile
 
 # Copy source files

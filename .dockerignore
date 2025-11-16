@@ -6,17 +6,22 @@
 /*
 !/package.json
 !/package-lock.json
+!/pnpm-workspace.yaml
+!/pnpm-lock.yaml
 !/storybook
 !/shared
 !/apps
 
-# Include only what's needed from apps (globals.css for Storybook)
+# Include only what's needed from apps
 /apps/*
+!/apps/storybook
 !/apps/admin
 /apps/admin/*
+!/apps/admin/package.json
 !/apps/admin/app
 /apps/admin/app/*
 !/apps/admin/app/globals.css
+!/apps/admin/components
 
 # Exclude unnecessary storybook subdirs
 /storybook/node_modules
