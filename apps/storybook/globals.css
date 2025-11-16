@@ -93,6 +93,12 @@
 
 /* Glass Morphism - Ozean Licht Design System */
 @layer components {
+  /* Fix: Accordion heading sizes - override global h3 */
+  [data-radix-accordion-header] h3,
+  [data-radix-accordion-trigger] {
+    @apply text-base font-normal !important;
+  }
+
   /* Standard glass card */
   .glass-card {
     @apply bg-card/70 backdrop-blur-xl border border-primary/25;
