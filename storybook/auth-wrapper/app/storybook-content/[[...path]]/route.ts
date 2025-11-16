@@ -1,6 +1,8 @@
 /**
- * Proxy API Route for Storybook
+ * Storybook Content Proxy Route
  * Forwards requests to internal Storybook container
+ *
+ * Uses /storybook-content/ path to avoid conflicts with Next.js /api/ routes
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -37,15 +39,15 @@ export async function GET(
       let html = await response.text()
 
       // Replace relative paths (./) with absolute proxy paths
-      html = html.replace(/\.\//g, '/api/storybook-proxy/')
+      html = html.replace(/\.\//g, '/storybook-content/')
 
       // Replace specific Storybook paths that might not have ./ prefix
-      html = html.replace(/["']iframe\.html([^"']*?)["']/g, '"/api/storybook-proxy/iframe.html$1"')
-      html = html.replace(/["']index\.json["']/g, '"/api/storybook-proxy/index.json"')
+      html = html.replace(/["']iframe\.html([^"']*?)["']/g, '"/storybook-content/iframe.html$1"')
+      html = html.replace(/["']index\.json["']/g, '"/storybook-content/index.json"')
 
       // Replace sb-manager and sb-addons paths
-      html = html.replace(/["'](sb-manager\/[^"']+)["']/g, '"/api/storybook-proxy/$1"')
-      html = html.replace(/["'](sb-addons\/[^"']+)["']/g, '"/api/storybook-proxy/$1"')
+      html = html.replace(/["'](sb-manager\/[^"']+)["']/g, '"/storybook-content/$1"')
+      html = html.replace(/["'](sb-addons\/[^"']+)["']/g, '"/storybook-content/$1"')
 
       return new NextResponse(html, {
         status: response.status,

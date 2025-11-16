@@ -14,13 +14,14 @@ export default function StorybookViewer({ path, session }: StorybookViewerProps)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Use API proxy route for Storybook
-    // In production, /api/storybook-proxy proxies to internal Storybook container
+    // Use /storybook-content/ proxy route for Storybook
+    // This avoids conflicts with Next.js /api/ routes
+    // In production, /storybook-content/ proxies to internal Storybook container
     // In development, use local Storybook server
     const isDev = process.env.NODE_ENV === 'development'
     const baseUrl = isDev
       ? (process.env.NEXT_PUBLIC_STORYBOOK_DEV_URL || 'http://localhost:6006')
-      : '/api/storybook-proxy'
+      : '/storybook-content'
 
     const pathSegment = path ? `/${path.join('/')}` : ''
     const url = `${baseUrl}${pathSegment}`

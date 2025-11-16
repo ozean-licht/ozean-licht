@@ -15,10 +15,10 @@ export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow public access to login and auth routes
-  // API routes handle their own authentication
+  // Note: /storybook-content/ is protected below
   if (
     pathname.startsWith('/login') ||
-    pathname.startsWith('/api/')
+    pathname.startsWith('/api/auth')
   ) {
     return NextResponse.next()
   }
@@ -26,11 +26,11 @@ export default async function middleware(request: NextRequest) {
   // Check authentication for protected routes
   const session = await getMiddlewareSession(request)
 
-  // Protect /storybook routes - require authentication
-  if (!session && pathname.startsWith('/storybook')) {
+  // Protect /storybook and /storybook-content routes - require authentication
+  if (!session && (pathname.startsWith('/storybook') || pathname.startsWith('/storybook-content'))) {
     // Redirect to login with callback URL
     const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('callbackUrl', pathname)
+    loginUrl.searchParams.set('callbackUrl', pathname.startsWith('/storybook-content') ? '/storybook' : pathname)
     return NextResponse.redirect(loginUrl)
   }
 
