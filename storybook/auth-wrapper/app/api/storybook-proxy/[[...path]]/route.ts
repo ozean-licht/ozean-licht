@@ -39,6 +39,15 @@ export async function GET(
       // Replace relative paths (./) with absolute proxy paths
       html = html.replace(/\.\//g, '/api/storybook-proxy/')
 
+      // Inject <base> tag to make all relative URLs resolve from /api/storybook-proxy/
+      // This ensures JavaScript fetch() calls also work correctly
+      if (html.includes('<head>')) {
+        html = html.replace(
+          '<head>',
+          '<head><base href="/api/storybook-proxy/">'
+        )
+      }
+
       return new NextResponse(html, {
         status: response.status,
         headers: {
