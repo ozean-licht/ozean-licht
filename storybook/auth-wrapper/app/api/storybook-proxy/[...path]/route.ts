@@ -4,14 +4,14 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from '@/lib/auth/session'
+import { auth } from '@/lib/auth/config'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { path: string[] } }
 ) {
   // Check authentication
-  const session = await getServerSession()
+  const session = await auth()
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
