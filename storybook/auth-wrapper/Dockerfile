@@ -3,22 +3,14 @@
 # Stage 2: Build Next.js application
 # Stage 3: Production runtime
 
-# Stage 1: Build Storybook
-FROM node:18 AS storybook-builder
+# Stage 1: Copy pre-built Storybook (built locally with `npm run build-storybook`)
+FROM node:18-alpine AS storybook-provider
 
-WORKDIR /workspace
+WORKDIR /build
 
-# Copy monorepo files needed for Storybook build
-COPY package.json package-lock.json ./
-COPY storybook ./storybook
-COPY shared ./shared
-COPY apps/admin/app/globals.css ./apps/admin/app/globals.css
-
-# Install dependencies
-RUN npm ci
-
-# Build Storybook
-RUN npm run build-storybook
+# Copy pre-built Storybook static files
+# IMPORTANT: Run `npm run build-storybook` locally before Docker build
+COPY storybook/build ./storybook-static
 
 # Stage 2: Build Next.js wrapper
 FROM node:18 AS nextjs-builder
@@ -33,7 +25,7 @@ RUN npm ci
 COPY storybook/auth-wrapper .
 
 # Copy Storybook build from previous stage
-COPY --from=storybook-builder /workspace/storybook/build ./public/storybook-static
+COPY --from=storybook-provider /build/storybook-static ./public/storybook-static
 
 # Build Next.js application
 ENV NEXT_TELEMETRY_DISABLED 1

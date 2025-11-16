@@ -277,7 +277,7 @@ adws/agents/*
 tokens/build/
 
 # Storybook
-storybook/build/
+# storybook/build/ - Now committed for Docker deployment
 .storybook-cache/
 storybook/config/.cache/
 

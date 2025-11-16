@@ -20,7 +20,7 @@
 
 # Exclude unnecessary storybook subdirs
 /storybook/node_modules
-/storybook/build
+# /storybook/build - KEEP THIS, needed for deployment
 /storybook/docs
 /storybook/reports
 /storybook/templates
