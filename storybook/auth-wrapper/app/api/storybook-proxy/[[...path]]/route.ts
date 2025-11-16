@@ -39,14 +39,13 @@ export async function GET(
       // Replace relative paths (./) with absolute proxy paths
       html = html.replace(/\.\//g, '/api/storybook-proxy/')
 
-      // Inject <base> tag to make all relative URLs resolve from /api/storybook-proxy/
-      // This ensures JavaScript fetch() calls also work correctly
-      if (html.includes('<head>')) {
-        html = html.replace(
-          '<head>',
-          '<head><base href="/api/storybook-proxy/">'
-        )
-      }
+      // Replace specific Storybook paths that might not have ./ prefix
+      html = html.replace(/["']iframe\.html([^"']*?)["']/g, '"/api/storybook-proxy/iframe.html$1"')
+      html = html.replace(/["']index\.json["']/g, '"/api/storybook-proxy/index.json"')
+
+      // Replace sb-manager and sb-addons paths
+      html = html.replace(/["'](sb-manager\/[^"']+)["']/g, '"/api/storybook-proxy/$1"')
+      html = html.replace(/["'](sb-addons\/[^"']+)["']/g, '"/api/storybook-proxy/$1"')
 
       return new NextResponse(html, {
         status: response.status,
