@@ -1,7 +1,7 @@
 import type { Preview } from '@storybook/react';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import '../../apps/admin/app/globals.css';
+import '../globals.css';
 
 // Inject custom CSS for Storybook docs dark mode
 if (typeof document !== 'undefined') {

@@ -4,7 +4,7 @@ services:
   storybook:
     build:
       context: ../../
-      dockerfile: ./apps/storybook/Dockerfile
+      dockerfile: apps/storybook/Dockerfile
     container_name: ozean-licht-storybook
     restart: unless-stopped
     environment:

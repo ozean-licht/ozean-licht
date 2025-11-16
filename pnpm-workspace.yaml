@@ -1,0 +1,9 @@
+packages:
+  # Applications
+  - 'apps/*'
+
+  # Shared libraries
+  - 'shared/*'
+
+  # Development tools
+  - 'tools/*'
