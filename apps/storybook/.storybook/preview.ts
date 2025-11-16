@@ -32,7 +32,8 @@ if (typeof document !== 'undefined') {
     /* Fix: White backgrounds in Storybook UI classes */
     .css-p1dfi6,
     .css-4ii5m,
-    .css-14m39zm {
+    .css-14m39zm,
+    .css-4lbn0a {
       background-color: #00111A !important;
       color: #FFFFFF !important;
     }
@@ -42,14 +43,15 @@ if (typeof document !== 'undefined') {
     button[title*="Zoom"],
     button[title*="zoom"] {
       color: #FFFFFF !important;
-      background-color: #0A7B77 !important;
-      border: 1px solid #0A7B77 !important;
+      background-color: transparent !important;
+      border: none !important;
     }
 
     .css-171onha:hover,
     button[title*="Zoom"]:hover,
     button[title*="zoom"]:hover {
-      background-color: #0ec2bc !important;
+      color: #0ec2bc !important;
+      background-color: transparent !important;
     }
 
     /* ===== TYPOGRAPHY ===== */
@@ -87,14 +89,19 @@ if (typeof document !== 'undefined') {
       background-color: #00111A !important;
     }
 
-    /* Fix: docs-story container with proper border */
-    .docs-story,
-    .css-kdwx3d {
-      background-color: #0A0F1A !important;
-      border: 1px solid #0A7B77 !important;
+    /* Fix: docs-story container - NO BORDER (outer container already has it) */
+    .docs-story {
+      background-color: transparent !important;
+      border: none !important;
       min-height: auto !important;
       height: auto !important;
-      padding: 1rem !important;
+      padding: 0 !important;
+    }
+
+    /* Fix: css-kdwx3d - transparent background */
+    .css-kdwx3d {
+      background-color: transparent !important;
+      border: none !important;
     }
 
     /* Fix: Remove double border bug from innerZoomElementWrapper */
@@ -149,14 +156,22 @@ if (typeof document !== 'undefined') {
 
     /* ===== COMPONENT-SPECIFIC FIXES ===== */
 
-    /* Fix: Accordion primitives sizing */
-    [id*="accordion"] .sb-story,
-    [id*="accordion"] .docs-story {
+    /* Fix: Accordion primitives sizing - constrain the actual component */
+    [id*="accordion"] [data-radix-accordion-root],
+    [id*="accordion"] > div > div > div {
       max-width: 600px !important;
+      width: 100% !important;
       margin: 0 auto !important;
     }
 
+    /* Accordion items should respect parent width */
     [data-radix-accordion-item] {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    /* Accordion trigger buttons */
+    [data-radix-accordion-item] button {
       width: 100% !important;
       max-width: 100% !important;
     }
