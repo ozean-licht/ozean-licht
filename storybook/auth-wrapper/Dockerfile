@@ -8,19 +8,29 @@ FROM node:18-alpine AS storybook-builder
 
 WORKDIR /build
 
-# Copy storybook configuration and source files
-COPY storybook/config ./storybook/config
-COPY storybook/build ./storybook/build
-COPY shared/ui ./shared/ui
+# Copy package files first for better caching
 COPY package.json pnpm-lock.yaml* ./
+COPY storybook/package.json ./storybook/
 
-# Install pnpm and dependencies
+# Install pnpm
 RUN npm install -g pnpm
+
+# Copy source files needed for Storybook build
+COPY storybook/config ./storybook/config
+COPY storybook/ai-mvp ./storybook/ai-mvp
+COPY storybook/mocks ./storybook/mocks
+COPY storybook/templates ./storybook/templates
+COPY storybook/postcss.config.js ./storybook/
+COPY storybook/tailwind.config.js ./storybook/
+COPY shared/ui ./shared/ui
+COPY apps/admin/app/globals.css ./apps/admin/app/globals.css
+COPY apps/admin/tailwind.config.js ./apps/admin/
+
+# Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Build Storybook (if not already built)
-# RUN pnpm build-storybook
-# For now, we'll just copy the pre-built files
+# Build Storybook static files
+RUN pnpm build-storybook
 
 # Stage 2: Build Next.js wrapper
 FROM node:18-alpine AS nextjs-builder
@@ -29,16 +39,17 @@ WORKDIR /app
 
 # Copy package files
 COPY storybook/auth-wrapper/package*.json ./
-RUN npm install
+RUN npm ci --only=production
 
 # Copy source code
 COPY storybook/auth-wrapper .
 
 # Copy Storybook build from previous stage
-COPY --from=storybook-builder /build/storybook/build ./public/storybook-static
+COPY --from=storybook-builder /build/storybook-static ./public/storybook-static
 
 # Build Next.js application
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV production
 RUN npm run build
 
 # Stage 3: Production runtime
