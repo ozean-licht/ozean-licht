@@ -206,11 +206,24 @@ export class Context7Handler implements MCPHandler {
       id: Date.now(),
     });
 
-    const libraryInfo: Context7LibraryInfo = response.data.content?.[0]?.text
-      ? JSON.parse(response.data.content[0].text)
-      : response.data;
+    // Parse response - Context7 may return in different formats
+    let libraryInfo: Context7LibraryInfo;
 
-    if (!libraryInfo.supported) {
+    if (response.data.result?.content?.[0]?.text) {
+      // MCP format with JSON-RPC result
+      libraryInfo = JSON.parse(response.data.result.content[0].text);
+    } else if (response.data.content?.[0]?.text) {
+      // Alternative MCP format
+      libraryInfo = JSON.parse(response.data.content[0].text);
+    } else if (response.data.result) {
+      // Direct result object
+      libraryInfo = response.data.result;
+    } else {
+      // Fallback to data itself
+      libraryInfo = response.data;
+    }
+
+    if (!libraryInfo || !libraryInfo.supported) {
       return {
         operation: 'resolve_library_id',
         libraryName,
@@ -264,22 +277,33 @@ export class Context7Handler implements MCPHandler {
       id: Date.now(),
     });
 
-    const docsData: Context7Documentation = response.data.content?.[0]?.text
-      ? JSON.parse(response.data.content[0].text)
-      : response.data;
+    // Parse response - Context7 returns result with content array
+    let docsContent: string;
+
+    if (response.data.result?.content?.[0]?.text) {
+      // MCP format response
+      docsContent = response.data.result.content[0].text;
+    } else if (response.data.content?.[0]?.text) {
+      // Alternative format
+      docsContent = response.data.content[0].text;
+    } else if (typeof response.data === 'string') {
+      // Direct string response
+      docsContent = response.data;
+    } else {
+      logger.error('Unexpected Context7 response format', { data: response.data });
+      throw new ValidationError('Unexpected response format from Context7 API');
+    }
 
     return {
       operation: 'get_library_docs',
       libraryId,
       topic: topic || 'all',
       tokenLimit: args.tokens,
-      documentation: docsData.content,
+      documentation: docsContent,
       metadata: {
-        version: docsData.version,
         retrievedAt: new Date().toISOString(),
-        contentLength: docsData.content.length,
-        estimatedTokens: Math.ceil(docsData.content.length / 4),
-        ...docsData.metadata,
+        contentLength: docsContent.length,
+        estimatedTokens: Math.ceil(docsContent.length / 4),
       },
       message: topic
         ? `Retrieved documentation for ${libraryId} on topic: ${topic}`
