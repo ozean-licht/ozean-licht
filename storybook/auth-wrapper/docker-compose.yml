@@ -40,4 +40,4 @@ services:
 
 networks:
   ozean-licht-network:
-    external: true
+    driver: bridge
