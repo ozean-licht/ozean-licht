@@ -26,8 +26,8 @@ services:
       - STORYBOOK_DEV_URL=${STORYBOOK_DEV_URL:-http://localhost:6006}
       - NEXT_PUBLIC_STORYBOOK_DEV_URL=${NEXT_PUBLIC_STORYBOOK_DEV_URL:-http://localhost:6006}
 
-      # Environment
-      - NODE_ENV=${NODE_ENV:-production}
+      # Environment (development works fine for Coolify)
+      - NODE_ENV=${NODE_ENV:-development}
     networks:
       - ozean-licht-network
     restart: unless-stopped
