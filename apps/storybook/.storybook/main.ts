@@ -12,9 +12,13 @@ function getAbsolutePath(value: string): any {
 
 const config: StorybookConfig = {
   stories: [
+    // Admin components
     '../../admin/components/**/*.stories.@(js|jsx|mjs|ts|tsx)',
-    '../../ozean-licht/components/**/*.stories.@(js|jsx|mjs|ts|tsx)',
-    '../../../shared/ui/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+    // Shared UI - shadcn components (primary source)
+    '../../../shared/ui/src/ui/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+    '../../../shared/ui/src/components/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+    // Exclude broken Catalyst components for now
+    // '../../../shared/ui/src/catalyst/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
   addons: [
     getAbsolutePath('@storybook/addon-essentials'),

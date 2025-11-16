@@ -5,12 +5,13 @@ module.exports = {
   darkMode: ['class'],
   content: [
     // Storybook files
-    path.join(__dirname, './config/**/*.{js,ts,jsx,tsx}'),
-    // Apps components (from root)
-    path.join(__dirname, '../apps/admin/**/*.{js,ts,jsx,tsx}'),
-    path.join(__dirname, '../apps/ozean-licht/**/*.{js,ts,jsx,tsx}'),
-    // Shared UI components (primary source)
-    path.join(__dirname, '../shared/ui/src/**/*.{js,ts,jsx,tsx}'),
+    path.join(__dirname, './**/*.{js,ts,jsx,tsx,mdx}'),
+    path.join(__dirname, './.storybook/**/*.{js,ts,jsx,tsx}'),
+    // Admin components (relative to storybook)
+    path.join(__dirname, '../admin/components/**/*.{js,ts,jsx,tsx}'),
+    path.join(__dirname, '../admin/app/**/*.{js,ts,jsx,tsx}'),
+    // Shared UI components (relative to storybook)
+    path.join(__dirname, '../../shared/ui/src/**/*.{js,ts,jsx,tsx}'),
   ],
   theme: {
     extend: {
