@@ -38,7 +38,7 @@ services:
       - ozean-licht-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--spider", "--quiet", "http://127.0.0.1:3002/api/auth/session"]
+      test: ["CMD", "node", "-e", "require('http').get({hostname:'127.0.0.1',port:3002,path:'/api/auth/session',family:4},(r)=>{process.exit(r.statusCode===200?0:1)})"]
       interval: 30s
       timeout: 10s
       retries: 3
