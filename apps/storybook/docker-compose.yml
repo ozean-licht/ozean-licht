@@ -3,8 +3,8 @@ version: '3.8'
 services:
   storybook:
     build:
-      context: ../..
-      dockerfile: apps/storybook/Dockerfile
+      context: ../../
+      dockerfile: ./apps/storybook/Dockerfile
     container_name: ozean-licht-storybook
     restart: unless-stopped
     environment:
