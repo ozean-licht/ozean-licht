@@ -12,7 +12,7 @@ WORKDIR /workspace
 RUN npm install -g pnpm@8.15.0
 
 # Copy monorepo files needed for Storybook build
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml ./
 COPY storybook ./storybook
 COPY shared ./shared
 
