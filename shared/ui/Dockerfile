@@ -10,23 +10,23 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Copy package.json files for all necessary packages
-COPY packages/shared-ui/package.json ./packages/shared-ui/
+COPY shared/ui/package.json ./shared/ui/
 
 # Install all dependencies
 RUN pnpm install --frozen-lockfile
 
 # Copy all necessary source files
-COPY packages/shared-ui ./packages/shared-ui
+COPY shared/ui ./shared/ui
 
 # Build Storybook
-WORKDIR /app/packages/shared-ui
+WORKDIR /app/shared/ui
 RUN pnpm build-storybook
 
 # Production stage
 FROM nginx:alpine
 
 # Copy built storybook to nginx
-COPY --from=builder /app/packages/shared-ui/storybook-static /usr/share/nginx/html
+COPY --from=builder /app/shared/ui/storybook-static /usr/share/nginx/html
 
 # Custom nginx config
 RUN echo 'server { \
