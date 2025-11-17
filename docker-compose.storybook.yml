@@ -10,10 +10,11 @@ services:
     environment:
       - NODE_ENV=production
     restart: unless-stopped
+    labels:
+      - "traefik.http.services.storybook.loadbalancer.server.port=80"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80", "||", "exit", "1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    # Let Coolify handle all labels and routing
