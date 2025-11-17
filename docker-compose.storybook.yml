@@ -5,7 +5,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.storybook
-    # No ports exposed - Traefik handles routing internally
+    container_name: storybook
+    ports:
+      - "3006:80"  # External port 3006, internal nginx on 80
     environment:
       - NODE_ENV=production
     restart: unless-stopped
@@ -21,12 +23,22 @@ services:
       - "coolify.type=application"
       - "coolify.applicationId=${COOLIFY_APPLICATION_ID:-storybook}"
       - "coolify.domain=storybook.ozean-licht.dev"
-      # Traefik labels for routing (if using Traefik)
+
+      # Traefik labels for routing
       - "traefik.enable=true"
+      - "traefik.docker.network=coolify"
       - "traefik.http.routers.storybook.rule=Host(`storybook.ozean-licht.dev`)"
-      - "traefik.http.services.storybook.loadbalancer.server.port=80"
+      - "traefik.http.routers.storybook.entrypoints=https"
       - "traefik.http.routers.storybook.tls=true"
       - "traefik.http.routers.storybook.tls.certresolver=letsencrypt"
+      - "traefik.http.services.storybook.loadbalancer.server.port=80"
+
+      # Redirect HTTP to HTTPS
+      - "traefik.http.routers.storybook-http.rule=Host(`storybook.ozean-licht.dev`)"
+      - "traefik.http.routers.storybook-http.entrypoints=http"
+      - "traefik.http.routers.storybook-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
     networks:
       - coolify
 
