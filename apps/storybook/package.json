@@ -1,0 +1,38 @@
+{
+  "name": "storybook",
+  "version": "1.0.0",
+  "description": "Ozean Licht Design System - Component Documentation",
+  "private": true,
+  "scripts": {
+    "dev": "storybook dev -p 6006",
+    "build": "storybook build -o dist",
+    "preview": "pnpm build && npx serve dist"
+  },
+  "keywords": [
+    "storybook",
+    "design-system",
+    "ozean-licht",
+    "component-documentation"
+  ],
+  "author": "Ozean Licht Platform Team",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@shared/ui": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@storybook/addon-a11y": "8.6.14",
+    "@storybook/addon-essentials": "8.6.14",
+    "@storybook/addon-interactions": "8.6.14",
+    "@storybook/react": "8.6.14",
+    "@storybook/react-vite": "8.6.14",
+    "@storybook/test": "8.6.14",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^5.1.1",
+    "storybook": "8.6.14",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.21"
+  }
+}
