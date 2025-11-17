@@ -1,0 +1,10 @@
+{
+  "$schema": "https://github.com/anthropics/anthropic-quickstarts/raw/main/mcp/.mcp-schema.json",
+  "mcpServers": {
+    "context7": {
+      "transport": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "description": "Context7 MCP - Up-to-date, version-specific library documentation"
+    }
+  }
+}
