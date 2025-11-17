@@ -509,64 +509,17 @@
     console.warn('unable to connect to top frame for connecting dev tools');
   }
 </script>
-<!-- React DevTools Hook -->
+<!-- Basic Storybook preview head -->
 <script>
   // Pre-register React devtools hook to prevent race conditions
   window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = window.__REACT_DEVTOOLS_GLOBAL_HOOK__ || {};
 </script>
 
-<!-- Storybook Docs Canvas Styling - Deep Cyan Theme -->
-<style>
-  /* CRITICAL: Override Storybook's default white border with deep cyan */
-  [class*="zoom"] {
-    border-color: #0A7B77 !important;
-  }
-
-  /* Target all possible border elements in docs */
-  .sbdocs-preview,
-  .docs-story,
-  [class*="PreviewContainer"],
-  [class*="ZoomElement"] {
-    border-color: #0A7B77 !important; /* Deep cyan */
-    border-width: 1px !important;
-  }
-
-  /* Fit canvas height to content instead of fixed 1000px */
-  .docs-story > div,
-  .sb-show-main,
-  [class*="StoryContainer"] {
-    min-height: auto !important;
-    height: auto !important;
-    max-height: none !important;
-  }
-
-  /* Ensure the inner iframe/content also fits */
-  .docs-story iframe,
-  #storybook-preview-iframe {
-    height: auto !important;
-    min-height: 100px !important;
-    max-height: fit-content !important;
-  }
-
-  /* Override fixed height in story blocks */
-  .sbdocs .sb-show-main.sb-main-padded,
-  .sbdocs .sb-show-main {
-    padding: 1rem !important;
-    min-height: auto !important;
-    height: auto !important;
-  }
-
-  /* Additional deep cyan accents */
-  .sbdocs-preview {
-    box-shadow: 0 0 8px rgba(14, 194, 188, 0.12) !important;
-  }
-</style>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-    <script type="module" crossorigin src="./assets/iframe-ZJdotI6d.js"></script>
+    <script type="module" crossorigin src="./assets/iframe-CUJ4km_r.js"></script>
   </head>
 
   <body>

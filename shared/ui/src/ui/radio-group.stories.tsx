@@ -3,7 +3,7 @@ import { expect, userEvent, within } from '@storybook/test';
 import { useState } from 'react';
 import { RadioGroup, RadioGroupItem } from './radio-group';
 import { Label } from './label';
-import { Button } from '../components/Button';
+import { Button } from './button';
 
 /**
  * RadioGroup primitive component built on Radix UI RadioGroup.

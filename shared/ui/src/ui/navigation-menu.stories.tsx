@@ -10,7 +10,7 @@ import {
   NavigationMenuIndicator,
   navigationMenuTriggerStyle,
 } from './navigation-menu';
-import { Button } from '../components/Button';
+import { Button } from './button';
 import {
   FileText,
   Code,

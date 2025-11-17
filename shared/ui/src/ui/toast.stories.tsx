@@ -11,7 +11,7 @@ import {
 } from './toast';
 import { Toaster } from './toaster';
 import { useToast } from '../hooks/use-toast';
-import { Button } from '../components/Button';
+import { Button } from './button';
 
 /**
  * Toast notification component built on Radix UI Toast primitive.

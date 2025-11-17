@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './dropdown-menu';
-import { Button } from '../components/Button';
+import { Button } from './button';
 import { Home, ChevronRight, Slash, Folder, FileText, Settings, Users } from 'lucide-react';
 
 /**

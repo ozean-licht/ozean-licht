@@ -13,7 +13,7 @@ import {
   DrawerOverlay,
   DrawerPortal,
 } from './drawer';
-import { Button } from '../components/Button';
+import { Button } from './button';
 import { Label } from './label';
 import { Input } from './input';
 

@@ -13,7 +13,7 @@ import {
   SheetPortal,
   SheetOverlay,
 } from './sheet';
-import { Button } from '../components/Button';
+import { Button } from './button';
 import { Label } from './label';
 import { Input } from './input';
 

@@ -12,7 +12,7 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from './command';
-import { Button } from '../components/Button';
+import { Button } from './button';
 import {
   Calculator,
   Calendar,

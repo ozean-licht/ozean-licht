@@ -6,7 +6,7 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from './collapsible';
-import { Button } from '../components/Button';
+import { Button } from './button';
 import {
   ChevronDown,
   ChevronRight,

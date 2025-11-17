@@ -4,129 +4,71 @@ const path = require('path');
 module.exports = {
   darkMode: ['class'],
   content: [
-    // Storybook files
-    path.join(__dirname, './**/*.{js,ts,jsx,tsx,mdx}'),
+    path.join(__dirname, './src/**/*.{js,ts,jsx,tsx}'),
     path.join(__dirname, './.storybook/**/*.{js,ts,jsx,tsx}'),
-    // Admin components (relative to storybook)
-    path.join(__dirname, '../admin/components/**/*.{js,ts,jsx,tsx}'),
-    path.join(__dirname, '../admin/app/**/*.{js,ts,jsx,tsx}'),
-    // Shared UI components (relative to storybook)
-    path.join(__dirname, '../../shared/ui/src/**/*.{js,ts,jsx,tsx}'),
   ],
   theme: {
+    container: {
+      center: true,
+      padding: '2rem',
+      screens: {
+        '2xl': '1400px',
+      },
+    },
     extend: {
       colors: {
-        // Ozean Licht Primary (Oceanic Cyan)
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#0EA6C1',
-          50: '#E6F7FA',
-          100: '#CCF0F5',
-          200: '#99E1EB',
-          300: '#66D1E1',
-          400: '#33C2D7',
-          500: '#0EA6C1',
-          600: '#0B859A',
-          700: '#086473',
-          800: '#055D75',
-          900: '#033B4D',
-          foreground: '#FFFFFF',
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
         },
-        // Deep ocean background
-        background: '#00070F',
-        foreground: '#FFFFFF',
-        // Secondary background (badges, spans)
-        secondaryBackground: '#000F1F',
-        // Secondary colors
         secondary: {
-          DEFAULT: '#055D75',
-          foreground: '#FFFFFF',
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
         },
-        // Accent colors (for hover states)
-        accent: {
-          DEFAULT: 'rgba(14, 166, 193, 0.1)',
-          foreground: '#0EA6C1',
-        },
-        // Muted colors
-        muted: {
-          DEFAULT: '#0E282E',
-          foreground: '#C4C8D4',
-        },
-        // Card colors
-        card: {
-          DEFAULT: '#00111A',
-          foreground: '#FFFFFF',
-        },
-        // Popover
-        popover: {
-          DEFAULT: '#00111A',
-          foreground: '#FFFFFF',
-        },
-        // Border
-        border: '#0E282E',
-        input: '#0E282E',
-        ring: '#0EA6C1',
-        // Semantic colors
         destructive: {
-          DEFAULT: '#EF4444',
-          foreground: '#FFFFFF',
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
         },
-        success: {
-          DEFAULT: '#10B981',
-          foreground: '#FFFFFF',
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
         },
-        warning: {
-          DEFAULT: '#F59E0B',
-          foreground: '#000000',
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
         },
-        info: {
-          DEFAULT: '#3B82F6',
-          foreground: '#FFFFFF',
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
         },
       },
-      fontFamily: {
-        sans: ['Montserrat', 'system-ui', '-apple-system', 'sans-serif'],
-        decorative: ['Cinzel Decorative', 'Georgia', 'serif'],
-        alt: ['Montserrat Alternates', 'Montserrat', 'sans-serif'],
-        mono: ['Fira Code', 'Courier New', 'monospace'],
-      },
-      backgroundImage: {
-        'cosmic-gradient': 'linear-gradient(135deg, #00070F 0%, #00111A 50%, #00070F 100%)',
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-      },
-      animation: {
-        glow: 'glow 2s ease-in-out infinite alternate',
-        float: 'float 6s ease-in-out infinite',
-        shine: 'shine 2s linear infinite',
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out',
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
       },
       keyframes: {
-        glow: {
-          '0%': { boxShadow: '0 0 20px rgba(14, 166, 193, 0.3)' },
-          '100%': { boxShadow: '0 0 30px rgba(14, 166, 193, 0.6)' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-10px)' },
-        },
-        shine: {
-          '0%': { transform: 'translateX(-100%) skewX(-12deg)' },
-          '100%': { transform: 'translateX(200%) skewX(-12deg)' },
-        },
         'accordion-down': {
-          from: { height: '0' },
+          from: { height: 0 },
           to: { height: 'var(--radix-accordion-content-height)' },
         },
         'accordion-up': {
           from: { height: 'var(--radix-accordion-content-height)' },
-          to: { height: '0' },
+          to: { height: 0 },
         },
       },
-      borderRadius: {
-        lg: '0.5rem',
-        md: '0.375rem',
-        sm: '0.25rem',
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
       },
     },
   },

@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/Card';
-import { Button } from '../components/Button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './card';
+import { Button } from './button';
 
 /**
  * Tabs component for organizing content into multiple panels.

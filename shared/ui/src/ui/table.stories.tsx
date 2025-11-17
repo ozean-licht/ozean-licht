@@ -9,8 +9,8 @@ import {
   TableCell,
   TableCaption,
 } from './table';
-import { Badge } from '../components/Badge';
-import { Button } from '../components/Button';
+import { Badge } from './badge';
+import { Button } from './button';
 import { Checkbox } from './checkbox';
 import { ArrowUpDown, ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react';
 

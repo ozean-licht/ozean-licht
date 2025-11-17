@@ -6,7 +6,7 @@ import {
   HoverCardTrigger,
   HoverCardContent,
 } from './hover-card';
-import { Button } from '../components/Button';
+import { Button } from './button';
 import { Avatar, AvatarImage, AvatarFallback } from './avatar';
 
 /**

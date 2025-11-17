@@ -14,7 +14,7 @@ import {
   AlertDialogPortal,
   AlertDialogOverlay,
 } from './alert-dialog';
-import { Button } from '../components/Button';
+import { Button } from './button';
 
 /**
  * AlertDialog primitive component built on Radix UI AlertDialog.

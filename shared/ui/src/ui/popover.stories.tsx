@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from '@storybook/test';
 import { useState } from 'react';
 import { Popover, PopoverTrigger, PopoverContent } from './popover';
-import { Button } from '../components/Button';
+import { Button } from './button';
 import { Label } from './label';
 import { Input } from './input';
 import { Calendar, Settings, HelpCircle, User, Mail, Phone } from 'lucide-react';

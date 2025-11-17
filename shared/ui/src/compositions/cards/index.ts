@@ -1,6 +1,0 @@
-export { CourseCard } from './CourseCard'
-export { TestimonialCard } from './TestimonialCard'
-export { PricingCard } from './PricingCard'
-export { BlogCard } from './BlogCard'
-export { FeatureCard } from './FeatureCard'
-export { StatsCard } from './StatsCard'

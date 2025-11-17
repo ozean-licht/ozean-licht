@@ -16,7 +16,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
 } from './dropdown-menu';
-import { Button } from '../components/Button';
+import { Button } from './button';
 import {
   User,
   Settings,

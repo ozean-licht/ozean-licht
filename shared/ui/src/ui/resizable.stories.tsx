@@ -5,7 +5,7 @@ import {
   ResizablePanel,
   ResizableHandle,
 } from './resizable';
-import { Button } from '../components/Button';
+import { Button } from './button';
 
 /**
  * Resizable panel component built on react-resizable-panels.
