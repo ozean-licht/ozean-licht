@@ -261,12 +261,6 @@ export interface ContactFormData {
 
 // ==================== Layout Types ====================
 
-export interface DashboardLayoutProps {
-  children: ReactNode
-  sidebar?: ReactNode
-  navbar?: ReactNode
-  className?: string
-}
 
 export interface MarketingLayoutProps {
   children: ReactNode

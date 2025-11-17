@@ -5,7 +5,7 @@
  * and Tier 2 (branded components) into ready-to-use patterns.
  *
  * @example
- * import { CourseCard, LoginForm, DashboardLayout } from '@ozean-licht/shared-ui/compositions'
+ * import { CourseCard, LoginForm } from '@ozean-licht/shared-ui/compositions'
  */
 
 // ==================== Types ====================
@@ -34,6 +34,5 @@ export { MagicLinkForm } from './forms/MagicLinkForm'
 export { ContactForm } from './forms/ContactForm'
 
 // ==================== Layouts ====================
-export { DashboardLayout } from './layouts/DashboardLayout'
 export { MarketingLayout } from './layouts/MarketingLayout'
 export { AuthLayout } from './layouts/AuthLayout'

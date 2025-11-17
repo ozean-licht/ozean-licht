@@ -1,7 +1,8 @@
 import { addons } from '@storybook/manager-api';
 import { themes } from '@storybook/theming';
 import { create } from '@storybook/theming/create';
-import './addons/auth-toolbar-fixed';
+// Temporarily disabled auth toolbar to fix Loading issue
+// import './addons/auth-toolbar-fixed';
 
 /**
  * Custom Ozean Licht theme for Storybook Manager UI

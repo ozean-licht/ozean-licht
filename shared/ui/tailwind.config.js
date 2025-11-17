@@ -36,9 +36,19 @@ module.exports = {
         foreground: '#FFFFFF',
         // Secondary background (badges, spans)
         secondaryBackground: '#000F1F',
+        // Secondary colors
+        secondary: {
+          DEFAULT: '#055D75',
+          foreground: '#FFFFFF',
+        },
+        // Accent colors (for hover states)
+        accent: {
+          DEFAULT: 'rgba(14, 166, 193, 0.1)',
+          foreground: '#0EA6C1',
+        },
         // Muted colors
         muted: {
-          DEFAULT: '#055D75',
+          DEFAULT: '#0E282E',
           foreground: '#C4C8D4',
         },
         // Card colors

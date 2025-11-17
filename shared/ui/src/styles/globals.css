@@ -24,8 +24,8 @@
 
 @layer base {
   :root {
-    /* Colors */
-    --background: #00070F;
+    /* Backgrounds - Ozean Licht Design System v2.0.0 */
+    --background: #00070F;           /* Deep ocean dark */
     --foreground: #FFFFFF;
 
     --card: #00111A;
@@ -34,17 +34,17 @@
     --popover: #00111A;
     --popover-foreground: #FFFFFF;
 
-    --primary: #0EA6C1;
+    --primary: #0EA6C1;              /* Oceanic cyan */
     --primary-foreground: #FFFFFF;
 
-    --secondary: #000F1F;
+    --secondary: #055D75;             /* Dark cyan for secondary elements */
     --secondary-foreground: #FFFFFF;
 
-    --muted: #055D75;
-    --muted-foreground: #C4C8D4;
+    --muted: #0E282E;                 /* Very subtle background */
+    --muted-foreground: #C4C8D4;      /* Paragraph text color */
 
-    --accent: #055D75;
-    --accent-foreground: #FFFFFF;
+    --accent: rgba(14, 166, 193, 0.1); /* Transparent cyan for hover states */
+    --accent-foreground: #0EA6C1;
 
     --destructive: #EF4444;
     --destructive-foreground: #FFFFFF;
@@ -85,11 +85,12 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--border);
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
     font-family: var(--font-sans);
   }
 
@@ -426,7 +427,7 @@
     @apply inline-flex items-center justify-center;
     @apply font-medium rounded-lg;
     @apply transition-all duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
+    outline: none;
     @apply disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
@@ -437,10 +438,13 @@
 
   /* Input base styles */
   .input-base {
-    @apply w-full bg-input border border-border;
-    @apply text-foreground placeholder:text-muted-foreground;
+    @apply w-full border;
+    background-color: var(--input);
+    border-color: var(--border);
+    color: var(--foreground);
     @apply rounded-lg;
-    @apply focus:outline-none focus:ring-2 focus:ring-primary;
+    @apply focus:outline-none focus:ring-2;
+    --tw-ring-color: var(--ring);
     @apply transition-all duration-200;
   }
 
@@ -549,13 +553,16 @@
 @layer base {
   /* Focus visible styles */
   *:focus-visible {
-    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+    outline: none;
+    --tw-ring-color: var(--ring);
+    --tw-ring-offset-color: var(--background);
   }
 
   /* Skip to main content link */
   .skip-to-main {
     @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4;
-    @apply bg-primary text-primary-foreground;
+    background-color: var(--primary);
+    color: var(--primary-foreground);
     @apply px-4 py-2 rounded-lg;
     @apply z-50;
   }
