@@ -4,7 +4,7 @@ services:
   storybook:
     build:
       context: .
-      dockerfile: packages/shared-ui/Dockerfile
+      dockerfile: Dockerfile.storybook
     ports:
       - "3006:80"  # Using 3006 externally to avoid conflicts, nginx serves on 80 internally
     environment:

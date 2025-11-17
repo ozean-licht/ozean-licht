@@ -11,6 +11,11 @@
 !/storybook
 !/shared
 !/apps
+!/packages
+
+# Include only what's needed from packages
+/packages/*
+!/packages/shared-ui
 
 # Include only what's needed from apps
 /apps/*
@@ -46,4 +51,3 @@
 
 # Exclude other monorepo dirs
 /libs
-/packages
