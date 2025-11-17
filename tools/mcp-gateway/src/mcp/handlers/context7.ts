@@ -122,7 +122,8 @@ export class Context7Handler implements MCPHandler {
           result = await this.getLibraryDocs(
             params.args[0],
             params.options?.topic,
-            params.options?.tokens
+            params.options?.tokens,
+            params.options?.page
           );
           // Estimate tokens based on response size (roughly 4 chars per token)
           tokensUsed = Math.ceil(JSON.stringify(result).length / 4);
@@ -250,10 +251,12 @@ export class Context7Handler implements MCPHandler {
   private async getLibraryDocs(
     libraryId: string,
     topic?: string,
-    tokenLimit?: number
+    tokenLimit?: number,
+    page?: number
   ): Promise<any> {
     const args: Record<string, any> = {
       context7CompatibleLibraryID: libraryId.trim(),
+      page: page || 1, // Required parameter - default to page 1
     };
 
     // Add optional parameters
@@ -408,6 +411,13 @@ export class Context7Handler implements MCPHandler {
             description: 'Maximum tokens for response (default: 5000, min: 1000, max: 10000)',
             required: false,
             default: 5000,
+          },
+          {
+            name: 'page',
+            type: 'number',
+            description: 'Page number for paginated results (default: 1)',
+            required: false,
+            default: 1,
           },
         ],
         requiresAuth: false,
