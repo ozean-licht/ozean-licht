@@ -169,6 +169,145 @@ docker-compose build --no-cache
 docker logs ozean-licht-storybook
 ```
 
+## Authentication
+
+### Overview
+
+Storybook includes optional authentication powered by NextAuth.js and shared_users_db. Authentication enables enhanced features while maintaining public access by default.
+
+**Public Access (Default):**
+- View all components
+- Read documentation
+- Test component variations
+
+**Authenticated Access (Enhanced):**
+- Comment on components (future)
+- AI chat assistance (future)
+- Save preferences (future)
+- Bookmark components (future)
+
+### Configuration
+
+**1. Environment Variables**
+
+Copy `.env.example` to `.env.local`:
+
+```bash
+cd apps/storybook
+cp .env.example .env.local
+```
+
+Edit `.env.local` with your credentials:
+
+```env
+# Shared Users Database (required)
+SHARED_USERS_DB_URL=postgresql://postgres:password@host:5432/shared_users_db
+
+# NextAuth Secret (generate with: openssl rand -base64 48)
+AUTH_SECRET=your-secret-here
+NEXTAUTH_SECRET=your-secret-here
+
+# Production URL
+NEXTAUTH_URL=https://storybook.ozean-licht.dev
+```
+
+**2. Generate Secret**
+
+```bash
+openssl rand -base64 48
+```
+
+### Usage
+
+**Sign In:**
+1. Click "Sign In" button in Storybook toolbar (top-right)
+2. Enter your Ozean Licht credentials
+3. User menu appears after successful authentication
+
+**Sign Out:**
+1. Click on your user menu (top-right)
+2. Click "Sign Out"
+
+**Access Requirements:**
+- Must have account in `shared_users_db`
+- Must have `OZEAN_LICHT` or `ADMIN` entity access
+- Account must be active
+
+### Architecture
+
+**Authentication Flow:**
+```
+Browser → Login Modal → NextAuth API (/api/auth/signin)
+  → shared_users_db (users + user_entities)
+  → Password Verification (bcrypt)
+  → JWT Session Token → SessionProvider → User Menu
+```
+
+**Key Components:**
+- `lib/auth/config.ts` - NextAuth.js configuration
+- `lib/db/auth-pool.ts` - Direct PostgreSQL connection
+- `components/auth/LoginModal.tsx` - Login UI
+- `components/auth/UserMenu.tsx` - User menu dropdown
+- `.storybook/addons/auth-toolbar.tsx` - Toolbar integration
+
+**Security Features:**
+- Bcrypt password hashing
+- HTTPS-only cookies in production
+- CSRF protection (NextAuth default)
+- JWT session tokens
+- Direct database connection (5-10ms latency)
+
+### Development
+
+**Start with Authentication:**
+
+```bash
+# Set environment variables in .env.local
+pnpm storybook
+# Navigate to http://localhost:6006
+```
+
+**Test Authentication Flow:**
+1. Ensure `shared_users_db` is accessible
+2. Create test user (see admin dashboard scripts)
+3. Test login/logout cycle
+4. Verify session persists on refresh
+
+### Deployment
+
+**Coolify Configuration:**
+
+Add these environment variables in Coolify:
+- `SHARED_USERS_DB_URL` - Database connection string
+- `AUTH_SECRET` - Generated secret (same as local)
+- `NEXTAUTH_URL` - `https://storybook.ozean-licht.dev`
+- `NODE_ENV` - `production`
+
+**Cookie Domain:**
+- Production: `.ozean-licht.dev` (allows subdomains)
+- Secure flag: `true` (HTTPS only)
+- SameSite: `lax`
+
+### Troubleshooting
+
+**"Database connection failed"**
+- Verify `SHARED_USERS_DB_URL` is correct
+- Test: `psql $SHARED_USERS_DB_URL -c "SELECT 1"`
+
+**"Invalid credentials"**
+- Check user exists in `users` table
+- Verify password hash in database
+- Ensure user has active `user_entities` record
+
+**"Session not persisting"**
+- Check cookie domain: `.ozean-licht.dev` in production
+- Verify `AUTH_SECRET` is set
+- Clear browser cookies and retry
+
+**"NextAuth API routes not found"**
+- Ensure file structure: `app/api/auth/[...nextauth]/route.ts`
+- Check build output for API routes
+
 ## Contributing
 
 ### Adding New Stories
@@ -201,11 +340,28 @@ export const Primary: Story = {
 };
 ```
 
+### Using Authentication in Stories
+
+```tsx
+import { useSession } from '@/lib/auth/session-provider';
+
+export const AuthenticatedFeature: Story = {
+  render: () => {
+    const { data: session, status } = useSession();
+
+    if (status === 'loading') return <div>Loading...</div>;
+    if (status === 'unauthenticated') return <div>Please sign in</div>;
+
+    return <div>Welcome, {session?.user?.email}!</div>;
+  },
+};
+```
+
 ### Design System Guidelines
 
 Follow the Ozean Licht design system:
-- **Primary Color:** Turquoise (#0ec2bc)
-- **Background:** Cosmic dark (#0A0F1A)
+- **Primary Color:** Oceanic Cyan (#0EA6C1)
+- **Background:** Cosmic dark (#00070F)
 - **Typography:** Cinzel Decorative (headings) + Montserrat (body)
 - **Effects:** Glass morphism, subtle gradients
 

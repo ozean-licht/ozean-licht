@@ -2,6 +2,8 @@ import type { Preview } from '@storybook/react';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import '../globals.css';
+import { SessionProvider } from '../lib/auth/session-provider';
+import { withAuthChannelBridge } from './decorators/auth-channel-bridge';
 
 // Inject custom CSS for Storybook docs dark mode
 if (typeof document !== 'undefined') {
@@ -215,16 +217,8 @@ if (typeof document !== 'undefined') {
   document.head.appendChild(style);
 }
 
-// CRITICAL: Make React globally available IMMEDIATELY
-// Storybook core tries to access React.useInsertionEffect before module initialization
-// This must happen synchronously before any Storybook code runs
-if (typeof window !== 'undefined') {
-  (window as any).React = React;
-  (window as any).ReactDOM = ReactDOM;
-  // Also ensure React is available on globalThis for ESM compatibility
-  (globalThis as any).React = React;
-  (globalThis as any).ReactDOM = ReactDOM;
-}
+// Note: React global workaround no longer needed with Next.js framework
+// Next.js handles React imports and module resolution automatically
 
 const preview: Preview = {
   parameters: {
@@ -339,8 +333,32 @@ const preview: Preview = {
         dynamicTitle: true,
       },
     },
+    authStatus: {
+      description: 'Authentication status (debugging)',
+      defaultValue: 'unknown',
+      toolbar: {
+        title: 'Auth Status',
+        icon: 'lock',
+        items: [
+          { value: 'authenticated', title: 'Authenticated' },
+          { value: 'unauthenticated', title: 'Unauthenticated' },
+          { value: 'loading', title: 'Loading' },
+        ],
+        hidden: true, // Hidden by default, shown via addon
+      },
+    },
   },
   decorators: [
+    // Authentication Provider Decorator (must be first to wrap all stories)
+    (Story) => {
+      return React.createElement(
+        SessionProvider,
+        { children: React.createElement(Story) }
+      );
+    },
+    // Auth Channel Bridge (bridges auth state to manager toolbar)
+    withAuthChannelBridge,
+    // Theme Decorator
     (Story, context) => {
       const theme = context.globals.theme || 'dark';
 
@@ -373,43 +391,45 @@ const preview: Preview = {
       );
     },
     // AI Iteration Decorator (development-only)
-    (Story) => {
-      React.useEffect(() => {
-        // Only inject in development mode (localhost or 127.0.0.1)
-        const isDev = window.location.hostname === 'localhost' ||
-                      window.location.hostname === '127.0.0.1';
+    // NOTE: This is temporarily disabled during Next.js migration
+    // Will be re-enabled once Next.js API routes are properly configured
+    // (Story) => {
+    //   React.useEffect(() => {
+    //     // Only inject in development mode (localhost or 127.0.0.1)
+    //     const isDev = window.location.hostname === 'localhost' ||
+    //                   window.location.hostname === '127.0.0.1';
 
-        if (!isDev) {
-          // Production mode: Log informational message
-          console.info(
-            '🚀 Storybook is running in production mode. ' +
-            'AI Iteration (Cmd+K) is only available in development. ' +
-            'Run `pnpm storybook` locally to use AI features.'
-          );
-          return;
-        }
+    //     if (!isDev) {
+    //       // Production mode: Log informational message
+    //       console.info(
+    //         '🚀 Storybook is running in production mode. ' +
+    //         'AI Iteration (Cmd+K) is only available in development. ' +
+    //         'Run `pnpm storybook` locally to use AI features.'
+    //       );
+    //       return;
+    //     }
 
-        // Development mode: Inject AI iteration client script
-        const script = document.createElement('script');
-        script.src = '/ai-mvp-client.js';
-        script.async = true;
+    //     // Development mode: Inject AI iteration client script
+    //     const script = document.createElement('script');
+    //     script.src = '/ai-mvp-client.js';
+    //     script.async = true;
 
-        // Handle errors with helpful message
-        script.onerror = () => {
-          console.warn(
-            '⚠️ AI iteration client failed to load. ' +
-            'Ensure ANTHROPIC_API_KEY is set in .env and Storybook dev server is running.'
-          );
-        };
+    //     // Handle errors with helpful message
+    //     script.onerror = () => {
+    //       console.warn(
+    //         '⚠️ AI iteration client failed to load. ' +
+    //         'Ensure ANTHROPIC_API_KEY is set in .env.local and Storybook dev server is running.'
+    //       );
+    //     };
 
-        // Only inject once
-        if (!document.querySelector('script[src="/ai-mvp-client.js"]')) {
-          document.body.appendChild(script);
-        }
-      }, []);
+    //     // Only inject once
+    //     if (!document.querySelector('script[src="/ai-mvp-client.js"]')) {
+    //       document.body.appendChild(script);
+    //     }
+    //   }, []);
 
-      return React.createElement(Story);
-    },
+    //   return React.createElement(Story);
+    // },
   ],
 };
 

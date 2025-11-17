@@ -222,7 +222,7 @@
 
       for (const path of searchPaths) {
         try {
-          const getResponse = await fetch('/__ai-get-component', {
+          const getResponse = await fetch('/api/ai/get-component', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ componentPath: path })
@@ -246,8 +246,8 @@
         return;
       }
 
-      // Call our Vite plugin endpoint (same origin - no CORS!)
-      const response = await fetch('/__ai-iterate', {
+      // Call our Next.js API route (same origin - no CORS!)
+      const response = await fetch('/api/ai/iterate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
