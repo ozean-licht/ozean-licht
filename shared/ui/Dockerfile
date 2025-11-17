@@ -43,4 +43,8 @@ RUN echo 'server { \
 
 EXPOSE 80
 
+# Health check with longer timeout - use HEAD request for faster response
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
+
 CMD ["nginx", "-g", "daemon off;"]
