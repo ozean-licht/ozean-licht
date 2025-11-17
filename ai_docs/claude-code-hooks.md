@@ -1,74 +1,78 @@
-# Claude Code Hooks Documentation
+# Claude Code Hooks Reference
 
 ## Overview
 
-Claude Code hooks are automated scripts triggered by specific events in your development workflow. They're configured in settings files and enable custom validation, formatting, and context management.
+Claude Code hooks are automated scripts that execute at specific points in your workflow, enabling custom validation, automation, and control over Claude's operations.
 
-## Configuration Files
+## Configuration Structure
 
-Hooks are defined in a hierarchy:
-- `~/.claude/settings.json` (user level)
-- `.claude/settings.json` (project level)
-- `.claude/settings.local.json` (local, uncommitted)
-- Enterprise managed policies
+Hooks are configured in JSON settings files across three levels:
 
-## Hook Structure
+- **User level**: `~/.claude/settings.json`
+- **Project level**: `.claude/settings.json`
+- **Local project level**: `.claude/settings.local.json`
 
-Each hook configuration organizes handlers by event matchers. As the documentation states: "Hooks are organized by matchers, where each matcher can have multiple hooks."
-
-Matchers support:
-- Exact string matching (`Write` matches only Write tool)
-- Regular expressions (`Edit|Write`, `Notebook.*`)
-- Wildcard patterns (`*` for all tools)
+Hooks are organized by matchers, where each matcher can have multiple hooks.
 
 ## Hook Types
 
-**Command Hooks** execute bash scripts with JSON input via stdin.
+### Command-based Hooks
 
-**Prompt-Based Hooks** (Stop/SubagentStop) send context to an LLM for intelligent decision-making, receiving structured JSON responses with approval or blocking decisions.
+Execute bash scripts for deterministic operations like validation or file checks.
 
-## Available Events
+### Prompt-based Hooks
+
+Use an LLM (Haiku) for context-aware decisions. Currently support `Stop`, `SubagentStop`, and `UserPromptSubmit` events.
+
+## Hook Events
 
 | Event | Purpose |
 |-------|---------|
-| PreToolUse | Before tool execution |
-| PostToolUse | After successful tool completion |
-| UserPromptSubmit | Before processing user input |
-| Stop | When main agent finishes |
-| SubagentStop | When subagent completes |
-| SessionStart | Session initialization |
-| SessionEnd | Session termination |
-| Notification | System notifications |
-| PreCompact | Before context compaction |
+| **PreToolUse** | Intercepts tool calls before execution; enables approval/denial/modification |
+| **PostToolUse** | Runs after successful tool completion for validation |
+| **UserPromptSubmit** | Validates or enriches user prompts before processing |
+| **Stop/SubagentStop** | Controls whether Claude should conclude work |
+| **SessionStart** | Loads context, environment setup at session initiation |
+| **Notification** | Handles system notifications with custom logic |
 
-## Hook Input/Output
+## Matcher Patterns
 
-Hooks receive JSON via stdin containing `session_id`, `transcript_path`, `cwd`, and event-specific fields.
+- **Exact string matching**: `"Write"` matches only the Write tool
+- **Regex patterns**: `"Edit|Write"` or `"Notebook.*"`
+- **Wildcard**: `"*"` matches all tools
+- **MCP tools**: `"mcp__memory__.*"` targets specific server operations
 
-Output mechanisms:
-- **Exit code 0**: Success (stdout visible in some contexts)
-- **Exit code 2**: Blocking error (stderr feeds back to Claude)
-- **Other codes**: Non-blocking errors
-- **JSON output**: Structured responses for sophisticated control
+## Hook Output Control
 
-## Key Features
+Hooks communicate results through exit codes:
 
-**Environment Variables**: Access `$CLAUDE_PROJECT_DIR` for project-relative paths and `$CLAUDE_ENV_FILE` in SessionStart hooks to persist environment variables.
+- **Exit code 0**: Success; JSON stdout enables structured control
+- **Exit code 2**: Blocking error; stderr message blocks the action
+- **Other codes**: Non-blocking errors with stderr feedback
 
-**Plugin Integration**: Plugins provide hooks via `hooks/hooks.json`, automatically merged with user configurations using `${CLAUDE_PLUGIN_ROOT}`.
+JSON output is only processed when the hook exits with code 0.
 
-**Parallelization**: Matching hooks execute simultaneously; identical commands are deduplicated.
+## Security Requirements
 
-**Timeout**: Default 60-second limit per hook, individually configurable.
+Claude Code hooks execute arbitrary shell commands on your system automatically. Users must:
 
-## Security
+- Review commands thoroughly before deployment
+- Avoid processing sensitive files or unvalidated inputs
+- Understand the security implications of hook execution
 
-The documentation emphasizes: "Claude Code hooks execute arbitrary shell commands on your system automatically." Users must validate inputs, quote variables properly, check for path traversal, use absolute paths, and avoid sensitive files.
+## Advanced Features
 
-## MCP Tool Integration
+### Environment Persistence
 
-MCP tools follow naming pattern `mcp__<server>__<tool>`. Hooks can target specific tools using matchers like `mcp__memory__.*` or `mcp__.*__write.*`.
+SessionStart hooks can write to `CLAUDE_ENV_FILE` to persist variables across subsequent bash commands.
 
-## Debugging
+### Plugin Integration
 
-Use `/hooks` command to verify registration and `claude --debug` for detailed execution logs showing hook execution status and output.
+Plugins define hooks in `hooks/hooks.json` using variables like:
+
+- `${CLAUDE_PLUGIN_ROOT}`
+- `${CLAUDE_PROJECT_DIR}`
+
+### Parallel Execution
+
+Multiple matching hooks execute simultaneously, with identical commands automatically deduplicated.

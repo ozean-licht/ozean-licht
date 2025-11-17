@@ -1,26 +1,47 @@
-# Claude Agent SDK Cost Tracking Guide
+# Claude Agent SDK Cost Tracking
 
 ## Overview
-The Claude Agent SDK provides detailed token usage information for tracking costs and billing. Key principles include understanding that all messages with the same ID report identical usage data, and you should only charge once per step rather than per individual message.
 
-## Core Concepts
+The Claude Agent SDK provides detailed token usage information for each interaction. Proper tracking is essential for billing and cost management, particularly when handling parallel tool uses and multi-step conversations.
 
-**Steps and Messages**: A step represents a single request/response pair with Claude, while messages are individual components (text, tool uses, tool results) within that step.
+## Key Concepts
 
-**Usage Reporting**: Token consumption data attaches to assistant messages. When Claude executes tools in parallel, all messages sharing the same ID report the same usage metrics.
+**Steps**: Single request/response pairs between your application and Claude
 
-## Important Rules
+**Messages**: Individual messages within a step (text, tool uses, results)
 
-1. **Same ID = Same Usage**: Multiple messages with identical IDs contain identical usage data, so deduplicate by message ID to avoid double-charging.
+**Usage**: Token consumption data attached to assistant messages
 
-2. **Charge Once Per Step**: Process only unique message IDs; ignore duplicate messages from the same turn.
+## Usage Reporting Structure
 
-3. **Cumulative Usage**: The final result message contains total usage across all conversation steps, providing authoritative billing data.
+### Important Rules
 
-## Implementation Strategy
+1. **Same ID = Same Usage**: "All messages with the same `id` field report identical usage." When Claude sends multiple messages in one turn (text + tool uses), they share the same ID and usage data.
 
-Track processed message IDs using a Set to prevent duplicate charges. Monitor `output_tokens`, `input_tokens`, cache-related tokens, and `total_cost_usd` (available only in the result message).
+2. **Charge Once Per Step**: Only charge users once per step, not for each individual message. When seeing multiple assistant messages with identical IDs, use the usage from any one of them.
 
-## Handling Edge Cases
+3. **Cumulative Usage in Results**: "The final `result` message contains the total cumulative usage from all steps in the conversation" including `total_cost_usd`.
 
-For rare output token discrepancies among same-ID messages, use the highest value. The `total_cost_usd` field in results is always authoritative for billing purposes.
+## Usage Fields
+
+Each usage object contains:
+- `input_tokens`: Base input tokens processed
+- `output_tokens`: Tokens generated
+- `cache_creation_input_tokens`: Tokens used creating cache entries
+- `cache_read_input_tokens`: Tokens read from cache
+- `service_tier`: Service tier used
+- `total_cost_usd`: Total cost (result message only)
+
+## Best Practices
+
+- Use message IDs for deduplication to avoid double-charging
+- Monitor the result message for authoritative cumulative usage
+- Implement comprehensive logging for auditing
+- Track partial usage even if conversations fail
+- For streaming responses, accumulate usage as messages arrive
+
+## Edge Cases
+
+**Output Token Discrepancies**: Use the highest value when inconsistencies occur; verify against `total_cost_usd` which is authoritative.
+
+**Cache Tracking**: Separately track cache creation and read tokens for accurate cost analysis.

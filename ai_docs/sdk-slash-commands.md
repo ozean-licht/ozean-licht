@@ -1,40 +1,49 @@
-# Slash Commands in the SDK - Documentation
+# Slash Commands in the SDK
 
-## Overview
-Slash commands are special commands starting with `/` that control Claude Code sessions through the SDK. They can perform actions like clearing conversation history, compacting messages, or accessing help.
+Slash commands are special commands prefixed with `/` that control Claude Code sessions through the SDK. They enable actions like clearing conversation history, compacting messages, and accessing help.
 
 ## Discovering Available Commands
-The system provides information about available slash commands during session initialization. Access this through the `message.slash_commands` property when `message.type === "system"` and `message.subtype === "init"`.
 
-## Common Built-in Commands
+Access available slash commands through the system initialization message:
 
-**`/compact`** - Reduces conversation history size by summarizing older messages while preserving important context. Returns metadata about pre-compaction token count and compaction trigger.
+```typescript
+if (message.type === "system" && message.subtype === "init") {
+  console.log("Available slash commands:", message.slash_commands);
+}
+```
 
-**`/clear`** - Starts a fresh conversation by removing all previous history, essentially initiating a new session with a fresh session ID.
+## Built-In Commands
 
-## Creating Custom Slash Commands
+### `/compact`
 
-Custom commands are defined as markdown files in designated directories:
-- **Project scope**: `.claude/commands/`
-- **Personal scope**: `~/.claude/commands/`
+"Reduces the size of your conversation history by summarizing older messages while preserving important context." The command provides metadata about pre-compaction token counts and what triggered the action.
 
-The filename (without `.md` extension) becomes the command name.
+### `/clear`
 
-### Basic Structure
-Commands can include optional YAML frontmatter for configuration:
-- `allowed-tools`: Specifies which tools the command can use
-- `description`: Explains what the command does
-- `model`: Specifies which Claude model to use
+"Starts a fresh conversation by clearing all previous history." Returns a new session ID upon execution.
+
+## Custom Slash Commands
+
+Users can create personalized commands stored as markdown files in designated directories:
+
+**File Locations:**
+- Project-level: `.claude/commands/`
+- User-level: `~/.claude/commands/`
+
+**File Format:**
+
+The filename (without `.md` extension) becomes the command name. Optional YAML frontmatter provides configuration like allowed tools and model selection.
 
 ## Advanced Features
 
-**Arguments**: Use `$1`, `$2` placeholders with `argument-hint` in frontmatter
+**Arguments & Placeholders:** Commands support dynamic arguments using `$1`, `$2` syntax with optional `argument-hint` frontmatter.
 
-**Bash Execution**: Include commands using `!` backticks syntax to execute and capture output
+**Bash Execution:** Commands can execute bash operations using the syntax `` !`command` `` within markdown files.
 
-**File References**: Use `@filename` syntax to include file contents in the prompt
+**File References:** Include file contents using `@` prefix (e.g., `@package.json`).
 
-**Namespacing**: Organize commands in subdirectories for better structure (though subdirectories don't affect command names)
+**Namespacing:** Organize commands in subdirectories for better structure without affecting command names.
 
-## Usage Example
-Commands are sent through the SDK's `query()` function just like regular prompts, making them accessible during development workflows.
+## Integration with SDK
+
+"Once defined in the filesystem, custom commands are automatically available through the SDK," appearing in the `slash_commands` list alongside built-in options.

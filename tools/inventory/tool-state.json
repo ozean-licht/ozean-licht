@@ -112,7 +112,7 @@
     "lastUpdated": "2025-11-16T17:35:13Z"
   },
   "navigation": {
-    "last_command": "tools/containers/ps.sh ",
-    "timestamp": "2025-11-16T17:35:13Z"
+    "last_command": "tools/deployment/list.sh",
+    "timestamp": "2025-11-17T08:00:21Z"
   }
 }

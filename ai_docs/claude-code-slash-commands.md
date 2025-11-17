@@ -1,73 +1,37 @@
-# Claude Code Slash Commands Documentation
+# Slash Commands in Claude Code
+
+Claude Code provides built-in and custom slash commands to control behavior during interactive sessions.
 
 ## Built-in Commands Overview
 
-Claude Code provides 30+ built-in slash commands for managing interactive sessions. These commands control behavior, configuration, and workspace management.
-
-### Key Command Categories
-
-**Session Management**
-- `/clear` removes conversation history
-- `/exit` terminates the REPL
-- `/rewind` allows reverting conversation and code states
-
-**Configuration & Settings**
-- `/config` accesses the Settings interface
-- `/model` switches between AI models
-- `/status` displays version, model, and account information
-
-**Development Tools**
-- `/review` initiates code review requests
-- `/export [filename]` saves conversations to files
-- `/sandbox` enables isolated bash execution with network/filesystem restrictions
-
-**Context & Usage**
-- `/context` visualizes token consumption as a colored grid
-- `/cost` displays token usage statistics
-- `/usage` shows plan limits and rate status (subscription only)
-
-**Project Management**
-- `/init` creates a CLAUDE.md project guide
-- `/todos` lists current todo items
-- `/memory` edits CLAUDE.md memory files
+The platform includes over 30 built-in commands like `/clear` for clearing conversation history, `/cost` for token usage statistics, and `/model` for selecting AI models. These commands manage various aspects including project initialization (`/init`), code reviews (`/review`), and configuration (`/config`).
 
 ## Custom Slash Commands
 
-Users can define frequently-used prompts as Markdown files in two locations:
+Users can create personalized commands using Markdown files organized in two locations:
 
-**Project Commands** (`.claude/commands/`)
-- Shared with team members
-- Show "(project)" in `/help` output
+**Project-level**: Commands stored in `.claude/commands/` are shared with team members and marked "(project)" in help listings.
 
-**Personal Commands** (`~/.claude/commands/`)
-- Available across all projects
-- Marked "(user)" in help documentation
+**Personal-level**: Commands in `~/.claude/commands/` are available across all projects and marked "(user)".
 
-### Argument Implementation
+### Key Features
 
-Commands support dynamic values through:
+**Arguments**: Commands support dynamic values through `$ARGUMENTS` (captures all arguments) or positional parameters like `$1`, `$2` for individual arguments.
 
-- `$ARGUMENTS`: "captures all arguments passed to the command"
-- `$1`, `$2`, etc.: individual positional parameters (shell-script style)
+**Bash Integration**: Execute shell commands using the `!` prefix; output is included in command context.
 
-### Advanced Features
+**File References**: Include file contents using `@` prefix to reference specific files or directories.
 
-**Bash Integration**: Commands can execute shell operations using the `!` prefix, though "you must include `allowed-tools` with the Bash tool"
+**Namespacing**: Organize commands in subdirectories for better structure without affecting command names themselves.
 
-**File References**: The `@` prefix incorporates file contents into commands
+### Frontmatter Configuration
 
-**Frontmatter Options**:
-- `allowed-tools`: specify permitted tools
-- `description`: brief command summary
-- `model`: designate specific Claude model
-- `argument-hint`: display expected parameters to users
+Command files support metadata fields including `allowed-tools`, `description`, `model`, and `disable-model-invocation` to control behavior and capabilities.
 
-## Plugin & MCP Commands
+## Plugin and MCP Commands
 
-**Plugin Commands** integrate through installed plugins following the format `/plugin-name:command-name`
+Plugins can provide custom commands distributed through marketplaces, using formats like `/plugin-name:command-name`. MCP servers expose prompts as slash commands following the pattern `/mcp__<server-name>__<prompt-name>`.
 
-**MCP Commands** expose prompts from connected servers using the pattern `/mcp__<server-name>__<prompt-name>`
+## Comparison: Slash Commands vs. Skills
 
-## SlashCommand Tool
-
-Claude can programmatically execute custom commands via the SlashCommand tool. Users can restrict this via `/permissions` or disable specific commands with the `disable-model-invocation: true` frontmatter field.
+Slash commands work best for "simple, frequently-used prompts you invoke explicitly," while Agent Skills suit "complex capabilities requiring multiple files or automatic discovery."

@@ -2,7 +2,10 @@ packages:
   # Applications
   - 'apps/*'
 
-  # Shared libraries
+  # Packages
+  - 'packages/*'
+
+  # Shared libraries (keeping for backward compatibility temporarily)
   - 'shared/*'
 
   # Development tools

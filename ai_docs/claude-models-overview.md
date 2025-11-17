@@ -1,43 +1,39 @@
-# Claude Models Documentation Summary
+# Claude Models Overview
 
 ## Current Models
 
-**Claude Sonnet 4.5** - The recommended starting model offering the best balance of intelligence, speed, and cost for most use cases, with exceptional performance in coding and agentic tasks.
+**Claude Sonnet 4.5** is recommended as the starting point, offering "the best balance of intelligence, speed, and cost for most use cases."
 
-**Claude Haiku 4.5** - Described as "our fastest model with near-frontier intelligence," providing rapid processing capabilities.
+### Latest Model Comparison
 
-**Claude Opus 4.1** - Positioned for "specialized reasoning tasks" requiring exceptional analytical depth.
+The three current models serve different purposes:
 
-## Key Specifications
+**Claude Sonnet 4.5** ($3/$15 per million tokens input/output)
+- Designed for complex agents and coding tasks
+- 200K token context window (1M in beta)
+- 64K max output tokens
+- Supports extended thinking and priority tier access
 
-| Feature | Sonnet 4.5 | Haiku 4.5 | Opus 4.1 |
-|---------|-----------|----------|---------|
-| **API ID** | claude-sonnet-4-5-20250929 | claude-haiku-4-5-20251001 | claude-opus-4-1-20250805 |
-| **Context Window** | 200K tokens / 1M tokens (beta) | 200K tokens | 200K tokens |
-| **Max Output** | 64K tokens | 64K tokens | 32K tokens |
-| **Knowledge Cutoff** | January 2025 | February 2025 | January 2025 |
-| **Training Data** | Through July 2025 | Through July 2025 | Through March 2025 |
+**Claude Haiku 4.5** ($1/$5 per million tokens)
+- The fastest option with near-frontier capabilities
+- Same context and output specifications as Sonnet
+- Most cost-effective for general tasks
 
-## Pricing
+**Claude Opus 4.1** ($15/$75 per million tokens)
+- Specialized for complex reasoning
+- Moderate latency, 32K max output tokens
+- Premium performance for demanding applications
 
-Input/output token rates:
-- **Sonnet 4.5**: $3/$15 per million tokens
-- **Haiku 4.5**: $1/$5 per million tokens
-- **Opus 4.1**: $15/$75 per million tokens
-
-## Capabilities
+## Key Capabilities
 
 All current models support:
-- Text and image input
-- Text output
-- Multilingual capabilities
-- Vision processing
-- Extended thinking
-- Priority tier access
+- Text and image input processing
+- Extended thinking for enhanced reasoning
+- Multilingual support
+- Vision capabilities
+- Structured outputs
+- Availability across Anthropic API, AWS Bedrock, and Google Vertex AI
 
-## Platform Availability
+## Migration Path
 
-Models are accessible via:
-- Anthropic API
-- AWS Bedrock
-- Google Vertex AI
+Anthropic recommends upgrading from Claude 3 models to Claude 4.5 variants to access improved intelligence and capabilities. Legacy models (Sonnet 4, Opus 4, Haiku 3.5) remain available but offer less performance than current versions.

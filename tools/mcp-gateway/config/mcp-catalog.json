@@ -359,9 +359,9 @@
           "example": "/mcp-context7 get-docs \"react@18\" --topic=\"hooks\""
         },
         {
-          "command": "/mcp-context7 get-docs \"[libraryId]\" --tokens=[limit]",
-          "description": "Get documentation with custom token limit",
-          "example": "/mcp-context7 get-docs \"fastapi@0.104\" --tokens=3000"
+          "command": "/mcp-context7 get-docs \"[libraryId]\" --tokens=[limit] --page=[page]",
+          "description": "Get documentation with custom token limit and page",
+          "example": "/mcp-context7 get-docs \"fastapi@0.104\" --tokens=3000 --page=1"
         },
         {
           "command": "/mcp-context7 health",

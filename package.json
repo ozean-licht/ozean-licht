@@ -85,9 +85,8 @@
     "zod": "^4.1.12"
   },
   "scripts": {
-    "storybook": "pnpm --filter @ozean-licht/storybook dev",
-    "build-storybook": "pnpm --filter @ozean-licht/storybook build",
-    "test-storybook": "pnpm --filter @ozean-licht/storybook test-storybook",
+    "storybook": "pnpm --filter @ozean-licht/shared-ui storybook",
+    "build-storybook": "pnpm --filter @ozean-licht/shared-ui build-storybook",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
