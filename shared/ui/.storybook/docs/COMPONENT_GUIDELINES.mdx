@@ -1,0 +1,549 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Documentation/Component Guidelines" />
+
+# Component Guidelines
+
+Best practices and standards for creating and using components in the Ozean Licht ecosystem.
+
+## Component Architecture
+
+### Component Structure
+
+Every component follows this structure:
+
+```
+component-name/
+├── component-name.tsx          # Component implementation
+├── component-name.stories.tsx  # Storybook stories
+├── component-name.test.tsx     # Unit tests (optional)
+└── index.ts                    # Public exports
+```
+
+### File Naming
+
+- **Components**: PascalCase (`Button.tsx`, `DataTable.tsx`)
+- **Stories**: PascalCase with `.stories.tsx` (`Button.stories.tsx`)
+- **Tests**: PascalCase with `.test.tsx` (`Button.test.tsx`)
+- **Utilities**: kebab-case (`format-date.ts`, `cn.ts`)
+
+## TypeScript Standards
+
+### Component Props
+
+Always define props with TypeScript interfaces:
+
+```typescript
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'ghost' | 'destructive' | 'outline' | 'link' | 'cta';
+  size?: 'sm' | 'md' | 'lg' | 'icon';
+  loading?: boolean;
+  glow?: boolean;
+  fullWidth?: boolean;
+}
+```
+
+### Ref Forwarding
+
+Use `React.forwardRef` for components that need DOM access:
+
+```typescript
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ variant = 'primary', size = 'md', className, ...props }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      />
+    );
+  }
+);
+Button.displayName = 'Button';
+```
+
+### Variant Props
+
+Use `class-variance-authority` (CVA) for variant management:
+
+```typescript
+import { cva, type VariantProps } from 'class-variance-authority';
+
+const buttonVariants = cva(
+  'inline-flex items-center justify-center rounded-md font-medium transition-colors',
+  {
+    variants: {
+      variant: {
+        primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+      },
+      size: {
+        sm: 'h-8 px-3 text-xs',
+        md: 'h-10 px-4 text-sm',
+        lg: 'h-12 px-6 text-base',
+      },
+    },
+    defaultVariants: {
+      variant: 'primary',
+      size: 'md',
+    },
+  }
+);
+```
+
+## Accessibility
+
+### ARIA Attributes
+
+All interactive components must have proper ARIA attributes:
+
+```tsx
+// Good ✅
+<button
+  aria-label="Close dialog"
+  aria-pressed={isPressed}
+  aria-expanded={isExpanded}
+>
+  <X className="h-4 w-4" />
+</button>
+
+// Bad ❌
+<button>
+  <X className="h-4 w-4" />
+</button>
+```
+
+### Keyboard Navigation
+
+Support standard keyboard interactions:
+
+- **Tab**: Move focus
+- **Enter/Space**: Activate
+- **Escape**: Close/Cancel
+- **Arrow keys**: Navigate lists/menus
+
+```typescript
+const handleKeyDown = (event: React.KeyboardEvent) => {
+  switch (event.key) {
+    case 'Enter':
+    case ' ':
+      event.preventDefault();
+      handleActivate();
+      break;
+    case 'Escape':
+      handleClose();
+      break;
+  }
+};
+```
+
+### Focus Management
+
+Ensure visible focus indicators:
+
+```css
+.component {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+}
+```
+
+### Screen Readers
+
+Provide text alternatives:
+
+```tsx
+<Button aria-label="Delete item">
+  <Trash2 className="h-4 w-4" />
+  <span className="sr-only">Delete</span>
+</Button>
+```
+
+## Styling
+
+### Tailwind CSS
+
+Use Tailwind utility classes for styling:
+
+```tsx
+<div className="flex items-center gap-4 rounded-lg border p-4 shadow-md">
+  {children}
+</div>
+```
+
+### Class Name Utility
+
+Use the `cn()` utility for conditional classes:
+
+```typescript
+import { cn } from '@/lib/utils';
+
+<div className={cn(
+  'base-classes',
+  variant === 'primary' && 'primary-classes',
+  isActive && 'active-classes',
+  className
+)} />
+```
+
+### CSS Variables
+
+Reference design tokens via CSS variables:
+
+```css
+.component {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+}
+```
+
+### Responsive Design
+
+Use Tailwind responsive prefixes:
+
+```tsx
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {items.map(item => <Card key={item.id} />)}
+</div>
+```
+
+## Component Composition
+
+### Compound Components
+
+Use compound component pattern for complex components:
+
+```tsx
+// Dialog compound component
+<Dialog>
+  <DialogTrigger>Open</DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Title</DialogTitle>
+      <DialogDescription>Description</DialogDescription>
+    </DialogHeader>
+    {/* Content */}
+    <DialogFooter>
+      <Button>Action</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+### Render Props
+
+Use render props for flexible customization:
+
+```tsx
+interface DataTableProps<T> {
+  data: T[];
+  renderRow: (item: T) => React.ReactNode;
+}
+
+function DataTable<T>({ data, renderRow }: DataTableProps<T>) {
+  return (
+    <table>
+      <tbody>
+        {data.map((item, index) => (
+          <tr key={index}>{renderRow(item)}</tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+```
+
+### Children as Function
+
+For advanced customization:
+
+```tsx
+<Select>
+  {({ isOpen, selectedValue }) => (
+    <>
+      <SelectTrigger>
+        {selectedValue || 'Select an option'}
+      </SelectTrigger>
+      {isOpen && <SelectContent>{/* Options */}</SelectContent>}
+    </>
+  )}
+</Select>
+```
+
+## State Management
+
+### Local State
+
+Use `useState` for component-local state:
+
+```typescript
+const [isOpen, setIsOpen] = useState(false);
+const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+```
+
+### Controlled vs Uncontrolled
+
+Support both patterns:
+
+```typescript
+interface InputProps {
+  // Controlled
+  value?: string;
+  onChange?: (value: string) => void;
+
+  // Uncontrolled
+  defaultValue?: string;
+}
+
+function Input({ value, onChange, defaultValue, ...props }: InputProps) {
+  const [internalValue, setInternalValue] = useState(defaultValue);
+
+  const currentValue = value !== undefined ? value : internalValue;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    if (onChange) {
+      onChange(newValue);
+    } else {
+      setInternalValue(newValue);
+    }
+  };
+
+  return <input value={currentValue} onChange={handleChange} {...props} />;
+}
+```
+
+## Performance
+
+### Memoization
+
+Memoize expensive computations:
+
+```typescript
+const filteredItems = useMemo(
+  () => items.filter(item => item.name.includes(searchTerm)),
+  [items, searchTerm]
+);
+```
+
+### Callback Memoization
+
+Memoize callbacks to prevent unnecessary re-renders:
+
+```typescript
+const handleClick = useCallback(() => {
+  onItemSelect(item.id);
+}, [item.id, onItemSelect]);
+```
+
+### React.memo
+
+Memoize components that render frequently:
+
+```typescript
+const ExpensiveComponent = React.memo(({ data }: Props) => {
+  // Expensive rendering logic
+  return <div>{/* ... */}</div>;
+});
+```
+
+## Testing
+
+### Story-Based Testing
+
+Use Storybook stories as test cases:
+
+```typescript
+export const InteractiveTest: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Test interactions
+    await userEvent.click(canvas.getByRole('button'));
+    await expect(canvas.getByText('Success')).toBeInTheDocument();
+  },
+};
+```
+
+### Unit Tests
+
+Write unit tests for complex logic:
+
+```typescript
+describe('formatDate', () => {
+  it('formats date correctly', () => {
+    const date = new Date('2025-01-15');
+    expect(formatDate(date)).toBe('January 15, 2025');
+  });
+});
+```
+
+## Documentation
+
+### JSDoc Comments
+
+Document all components with JSDoc:
+
+```typescript
+/**
+ * Button component with Ozean Licht branding.
+ *
+ * @example
+ * ```tsx
+ * <Button variant="primary" size="lg" onClick={handleClick}>
+ *   Click me
+ * </Button>
+ * ```
+ */
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(...)
+```
+
+### Story Documentation
+
+Include comprehensive documentation in stories:
+
+```typescript
+const meta = {
+  title: 'Shared UI/Button',
+  component: Button,
+  parameters: {
+    docs: {
+      description: {
+        component: 'Ozean Licht branded button with multiple variants and sizes.',
+      },
+    },
+  },
+  tags: ['autodocs'],
+} satisfies Meta<typeof Button>;
+```
+
+## Error Handling
+
+### Prop Validation
+
+Validate props at runtime for development:
+
+```typescript
+if (process.env.NODE_ENV === 'development') {
+  if (variant === 'custom' && !customClass) {
+    console.warn('Custom variant requires customClass prop');
+  }
+}
+```
+
+### Error Boundaries
+
+Wrap risky components in error boundaries:
+
+```tsx
+<ErrorBoundary fallback={<ErrorFallback />}>
+  <ComplexComponent />
+</ErrorBoundary>
+```
+
+### Graceful Degradation
+
+Handle edge cases gracefully:
+
+```typescript
+function Avatar({ src, fallback }: AvatarProps) {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError || !src) {
+    return <div className="avatar-fallback">{fallback}</div>;
+  }
+
+  return (
+    <img
+      src={src}
+      onError={() => setHasError(true)}
+      alt="Avatar"
+    />
+  );
+}
+```
+
+## Code Quality
+
+### Linting
+
+Follow ESLint rules:
+
+```bash
+pnpm lint
+pnpm lint:fix
+```
+
+### Type Checking
+
+Ensure no TypeScript errors:
+
+```bash
+pnpm type-check
+```
+
+### Formatting
+
+Use Prettier for consistent formatting:
+
+```bash
+pnpm format
+```
+
+## Version Control
+
+### Commit Messages
+
+Follow conventional commits:
+
+```
+feat(button): add loading state with spinner
+fix(dialog): correct focus trap on mobile
+docs(card): update variant examples
+refactor(input): simplify validation logic
+test(checkbox): add keyboard navigation tests
+```
+
+### Pull Requests
+
+PR checklist:
+
+- [ ] Stories created/updated
+- [ ] TypeScript types correct
+- [ ] Accessibility tested
+- [ ] Dark mode verified
+- [ ] Tests passing
+- [ ] Documentation updated
+
+## Best Practices Summary
+
+### Do's ✅
+
+- Use TypeScript for all components
+- Forward refs for DOM access
+- Support both light and dark themes
+- Provide keyboard navigation
+- Include ARIA attributes
+- Memoize expensive operations
+- Write comprehensive stories
+- Document with JSDoc
+- Follow naming conventions
+- Use design tokens
+
+### Don'ts ❌
+
+- Don't use inline styles
+- Don't ignore TypeScript errors
+- Don't skip accessibility features
+- Don't hard-code colors/spacing
+- Don't forget error handling
+- Don't bypass linting rules
+- Don't duplicate code
+- Don't ignore dark mode
+- Don't skip testing
+- Don't forget documentation
+
+---
+
+**Version**: 2.0
+**Last Updated**: 2025-11-12

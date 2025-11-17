@@ -1,0 +1,599 @@
+/**
+ * Ozean Licht Design System - Global Styles
+ *
+ * Shared styles for the Ozean Licht ecosystem including:
+ * - CSS variables (design tokens)
+ * - Glass morphism utilities
+ * - Typography classes
+ * - Animation keyframes
+ * - Utility classes
+ *
+ * Import this file in your app's globals.css or layout:
+ * @import '@ozean-licht/shared-ui/styles';
+ *
+ * @see /design-system.md - Complete design system documentation
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   CSS VARIABLES (Design Tokens)
+   ======================================== */
+
+@layer base {
+  :root {
+    /* Colors */
+    --background: #00070F;
+    --foreground: #FFFFFF;
+
+    --card: #00111A;
+    --card-foreground: #FFFFFF;
+
+    --popover: #00111A;
+    --popover-foreground: #FFFFFF;
+
+    --primary: #0EA6C1;
+    --primary-foreground: #FFFFFF;
+
+    --secondary: #000F1F;
+    --secondary-foreground: #FFFFFF;
+
+    --muted: #055D75;
+    --muted-foreground: #C4C8D4;
+
+    --accent: #055D75;
+    --accent-foreground: #FFFFFF;
+
+    --destructive: #EF4444;
+    --destructive-foreground: #FFFFFF;
+
+    --success: #10B981;
+    --success-foreground: #FFFFFF;
+
+    --warning: #F59E0B;
+    --warning-foreground: #000000;
+
+    --info: #3B82F6;
+    --info-foreground: #FFFFFF;
+
+    --border: #0E282E;
+    --input: #0E282E;
+    --ring: #0EA6C1;
+
+    /* Border radius */
+    --radius: 0.5rem;
+
+    /* Fonts */
+    --font-decorative: 'Cinzel Decorative', Georgia, serif;
+    --font-sans: 'Montserrat', system-ui, -apple-system, sans-serif;
+    --font-alt: 'Montserrat Alternates', Montserrat, sans-serif;
+    --font-mono: 'Fira Code', 'Courier New', monospace;
+  }
+
+  /* Dark mode (default for Ozean Licht) */
+  .dark {
+    --background: #00070F;
+    --foreground: #FFFFFF;
+  }
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Typography hierarchy with Ozean Licht fonts */
+  /* Cinzel Decorative used SPARINGLY - only H1, H2 */
+  h1 {
+    font-family: var(--font-decorative);
+    font-weight: 400;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+  }
+
+  h2 {
+    font-family: var(--font-decorative);
+    font-weight: 400;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.42);
+  }
+
+  /* H3-H6 use Montserrat */
+  h3 {
+    font-family: var(--font-sans);
+    font-weight: 400;
+  }
+
+  h4 {
+    font-family: var(--font-sans);
+    font-weight: 400;
+  }
+
+  h5 {
+    font-family: var(--font-alt);
+    font-weight: 400;
+  }
+
+  h6 {
+    font-family: var(--font-alt);
+    font-weight: 400;
+  }
+
+  /* Paragraph default - Light weight for readability */
+  p {
+    font-family: var(--font-sans);
+    font-weight: 300;
+  }
+}
+
+/* ========================================
+   GLASS MORPHISM UTILITIES
+   ======================================== */
+
+@layer components {
+  /* Standard glass card */
+  .glass-card {
+    background: rgba(0, 17, 26, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(14, 166, 193, 0.25);
+  }
+
+  /* Strong emphasis glass card */
+  .glass-card-strong {
+    background: rgba(0, 17, 26, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(14, 166, 193, 0.3);
+  }
+
+  /* Subtle background glass card */
+  .glass-subtle {
+    background: rgba(0, 17, 26, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(14, 166, 193, 0.15);
+  }
+
+  /* Hover effect with glow */
+  .glass-hover {
+    transition: all 0.3s ease;
+  }
+
+  .glass-hover:hover {
+    border-color: rgba(14, 166, 193, 0.4);
+    box-shadow: 0 0 20px rgba(14, 166, 193, 0.15);
+  }
+
+  /* Standalone glow utility - softer for mystic aesthetic */
+  .glow {
+    box-shadow: 0 0 20px rgba(14, 166, 193, 0.22);
+  }
+
+  /* Glow strong - reduced opacity for calm feel */
+  .glow-strong {
+    box-shadow: 0 0 30px rgba(14, 166, 193, 0.35);
+  }
+
+  /* Glow subtle */
+  .glow-subtle {
+    box-shadow: 0 0 12px rgba(14, 166, 193, 0.15);
+  }
+}
+
+/* ========================================
+   TYPOGRAPHY UTILITY CLASSES
+   ======================================== */
+
+@layer utilities {
+  /* Font family utilities */
+  .font-decorative {
+    font-family: var(--font-decorative);
+  }
+
+  .font-alt {
+    font-family: var(--font-alt);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  /* Body text sizes */
+  .body-l {
+    font-family: var(--font-sans);
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.625;
+  }
+
+  .body-m {
+    font-family: var(--font-sans);
+    font-size: 1rem; /* 16px */
+    line-height: 1.5;
+  }
+
+  .body-s {
+    font-family: var(--font-sans);
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.5;
+  }
+
+  /* Text glow effects */
+  .text-glow {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+  }
+
+  .text-glow-subtle {
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
+  }
+
+  .text-glow-primary {
+    text-shadow: 0 0 8px rgba(14, 166, 193, 0.6);
+  }
+}
+
+/* ========================================
+   ANIMATION KEYFRAMES
+   ======================================== */
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 20px rgba(14, 166, 193, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 30px rgba(14, 166, 193, 0.6);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+  }
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-top {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-bottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scale-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+/* Gentle pulse animation for soft, mystic aesthetic */
+@keyframes gentle-pulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   BACKGROUND UTILITIES
+   ======================================== */
+
+@layer utilities {
+  /* Cosmic gradient background */
+  .bg-cosmic-gradient {
+    background-image: linear-gradient(135deg, #00070F 0%, #00111A 50%, #00070F 100%);
+  }
+
+  /* Radial gradient */
+  .bg-gradient-radial {
+    background-image: radial-gradient(var(--tw-gradient-stops));
+  }
+
+  /* Conic gradient */
+  .bg-gradient-conic {
+    background-image: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
+  }
+}
+
+/* ========================================
+   COMPONENT PATTERNS
+   ======================================== */
+
+@layer components {
+  /* Icon sizing for Catalyst components */
+  /* Ensures SVG icons with data-slot="icon" are properly sized */
+  [data-slot="icon"] {
+    width: 1.5rem; /* 24px */
+    height: 1.5rem; /* 24px */
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 640px) {
+    [data-slot="icon"] {
+      width: 1.25rem; /* 20px */
+      height: 1.25rem; /* 20px */
+    }
+  }
+
+  /* Button base styles */
+  .btn-base {
+    @apply inline-flex items-center justify-center;
+    @apply font-medium rounded-lg;
+    @apply transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Card base styles */
+  .card-base {
+    @apply rounded-lg overflow-hidden;
+  }
+
+  /* Input base styles */
+  .input-base {
+    @apply w-full bg-input border border-border;
+    @apply text-foreground placeholder:text-muted-foreground;
+    @apply rounded-lg;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary;
+    @apply transition-all duration-200;
+  }
+
+  /* Badge base styles */
+  .badge-base {
+    @apply inline-flex items-center;
+    @apply px-3 py-1 rounded-full;
+    @apply text-sm font-medium;
+    @apply border;
+  }
+}
+
+/* ========================================
+   UTILITY PATTERNS
+   ======================================== */
+
+@layer utilities {
+  /* Container utilities */
+  .container-page {
+    @apply container mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 lg:py-12;
+  }
+
+  /* Stack spacing (vertical rhythm) */
+  .stack-tight {
+    @apply space-y-2;
+  }
+
+  .stack-normal {
+    @apply space-y-4;
+  }
+
+  .stack-loose {
+    @apply space-y-6;
+  }
+
+  .stack-very-loose {
+    @apply space-y-8;
+  }
+
+  /* Grid patterns */
+  .grid-cards {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  .grid-dashboard {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6;
+  }
+
+  /* Scrollbar styling (webkit) */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: var(--card);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--muted);
+    border-radius: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
+}
+
+/* ========================================
+   RESPONSIVE UTILITIES
+   ======================================== */
+
+@layer utilities {
+  /* Hide on mobile */
+  .hide-mobile {
+    @apply hidden md:block;
+  }
+
+  /* Show only on mobile */
+  .show-mobile {
+    @apply block md:hidden;
+  }
+
+  /* Responsive text sizes */
+  .text-responsive-sm {
+    @apply text-sm md:text-base;
+  }
+
+  .text-responsive-md {
+    @apply text-base md:text-lg;
+  }
+
+  .text-responsive-lg {
+    @apply text-lg md:text-xl;
+  }
+
+  .text-responsive-xl {
+    @apply text-xl md:text-2xl;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+@layer base {
+  /* Focus visible styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+
+  /* Skip to main content link */
+  .skip-to-main {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4;
+    @apply bg-primary text-primary-foreground;
+    @apply px-4 py-2 rounded-lg;
+    @apply z-50;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+  body {
+    @apply bg-white text-black;
+  }
+
+  .glass-card,
+  .glass-card-strong,
+  .glass-subtle {
+    @apply bg-white border border-gray-300;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* Hide non-essential elements */
+  nav,
+  aside,
+  .no-print {
+    display: none !important;
+  }
+}

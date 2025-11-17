@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  storybook:
+    build:
+      context: ../../
+      dockerfile: shared/ui/Dockerfile
+    ports:
+      - "6006:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    labels:
+      - "coolify.managed=true"
+      - "coolify.applicationId=storybook"
+      - "coolify.domain=storybook.ozean-licht.dev"

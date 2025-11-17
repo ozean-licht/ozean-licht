@@ -1,0 +1,1 @@
+const e={parameters:{controls:{matchers:{color:/(background|color)$/i,date:/Date$/i}},darkMode:{current:"dark",stylePreview:!0},backgrounds:{default:"ozean-dark",values:[{name:"ozean-dark",value:"#00070F"},{name:"ozean-card",value:"#00111A"}]}}};export{e as default};

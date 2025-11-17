@@ -14,15 +14,15 @@ COPY . .
 # Install dependencies for the entire workspace
 RUN pnpm install --frozen-lockfile
 
-# Build Storybook directly in the shared-ui package
-WORKDIR /app/packages/shared-ui
+# Build Storybook directly in the shared ui package
+WORKDIR /app/shared/ui
 RUN npx storybook build -o storybook-static
 
 # Production stage
 FROM nginx:alpine
 
 # Copy built storybook to nginx
-COPY --from=builder /app/packages/shared-ui/storybook-static /usr/share/nginx/html
+COPY --from=builder /app/shared/ui/storybook-static /usr/share/nginx/html
 
 # Custom nginx config
 RUN echo 'server { \

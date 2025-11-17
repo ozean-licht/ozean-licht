@@ -1,0 +1,178 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Backgrounds - Ozean Licht Design System v2.0.0 */
+    --background: #00070F;           /* Deep ocean dark */
+    --secondary-background: #000F1F; /* Badges, spans, highlights */
+    --card: #00111A;                 /* Card background */
+    --foreground: #FFFFFF;
+    --card-foreground: #FFFFFF;
+    --popover: #00111A;
+    --popover-foreground: #FFFFFF;
+
+    /* Accents */
+    --primary: #0EA6C1;              /* Oceanic cyan */
+    --primary-foreground: #FFFFFF;
+    --muted-accent: #055D75;         /* Buttons, secondary actions */
+    --secondary: #64748B;
+    --secondary-foreground: #FFFFFF;
+    --muted: #64748B;
+    --muted-foreground: #94A3B8;
+    --accent: #2A2F3E;
+    --accent-foreground: #FFFFFF;
+
+    /* Semantic Colors */
+    --destructive: #EF4444;          /* Red - errors, delete */
+    --destructive-foreground: #FFFFFF;
+    --success: #10B981;              /* Green - success */
+    --warning: #F59E0B;              /* Amber - warnings */
+    --info: #3B82F6;                 /* Blue - info */
+
+    /* Borders */
+    --border: #0E282E;               /* Card borders, dividers */
+    --input: #0E282E;
+    --ring: #0EA6C1;
+
+    /* Typography */
+    --heading: #FFFFFF;              /* Headings (h1-h6) */
+    --paragraph: #C4C8D4;            /* Body text, paragraphs */
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: #00070F;
+    --foreground: #FFFFFF;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Typography Scale - Ozean Licht Design System */
+  h1 {
+    @apply font-decorative text-5xl md:text-6xl font-normal text-[#fff];
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+  }
+
+  h2 {
+    @apply font-decorative text-4xl md:text-5xl font-normal text-[#fff];
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.42);
+  }
+
+  h3 {
+    @apply font-sans text-3xl md:text-4xl font-normal text-[#fff];
+  }
+
+  h4 {
+    @apply font-sans text-2xl md:text-3xl font-normal text-[#fff];
+  }
+
+  h5 {
+    @apply font-alt text-xl md:text-2xl font-normal text-[#fff];
+  }
+
+  h6 {
+    @apply font-alt text-base md:text-xl font-normal text-[#fff];
+  }
+
+  p {
+    @apply text-[#C4C8D4] font-light;
+  }
+}
+
+/* Glass Morphism - Ozean Licht Design System */
+@layer components {
+  /* Standard glass card */
+  .glass-card {
+    @apply bg-card/70 backdrop-blur-xl border border-primary/25;
+  }
+
+  /* Strong emphasis */
+  .glass-card-strong {
+    @apply bg-card/80 backdrop-blur-2xl border border-primary/30;
+  }
+
+  /* Subtle background */
+  .glass-subtle {
+    @apply bg-card/50 backdrop-blur-lg border border-primary/15;
+  }
+
+  /* Hover effect */
+  .glass-hover {
+    @apply transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/15;
+  }
+
+  /* Glow effects */
+  .glow-subtle {
+    @apply shadow-[0_0_12px_rgba(14,166,193,0.15)];
+  }
+
+  .glow {
+    @apply shadow-[0_0_20px_rgba(14,166,193,0.22)];
+  }
+
+  .glow-strong {
+    @apply shadow-[0_0_30px_rgba(14,166,193,0.35)];
+  }
+}
+
+/* Font families - Ozean Licht Design System */
+@layer utilities {
+  .font-decorative {
+    font-family: 'Cinzel Decorative', Georgia, serif;
+  }
+
+  .font-sans {
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  }
+
+  .font-alt {
+    font-family: 'Montserrat Alternates', Montserrat, sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'Fira Code', 'Courier New', monospace;
+  }
+}
+
+/* Animations - Ozean Licht Design System */
+@keyframes glow {
+  0% { box-shadow: 0 0 20px rgba(14, 166, 193, 0.3); }
+  100% { box-shadow: 0 0 30px rgba(14, 166, 193, 0.6); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(200%) skewX(-12deg); }
+}
+
+.animate-glow { animation: glow 2s ease-in-out infinite alternate; }
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-shine { animation: shine 2s linear infinite; }
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

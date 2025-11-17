@@ -1,0 +1,52 @@
+<!-- React DevTools Hook -->
+<script>
+  // Pre-register React devtools hook to prevent race conditions
+  window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = window.__REACT_DEVTOOLS_GLOBAL_HOOK__ || {};
+</script>
+
+<!-- Storybook Docs Canvas Styling - Deep Cyan Theme -->
+<style>
+  /* CRITICAL: Override Storybook's default white border with deep cyan */
+  [class*="zoom"] {
+    border-color: #0A7B77 !important;
+  }
+
+  /* Target all possible border elements in docs */
+  .sbdocs-preview,
+  .docs-story,
+  [class*="PreviewContainer"],
+  [class*="ZoomElement"] {
+    border-color: #0A7B77 !important; /* Deep cyan */
+    border-width: 1px !important;
+  }
+
+  /* Fit canvas height to content instead of fixed 1000px */
+  .docs-story > div,
+  .sb-show-main,
+  [class*="StoryContainer"] {
+    min-height: auto !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Ensure the inner iframe/content also fits */
+  .docs-story iframe,
+  #storybook-preview-iframe {
+    height: auto !important;
+    min-height: 100px !important;
+    max-height: fit-content !important;
+  }
+
+  /* Override fixed height in story blocks */
+  .sbdocs .sb-show-main.sb-main-padded,
+  .sbdocs .sb-show-main {
+    padding: 1rem !important;
+    min-height: auto !important;
+    height: auto !important;
+  }
+
+  /* Additional deep cyan accents */
+  .sbdocs-preview {
+    box-shadow: 0 0 8px rgba(14, 194, 188, 0.12) !important;
+  }
+</style>

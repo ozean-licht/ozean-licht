@@ -11,11 +11,10 @@
 !/storybook
 !/shared
 !/apps
-!/packages
 
-# Include only what's needed from packages
-/packages/*
-!/packages/shared-ui
+# Include only what's needed from shared
+/shared/*
+!/shared/ui
 
 # Include only what's needed from apps
 /apps/*
