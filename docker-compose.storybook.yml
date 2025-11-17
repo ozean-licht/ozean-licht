@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  storybook:
+    build:
+      context: .
+      dockerfile: packages/shared-ui/Dockerfile
+    ports:
+      - "3006:80"  # Using 3006 externally to avoid conflicts, nginx serves on 80 internally
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      # Coolify labels
+      - "coolify.managed=true"
+      - "coolify.type=application"
+      - "coolify.applicationId=${COOLIFY_APPLICATION_ID:-storybook}"
+      - "coolify.domain=storybook.ozean-licht.dev"
+      # Traefik labels for routing (if using Traefik)
+      - "traefik.enable=true"
+      - "traefik.http.routers.storybook.rule=Host(`storybook.ozean-licht.dev`)"
+      - "traefik.http.services.storybook.loadbalancer.server.port=80"
+      - "traefik.http.routers.storybook.tls=true"
+      - "traefik.http.routers.storybook.tls.certresolver=letsencrypt"
