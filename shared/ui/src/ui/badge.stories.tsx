@@ -201,7 +201,7 @@ export const CountBadges: Story = {
   render: () => (
     <div className="flex flex-wrap gap-4 items-center">
       <div className="relative">
-        <button className="px-4 py-2 bg-gray-100 rounded-md text-sm font-medium">
+        <button className="px-4 py-2 bg-[#00111A] border border-border rounded-md text-sm font-medium text-white hover:bg-[#001A2A]">
           Messages
         </button>
         <Badge
@@ -212,7 +212,7 @@ export const CountBadges: Story = {
         </Badge>
       </div>
       <div className="relative">
-        <button className="px-4 py-2 bg-gray-100 rounded-md text-sm font-medium">
+        <button className="px-4 py-2 bg-[#00111A] border border-border rounded-md text-sm font-medium text-white hover:bg-[#001A2A]">
           Notifications
         </button>
         <Badge
@@ -223,7 +223,7 @@ export const CountBadges: Story = {
         </Badge>
       </div>
       <div className="relative">
-        <button className="px-4 py-2 bg-gray-100 rounded-md text-sm font-medium">
+        <button className="px-4 py-2 bg-[#00111A] border border-border rounded-md text-sm font-medium text-white hover:bg-[#001A2A]">
           Cart
         </button>
         <Badge

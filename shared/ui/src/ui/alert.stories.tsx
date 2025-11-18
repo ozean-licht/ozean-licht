@@ -27,7 +27,7 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'destructive'],
+      options: ['default', 'destructive', 'success', 'warning', 'info'],
       description: 'Visual style variant',
     },
   },
@@ -74,13 +74,13 @@ export const Destructive: Story = {
 };
 
 /**
- * Success alert (custom styling)
+ * Success alert with dark-optimized styling
  */
 export const Success: Story = {
   render: () => (
-    <Alert className="border-green-500/50 bg-green-50 text-green-900 dark:bg-green-950 dark:text-green-100">
+    <Alert variant="success">
       <CheckCircle2 className="h-4 w-4" />
-      <AlertTitle>Success!</AlertTitle>
+      <AlertTitle variant="success">Success!</AlertTitle>
       <AlertDescription>
         Your changes have been saved successfully.
       </AlertDescription>
@@ -89,13 +89,13 @@ export const Success: Story = {
 };
 
 /**
- * Warning alert (custom styling)
+ * Warning alert with dark-optimized styling
  */
 export const Warning: Story = {
   render: () => (
-    <Alert className="border-yellow-500/50 bg-yellow-50 text-yellow-900 dark:bg-yellow-950 dark:text-yellow-100">
+    <Alert variant="warning">
       <AlertTriangle className="h-4 w-4" />
-      <AlertTitle>Warning</AlertTitle>
+      <AlertTitle variant="warning">Warning</AlertTitle>
       <AlertDescription>
         This action cannot be undone. Please proceed with caution.
       </AlertDescription>
@@ -104,13 +104,13 @@ export const Warning: Story = {
 };
 
 /**
- * Info alert (custom styling)
+ * Info alert with dark-optimized styling
  */
 export const Info: Story = {
   render: () => (
-    <Alert className="border-blue-500/50 bg-blue-50 text-blue-900 dark:bg-blue-950 dark:text-blue-100">
+    <Alert variant="info">
       <InfoIcon className="h-4 w-4" />
-      <AlertTitle>Information</AlertTitle>
+      <AlertTitle variant="info">Information</AlertTitle>
       <AlertDescription>
         The system will undergo maintenance on Sunday at 2:00 AM UTC.
       </AlertDescription>
@@ -172,26 +172,26 @@ export const AllVariants: Story = {
 
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Destructive</AlertTitle>
+        <AlertTitle variant="destructive">Destructive</AlertTitle>
         <AlertDescription>Error or danger alert variant.</AlertDescription>
       </Alert>
 
-      <Alert className="border-green-500/50 bg-green-50 text-green-900">
+      <Alert variant="success">
         <CheckCircle2 className="h-4 w-4" />
-        <AlertTitle>Success</AlertTitle>
-        <AlertDescription>Custom success styling.</AlertDescription>
+        <AlertTitle variant="success">Success</AlertTitle>
+        <AlertDescription>Success alert with dark-optimized styling.</AlertDescription>
       </Alert>
 
-      <Alert className="border-yellow-500/50 bg-yellow-50 text-yellow-900">
+      <Alert variant="warning">
         <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>Warning</AlertTitle>
-        <AlertDescription>Custom warning styling.</AlertDescription>
+        <AlertTitle variant="warning">Warning</AlertTitle>
+        <AlertDescription>Warning alert with dark-optimized styling.</AlertDescription>
       </Alert>
 
-      <Alert className="border-blue-500/50 bg-blue-50 text-blue-900">
+      <Alert variant="info">
         <InfoIcon className="h-4 w-4" />
-        <AlertTitle>Info</AlertTitle>
-        <AlertDescription>Custom info styling.</AlertDescription>
+        <AlertTitle variant="info">Info</AlertTitle>
+        <AlertDescription>Info alert with dark-optimized styling.</AlertDescription>
       </Alert>
     </div>
   ),
@@ -203,9 +203,9 @@ export const AllVariants: Story = {
 export const RealWorldExamples: Story = {
   render: () => (
     <div className="space-y-4">
-      <Alert>
-        <CheckCircle2 className="h-4 w-4 text-green-600" />
-        <AlertTitle>Deployment successful</AlertTitle>
+      <Alert variant="success">
+        <CheckCircle2 className="h-4 w-4" />
+        <AlertTitle variant="success">Deployment successful</AlertTitle>
         <AlertDescription>
           Application v2.4.1 has been deployed to production at 14:23 UTC.
         </AlertDescription>
@@ -213,15 +213,15 @@ export const RealWorldExamples: Story = {
 
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Database connection failed</AlertTitle>
+        <AlertTitle variant="destructive">Database connection failed</AlertTitle>
         <AlertDescription>
           Unable to connect to PostgreSQL database. Check your connection settings and try again.
         </AlertDescription>
       </Alert>
 
-      <Alert className="border-yellow-500/50 bg-yellow-50 text-yellow-900">
+      <Alert variant="warning">
         <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>Rate limit approaching</AlertTitle>
+        <AlertTitle variant="warning">Rate limit approaching</AlertTitle>
         <AlertDescription>
           You have used 850 of 1000 API requests this hour. Consider upgrading your plan.
         </AlertDescription>
