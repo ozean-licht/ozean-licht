@@ -27,7 +27,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: (args) => (
-    <div className="w-full max-w-md">
+    <div className="w-[448px]">
       <Accordion {...args} type="single" collapsible>
         <AccordionItem value="item-1">
           <AccordionTrigger>What is Ozean Licht?</AccordionTrigger>
@@ -57,7 +57,7 @@ export const Default: Story = {
 
 export const Multiple: Story = {
   render: () => (
-    <div className="w-full max-w-md">
+    <div className="w-[448px]">
       <Accordion type="multiple">
         <AccordionItem value="item-1">
           <AccordionTrigger>Design System</AccordionTrigger>
@@ -87,7 +87,7 @@ export const Multiple: Story = {
 
 export const WithGlassEffect: Story = {
   render: () => (
-    <div className="w-full max-w-md">
+    <div className="w-[448px]">
       <Accordion type="single" collapsible className="glass-card p-4">
         <AccordionItem value="item-1" className="border-primary/25">
           <AccordionTrigger className="hover:text-primary">

@@ -4,9 +4,79 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
 
 <style>
-  /* Apply Ozean Licht background to Storybook */
+  /* Apply Ozean Licht background to all Storybook views */
   body {
     background-color: #00070F !important;
     color: #C4C8D4 !important;
+  }
+
+  /* Force dark theme on docs container */
+  .sbdocs.sbdocs-wrapper {
+    background-color: #00070F !important;
+  }
+
+  .sbdocs.sbdocs-content {
+    background-color: #00111A !important;
+    color: #C4C8D4 !important;
+  }
+
+  /* Ensure headings are visible */
+  .sbdocs h1,
+  .sbdocs h2,
+  .sbdocs h3,
+  .sbdocs h4,
+  .sbdocs h5,
+  .sbdocs h6 {
+    color: #FFFFFF !important;
+  }
+
+  /* Code blocks */
+  .sbdocs pre {
+    background-color: #00111A !important;
+    border: 1px solid #0E282E !important;
+  }
+
+  /* Tables in docs */
+  .sbdocs table {
+    background-color: #00111A !important;
+    border-color: #0E282E !important;
+  }
+
+  .sbdocs th,
+  .sbdocs td {
+    border-color: #0E282E !important;
+    color: #C4C8D4 !important;
+  }
+
+  .sbdocs th {
+    color: #FFFFFF !important;
+  }
+
+  /* Links */
+  .sbdocs a {
+    color: #0EA6C1 !important;
+  }
+
+  .sbdocs a:hover {
+    color: #33C2D7 !important;
+  }
+
+  /* Inline code */
+  .sbdocs code {
+    background-color: #00111A !important;
+    color: #0EA6C1 !important;
+    border: 1px solid #0E282E !important;
+  }
+
+  /* Blockquotes */
+  .sbdocs blockquote {
+    border-left-color: #0EA6C1 !important;
+    background-color: rgba(0, 17, 26, 0.5) !important;
+    color: #C4C8D4 !important;
+  }
+
+  /* HR dividers */
+  .sbdocs hr {
+    border-color: #0E282E !important;
   }
 </style>
