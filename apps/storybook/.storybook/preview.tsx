@@ -1,7 +1,11 @@
 import type { Preview } from '@storybook/react';
+import React from 'react';
 import { DocsContainer } from '@storybook/blocks';
 import { themes } from '@storybook/theming';
 import '@shared/ui/styles/globals.css';
+
+// Mock Next.js Link for Storybook
+globalThis.React = React;
 
 const preview: Preview = {
   parameters: {
@@ -40,8 +44,8 @@ const preview: Preview = {
         brandImage: undefined,
 
         // Ozean Licht color palette
-        colorPrimary: '#0EA6C1',      // Oceanic cyan
-        colorSecondary: '#0EA6C1',
+        colorPrimary: '#0ec2bc',      // Turquoise
+        colorSecondary: '#0ec2bc',
 
         // UI backgrounds
         appBg: '#00070F',              // Deep ocean background
@@ -56,7 +60,7 @@ const preview: Preview = {
 
         // Toolbar
         barTextColor: '#C4C8D4',
-        barSelectedColor: '#0EA6C1',
+        barSelectedColor: '#0ec2bc',
         barBg: '#00111A',
 
         // Form elements

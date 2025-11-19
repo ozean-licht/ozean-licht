@@ -137,7 +137,7 @@
     "lastUpdated": "2025-11-17T12:54:31Z"
   },
   "navigation": {
-    "last_command": "tools/remote/list.sh",
-    "timestamp": "2025-11-17T12:54:03Z"
+    "last_command": "tools/deployment/list.sh",
+    "timestamp": "2025-11-17T15:52:42Z"
   }
 }

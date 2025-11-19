@@ -9,8 +9,8 @@ addons.setConfig({
     brandImage: undefined,
 
     // Ozean Licht color palette
-    colorPrimary: '#0EA6C1',      // Oceanic cyan
-    colorSecondary: '#0EA6C1',
+    colorPrimary: '#0ec2bc',      // Turquoise
+    colorSecondary: '#0ec2bc',
 
     // UI
     appBg: '#00070F',              // Deep ocean background
@@ -24,7 +24,7 @@ addons.setConfig({
 
     // Toolbar default and active colors
     barTextColor: '#C4C8D4',
-    barSelectedColor: '#0EA6C1',
+    barSelectedColor: '#0ec2bc',
     barBg: '#00111A',
 
     // Form colors

@@ -20,7 +20,7 @@ This is the **official design system** for the Ozean Licht ecosystem:
 
 **Oceanic Depth** - Deep water mystery through:
 1. Very dark blue-black backgrounds
-2. Cyan-blue accent color (#0EA6C1)
+2. Turquoise accent color (#0ec2bc)
 3. Glass morphism effects
 4. Elegant typography (Cinzel Decorative sparingly)
 5. Subtle animations (glow, float)
@@ -38,7 +38,7 @@ secondaryBackground: '#000F1F',  // Badges, spans, highlights
 card: '#00111A',                 // Card background
 
 // Accents
-primary: '#0EA6C1',             // Main accent (oceanic cyan)
+primary: '#0ec2bc',             // Main accent (turquoise)
 mutedAccent: '#055D75',         // Buttons, secondary actions
 
 // Borders
@@ -49,19 +49,19 @@ heading: '#fff',                // Headings (h1-h6)
 paragraph: '#C4C8D4',           // Body text, paragraphs
 ```
 
-### Primary Color - Oceanic Cyan
+### Primary Color - Turquoise
 
 ```typescript
 primary: {
-  DEFAULT: '#0EA6C1',           // Main brand color
-  50:  '#E6F7FA',
-  100: '#CCF0F5',
-  200: '#99E1EB',
-  300: '#66D1E1',
-  400: '#33C2D7',
-  500: '#0EA6C1',               // Base
-  600: '#0B859A',
-  700: '#086473',
+  DEFAULT: '#0ec2bc',           // Main brand color
+  50:  '#E6F9F8',
+  100: '#CCF3F1',
+  200: '#99E7E3',
+  300: '#66DBD5',
+  400: '#33CFC7',
+  500: '#0ec2bc',               // Base
+  600: '#0B9B96',
+  700: '#087470',
   800: '#055D75',               // Muted accent
   900: '#033B4D',
   foreground: '#fff',
@@ -287,7 +287,7 @@ xl: '0.75rem',   // 12px
 ### Color Contrast (WCAG AA)
 
 All combinations meet WCAG AA standards:
-- Cyan (#0EA6C1) on Dark (#00070F): **4.5:1** ✅
+- Turquoise (#0ec2bc) on Dark (#00070F): **4.5:1** ✅
 - White (#fff) on Dark (#00070F): **21:1** ✅ (AAA)
 - Paragraph (#C4C8D4) on Dark (#00070F): **8.2:1** ✅ (AAA)
 
@@ -359,7 +359,7 @@ border-[#0E282E]  → Borders
 
 When creating components, ensure:
 
-- [ ] Uses correct colors (#0EA6C1 primary, #00070F background)
+- [ ] Uses correct colors (#0ec2bc primary, #00070F background)
 - [ ] Glass morphism for elevated surfaces
 - [ ] Cinzel Decorative used SPARINGLY (H1, H2 only)
 - [ ] Montserrat for body text with Light (300) weight

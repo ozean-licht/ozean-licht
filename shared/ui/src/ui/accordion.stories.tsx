@@ -62,7 +62,7 @@ export const Multiple: Story = {
         <AccordionItem value="item-1">
           <AccordionTrigger>Design System</AccordionTrigger>
           <AccordionContent>
-            Ozean Licht Design System features oceanic cyan (#0EA6C1), deep ocean
+            Ozean Licht Design System features turquoise (#0ec2bc), deep ocean
             backgrounds, and glass morphism effects.
           </AccordionContent>
         </AccordionItem>

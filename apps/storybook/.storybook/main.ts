@@ -15,6 +15,17 @@ const config: StorybookConfig = {
     '../../../shared/ui/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
 
+  viteFinal: async (config) => {
+    if (config.resolve) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'next/link': join(__dirname, 'next-link-mock.tsx'),
+        '@/shared/assets': join(__dirname, '../../../shared/assets'),
+      };
+    }
+    return config;
+  },
+
   addons: [
     getAbsolutePath('@storybook/addon-essentials'),
     getAbsolutePath('@storybook/addon-interactions'),
