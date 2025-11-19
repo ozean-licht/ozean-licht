@@ -15,13 +15,43 @@ const config: StorybookConfig = {
     '../../../shared/ui/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
 
+  // Explicitly set preview path
+  previewAnnotations: [
+    join(__dirname, 'preview.tsx'),
+  ],
+
   viteFinal: async (config) => {
+    // Add Tailwind CSS v4 Vite plugin (modern, recommended approach)
+    const tailwindcss = (await import('@tailwindcss/vite')).default;
+    config.plugins = config.plugins || [];
+    config.plugins.push(tailwindcss());
+
+    // Allow Vite to access files outside the app root
+    if (!config.server) config.server = {};
+    if (!config.server.fs) config.server.fs = {};
+    config.server.fs.allow = [
+      // Allow access to the monorepo root
+      join(__dirname, '../../../'),
+    ];
+
     if (config.resolve) {
       config.resolve.alias = {
         ...config.resolve.alias,
         'next/link': join(__dirname, 'next-link-mock.tsx'),
         '@/shared/assets': join(__dirname, '../../../shared/assets'),
+        '@shared/ui/dist': join(__dirname, '../../../shared/ui/dist'),
+        '@shared/ui': join(__dirname, '../../../shared/ui/src'),
       };
+      // Ensure TypeScript extensions are resolved
+      config.resolve.extensions = [
+        '.mjs',
+        '.js',
+        '.mts',
+        '.ts',
+        '.jsx',
+        '.tsx',
+        '.json',
+      ];
     }
     return config;
   },

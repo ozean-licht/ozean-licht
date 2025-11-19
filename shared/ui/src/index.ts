@@ -20,7 +20,8 @@ export * from './cossui'
 export * from './branded'
 
 // Tier 3: Export compositions (complex sections)
-export * from './compositions'
+// TEMPORARILY DISABLED - compositions have import errors that need fixing
+// export * from './compositions'
 
 // Export utilities
 export * from './utils'

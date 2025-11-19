@@ -2,6 +2,7 @@ import type { Preview } from '@storybook/react';
 import React, { useEffect } from 'react';
 import { DocsContainer } from '@storybook/blocks';
 import { themes } from '@storybook/theming';
+// Import Tailwind CSS using alias - Vite will process it
 import '@shared/ui/styles/globals.css';
 
 // Mock Next.js Link for Storybook

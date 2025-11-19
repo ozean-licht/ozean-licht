@@ -1,12 +1,47 @@
 /**
  * Basic globals CSS for shadcn/ui components
- * No custom branding - just the essentials
+ * Tailwind CSS v4 syntax
  */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+/* Tell Tailwind where to find classes */
+@source "../**/*.{js,jsx,ts,tsx,mdx}";
+
+/* Tailwind v4 Theme Configuration */
+@theme {
+  /* Font families */
+  --font-decorative: "Cinzel Decorative", Georgia, serif;
+  --font-sans: Montserrat, system-ui, -apple-system, sans-serif;
+  --font-alt: "Montserrat Alternates", Montserrat, sans-serif;
+  --font-mono: "Fira Code", "Courier New", monospace;
+
+  /* Ozean Licht Colors - Tailwind V4 format */
+  --color-primary: #0ec2bc;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #000F1F;
+  --color-secondary-foreground: #ffffff;
+  --color-background: #00070F;
+  --color-foreground: #ffffff;
+  --color-card: #00111A;
+  --color-card-foreground: #ffffff;
+  --color-popover: #00111A;
+  --color-popover-foreground: #ffffff;
+  --color-muted: #0E282E;
+  --color-muted-foreground: #C4C8D4;
+  --color-accent: #0ec2bc;
+  --color-accent-foreground: #ffffff;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #0E282E;
+  --color-input: #0E282E;
+  --color-ring: #0ec2bc;
+
+  /* Border radius */
+  --radius: 0.5rem;
+}
+
+/* Ozean Licht Design System Variables */
 @layer base {
   :root {
     /* Ozean Licht Light Mode (for reference - dark mode is primary) */
@@ -25,17 +60,11 @@
     --accent: 178 87% 41%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: var(--color-red-700);
+    --destructive-foreground: 239 68% 53%;
     --border: 191 53% 12%;
     --input: 191 53% 12%;
     --ring: 178 87% 41%;
     --radius: 0.5rem;
-    --info: var(--color-blue-500);
-    --info-foreground: var(--color-blue-700);
-    --success: var(--color-emerald-500);
-    --success-foreground: var(--color-emerald-700);
-    --warning: var(--color-amber-500);
-    --warning-foreground: var(--color-amber-700);
   }
 
   .dark {
@@ -55,38 +84,19 @@
     --accent: 178 87% 41%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: var(--color-red-400);
+    --destructive-foreground: 0 85% 70%;
     --border: 191 53% 12%; /* #0E282E - Borders */
     --input: 191 53% 12%;
     --ring: 178 87% 41%;
-    --info: var(--color-blue-500);
-    --info-foreground: var(--color-blue-400);
-    --success: var(--color-emerald-500);
-    --success-foreground: var(--color-emerald-400);
-    --warning: var(--color-amber-500);
-    --warning-foreground: var(--color-amber-400);
-  }
-  .theme {
-    --animate-skeleton: skeleton 2s -1s infinite linear;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
   body {
-    @apply bg-background text-foreground;
-  }
-}
-
-/*---break---
- */
-
-@theme inline {
-  @keyframes skeleton {
-  to {
-    background-position: -200% 0;
-    }
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
