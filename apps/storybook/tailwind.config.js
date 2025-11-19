@@ -114,12 +114,18 @@ export default {
           '0%': { transform: 'translateX(-100%) skewX(-12deg)' },
           '100%': { transform: 'translateX(200%) skewX(-12deg)' },
         },
+        gradient: {
+          to: {
+            backgroundPosition: 'var(--bg-size) 0',
+          },
+        },
       },
 
       animation: {
         glow: 'glow 2s ease-in-out infinite alternate',
         float: 'float 6s ease-in-out infinite',
         shine: 'shine 2s linear infinite',
+        gradient: 'gradient 8s linear infinite',
       },
     },
   },

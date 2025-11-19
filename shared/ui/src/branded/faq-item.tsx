@@ -14,7 +14,7 @@ export function FaqItem({ question, answer, defaultOpen = false }: FaqItemProps)
 
   return (
     <div
-      className="backdrop-blur-sm border rounded-2xl overflow-hidden glass-card"
+      className="w-full backdrop-blur-sm border rounded-2xl overflow-hidden glass-card"
       style={{ border: "1px solid hsl(var(--border))" }}
     >
       <button
@@ -33,7 +33,7 @@ export function FaqItem({ question, answer, defaultOpen = false }: FaqItemProps)
 
       {isOpen && (
         <div className="px-6 pb-6 pt-2">
-          <p className="text-gray-100 font-montserrat-alt leading-relaxed">{answer}</p>
+          <p className="text-white/80 font-montserrat-alt leading-relaxed">{answer}</p>
         </div>
       )}
     </div>
