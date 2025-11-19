@@ -3,7 +3,7 @@
  *
  * Four-tier component system:
  * - Tier 0: Custom Primitives - Custom minimal building blocks
- * - Tier 1: Primitives - ShadCN & MagicUI base components
+ * - Tier 1: Primitives - ShadCN, MagicUI & CossUI base components
  * - Tier 2: Branded - Ozean Licht branded components
  * - Tier 3: Compositions - Complex sections combining multiple components
  */
@@ -11,9 +11,10 @@
 // Tier 0: Export custom primitives
 export * from './primitives'
 
-// Tier 1: Export primitive libraries (ShadCN + MagicUI)
+// Tier 1: Export primitive libraries (ShadCN + MagicUI + CossUI)
 export * from './ui'
 export * from './magicui'
+export * from './cossui'
 
 // Tier 2: Export branded Ozean Licht components
 export * from './branded'
