@@ -10,13 +10,13 @@ module.exports = {
       colors: {
         // Ozean Licht Primary (Oceanic Cyan) - Brand Color
         primary: {
-          DEFAULT: '#0EA6C1',
+          DEFAULT: '#0ec2bc',
           50: '#E6F7FA',
           100: '#CCF0F5',
           200: '#99E1EB',
           300: '#66D1E1',
           400: '#33C2D7',
-          500: '#0EA6C1',
+          500: '#0ec2bc',
           600: '#0B859A',
           700: '#086473',
           800: '#055D75',
@@ -46,7 +46,7 @@ module.exports = {
         // Border
         border: '#0E282E',
         input: '#0E282E',
-        ring: '#0EA6C1',
+        ring: '#0ec2bc',
         // Semantic colors
         destructive: {
           DEFAULT: '#EF4444',

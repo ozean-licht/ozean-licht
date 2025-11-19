@@ -63,13 +63,13 @@ export default {
         mutedAccent: '#055D75',          // Buttons, secondary
 
         primary: {
-          DEFAULT: '#0EA6C1',  // Oceanic cyan
+          DEFAULT: '#0ec2bc',  // Oceanic cyan
           50: '#E6F7FA',
           100: '#CCF0F5',
           200: '#99E1EB',
           300: '#66D1E1',
           400: '#33C2D7',
-          500: '#0EA6C1',
+          500: '#0ec2bc',
           600: '#0B859A',
           700: '#086473',
           800: '#055D75',

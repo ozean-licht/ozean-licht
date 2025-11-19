@@ -158,7 +158,7 @@ import { Select } from '@ozean-licht/shared-ui'
 import { colors, typography, spacing, animations } from '@ozean-licht/shared-ui/tokens'
 
 // Use in components
-const primaryColor = colors.primary.DEFAULT  // '#0EA6C1'
+const primaryColor = colors.primary.DEFAULT  // '#0ec2bc'
 const headingFont = typography.fonts.decorative  // 'Cinzel Decorative'
 const cardPadding = spacing[6]  // '1.5rem' (24px)
 ```
@@ -290,7 +290,7 @@ All components are built with Tailwind CSS and support className prop:
 ### Default Theme (Ozean Licht)
 
 All components use Ozean Licht theme by default:
-- Primary: Oceanic Cyan (#0EA6C1)
+- Primary: Oceanic Cyan (#0ec2bc)
 - Background: Deep Ocean Dark (#00070F)
 - Card Background: #00111A
 - Muted Accent: #055D75
@@ -454,7 +454,7 @@ All modern browsers with CSS Grid, CSS Variables, and `backdrop-filter` support.
 ### v0.2.0 (2025-11-16)
 
 **Design System Alignment - Color Correction**
-- ✅ Updated primary color: #0ec2bc → #0EA6C1 (oceanic cyan)
+- ✅ Updated primary color: #0EA6C1 → #0ec2bc (oceanic cyan)
 - ✅ Updated background: #0A0F1A → #00070F (deep ocean dark)
 - ✅ Updated card background: #1A1F2E → #00111A
 - ✅ Updated border color: #2A2F3E → #0E282E

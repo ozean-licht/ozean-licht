@@ -15,7 +15,7 @@ This Storybook showcases all UI components from the `@shared/ui` package, provid
 - Design token reference
 - Usage examples
 
-**Design System:** Oceanic cyan (#0EA6C1), deep ocean dark theme, glass morphism effects
+**Design System:** Oceanic cyan (#0ec2bc), deep ocean dark theme, glass morphism effects
 
 ---
 
@@ -154,7 +154,7 @@ All components include:
 ### Colors
 
 ```typescript
-Primary: '#0EA6C1'        // Oceanic cyan
+Primary: '#0ec2bc'        // Oceanic cyan
 Background: '#00070F'     // Deep ocean dark
 Card: '#00111A'           // Card background
 Border: '#0E282E'         // Borders
