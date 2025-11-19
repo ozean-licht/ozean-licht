@@ -1,5 +1,5 @@
 import type { Preview } from '@storybook/react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DocsContainer } from '@storybook/blocks';
 import { themes } from '@storybook/theming';
 import '@shared/ui/styles/globals.css';
@@ -8,6 +8,22 @@ import '@shared/ui/styles/globals.css';
 globalThis.React = React;
 
 const preview: Preview = {
+  decorators: [
+    (Story) => {
+      useEffect(() => {
+        // Add dark class to html and body for Tailwind dark mode and CSS variables
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
+
+        return () => {
+          document.documentElement.classList.remove('dark');
+          document.body.classList.remove('dark');
+        };
+      }, []);
+
+      return <Story />;
+    },
+  ],
   parameters: {
     controls: {
       matchers: {

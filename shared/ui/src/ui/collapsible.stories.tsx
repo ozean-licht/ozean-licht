@@ -304,7 +304,7 @@ export const NestedContent: Story = {
           <div className="rounded-md border px-4 py-4 space-y-4 text-sm">
             <div>
               <h3 className="font-semibold mb-2">Installation</h3>
-              <code className="bg-gray-100 px-2 py-1 rounded text-xs">
+              <code className="bg-muted/30 px-2 py-1 rounded text-xs">
                 npm install @radix-ui/react-collapsible
               </code>
             </div>
@@ -390,7 +390,7 @@ export const FAQExample: Story = {
                 <CollapsibleTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="w-full justify-between text-left font-normal h-auto py-3 px-4 hover:bg-gray-50"
+                    className="w-full justify-between text-left font-normal h-auto py-3 px-4 hover:bg-primary/5"
                   >
                     <span className="flex items-center gap-3">
                       <HelpCircle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -404,7 +404,7 @@ export const FAQExample: Story = {
                   </Button>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <div className="px-4 py-3 ml-7 text-sm text-muted-foreground bg-gray-50 rounded-md">
+                  <div className="px-4 py-3 ml-7 text-sm text-muted-foreground bg-muted/20 rounded-md">
                     {faq.answer}
                   </div>
                 </CollapsibleContent>
@@ -572,7 +572,7 @@ export const SidebarSection: Story = {
             <CollapsibleTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full justify-between px-3 h-9 font-normal hover:bg-gray-100"
+                className="w-full justify-between px-3 h-9 font-normal hover:bg-primary/10"
               >
                 <span className="flex items-center gap-2">
                   <Settings className="h-4 w-4" />
@@ -622,7 +622,7 @@ export const SidebarSection: Story = {
             <CollapsibleTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full justify-between px-3 h-9 font-normal hover:bg-gray-100"
+                className="w-full justify-between px-3 h-9 font-normal hover:bg-primary/10"
               >
                 <span className="flex items-center gap-2">
                   <Menu className="h-4 w-4" />

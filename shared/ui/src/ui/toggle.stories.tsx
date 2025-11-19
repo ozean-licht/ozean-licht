@@ -341,7 +341,7 @@ export const ControlledState: Story = {
                 setIsItalic(true);
                 setIsUnderline(true);
               }}
-              className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded"
+              className="px-3 py-1 text-xs bg-muted/30 hover:bg-muted/40 rounded"
             >
               Enable All
             </button>
@@ -351,7 +351,7 @@ export const ControlledState: Story = {
                 setIsItalic(false);
                 setIsUnderline(false);
               }}
-              className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded"
+              className="px-3 py-1 text-xs bg-muted/30 hover:bg-muted/40 rounded"
             >
               Disable All
             </button>

@@ -273,7 +273,7 @@ export const MultipleHoverCards: Story = {
         ].map((member) => (
           <div
             key={member.username}
-            className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-50"
+            className="flex items-center gap-2 p-2 rounded-md hover:bg-primary/5"
           >
             <HoverCard>
               <HoverCardTrigger asChild>
@@ -549,8 +549,8 @@ export const ProductCard: Story = {
         ].map((product, index) => (
           <HoverCard key={index}>
             <HoverCardTrigger asChild>
-              <div className="border rounded-lg p-3 cursor-pointer hover:border-gray-400 transition-colors">
-                <div className="aspect-square bg-gray-100 rounded-md mb-2 flex items-center justify-center text-xs text-gray-400">
+              <div className="border rounded-lg p-3 cursor-pointer hover:border-primary/40 transition-colors">
+                <div className="aspect-square bg-card rounded-md mb-2 flex items-center justify-center text-xs text-muted-foreground">
                   Image
                 </div>
                 <h4 className="text-sm font-medium">{product.name}</h4>
@@ -681,7 +681,7 @@ export const RepositoryPreview: Story = {
         ].map((repo, index) => (
           <HoverCard key={index}>
             <HoverCardTrigger asChild>
-              <div className="border rounded-lg p-3 cursor-pointer hover:border-gray-400 transition-colors">
+              <div className="border rounded-lg p-3 cursor-pointer hover:border-primary/40 transition-colors">
                 <h4 className="text-sm font-semibold text-blue-600">{repo.name}</h4>
                 <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
                   {repo.description}

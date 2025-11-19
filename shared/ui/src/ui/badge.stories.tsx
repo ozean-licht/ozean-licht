@@ -557,21 +557,21 @@ export const ClickableBadges: Story = {
         <div className="flex flex-wrap gap-2">
           <Badge
             variant="outline"
-            className="cursor-pointer hover:bg-gray-100 transition-colors"
+            className="cursor-pointer hover:bg-primary/10 transition-colors"
             onClick={() => alert('Clicked Tailwind')}
           >
             Tailwind CSS
           </Badge>
           <Badge
             variant="outline"
-            className="cursor-pointer hover:bg-gray-100 transition-colors"
+            className="cursor-pointer hover:bg-primary/10 transition-colors"
             onClick={() => alert('Clicked Storybook')}
           >
             Storybook
           </Badge>
           <Badge
             variant="outline"
-            className="cursor-pointer hover:bg-gray-100 transition-colors"
+            className="cursor-pointer hover:bg-primary/10 transition-colors"
             onClick={() => alert('Clicked Vite')}
           >
             Vite

@@ -402,19 +402,19 @@ export const ControlledValue: Story = {
             <div className="flex gap-2">
               <button
                 onClick={() => setSingleValue('left')}
-                className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded"
+                className="text-xs px-2 py-1 bg-muted/30 hover:bg-muted/40 rounded"
               >
                 Set Left
               </button>
               <button
                 onClick={() => setSingleValue('center')}
-                className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded"
+                className="text-xs px-2 py-1 bg-muted/30 hover:bg-muted/40 rounded"
               >
                 Set Center
               </button>
               <button
                 onClick={() => setSingleValue('')}
-                className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded"
+                className="text-xs px-2 py-1 bg-muted/30 hover:bg-muted/40 rounded"
               >
                 Clear
               </button>
@@ -447,13 +447,13 @@ export const ControlledValue: Story = {
             <div className="flex gap-2">
               <button
                 onClick={() => setMultipleValue(['bold', 'italic', 'underline'])}
-                className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded"
+                className="text-xs px-2 py-1 bg-muted/30 hover:bg-muted/40 rounded"
               >
                 Select All
               </button>
               <button
                 onClick={() => setMultipleValue([])}
-                className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded"
+                className="text-xs px-2 py-1 bg-muted/30 hover:bg-muted/40 rounded"
               >
                 Clear All
               </button>

@@ -269,27 +269,27 @@ export const MobileMenu: Story = {
         </DrawerHeader>
         <div className="px-4 pb-4 space-y-2">
           <DrawerClose asChild>
-            <button className="w-full px-4 py-3 text-left hover:bg-gray-100 rounded-md transition-colors">
+            <button className="w-full px-4 py-3 text-left hover:bg-primary/10 rounded-md transition-colors">
               Home
             </button>
           </DrawerClose>
           <DrawerClose asChild>
-            <button className="w-full px-4 py-3 text-left hover:bg-gray-100 rounded-md transition-colors">
+            <button className="w-full px-4 py-3 text-left hover:bg-primary/10 rounded-md transition-colors">
               Dashboard
             </button>
           </DrawerClose>
           <DrawerClose asChild>
-            <button className="w-full px-4 py-3 text-left hover:bg-gray-100 rounded-md transition-colors">
+            <button className="w-full px-4 py-3 text-left hover:bg-primary/10 rounded-md transition-colors">
               Projects
             </button>
           </DrawerClose>
           <DrawerClose asChild>
-            <button className="w-full px-4 py-3 text-left hover:bg-gray-100 rounded-md transition-colors">
+            <button className="w-full px-4 py-3 text-left hover:bg-primary/10 rounded-md transition-colors">
               Settings
             </button>
           </DrawerClose>
           <DrawerClose asChild>
-            <button className="w-full px-4 py-3 text-left hover:bg-gray-100 rounded-md transition-colors">
+            <button className="w-full px-4 py-3 text-left hover:bg-primary/10 rounded-md transition-colors">
               Profile
             </button>
           </DrawerClose>
@@ -613,7 +613,7 @@ export const CustomCloseButton: Story = {
         </DrawerHeader>
         <div className="px-4 py-4 space-y-3">
           <DrawerClose asChild>
-            <button className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm">
+            <button className="w-full px-4 py-2 bg-muted/30 hover:bg-muted/40 rounded-md text-sm">
               Custom Button (closes drawer)
             </button>
           </DrawerClose>

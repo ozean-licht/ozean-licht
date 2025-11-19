@@ -763,7 +763,7 @@ export const CustomStyled: Story = {
         <PaginationItem>
           <PaginationPrevious
             href="#"
-            className="rounded-full border-2 hover:bg-gray-100"
+            className="rounded-full border-2 hover:bg-primary/10"
           />
         </PaginationItem>
         <PaginationItem>
@@ -788,7 +788,7 @@ export const CustomStyled: Story = {
         <PaginationItem>
           <PaginationNext
             href="#"
-            className="rounded-full border-2 hover:bg-gray-100"
+            className="rounded-full border-2 hover:bg-primary/10"
           />
         </PaginationItem>
       </PaginationContent>

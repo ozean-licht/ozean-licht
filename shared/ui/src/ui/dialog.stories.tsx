@@ -327,7 +327,7 @@ export const CustomCloseButton: Story = {
         </DialogHeader>
         <div className="py-4 space-y-3">
           <DialogClose asChild>
-            <button className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm">
+            <button className="w-full px-4 py-2 bg-muted/30 hover:bg-muted/40 rounded-md text-sm">
               Custom Button (closes dialog)
             </button>
           </DialogClose>

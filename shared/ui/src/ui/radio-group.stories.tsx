@@ -126,7 +126,7 @@ export const WithDescriptions: Story = {
     <div className="space-y-4 max-w-md">
       <h3 className="text-lg font-semibold">Notification preferences</h3>
       <RadioGroup defaultValue="all">
-        <div className="flex items-start space-x-3 p-3 rounded-md hover:bg-gray-50">
+        <div className="flex items-start space-x-3 p-3 rounded-md hover:bg-primary/5">
           <RadioGroupItem value="all" id="all" className="mt-1" />
           <div className="flex-1">
             <Label htmlFor="all" className="cursor-pointer font-medium">
@@ -137,7 +137,7 @@ export const WithDescriptions: Story = {
             </p>
           </div>
         </div>
-        <div className="flex items-start space-x-3 p-3 rounded-md hover:bg-gray-50">
+        <div className="flex items-start space-x-3 p-3 rounded-md hover:bg-primary/5">
           <RadioGroupItem value="mentions" id="mentions" className="mt-1" />
           <div className="flex-1">
             <Label htmlFor="mentions" className="cursor-pointer font-medium">
@@ -148,7 +148,7 @@ export const WithDescriptions: Story = {
             </p>
           </div>
         </div>
-        <div className="flex items-start space-x-3 p-3 rounded-md hover:bg-gray-50">
+        <div className="flex items-start space-x-3 p-3 rounded-md hover:bg-primary/5">
           <RadioGroupItem value="none" id="none" className="mt-1" />
           <div className="flex-1">
             <Label htmlFor="none" className="cursor-pointer font-medium">
@@ -340,7 +340,7 @@ export const InForm: Story = {
             <Button type="submit">Submit</Button>
           </form>
           {submittedValue && (
-            <div className="p-4 bg-gray-50 rounded-md">
+            <div className="p-4 bg-card rounded-md">
               <p className="text-sm">
                 Submitted value: <strong>{submittedValue}</strong>
               </p>
@@ -364,7 +364,7 @@ export const PaymentMethods: Story = {
     <div className="space-y-4 max-w-md">
       <h3 className="text-lg font-semibold">Payment method</h3>
       <RadioGroup defaultValue="card">
-        <div className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+        <div className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-primary/5 cursor-pointer">
           <RadioGroupItem value="card" id="payment-card" className="mt-1" />
           <div className="flex-1">
             <Label htmlFor="payment-card" className="cursor-pointer font-medium">
@@ -375,7 +375,7 @@ export const PaymentMethods: Story = {
             </p>
           </div>
         </div>
-        <div className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+        <div className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-primary/5 cursor-pointer">
           <RadioGroupItem value="paypal" id="payment-paypal" className="mt-1" />
           <div className="flex-1">
             <Label htmlFor="payment-paypal" className="cursor-pointer font-medium">
@@ -386,7 +386,7 @@ export const PaymentMethods: Story = {
             </p>
           </div>
         </div>
-        <div className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+        <div className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-primary/5 cursor-pointer">
           <RadioGroupItem value="bank" id="payment-bank" className="mt-1" />
           <div className="flex-1">
             <Label htmlFor="payment-bank" className="cursor-pointer font-medium">
@@ -397,7 +397,7 @@ export const PaymentMethods: Story = {
             </p>
           </div>
         </div>
-        <div className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 cursor-pointer opacity-50">
+        <div className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-primary/5 cursor-pointer opacity-50">
           <RadioGroupItem value="crypto" id="payment-crypto" className="mt-1" disabled />
           <div className="flex-1">
             <Label htmlFor="payment-crypto" className="font-medium">
@@ -423,7 +423,7 @@ export const ShippingOptions: Story = {
     <div className="space-y-4 max-w-lg">
       <h3 className="text-lg font-semibold">Shipping options</h3>
       <RadioGroup defaultValue="standard">
-        <div className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+        <div className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-primary/5 cursor-pointer">
           <RadioGroupItem value="express" id="ship-express" className="mt-1" />
           <div className="flex-1">
             <div className="flex justify-between items-start">
@@ -454,7 +454,7 @@ export const ShippingOptions: Story = {
             </p>
           </div>
         </div>
-        <div className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+        <div className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-primary/5 cursor-pointer">
           <RadioGroupItem value="economy" id="ship-economy" className="mt-1" />
           <div className="flex-1">
             <div className="flex justify-between items-start">
@@ -541,7 +541,7 @@ export const OzeanLichtThemed: Story = {
         </h3>
         <RadioGroup defaultValue="intermediate">
           <div
-            className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 cursor-pointer"
+            className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-primary/5 cursor-pointer"
             style={{ borderColor: '#e5e7eb' }}
           >
             <RadioGroupItem
@@ -592,7 +592,7 @@ export const OzeanLichtThemed: Story = {
             </div>
           </div>
           <div
-            className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-gray-50 cursor-pointer"
+            className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-primary/5 cursor-pointer"
             style={{ borderColor: '#e5e7eb' }}
           >
             <RadioGroupItem
@@ -623,7 +623,7 @@ export const OzeanLichtThemed: Story = {
           Learning Path
         </h3>
         <RadioGroup defaultValue="guided">
-          <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+          <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-primary/5 cursor-pointer">
             <RadioGroupItem
               value="guided"
               id="path-guided"
@@ -638,7 +638,7 @@ export const OzeanLichtThemed: Story = {
               Guided Learning (Structured curriculum)
             </Label>
           </div>
-          <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+          <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-primary/5 cursor-pointer">
             <RadioGroupItem
               value="self-paced"
               id="path-self"
@@ -653,7 +653,7 @@ export const OzeanLichtThemed: Story = {
               Self-Paced (Learn at your own speed)
             </Label>
           </div>
-          <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+          <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-primary/5 cursor-pointer">
             <RadioGroupItem
               value="mentored"
               id="path-mentored"

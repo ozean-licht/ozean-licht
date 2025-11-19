@@ -53,7 +53,7 @@ function getTagStyle(tag: string): string {
   }
   
   // Default style
-  return 'bg-gray-500/20 text-gray-300 border border-gray-500/30 hover:bg-gray-500/30';
+  return 'bg-gray-500/20 text-gray-300 border border-gray-500/30 hover:bg-primary/50/30';
 }
 
 export function CourseCard({ course, variant = "default" }: CourseCardProps) {
