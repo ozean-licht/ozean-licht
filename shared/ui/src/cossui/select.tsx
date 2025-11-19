@@ -27,7 +27,7 @@ const SelectTrigger = React.forwardRef<
     ref={ref}
     className={cn(
       'flex h-10 w-full items-center justify-between gap-2 rounded-lg',
-      'bg-card/70 backdrop-blur-12 border border-border px-3 py-2',
+      'bg-card/70 backdrop-blur-md border border-border px-3 py-2',
       'text-sm font-sans font-light text-[#C4C8D4]',
       'transition-all duration-200',
       'hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10',
@@ -79,6 +79,12 @@ const SelectValue = React.forwardRef<
 SelectValue.displayName = 'SelectValue'
 
 /**
+ * Select Portal - Portal for overlay rendering
+ * Wraps BaseSelect.Portal (if available)
+ */
+const SelectPortal = BaseSelect.Portal
+
+/**
  * Select Positioner - Required wrapper for Popup
  * Wraps BaseSelect.Positioner
  */
@@ -86,30 +92,36 @@ const SelectPositioner = BaseSelect.Positioner
 
 /**
  * Select Popup - The dropdown container
- * Must be placed within SelectPositioner
+ * Internally wraps with Portal and Positioner (similar to Popover)
  * Wraps BaseSelect.Popup with Ozean Licht styling
  */
 const SelectPopup = React.forwardRef<
   HTMLDivElement,
-  React.ComponentPropsWithoutRef<typeof BaseSelect.Popup>
->(({ className, children, ...props }, ref) => (
-  <BaseSelect.Popup
-    ref={ref}
-    className={cn(
-      'relative z-50 min-w-[8rem] overflow-hidden rounded-lg',
-      'bg-card/90 backdrop-blur-16 border border-primary/20',
-      'shadow-lg shadow-primary/10',
-      'data-[state=open]:animate-in data-[state=closed]:animate-out',
-      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-      'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
-      'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-      className
-    )}
-    {...props}
-  >
-    <div className="p-1">{children}</div>
-  </BaseSelect.Popup>
+  React.ComponentPropsWithoutRef<typeof BaseSelect.Popup> & {
+    sideOffset?: number
+  }
+>(({ className, children, sideOffset = 4, ...props }, ref) => (
+  <BaseSelect.Portal>
+    <BaseSelect.Positioner sideOffset={sideOffset}>
+      <BaseSelect.Popup
+        ref={ref}
+        className={cn(
+          'z-50 min-w-[8rem] overflow-hidden rounded-lg',
+          'bg-card/90 backdrop-blur-lg border border-primary/20',
+          'shadow-lg shadow-primary/10',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out',
+          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+          'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+          'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
+          'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          className
+        )}
+        {...props}
+      >
+        <div className="p-1">{children}</div>
+      </BaseSelect.Popup>
+    </BaseSelect.Positioner>
+  </BaseSelect.Portal>
 ))
 SelectPopup.displayName = 'SelectPopup'
 
@@ -208,6 +220,7 @@ export {
   Select,
   SelectTrigger,
   SelectValue,
+  SelectPortal,
   SelectPositioner,
   SelectPopup,
   SelectItem,

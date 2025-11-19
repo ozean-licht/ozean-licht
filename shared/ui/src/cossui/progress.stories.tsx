@@ -36,6 +36,11 @@ type Story = StoryObj<typeof Progress>
  * Basic progress bar with default styling
  */
 export const Default: Story = {
+  render: (args) => (
+    <div className="w-[400px]">
+      <Progress value={args.value} max={args.max} />
+    </div>
+  ),
   args: {
     value: 50,
     max: 100,

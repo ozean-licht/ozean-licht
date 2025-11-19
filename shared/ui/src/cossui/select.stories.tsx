@@ -1,35 +1,34 @@
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */
-import { type Meta, type StoryObj } from '@storybook/react'
-import React from 'react'
+import { type Meta, type StoryObj } from "@storybook/react";
+import React from "react";
 import {
   Select,
   SelectTrigger,
   SelectValue,
-  SelectPositioner,
   SelectPopup,
   SelectItem,
   SelectSeparator,
   SelectGroup,
   SelectLabel,
-} from './select'
-import { Label } from './label'
+} from "./select";
+import { Label } from "./label";
 
 const meta: Meta = {
-  title: 'CossUI/Select',
+  title: "CossUI/Select",
   parameters: {
-    layout: 'centered',
+    layout: "centered",
     docs: {
       description: {
         component:
-          'Select component from Coss UI adapted for Ozean Licht design system. Built on Base UI with glass morphism effects, supports grouping, and provides accessible dropdown selections with customizable items and styling.',
+          "Select component from Coss UI adapted for Ozean Licht design system. Built on Base UI with glass morphism effects, supports grouping, and provides accessible dropdown selections with customizable items and styling.",
       },
     },
   },
-  tags: ['autodocs'],
-}
+  tags: ["autodocs"],
+};
 
-export default meta
-type Story = StoryObj
+export default meta;
+type Story = StoryObj;
 
 // Basic default select
 export const Default: Story = {
@@ -38,16 +37,14 @@ export const Default: Story = {
       <SelectTrigger>
         <SelectValue placeholder="Select an option" />
       </SelectTrigger>
-      <SelectPositioner>
-        <SelectPopup>
+      <SelectPopup>
         <SelectItem value="option-1">Option 1</SelectItem>
         <SelectItem value="option-2">Option 2</SelectItem>
         <SelectItem value="option-3">Option 3</SelectItem>
       </SelectPopup>
-      </SelectPositioner>
     </Select>
   ),
-}
+};
 
 // Select with placeholder
 export const WithPlaceholder: Story = {
@@ -58,18 +55,17 @@ export const WithPlaceholder: Story = {
         <SelectTrigger id="select-placeholder">
           <SelectValue placeholder="Click to select..." />
         </SelectTrigger>
-        <SelectPositioner>
+
         <SelectPopup>
           <SelectItem value="apple">Apple</SelectItem>
           <SelectItem value="banana">Banana</SelectItem>
           <SelectItem value="orange">Orange</SelectItem>
           <SelectItem value="grape">Grape</SelectItem>
         </SelectPopup>
-      </SelectPositioner>
       </Select>
     </div>
   ),
-}
+};
 
 // Select with grouped items
 export const WithGroups: Story = {
@@ -80,7 +76,7 @@ export const WithGroups: Story = {
         <SelectTrigger id="select-groups">
           <SelectValue placeholder="Choose a language" />
         </SelectTrigger>
-        <SelectPositioner>
+
         <SelectPopup>
           <SelectGroup>
             <SelectLabel>Programming Languages</SelectLabel>
@@ -97,11 +93,10 @@ export const WithGroups: Story = {
             <SelectItem value="markdown">Markdown</SelectItem>
           </SelectGroup>
         </SelectPopup>
-      </SelectPositioner>
       </Select>
     </div>
   ),
-}
+};
 
 // Select with separators
 export const WithSeparators: Story = {
@@ -112,7 +107,7 @@ export const WithSeparators: Story = {
         <SelectTrigger id="select-separators">
           <SelectValue placeholder="Choose an action" />
         </SelectTrigger>
-        <SelectPositioner>
+
         <SelectPopup>
           <SelectItem value="create">Create New</SelectItem>
           <SelectItem value="edit">Edit</SelectItem>
@@ -125,11 +120,10 @@ export const WithSeparators: Story = {
             Delete
           </SelectItem>
         </SelectPopup>
-      </SelectPositioner>
       </Select>
     </div>
   ),
-}
+};
 
 // Disabled select
 export const Disabled: Story = {
@@ -140,17 +134,16 @@ export const Disabled: Story = {
         <SelectTrigger id="select-disabled" disabled>
           <SelectValue placeholder="Cannot select" />
         </SelectTrigger>
-        <SelectPositioner>
+
         <SelectPopup>
           <SelectItem value="option-1">Option 1</SelectItem>
           <SelectItem value="option-2">Option 2</SelectItem>
           <SelectItem value="option-3">Option 3</SelectItem>
         </SelectPopup>
-      </SelectPositioner>
       </Select>
     </div>
   ),
-}
+};
 
 // Disabled individual items
 export const DisabledItems: Story = {
@@ -161,7 +154,7 @@ export const DisabledItems: Story = {
         <SelectTrigger id="select-disabled-items">
           <SelectValue placeholder="Some options are unavailable" />
         </SelectTrigger>
-        <SelectPositioner>
+
         <SelectPopup>
           <SelectItem value="available">Available Option</SelectItem>
           <SelectItem value="disabled-1" disabled>
@@ -173,11 +166,10 @@ export const DisabledItems: Story = {
           </SelectItem>
           <SelectItem value="available-3">Third Option</SelectItem>
         </SelectPopup>
-      </SelectPositioner>
       </Select>
     </div>
   ),
-}
+};
 
 // Framework/Technology picker
 export const FrameworkPicker: Story = {
@@ -188,7 +180,7 @@ export const FrameworkPicker: Story = {
         <SelectTrigger id="framework-select">
           <SelectValue placeholder="Select a framework" />
         </SelectTrigger>
-        <SelectPositioner>
+
         <SelectPopup>
           <SelectGroup>
             <SelectLabel>Frontend Frameworks</SelectLabel>
@@ -206,11 +198,10 @@ export const FrameworkPicker: Story = {
             <SelectItem value="rails">Ruby on Rails</SelectItem>
           </SelectGroup>
         </SelectPopup>
-      </SelectPositioner>
       </Select>
     </div>
   ),
-}
+};
 
 // Select with long option list
 export const LongOptionList: Story = {
@@ -221,7 +212,7 @@ export const LongOptionList: Story = {
         <SelectTrigger id="select-long">
           <SelectValue placeholder="Choose a country" />
         </SelectTrigger>
-        <SelectPositioner>
+
         <SelectPopup>
           <SelectItem value="us">United States</SelectItem>
           <SelectItem value="uk">United Kingdom</SelectItem>
@@ -244,11 +235,10 @@ export const LongOptionList: Story = {
           <SelectItem value="cn">China</SelectItem>
           <SelectItem value="in">India</SelectItem>
         </SelectPopup>
-      </SelectPositioner>
       </Select>
     </div>
   ),
-}
+};
 
 // Select with icon indicators (emoji as placeholders)
 export const WithIconIndicators: Story = {
@@ -259,18 +249,17 @@ export const WithIconIndicators: Story = {
         <SelectTrigger id="select-icons">
           <SelectValue placeholder="Choose difficulty" />
         </SelectTrigger>
-        <SelectPositioner>
+
         <SelectPopup>
           <SelectItem value="beginner">📚 Beginner</SelectItem>
           <SelectItem value="intermediate">📖 Intermediate</SelectItem>
           <SelectItem value="advanced">🚀 Advanced</SelectItem>
           <SelectItem value="expert">⭐ Expert</SelectItem>
         </SelectPopup>
-      </SelectPositioner>
       </Select>
     </div>
   ),
-}
+};
 
 // Multi-section select with categories
 export const MultiSection: Story = {
@@ -281,7 +270,7 @@ export const MultiSection: Story = {
         <SelectTrigger id="select-multi">
           <SelectValue placeholder="Browse categories" />
         </SelectTrigger>
-        <SelectPositioner>
+
         <SelectPopup>
           <SelectGroup>
             <SelectLabel>Electronics</SelectLabel>
@@ -304,16 +293,15 @@ export const MultiSection: Story = {
             <SelectItem value="appliances">Appliances</SelectItem>
           </SelectGroup>
         </SelectPopup>
-      </SelectPositioner>
       </Select>
     </div>
   ),
-}
+};
 
 // Select with custom value display
 export const WithValueDisplay: Story = {
   render: () => {
-    const [value, setValue] = React.useState<string>('')
+    const [value, setValue] = React.useState<string>("");
     return (
       <div className="flex flex-col gap-4 w-full max-w-md">
         <div className="flex flex-col gap-2">
@@ -322,27 +310,27 @@ export const WithValueDisplay: Story = {
             <SelectTrigger id="select-display">
               <SelectValue placeholder="Choose an item" />
             </SelectTrigger>
-            <SelectPositioner>
-        <SelectPopup>
+
+            <SelectPopup>
               <SelectItem value="item-1">Item 1</SelectItem>
               <SelectItem value="item-2">Item 2</SelectItem>
               <SelectItem value="item-3">Item 3</SelectItem>
               <SelectItem value="item-4">Item 4</SelectItem>
             </SelectPopup>
-      </SelectPositioner>
           </Select>
         </div>
         {value && (
           <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
             <p className="text-sm text-foreground">
-              Selected: <span className="font-medium text-primary">{value}</span>
+              Selected:{" "}
+              <span className="font-medium text-primary">{value}</span>
             </p>
           </div>
         )}
       </div>
-    )
+    );
   },
-}
+};
 
 // Select with help text
 export const WithHelperText: Story = {
@@ -353,21 +341,21 @@ export const WithHelperText: Story = {
         <SelectTrigger id="select-helper">
           <SelectValue placeholder="Choose priority" />
         </SelectTrigger>
-        <SelectPositioner>
+
         <SelectPopup>
           <SelectItem value="low">Low</SelectItem>
           <SelectItem value="medium">Medium</SelectItem>
           <SelectItem value="high">High</SelectItem>
           <SelectItem value="critical">Critical</SelectItem>
         </SelectPopup>
-      </SelectPositioner>
       </Select>
       <p className="text-xs text-muted-foreground">
-        Select the priority level for this task. Critical items will be escalated.
+        Select the priority level for this task. Critical items will be
+        escalated.
       </p>
     </div>
   ),
-}
+};
 
 // Size variant comparison (using width variations)
 export const SizeVariants: Story = {
@@ -379,12 +367,11 @@ export const SizeVariants: Story = {
           <SelectTrigger className="max-w-xs">
             <SelectValue placeholder="Small select" />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="opt1">Option 1</SelectItem>
             <SelectItem value="opt2">Option 2</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
       <div className="flex flex-col gap-2">
@@ -393,12 +380,11 @@ export const SizeVariants: Story = {
           <SelectTrigger className="max-w-md">
             <SelectValue placeholder="Default select" />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="opt1">Option 1</SelectItem>
             <SelectItem value="opt2">Option 2</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
       <div className="flex flex-col gap-2">
@@ -407,17 +393,16 @@ export const SizeVariants: Story = {
           <SelectTrigger className="max-w-lg">
             <SelectValue placeholder="Large select" />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="opt1">Option 1</SelectItem>
             <SelectItem value="opt2">Option 2</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
     </div>
   ),
-}
+};
 
 // Form integration example
 export const FormIntegration: Story = {
@@ -438,13 +423,12 @@ export const FormIntegration: Story = {
           <SelectTrigger id="form-theme">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="light">Light</SelectItem>
             <SelectItem value="dark">Dark</SelectItem>
             <SelectItem value="auto">System (Auto)</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
 
@@ -454,14 +438,13 @@ export const FormIntegration: Story = {
           <SelectTrigger id="form-lang">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="en">English</SelectItem>
             <SelectItem value="de">Deutsch</SelectItem>
             <SelectItem value="fr">Français</SelectItem>
             <SelectItem value="es">Español</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
 
@@ -471,14 +454,13 @@ export const FormIntegration: Story = {
           <SelectTrigger id="form-timezone">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="utc">UTC</SelectItem>
             <SelectItem value="cet">CET (Central European)</SelectItem>
             <SelectItem value="pst">PST (Pacific)</SelectItem>
             <SelectItem value="est">EST (Eastern)</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
 
@@ -487,7 +469,7 @@ export const FormIntegration: Story = {
       </button>
     </div>
   ),
-}
+};
 
 // Status/Priority picker
 export const StatusPicker: Story = {
@@ -498,7 +480,7 @@ export const StatusPicker: Story = {
         <SelectTrigger id="status-select">
           <SelectValue />
         </SelectTrigger>
-        <SelectPositioner>
+
         <SelectPopup>
           <SelectGroup>
             <SelectLabel>Development</SelectLabel>
@@ -519,11 +501,10 @@ export const StatusPicker: Story = {
             <SelectItem value="cancelled">Cancelled</SelectItem>
           </SelectGroup>
         </SelectPopup>
-      </SelectPositioner>
       </Select>
     </div>
   ),
-}
+};
 
 // Date range selector
 export const DateRangeSelector: Story = {
@@ -535,8 +516,8 @@ export const DateRangeSelector: Story = {
           <SelectTrigger id="start-month">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="jan">January</SelectItem>
             <SelectItem value="feb">February</SelectItem>
             <SelectItem value="mar">March</SelectItem>
@@ -550,7 +531,6 @@ export const DateRangeSelector: Story = {
             <SelectItem value="nov">November</SelectItem>
             <SelectItem value="dec">December</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
 
@@ -560,20 +540,19 @@ export const DateRangeSelector: Story = {
           <SelectTrigger id="start-year">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="2024">2024</SelectItem>
             <SelectItem value="2023">2023</SelectItem>
             <SelectItem value="2022">2022</SelectItem>
             <SelectItem value="2021">2021</SelectItem>
             <SelectItem value="2020">2020</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
     </div>
   ),
-}
+};
 
 // Multiple selects comparison
 export const MultipleSelects: Story = {
@@ -585,13 +564,12 @@ export const MultipleSelects: Story = {
           <SelectTrigger id="select-1">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="option-a">Option A</SelectItem>
             <SelectItem value="option-b">Option B</SelectItem>
             <SelectItem value="option-c">Option C</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
 
@@ -601,13 +579,12 @@ export const MultipleSelects: Story = {
           <SelectTrigger id="select-2">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="option-x">Option X</SelectItem>
             <SelectItem value="option-y">Option Y</SelectItem>
             <SelectItem value="option-z">Option Z</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
 
@@ -617,18 +594,17 @@ export const MultipleSelects: Story = {
           <SelectTrigger id="select-3">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="opt1">First Option</SelectItem>
             <SelectItem value="opt2">Second Option</SelectItem>
             <SelectItem value="opt3">Third Option</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
     </div>
   ),
-}
+};
 
 // Right-aligned popup (sideOffset variation)
 export const AlignmentVariations: Story = {
@@ -640,13 +616,12 @@ export const AlignmentVariations: Story = {
           <SelectTrigger className="max-w-xs">
             <SelectValue placeholder="Default alignment" />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="opt1">Option 1</SelectItem>
             <SelectItem value="opt2">Option 2</SelectItem>
             <SelectItem value="opt3">Option 3</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
 
@@ -657,19 +632,18 @@ export const AlignmentVariations: Story = {
             <SelectTrigger>
               <SelectValue placeholder="Right positioned" />
             </SelectTrigger>
-            <SelectPositioner>
-        <SelectPopup>
+
+            <SelectPopup>
               <SelectItem value="opt1">Option 1</SelectItem>
               <SelectItem value="opt2">Option 2</SelectItem>
               <SelectItem value="opt3">Option 3</SelectItem>
             </SelectPopup>
-      </SelectPositioner>
           </Select>
         </div>
       </div>
     </div>
   ),
-}
+};
 
 // With glass morphism background
 export const WithGlassEffect: Story = {
@@ -681,13 +655,12 @@ export const WithGlassEffect: Story = {
           <SelectTrigger className="glass-card">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="light">Light Mode</SelectItem>
             <SelectItem value="dark">Dark Mode</SelectItem>
             <SelectItem value="auto">Auto (System)</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
 
@@ -697,13 +670,12 @@ export const WithGlassEffect: Story = {
           <SelectTrigger className="glass-card-strong">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="cyan">Oceanic Cyan (#0ec2bc)</SelectItem>
             <SelectItem value="blue">Ocean Blue</SelectItem>
             <SelectItem value="teal">Deep Teal</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
 
@@ -713,19 +685,18 @@ export const WithGlassEffect: Story = {
           <SelectTrigger className="glass-subtle">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="transparent">Transparent</SelectItem>
             <SelectItem value="light">Light</SelectItem>
             <SelectItem value="medium">Medium</SelectItem>
             <SelectItem value="heavy">Heavy</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
     </div>
   ),
-}
+};
 
 // Accessibility-focused example
 export const Accessibility: Story = {
@@ -753,13 +724,12 @@ export const Accessibility: Story = {
           >
             <SelectValue placeholder="Choose preference" />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="all">All Notifications</SelectItem>
             <SelectItem value="important">Important Only</SelectItem>
             <SelectItem value="none">No Notifications</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
         <p id="select-description" className="text-xs text-muted-foreground">
           Choose how frequently you'd like to receive notifications from us.
@@ -771,7 +741,8 @@ export const Accessibility: Story = {
           htmlFor="accessible-select-2"
           className="flex items-center gap-1"
         >
-          Account Type <span className="text-muted-foreground text-xs">(optional)</span>
+          Account Type{" "}
+          <span className="text-muted-foreground text-xs">(optional)</span>
         </Label>
         <Select>
           <SelectTrigger
@@ -781,15 +752,17 @@ export const Accessibility: Story = {
           >
             <SelectValue placeholder="Choose account type" />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="personal">Personal</SelectItem>
             <SelectItem value="business">Business</SelectItem>
             <SelectItem value="enterprise">Enterprise</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
-        <p id="account-type-description" className="text-xs text-muted-foreground">
+        <p
+          id="account-type-description"
+          className="text-xs text-muted-foreground"
+        >
           This helps us customize your experience. You can change this later.
         </p>
       </div>
@@ -799,7 +772,7 @@ export const Accessibility: Story = {
       </button>
     </div>
   ),
-}
+};
 
 // Color scheme selector
 export const ColorSchemeSelector: Story = {
@@ -815,13 +788,12 @@ export const ColorSchemeSelector: Story = {
           <SelectTrigger id="primary-color">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="cyan">Oceanic Cyan (#0ec2bc)</SelectItem>
             <SelectItem value="blue">Ocean Blue (#0ea6c1)</SelectItem>
             <SelectItem value="teal">Deep Teal (#00a896)</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
 
@@ -831,13 +803,12 @@ export const ColorSchemeSelector: Story = {
           <SelectTrigger id="background-color">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="dark">Deep Ocean Dark (#00070F)</SelectItem>
             <SelectItem value="darkgray">Dark Gray (#0A0E27)</SelectItem>
             <SelectItem value="lightdark">Light Dark (#1a1f3a)</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
 
@@ -847,13 +818,12 @@ export const ColorSchemeSelector: Story = {
           <SelectTrigger id="accent-color">
             <SelectValue />
           </SelectTrigger>
-          <SelectPositioner>
-        <SelectPopup>
+
+          <SelectPopup>
             <SelectItem value="primary">Primary (Cyan)</SelectItem>
             <SelectItem value="secondary">Secondary (Blue)</SelectItem>
             <SelectItem value="muted">Muted (Gray)</SelectItem>
           </SelectPopup>
-      </SelectPositioner>
         </Select>
       </div>
 
@@ -862,4 +832,4 @@ export const ColorSchemeSelector: Story = {
       </button>
     </div>
   ),
-}
+};

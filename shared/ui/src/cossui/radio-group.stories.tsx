@@ -32,11 +32,11 @@ type Story = StoryObj<typeof RadioGroup>
 // ============================================================================
 
 /**
- * Default radio group with no selection
+ * Default radio group - uncontrolled with internal state management
  */
 export const Default: Story = {
   render: () => (
-    <RadioGroup>
+    <RadioGroup defaultValue="">
       <div className="flex items-center gap-2">
         <Radio id="default-1" name="default" value="option-1" />
         <Label htmlFor="default-1">Option 1</Label>

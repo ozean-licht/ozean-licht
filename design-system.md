@@ -100,12 +100,22 @@ info: '#3B82F6',                // Blue - info
 **2. Montserrat** - Main font
 - H3, H4 headings
 - Body text, UI elements, buttons
-- Weights: 300 (Light), 400 (Regular), 500-700 (Medium-Bold)
+- Weights: 300 (Light), 400 (Regular), 500-600 (Medium)
+- **NEVER use bold (700+)** - Medium (500-600) is the maximum weight
 
 **3. Montserrat Alternates** - Labels
 - H5, H6 (small headings, labels)
 - Captions, metadata, badges
-- Weights: 400-700
+- Weights: 400-600 (Regular to Medium)
+- **NEVER use bold (700+)** - Medium (600) is the maximum weight
+
+### Font Weight Guidelines
+
+**Important:** We use a subtle, elegant typographic hierarchy:
+- Light (300): Body text, descriptions
+- Regular (400): Headings, UI elements
+- Medium (500-600): Emphasis, active states, labels
+- **Bold (700+): NEVER USE** - Too heavy for our design aesthetic
 
 ### Typography Scale
 
@@ -125,6 +135,68 @@ Body: Montserrat, 1rem (16px), Light (300), color: #C4C8D4
 h1 { text-shadow: 0 0 8px rgba(255, 255, 255, 0.6); }
 h2 { text-shadow: 0 0 8px rgba(255, 255, 255, 0.42); }
 ```
+
+---
+
+## Icons & Visual Elements
+
+### Icon Usage Guidelines
+
+**Use SVG Icons (not emojis) for:**
+- ✅ UI components (buttons, menus, navigation)
+- ✅ Interactive elements (triggers, actions)
+- ✅ Status indicators
+- ✅ Form inputs and controls
+- ✅ Data tables and lists
+
+**Why SVG icons:**
+- Single-color theming with primary color (`text-primary`)
+- Scalable without quality loss
+- Consistent styling across platforms
+- Accessible with proper ARIA labels
+- Professional appearance
+
+**Emojis are acceptable for:**
+- ✅ User-generated content (comments, posts)
+- ✅ Chat messages
+- ✅ Documentation examples (sparingly)
+- ✅ Marketing content (occasionally)
+
+**Emojis should NEVER be used in:**
+- ❌ UI components (buttons, triggers, menu items)
+- ❌ Navigation elements
+- ❌ Form controls
+- ❌ Data displays
+- ❌ System messages
+
+### Icon Styling
+
+**Standard Icon Pattern:**
+```tsx
+// Single-color SVG icon in primary color
+const SettingsIcon = () => (
+  <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="..." />
+  </svg>
+)
+
+// Usage in component
+<Button>
+  <SettingsIcon />
+  Settings
+</Button>
+```
+
+**Icon Sizes:**
+- `w-4 h-4` (16px) - Buttons, inline text
+- `w-5 h-5` (20px) - Navigation, larger buttons
+- `w-6 h-6` (24px) - Headers, prominent actions
+
+**Icon Colors:**
+- Primary actions: `text-primary` (#0ec2bc)
+- Neutral elements: `text-[#C4C8D4]`
+- Active states: `text-white`
+- Destructive actions: `text-red-400`
 
 ---
 
@@ -359,21 +431,51 @@ border-[#0E282E]  → Borders
 
 When creating components, ensure:
 
+**Colors & Styling:**
 - [ ] Uses correct colors (#0ec2bc primary, #00070F background)
 - [ ] Glass morphism for elevated surfaces
+- [ ] Glow effects on hover (with primary color opacity)
+- [ ] Active state scaling (`active:scale-95`)
+- [ ] Focus ring with primary color
+
+**Typography:**
 - [ ] Cinzel Decorative used SPARINGLY (H1, H2 only)
 - [ ] Montserrat for body text with Light (300) weight
 - [ ] Paragraph text uses #C4C8D4
 - [ ] Regular weight (400) for Cinzel Decorative
-- [ ] Glow effects on hover (with primary color opacity)
-- [ ] Active state scaling (`active:scale-95`)
-- [ ] Focus ring with primary color
+- [ ] **NEVER use bold (700+)** - Medium (500-600) max
+- [ ] Font weights: Light (300), Regular (400), Medium (500-600) only
+
+**Icons & Visual Elements:**
+- [ ] SVG icons in UI components (not emojis)
+- [ ] Icons use `text-primary` color for theming
+- [ ] Emojis only in content, NEVER in UI components
+- [ ] Icon sizes: w-4 (16px) for buttons, w-5 (20px) for nav
+
+**Accessibility & Responsiveness:**
 - [ ] WCAG AA contrast compliance
 - [ ] Responsive design (mobile-first)
 - [ ] Reduced motion support
+- [ ] Proper ARIA labels on icons
 
 ---
 
 **Status:** Official - All applications must follow these guidelines
 **Maintained by:** Ozean Licht Platform Team
-**Version:** 2.0.0 (2025-11-16)
+**Version:** 2.1.0 (2025-11-19)
+
+---
+
+## Changelog
+
+### v2.1.0 (2025-11-19)
+- ✅ Added comprehensive icon usage guidelines
+- ✅ Clarified: SVG icons for UI components, emojis NEVER in UI
+- ✅ Updated font weight guidelines: NEVER use bold (700+), Medium (500-600) max
+- ✅ Added icon styling patterns and examples
+- ✅ Updated design checklist with icon and typography rules
+
+### v2.0.0 (2025-11-16)
+- ✅ Initial official design system documentation
+- ✅ Core color palette and typography rules
+- ✅ Glass morphism effects and animations

@@ -52,9 +52,10 @@ type Story = StoryObj<typeof Slider>
  */
 export const Default: Story = {
   args: {
-    defaultValue: [50],
+    defaultValue: 50,
     min: 0,
     max: 100,
+    'aria-label': 'Default slider',
   },
   render: (args) => (
     <div className="w-[400px]">
@@ -69,10 +70,12 @@ export const Default: Story = {
 export const WithValueDisplay: Story = {
   render: () => (
     <div className="w-[400px]">
-      <div className="flex justify-between items-center mb-2">
-        <Label>Select Value</Label>
-      </div>
-      <Slider defaultValue={[50]} min={0} max={100} showValue />
+      <Slider defaultValue={50} min={0} max={100}>
+        <div className="mb-2 flex items-center justify-between gap-1">
+          <Label>Select Value</Label>
+          <SliderValue />
+        </div>
+      </Slider>
     </div>
   ),
 }
@@ -83,10 +86,12 @@ export const WithValueDisplay: Story = {
 export const SmallRange: Story = {
   render: () => (
     <div className="w-[400px]">
-      <div className="flex justify-between items-center mb-2">
-        <Label>Difficulty Level (0-10)</Label>
-      </div>
-      <Slider defaultValue={[5]} min={0} max={10} showValue />
+      <Slider defaultValue={5} min={0} max={10}>
+        <div className="mb-2 flex items-center justify-between gap-1">
+          <Label>Difficulty Level (0-10)</Label>
+          <SliderValue />
+        </div>
+      </Slider>
     </div>
   ),
 }
@@ -161,21 +166,21 @@ export const Disabled: Story = {
  */
 export const ControlledComponent: Story = {
   render: () => {
-    const [value, setValue] = useState([50])
+    const [value, setValue] = useState(50)
 
     return (
       <div className="w-[400px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-6">
         <div>
-          <h3 className="text-lg font-decorative font-semibold text-foreground mb-2">
+          <h3 className="text-lg font-decorative font-normal text-foreground mb-2">
             Controlled Slider
           </h3>
           <p className="text-sm text-muted-foreground">
-            Current value: <span className="text-primary font-medium">{value[0]}</span>
+            Current value: <span className="text-primary font-medium">{value}</span>
           </p>
         </div>
 
         <Slider
-          defaultValue={value}
+          value={value}
           min={0}
           max={100}
           onValueChange={setValue}
@@ -184,19 +189,19 @@ export const ControlledComponent: Story = {
 
         <div className="flex gap-2">
           <button
-            onClick={() => setValue([0])}
+            onClick={() => setValue(0)}
             className="flex-1 h-8 px-3 rounded-md bg-primary/80 text-primary-foreground text-sm font-medium transition-all hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Reset to 0
           </button>
           <button
-            onClick={() => setValue([50])}
+            onClick={() => setValue(50)}
             className="flex-1 h-8 px-3 rounded-md bg-primary/80 text-primary-foreground text-sm font-medium transition-all hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Set to 50
           </button>
           <button
-            onClick={() => setValue([100])}
+            onClick={() => setValue(100)}
             className="flex-1 h-8 px-3 rounded-md bg-primary/80 text-primary-foreground text-sm font-medium transition-all hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Set to 100
@@ -212,7 +217,7 @@ export const ControlledComponent: Story = {
  */
 export const VolumeControl: Story = {
   render: () => {
-    const [volume, setVolume] = useState([70])
+    const [volume, setVolume] = useState(70)
 
     const getVolumeIcon = (vol: number) => {
       if (vol === 0) return '🔇'
@@ -224,14 +229,14 @@ export const VolumeControl: Story = {
     return (
       <div className="w-[400px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-decorative font-semibold text-foreground">
+          <h3 className="text-lg font-decorative font-normal text-foreground">
             Volume Control
           </h3>
-          <span className="text-2xl">{getVolumeIcon(volume[0])}</span>
+          <span className="text-2xl">{getVolumeIcon(volume)}</span>
         </div>
 
         <Slider
-          defaultValue={volume}
+          value={volume}
           min={0}
           max={100}
           step={5}
@@ -241,7 +246,7 @@ export const VolumeControl: Story = {
 
         <div className="flex justify-between text-sm text-muted-foreground">
           <span>Mute</span>
-          <span className="text-primary font-medium">{volume[0]}%</span>
+          <span className="text-primary font-medium">{volume}%</span>
           <span>Max</span>
         </div>
       </div>
@@ -254,7 +259,7 @@ export const VolumeControl: Story = {
  */
 export const PriceRange: Story = {
   render: () => {
-    const [price, setPrice] = useState([50])
+    const [price, setPrice] = useState(50)
 
     const formatPrice = (value: number) => {
       return new Intl.NumberFormat('en-US', {
@@ -268,16 +273,16 @@ export const PriceRange: Story = {
     return (
       <div className="w-[400px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-6">
         <div>
-          <h3 className="text-lg font-decorative font-semibold text-foreground mb-2">
+          <h3 className="text-lg font-decorative font-normal text-foreground mb-2">
             Price Range
           </h3>
           <p className="text-2xl font-medium text-primary">
-            {formatPrice(price[0])} - {formatPrice(200)}
+            {formatPrice(price)} - {formatPrice(200)}
           </p>
         </div>
 
         <Slider
-          defaultValue={price}
+          value={price}
           min={0}
           max={200}
           step={5}
@@ -298,7 +303,7 @@ export const PriceRange: Story = {
  */
 export const PercentageSelector: Story = {
   render: () => {
-    const [percentage, setPercentage] = useState([75])
+    const [percentage, setPercentage] = useState(75)
 
     const getStatus = (percent: number) => {
       if (percent < 25) return 'Low'
@@ -317,16 +322,16 @@ export const PercentageSelector: Story = {
     return (
       <div className="w-[400px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-6">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-decorative font-semibold text-foreground">
+          <h3 className="text-lg font-decorative font-normal text-foreground">
             Priority Level
           </h3>
-          <span className={`text-lg font-medium ${getStatusColor(percentage[0])}`}>
-            {getStatus(percentage[0])}
+          <span className={`text-lg font-medium ${getStatusColor(percentage)}`}>
+            {getStatus(percentage)}
           </span>
         </div>
 
         <Slider
-          defaultValue={percentage}
+          value={percentage}
           min={0}
           max={100}
           step={5}
@@ -334,11 +339,11 @@ export const PercentageSelector: Story = {
         />
 
         <div className="flex justify-between items-end">
-          <span className="text-4xl font-bold text-primary">{percentage[0]}%</span>
+          <span className="text-4xl font-bold text-primary">{percentage}%</span>
           <div className="h-2 flex-1 mx-4 bg-card/70 rounded-full overflow-hidden">
             <div
               className="h-full bg-primary transition-all duration-200"
-              style={{ width: `${percentage[0]}%` }}
+              style={{ width: `${percentage}%` }}
             />
           </div>
         </div>
@@ -352,7 +357,7 @@ export const PercentageSelector: Story = {
  */
 export const RatingSlider: Story = {
   render: () => {
-    const [rating, setRating] = useState([3])
+    const [rating, setRating] = useState(3)
 
     const getStars = (stars: number) => {
       return Array.from({ length: 5 })
@@ -368,14 +373,14 @@ export const RatingSlider: Story = {
     return (
       <div className="w-[400px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-decorative font-semibold text-foreground">
+          <h3 className="text-lg font-decorative font-normal text-foreground">
             Rate Your Experience
           </h3>
-          <span className="text-2xl text-yellow-500">{getStars(rating[0])}</span>
+          <span className="text-2xl text-yellow-500">{getStars(rating)}</span>
         </div>
 
         <Slider
-          defaultValue={rating}
+          value={rating}
           min={1}
           max={5}
           step={1}
@@ -384,7 +389,7 @@ export const RatingSlider: Story = {
 
         <div className="flex justify-between items-center">
           <span className="text-sm text-muted-foreground">Poor</span>
-          <span className="text-lg font-medium text-primary">{getRatingText(rating[0])}</span>
+          <span className="text-lg font-medium text-primary">{getRatingText(rating)}</span>
           <span className="text-sm text-muted-foreground">Excellent</span>
         </div>
       </div>
@@ -397,7 +402,7 @@ export const RatingSlider: Story = {
  */
 export const TemperatureControl: Story = {
   render: () => {
-    const [temperature, setTemperature] = useState([20])
+    const [temperature, setTemperature] = useState(20)
 
     const getTemperatureColor = (temp: number) => {
       if (temp < 0) return 'text-blue-600'
@@ -418,16 +423,16 @@ export const TemperatureControl: Story = {
     return (
       <div className="w-[400px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-decorative font-semibold text-foreground">
+          <h3 className="text-lg font-decorative font-normal text-foreground">
             Room Temperature
           </h3>
-          <span className={`text-3xl font-bold ${getTemperatureColor(temperature[0])}`}>
-            {temperature[0]}°C
+          <span className={`text-3xl font-bold ${getTemperatureColor(temperature)}`}>
+            {temperature}°C
           </span>
         </div>
 
         <Slider
-          defaultValue={temperature}
+          value={temperature}
           min={-10}
           max={40}
           step={1}
@@ -436,8 +441,8 @@ export const TemperatureControl: Story = {
 
         <div className="flex justify-between items-center">
           <span className="text-sm text-muted-foreground">-10°C</span>
-          <span className={`font-medium ${getTemperatureColor(temperature[0])}`}>
-            {getTemperatureStatus(temperature[0])}
+          <span className={`font-medium ${getTemperatureColor(temperature)}`}>
+            {getTemperatureStatus(temperature)}
           </span>
           <span className="text-sm text-muted-foreground">40°C</span>
         </div>
@@ -451,19 +456,19 @@ export const TemperatureControl: Story = {
  */
 export const BrightnessControl: Story = {
   render: () => {
-    const [brightness, setBrightness] = useState([100])
+    const [brightness, setBrightness] = useState(100)
 
     return (
       <div className="w-[400px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-6">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-decorative font-semibold text-foreground">
+          <h3 className="text-lg font-decorative font-normal text-foreground">
             Brightness
           </h3>
-          <span className="text-sm font-medium text-primary">{brightness[0]}%</span>
+          <span className="text-sm font-medium text-primary">{brightness}%</span>
         </div>
 
         <Slider
-          defaultValue={brightness}
+          value={brightness}
           min={0}
           max={100}
           step={5}
@@ -473,7 +478,7 @@ export const BrightnessControl: Story = {
         <div
           className="w-full h-32 rounded-lg border border-border transition-opacity duration-200"
           style={{
-            backgroundColor: `rgba(14, 194, 188, ${brightness[0] / 100})`,
+            backgroundColor: `rgba(14, 194, 188, ${brightness / 100})`,
           }}
         />
 
@@ -491,7 +496,7 @@ export const BrightnessControl: Story = {
  */
 export const ZoomLevel: Story = {
   render: () => {
-    const [zoom, setZoom] = useState([100])
+    const [zoom, setZoom] = useState(100)
 
     const zoomPresets = [
       { value: 50, label: '50%' },
@@ -504,14 +509,14 @@ export const ZoomLevel: Story = {
     return (
       <div className="w-[400px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-6">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-decorative font-semibold text-foreground">
+          <h3 className="text-lg font-decorative font-normal text-foreground">
             Zoom Level
           </h3>
-          <span className="text-xl font-bold text-primary">{zoom[0]}%</span>
+          <span className="text-xl font-bold text-primary">{zoom}%</span>
         </div>
 
         <Slider
-          defaultValue={zoom}
+          value={zoom}
           min={50}
           max={200}
           step={10}
@@ -522,9 +527,9 @@ export const ZoomLevel: Story = {
           {zoomPresets.map((preset) => (
             <button
               key={preset.value}
-              onClick={() => setZoom([preset.value])}
+              onClick={() => setZoom(preset.value)}
               className={`px-3 py-1 rounded text-sm font-medium transition-all ${
-                zoom[0] === preset.value
+                zoom === preset.value
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-card border border-border text-foreground hover:border-primary/50'
               }`}
@@ -543,12 +548,12 @@ export const ZoomLevel: Story = {
  */
 export const FormIntegration: Story = {
   render: () => {
-    const [value, setValue] = useState([50])
+    const [value, setValue] = useState(50)
 
     return (
       <div className="w-[400px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-6">
         <div>
-          <h3 className="text-lg font-decorative font-semibold text-foreground mb-4">
+          <h3 className="text-lg font-decorative font-normal text-foreground mb-4">
             Form Settings
           </h3>
         </div>
@@ -556,11 +561,11 @@ export const FormIntegration: Story = {
         <div className="space-y-3">
           <div className="flex justify-between items-center mb-2">
             <Label htmlFor="slider-intensity">Intensity Level</Label>
-            <span className="text-sm font-medium text-primary">{value[0]}</span>
+            <span className="text-sm font-medium text-primary">{value}</span>
           </div>
           <Slider
             id="slider-intensity"
-            defaultValue={value}
+            value={value}
             min={0}
             max={100}
             step={5}
@@ -580,7 +585,7 @@ export const FormIntegration: Story = {
           </div>
           <Slider
             id="slider-timeout"
-            defaultValue={value}
+            value={value}
             min={0}
             max={100}
             step={5}
@@ -604,13 +609,13 @@ export const FormIntegration: Story = {
  */
 export const WithLabelsAndDescriptions: Story = {
   render: () => {
-    const [opacity, setOpacity] = useState([85])
-    const [saturation, setSaturation] = useState([70])
-    const [contrast, setContrast] = useState([100])
+    const [opacity, setOpacity] = useState(85)
+    const [saturation, setSaturation] = useState(70)
+    const [contrast, setContrast] = useState(100)
 
     return (
       <div className="w-[450px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-8">
-        <h3 className="text-lg font-decorative font-semibold text-foreground">
+        <h3 className="text-lg font-decorative font-normal text-foreground">
           Image Adjustments
         </h3>
 
@@ -622,10 +627,10 @@ export const WithLabelsAndDescriptions: Story = {
                 Controls transparency of the image overlay
               </p>
             </div>
-            <span className="text-sm font-medium text-primary">{opacity[0]}%</span>
+            <span className="text-sm font-medium text-primary">{opacity}%</span>
           </div>
           <Slider
-            defaultValue={opacity}
+            value={opacity}
             min={0}
             max={100}
             step={5}
@@ -641,10 +646,10 @@ export const WithLabelsAndDescriptions: Story = {
                 Increase or decrease color intensity
               </p>
             </div>
-            <span className="text-sm font-medium text-primary">{saturation[0]}%</span>
+            <span className="text-sm font-medium text-primary">{saturation}%</span>
           </div>
           <Slider
-            defaultValue={saturation}
+            value={saturation}
             min={0}
             max={200}
             step={10}
@@ -660,10 +665,10 @@ export const WithLabelsAndDescriptions: Story = {
                 Enhance or reduce the difference between light and dark areas
               </p>
             </div>
-            <span className="text-sm font-medium text-primary">{contrast[0]}%</span>
+            <span className="text-sm font-medium text-primary">{contrast}%</span>
           </div>
           <Slider
-            defaultValue={contrast}
+            value={contrast}
             min={50}
             max={150}
             step={5}
@@ -687,13 +692,13 @@ export const DashboardLayout: Story = {
       network: 82,
     })
 
-    const handleChange = (key: keyof typeof values) => (newValue: number[]) => {
-      setValues((prev) => ({ ...prev, [key]: newValue[0] }))
+    const handleChange = (key: keyof typeof values) => (newValue: number) => {
+      setValues((prev) => ({ ...prev, [key]: newValue }))
     }
 
     return (
       <div className="w-[500px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-6">
-        <h3 className="text-lg font-decorative font-semibold text-foreground mb-4">
+        <h3 className="text-lg font-decorative font-normal text-foreground mb-4">
           Server Metrics
         </h3>
 
@@ -704,7 +709,7 @@ export const DashboardLayout: Story = {
               <span className="text-sm font-medium text-primary">{values.cpu}%</span>
             </div>
             <Slider
-              defaultValue={[values.cpu]}
+              value={[values.cpu]}
               min={0}
               max={100}
               onValueChange={handleChange('cpu')}
@@ -717,7 +722,7 @@ export const DashboardLayout: Story = {
               <span className="text-sm font-medium text-primary">{values.memory}%</span>
             </div>
             <Slider
-              defaultValue={[values.memory]}
+              value={[values.memory]}
               min={0}
               max={100}
               onValueChange={handleChange('memory')}
@@ -730,7 +735,7 @@ export const DashboardLayout: Story = {
               <span className="text-sm font-medium text-primary">{values.disk}%</span>
             </div>
             <Slider
-              defaultValue={[values.disk]}
+              value={[values.disk]}
               min={0}
               max={100}
               onValueChange={handleChange('disk')}
@@ -743,7 +748,7 @@ export const DashboardLayout: Story = {
               <span className="text-sm font-medium text-primary">{values.network}%</span>
             </div>
             <Slider
-              defaultValue={[values.network]}
+              value={[values.network]}
               min={0}
               max={100}
               onValueChange={handleChange('network')}
@@ -769,19 +774,19 @@ export const DashboardLayout: Story = {
  */
 export const GlassEffectVariations: Story = {
   render: () => {
-    const [value1, setValue1] = useState([50])
-    const [value2, setValue2] = useState([50])
-    const [value3, setValue3] = useState([50])
+    const [value1, setValue1] = useState(50)
+    const [value2, setValue2] = useState(50)
+    const [value3, setValue3] = useState(50)
 
     return (
       <div className="space-y-6">
         <div className="w-[400px] bg-gradient-to-br from-background via-card to-primary/10 rounded-lg p-8 space-y-6">
           <div>
-            <h3 className="text-lg font-decorative font-semibold text-foreground mb-4">
+            <h3 className="text-lg font-decorative font-normal text-foreground mb-4">
               Glass Subtle
             </h3>
             <Slider
-              defaultValue={value1}
+              value={value1}
               min={0}
               max={100}
               onValueChange={setValue1}
@@ -792,11 +797,11 @@ export const GlassEffectVariations: Story = {
 
         <div className="w-[400px] bg-gradient-to-br from-background via-card to-primary/20 rounded-lg p-8 space-y-6">
           <div>
-            <h3 className="text-lg font-decorative font-semibold text-foreground mb-4">
+            <h3 className="text-lg font-decorative font-normal text-foreground mb-4">
               Glass Card
             </h3>
             <Slider
-              defaultValue={value2}
+              value={value2}
               min={0}
               max={100}
               onValueChange={setValue2}
@@ -807,11 +812,11 @@ export const GlassEffectVariations: Story = {
 
         <div className="w-[400px] bg-gradient-to-br from-background via-card to-primary/30 rounded-lg p-8 space-y-6">
           <div>
-            <h3 className="text-lg font-decorative font-semibold text-foreground mb-4">
+            <h3 className="text-lg font-decorative font-normal text-foreground mb-4">
               Glass Strong
             </h3>
             <Slider
-              defaultValue={value3}
+              value={value3}
               min={0}
               max={100}
               onValueChange={setValue3}
@@ -843,7 +848,7 @@ export const Minimal: Story = {
 export const RangeComparison: Story = {
   render: () => (
     <div className="w-[400px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-8">
-      <h3 className="text-lg font-decorative font-semibold text-foreground">
+      <h3 className="text-lg font-decorative font-normal text-foreground">
         Compare Ranges
       </h3>
 
@@ -877,7 +882,7 @@ export const RangeComparison: Story = {
             <span className="text-sm font-medium text-foreground">Range D</span>
             <span className="text-sm font-medium text-primary">-50 to 50</span>
           </div>
-          <Slider defaultValue={[0]} min={-50} max={50} showValue />
+          <Slider defaultValue={0} min={-50} max={50} showValue />
         </div>
       </div>
     </div>
@@ -926,14 +931,14 @@ export const AudioSettings: Story = {
       midrange: 50,
     })
 
-    const handleChange = (key: keyof typeof settings) => (newValue: number[]) => {
-      setSettings((prev) => ({ ...prev, [key]: newValue[0] }))
+    const handleChange = (key: keyof typeof settings) => (newValue: number) => {
+      setSettings((prev) => ({ ...prev, [key]: newValue }))
     }
 
     return (
       <div className="w-[450px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-6">
         <div>
-          <h3 className="text-lg font-decorative font-semibold text-foreground">
+          <h3 className="text-lg font-decorative font-normal text-foreground">
             Audio Equalizer
           </h3>
           <p className="text-sm text-muted-foreground mt-1">
@@ -1012,7 +1017,7 @@ export const AudioSettings: Story = {
  */
 export const PlaybackSpeed: Story = {
   render: () => {
-    const [speed, setSpeed] = useState([1])
+    const [speed, setSpeed] = useState(1)
 
     const speedPresets = [
       { value: 0.5, label: '0.5x' },
@@ -1032,14 +1037,14 @@ export const PlaybackSpeed: Story = {
     return (
       <div className="w-[450px] bg-card/50 backdrop-blur-8 border border-border rounded-lg p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-decorative font-semibold text-foreground">
+          <h3 className="text-lg font-decorative font-normal text-foreground">
             Playback Speed
           </h3>
-          <span className="text-2xl">{getSpeedIcon(speed[0])}</span>
+          <span className="text-2xl">{getSpeedIcon(speed)}</span>
         </div>
 
         <Slider
-          defaultValue={speed}
+          value={speed}
           min={0.5}
           max={2}
           step={0.25}
@@ -1048,7 +1053,7 @@ export const PlaybackSpeed: Story = {
 
         <div className="flex justify-between items-center mb-4">
           <span className="text-sm text-muted-foreground">Slow</span>
-          <span className="text-lg font-bold text-primary">{speed[0].toFixed(2)}x</span>
+          <span className="text-lg font-bold text-primary">{speed.toFixed(2)}x</span>
           <span className="text-sm text-muted-foreground">Fast</span>
         </div>
 
@@ -1056,9 +1061,9 @@ export const PlaybackSpeed: Story = {
           {speedPresets.map((preset) => (
             <button
               key={preset.value}
-              onClick={() => setSpeed([preset.value])}
+              onClick={() => setSpeed(preset.value)}
               className={`px-2 py-2 rounded text-xs font-medium transition-all ${
-                Math.abs(speed[0] - preset.value) < 0.01
+                Math.abs(speed - preset.value) < 0.01
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-card border border-border text-foreground hover:border-primary/50'
               }`}

@@ -27,7 +27,7 @@ RadioGroup.displayName = 'RadioGroup'
 
 /**
  * Radio Component
- * Individual radio button
+ * Individual radio button with built-in indicator
  * Wraps Base UI Radio.Root with Ozean Licht styling
  */
 const Radio = React.forwardRef<
@@ -42,16 +42,24 @@ const Radio = React.forwardRef<
       'hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
       'disabled:cursor-not-allowed disabled:opacity-50',
-      'data-[state=checked]:border-primary data-[state=checked]:border-[5px]',
+      'data-[state=checked]:border-primary data-[state=checked]:bg-primary/10',
+      'flex items-center justify-center',
       className
     )}
     {...props}
-  />
+  >
+    <RadioNamespace.Indicator className="flex items-center justify-center">
+      <span className="h-2 w-2 rounded-full bg-primary" />
+    </RadioNamespace.Indicator>
+  </RadioNamespace.Root>
 ))
 Radio.displayName = 'Radio'
 
 /**
  * RadioIndicator - Visual indicator for radio state
+ * NOTE: This is now built into the Radio component by default.
+ * Only export this for advanced use cases where custom indicator styling is needed.
+ *
  * Wraps Base UI Radio.Indicator with Ozean Licht styling
  */
 const RadioIndicator = React.forwardRef<

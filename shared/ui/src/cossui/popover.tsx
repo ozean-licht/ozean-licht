@@ -14,8 +14,15 @@ const PopoverRoot = Popover.Root
 
 /**
  * Popover Portal - Portal for overlay rendering
+ * Wraps Popover.Portal
  */
 const PopoverPortal = Popover.Portal
+
+/**
+ * Popover Positioner - Required by Base UI for positioning
+ * Wraps Popover.Positioner
+ */
+const PopoverPositioner = Popover.Positioner
 
 /**
  * Popover Backdrop - Background overlay
@@ -63,29 +70,37 @@ PopoverTrigger.displayName = 'PopoverTrigger'
 
 /**
  * Popover Popup - The popover content container
- * Using PopoverPopup instead of PopoverContent (Coss UI convention)
+ * Wraps Popover.Popup with Ozean Licht styling
+ * Internally wraps with Portal and Positioner (required by Base UI)
  */
 const PopoverPopup = React.forwardRef<
   HTMLDivElement,
-  React.ComponentPropsWithoutRef<typeof Popover.Popup>
->(({ className, children, ...props }, ref) => (
-  <Popover.Popup
-    ref={ref}
-    className={cn(
-      'z-50 w-72 rounded-lg',
-      'bg-card/90 backdrop-blur-16 border border-primary/20',
-      'shadow-lg shadow-primary/10 p-4',
-      'data-[state=open]:animate-in data-[state=closed]:animate-out',
-      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-      'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
-      'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-      className
-    )}
-    {...props}
-  >
-    {children}
-  </Popover.Popup>
+  React.ComponentPropsWithoutRef<typeof Popover.Popup> & {
+    children?: React.ReactNode
+    sideOffset?: number
+  }
+>(({ className, children, sideOffset = 8, ...props }, ref) => (
+  <Popover.Portal>
+    <Popover.Positioner sideOffset={sideOffset}>
+      <Popover.Popup
+        ref={ref}
+        className={cn(
+          'z-50 w-72 rounded-lg',
+          'bg-card/90 backdrop-blur-16 border border-primary/20',
+          'shadow-lg shadow-primary/10 p-4',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out',
+          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+          'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+          'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
+          'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </Popover.Popup>
+    </Popover.Positioner>
+  </Popover.Portal>
 ))
 PopoverPopup.displayName = 'PopoverPopup'
 
@@ -149,6 +164,7 @@ PopoverClose.displayName = 'PopoverClose'
 export {
   PopoverRoot as Popover,
   PopoverPortal,
+  PopoverPositioner,
   PopoverBackdrop,
   PopoverTrigger,
   PopoverPopup,

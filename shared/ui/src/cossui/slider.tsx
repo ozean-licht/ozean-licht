@@ -8,45 +8,95 @@ import { Slider as BaseSlider } from '@base-ui-components/react/slider'
 import { cn } from '../utils/cn'
 
 /**
- * Slider Component
- * Range input slider
+ * Slider Root - Base component
+ */
+const SliderRoot = BaseSlider.Root
+
+/**
+ * Slider Track
+ */
+const SliderTrack = React.forwardRef<
+  HTMLSpanElement,
+  React.ComponentPropsWithoutRef<typeof BaseSlider.Track>
+>(({ className, ...props }, ref) => (
+  <BaseSlider.Track
+    ref={ref}
+    className={cn(
+      'relative h-2 w-full overflow-hidden rounded-full bg-card/70 backdrop-blur-md border border-border',
+      className
+    )}
+    {...props}
+  />
+))
+SliderTrack.displayName = 'SliderTrack'
+
+/**
+ * Slider Indicator
+ */
+const SliderIndicator = React.forwardRef<
+  HTMLSpanElement,
+  React.ComponentPropsWithoutRef<typeof BaseSlider.Indicator>
+>(({ className, ...props }, ref) => (
+  <BaseSlider.Indicator
+    ref={ref}
+    className={cn('absolute h-full bg-primary shadow-sm shadow-primary/20', className)}
+    {...props}
+  />
+))
+SliderIndicator.displayName = 'SliderIndicator'
+
+/**
+ * Slider Thumb
+ */
+const SliderThumb = React.forwardRef<
+  HTMLSpanElement,
+  React.ComponentPropsWithoutRef<typeof BaseSlider.Thumb>
+>(({ className, ...props }, ref) => (
+  <BaseSlider.Thumb
+    ref={ref}
+    className={cn(
+      'block h-5 w-5 rounded-full border-2 border-primary bg-white shadow-lg',
+      'transition-all duration-200',
+      'hover:scale-110 hover:shadow-xl hover:shadow-primary/30',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+      'disabled:pointer-events-none disabled:opacity-50',
+      'cursor-grab active:cursor-grabbing active:scale-105',
+      className
+    )}
+    {...props}
+  />
+))
+SliderThumb.displayName = 'SliderThumb'
+
+/**
+ * Slider Component - Using Control and Input
  */
 const Slider = React.forwardRef<
   HTMLDivElement,
   React.ComponentPropsWithoutRef<typeof BaseSlider.Root> & {
-    showValue?: boolean
+    children?: React.ReactNode
   }
->(({ className, showValue = false, ...props }, ref: React.Ref<HTMLDivElement>) => (
-  <div className="relative w-full">
-    <BaseSlider.Root
-      ref={ref as React.RefObject<HTMLDivElement>}
-      className={cn(
-        'relative flex w-full touch-none select-none items-center',
-        className
-      )}
-      {...props}
-    >
-      <BaseSlider.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-card/70 backdrop-blur-12 border border-border">
-        <BaseSlider.Indicator className="absolute h-full bg-primary shadow-sm shadow-primary/20" />
-      </BaseSlider.Track>
-      <BaseSlider.Thumb className={cn(
-        'block h-5 w-5 rounded-full border-2 border-primary bg-white shadow-lg',
-        'transition-all duration-200',
-        'hover:scale-110 hover:shadow-xl hover:shadow-primary/30',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-        'disabled:pointer-events-none disabled:opacity-50',
-        'cursor-grab active:cursor-grabbing active:scale-105'
-      )} />
+>(({ className, children, ...props }, ref) => {
+  return (
+    <BaseSlider.Root ref={ref} className={cn('relative w-full', className)} {...props}>
+      {children}
+      <BaseSlider.Control className="relative w-full h-5 flex items-center">
+        <BaseSlider.Track className="relative h-2 w-full overflow-hidden rounded-full bg-card/70 backdrop-blur-md border border-border">
+          <BaseSlider.Indicator className="absolute h-full bg-primary shadow-sm shadow-primary/20" />
+        </BaseSlider.Track>
+        <BaseSlider.Thumb className={cn(
+          'absolute -translate-x-1/2',
+          'block h-5 w-5 rounded-full border-2 border-primary bg-white shadow-lg',
+          'transition-transform duration-200',
+          'hover:scale-110 hover:shadow-xl hover:shadow-primary/30',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          'disabled:pointer-events-none disabled:opacity-50',
+          'cursor-grab active:cursor-grabbing active:scale-105'
+        )} />
+      </BaseSlider.Control>
     </BaseSlider.Root>
-    {showValue && (
-      <div className="mt-2 flex justify-between text-xs text-[#C4C8D4] font-sans font-light">
-        <span>{props.min || 0}</span>
-        <SliderValue className="text-primary font-medium" />
-        <span>{props.max || 100}</span>
-      </div>
-    )}
-  </div>
-))
+  )
+})
 Slider.displayName = 'Slider'
 
 /**
@@ -64,4 +114,11 @@ const SliderValue = React.forwardRef<
 ))
 SliderValue.displayName = 'SliderValue'
 
-export { Slider, SliderValue }
+export {
+  Slider,
+  SliderRoot,
+  SliderTrack,
+  SliderIndicator,
+  SliderThumb,
+  SliderValue
+}
