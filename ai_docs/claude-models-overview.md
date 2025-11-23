@@ -2,38 +2,41 @@
 
 ## Current Models
 
-**Claude Sonnet 4.5** is recommended as the starting point, offering "the best balance of intelligence, speed, and cost for most use cases."
+**Claude Sonnet 4.5** is recommended as the best starting point, offering "the best balance of intelligence, speed, and cost for most use cases."
 
-### Latest Model Comparison
+The three latest models are:
 
-The three current models serve different purposes:
+1. **Claude Sonnet 4.5** (claude-sonnet-4-5-20250929)
+   - Described as the smartest model for complex agents and coding
+   - Context: 200K tokens (1M tokens beta support)
+   - Max output: 64K tokens
+   - Pricing: $3/input MTok, $15/output MTok
+   - Latency: Fast
 
-**Claude Sonnet 4.5** ($3/$15 per million tokens input/output)
-- Designed for complex agents and coding tasks
-- 200K token context window (1M in beta)
-- 64K max output tokens
-- Supports extended thinking and priority tier access
+2. **Claude Haiku 4.5** (claude-haiku-4-5-20251001)
+   - Fastest model with near-frontier intelligence
+   - Context: 200K tokens
+   - Max output: 64K tokens
+   - Pricing: $1/input MTok, $5/output MTok
+   - Latency: Fastest
 
-**Claude Haiku 4.5** ($1/$5 per million tokens)
-- The fastest option with near-frontier capabilities
-- Same context and output specifications as Sonnet
-- Most cost-effective for general tasks
-
-**Claude Opus 4.1** ($15/$75 per million tokens)
-- Specialized for complex reasoning
-- Moderate latency, 32K max output tokens
-- Premium performance for demanding applications
+3. **Claude Opus 4.1** (claude-opus-4-1-20250805)
+   - Exceptional for specialized reasoning tasks
+   - Context: 200K tokens
+   - Max output: 32K tokens
+   - Pricing: $15/input MTok, $75/output MTok
+   - Latency: Moderate
 
 ## Key Capabilities
 
 All current models support:
-- Text and image input processing
-- Extended thinking for enhanced reasoning
-- Multilingual support
-- Vision capabilities
-- Structured outputs
-- Availability across Anthropic API, AWS Bedrock, and Google Vertex AI
+- Text and image input
+- Text output
+- Multilingual capabilities
+- Vision processing
+- Extended thinking
+- Priority tier access
 
-## Migration Path
+## Knowledge Cutoffs
 
-Anthropic recommends upgrading from Claude 3 models to Claude 4.5 variants to access improved intelligence and capabilities. Legacy models (Sonnet 4, Opus 4, Haiku 3.5) remain available but offer less performance than current versions.
+Models have different knowledge reliability dates—Sonnet 4.5 is "most extensive and reliable through January 2025" despite training on data through July 2025.

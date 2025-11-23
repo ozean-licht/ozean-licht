@@ -10,7 +10,7 @@ import {
   NavigationMenuIndicator,
   navigationMenuTriggerStyle,
 } from './navigation-menu';
-import { Button } from './button';
+import { CossUIButton as Button } from '../cossui';
 import {
   FileText,
   Code,

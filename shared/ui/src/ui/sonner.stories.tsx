@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import { toast } from 'sonner';
 import { Toaster } from './sonner';
-import { Button } from './button';
+import { CossUIButton as Button } from '../cossui';
 import { CheckCircle, XCircle, AlertTriangle, Info, Loader2, Sparkles } from 'lucide-react';
 
 /**

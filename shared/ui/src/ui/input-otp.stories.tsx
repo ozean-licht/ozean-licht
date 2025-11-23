@@ -9,16 +9,16 @@ import {
   InputOTPSlot,
   InputOTPSeparator,
 } from './input-otp';
-import { Button } from './button';
+import { CossUIButton as Button } from '../cossui';
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from './form';
+  CossUIFormRoot as Form,
+  CossUIFormControl as FormControl,
+  CossUIFormDescription as FormDescription,
+  CossUIFormField as FormField,
+  CossUIFormField as FormItem,
+  CossUIFormLabel as FormLabel,
+  CossUIFormMessage as FormMessage,
+} from '../cossui';
 
 /**
  * InputOTP component for one-time password and verification code input.

@@ -16,7 +16,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
 } from './dropdown-menu';
-import { Button } from './button';
+import { CossUIButton as Button } from '../cossui';
 import {
   User,
   Settings,

@@ -13,9 +13,9 @@ import {
   DrawerOverlay,
   DrawerPortal,
 } from './drawer';
-import { Button } from './button';
-import { Label } from './label';
-import { Input } from './input';
+import { CossUIButton as Button } from '../cossui';
+import { CossUILabel as Label } from '../cossui';
+import { CossUIInput as Input } from '../cossui';
 
 /**
  * Drawer primitive component built on Vaul.

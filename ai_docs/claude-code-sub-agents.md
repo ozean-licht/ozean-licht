@@ -1,102 +1,74 @@
 # Claude Code Subagents: Complete Documentation
 
-## Overview
+## Core Concept
 
-Subagents are specialized AI assistants within Claude Code that handle task-specific workflows. Each operates in its own context window with customized system prompts and tool configurations, enabling more efficient problem-solving while preserving the main conversation thread.
+Subagents are "specialized AI assistants that can be invoked to handle specific types of tasks." Each operates with its own context window, custom system prompt, and configurable tool access.
 
-## Core Functionality
+## Key Features
 
-**Key characteristics of subagents:**
-- Dedicated purpose and expertise area
-- Independent context window separate from main conversation
-- Configurable tool access permissions
-- Custom system prompts guiding behavior
+**Four Main Benefits:**
 
-## Primary Benefits
+1. **Context preservation** — each subagent maintains separate context from main conversation
+2. **Specialized expertise** through fine-tuned instructions for specific domains
+3. **Reusability** across projects and team sharing
+4. **Flexible permissions** allowing differentiated tool access per subagent
 
-The documentation outlines four main advantages:
+## Configuration & Storage
 
-1. **Context preservation**: "Each subagent operates in its own context, preventing pollution of the main conversation"
-2. **Specialized expertise**: Fine-tuned configurations for specific domains improve success rates
-3. **Reusability**: Once created, subagents work across projects and team workflows
-4. **Flexible permissions**: Tool access can be granularly controlled per subagent
+Subagents exist as Markdown files with YAML frontmatter in two locations:
 
-## Setup Process
+- **Project-level**: `.claude/agents/` (highest priority)
+- **User-level**: `~/.claude/agents/` (lower priority)
 
-Users create subagents via the `/agents` command with four steps:
-1. Access the subagents interface
-2. Select "Create New Agent"
-3. Define purpose, tools, and system prompt
-4. Save and deploy for automatic or explicit use
+### Required YAML Fields
 
-## Storage Architecture
+- `name`: unique identifier (lowercase, hyphens)
+- `description`: natural language purpose statement
 
-Subagents are stored as Markdown files with YAML frontmatter:
-- **Project-level**: `.claude/agents/` (highest priority, project-specific)
-- **User-level**: `~/.claude/agents/` (available globally)
-- **Plugin-based**: Integrated through plugin manifest configurations
+### Optional Fields
 
-When naming conflicts occur, project-level subagents take precedence.
+- `tools`: comma-separated tool list (inherits all if omitted)
+- `model`: specify alias (sonnet/opus/haiku) or "inherit"
+- `permissionMode`: controls permission handling
+- `skills`: auto-load specified skills
 
-## Configuration Structure
+## Creation & Management
 
-Each subagent file contains:
+Access via `/agents` command for interactive management, or create files manually:
 
-```markdown
----
-name: identifier-name
-description: Purpose and invocation context
-tools: Tool1, Tool2, Tool3
-model: sonnet
----
-
-System prompt content defining role and behavior
+```bash
+mkdir -p .claude/agents
+# Create markdown file with YAML frontmatter and system prompt
 ```
 
-**Required fields**: name, description
-**Optional fields**: tools (inherits all if omitted), model (defaults to sonnet)
+CLI-based configuration using `--agents` flag accepts JSON object definitions for session-specific agents.
+
+## Usage Patterns
+
+### Automatic Delegation
+
+Claude recognizes matching tasks based on descriptions and context
+
+### Explicit Invocation
+
+"Use the [subagent-name] to..." syntax
+
+### Chaining
+
+Multiple subagents for complex workflows
+
+### Resumption
+
+Continue previous conversations using agent IDs stored in transcript files
 
 ## Built-in Subagents
 
-Claude Code includes the **Plan subagent**, which:
-- Operates exclusively in plan mode (non-execution)
-- Uses Sonnet model for enhanced analysis
-- Accesses Read, Glob, Grep, and Bash tools
-- Conducts codebase research before presenting plans
-
-## Invocation Methods
-
-**Automatic delegation**: Claude identifies matching tasks based on descriptions and context
-
-**Explicit invocation**: Direct requests like "Use the code-reviewer subagent to check my changes"
-
-## Practical Examples
-
-The documentation provides three production-ready subagent templates:
-
-**Code Reviewer**: Focuses on quality, security, and maintainability using git diff analysis
-
-**Debugger**: Specializes in root cause analysis with structured reproduction and verification steps
-
-**Data Scientist**: Handles SQL queries and BigQuery operations with optimization emphasis
-
-## Advanced Features
-
-**Subagent chaining**: Sequence multiple subagents for complex workflows
-
-**Resume functionality**: Continue previous subagent conversations using stored agentId, useful for long-running analysis tasks
-
-**CLI-based configuration**: Define subagents dynamically using the `--agents` flag with JSON formatting
+The Plan subagent operates automatically in plan mode for codebase research before presenting solutions.
 
 ## Best Practices
 
-The documentation recommends:
-- Generating initial subagents with Claude, then customizing
-- Creating focused agents with single responsibilities
-- Writing detailed, example-rich system prompts
-- Restricting tool access to necessary functions
-- Version-controlling project-level subagents
-
-## Performance Considerations
-
-Subagents preserve main conversation context for longer sessions but may introduce latency as they gather contextual information independently.
+- Start with Claude-generated subagents, then customize
+- Design focused agents with single responsibilities
+- Include detailed system prompts with specific instructions
+- Restrict tool access to necessary functions only
+- Version control project subagents for team collaboration

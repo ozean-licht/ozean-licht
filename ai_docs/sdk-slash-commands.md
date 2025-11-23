@@ -1,49 +1,41 @@
-# Slash Commands in the SDK
+# Slash Commands in the SDK - Documentation Summary
 
-Slash commands are special commands prefixed with `/` that control Claude Code sessions through the SDK. They enable actions like clearing conversation history, compacting messages, and accessing help.
+## Overview
+
+Slash commands are special directives prefixed with `/` that control Claude Code sessions through the SDK. They enable actions like clearing conversation history, compacting messages, or accessing help.
 
 ## Discovering Available Commands
 
-Access available slash commands through the system initialization message:
+The SDK provides available slash commands via the system initialization message. Access them when a session starts by checking for `message.type === "system"` and `message.subtype === "init"`, then reading `message.slash_commands`.
 
-```typescript
-if (message.type === "system" && message.subtype === "init") {
-  console.log("Available slash commands:", message.slash_commands);
-}
-```
+## Sending Commands
 
-## Built-In Commands
+Transmit slash commands by including them directly in your prompt string, treating them as regular text input to the query function.
 
-### `/compact`
+## Built-in Commands
 
-"Reduces the size of your conversation history by summarizing older messages while preserving important context." The command provides metadata about pre-compaction token counts and what triggered the action.
+**`/compact`** - Reduces conversation history size by summarizing older messages while maintaining essential context. The system returns compaction metadata including pre-compaction token count and the trigger that initiated compaction.
 
-### `/clear`
-
-"Starts a fresh conversation by clearing all previous history." Returns a new session ID upon execution.
+**`/clear`** - Starts a fresh conversation by clearing all previous interaction history and beginning a new session with a fresh session ID.
 
 ## Custom Slash Commands
 
-Users can create personalized commands stored as markdown files in designated directories:
+Users can create filesystem-based custom commands stored in markdown files:
 
-**File Locations:**
-- Project-level: `.claude/commands/`
-- User-level: `~/.claude/commands/`
+- **Project scope**: `.claude/commands/` directory
+- **Personal scope**: `~/.claude/commands/` directory
 
-**File Format:**
+The filename (without `.md` extension) becomes the command name. Content defines command behavior, with optional YAML frontmatter for configuration including allowed tools, descriptions, and model specifications.
 
-The filename (without `.md` extension) becomes the command name. Optional YAML frontmatter provides configuration like allowed tools and model selection.
+### Advanced Features
 
-## Advanced Features
+Custom commands support:
 
-**Arguments & Placeholders:** Commands support dynamic arguments using `$1`, `$2` syntax with optional `argument-hint` frontmatter.
+- **Arguments**: Dynamic placeholders using `$1`, `$2` syntax with optional `argument-hint` configuration
+- **Bash execution**: Run commands with `!`backtick syntax to embed output
+- **File references**: Include file contents using `@filename` notation
+- **Namespacing**: Organize commands in subdirectories for better structure
 
-**Bash Execution:** Commands can execute bash operations using the syntax `` !`command` `` within markdown files.
+## Practical Applications
 
-**File References:** Include file contents using `@` prefix (e.g., `@package.json`).
-
-**Namespacing:** Organize commands in subdirectories for better structure without affecting command names.
-
-## Integration with SDK
-
-"Once defined in the filesystem, custom commands are automatically available through the SDK," appearing in the `slash_commands` list alongside built-in options.
+Commands can automate tasks like code reviews, test execution, security scanning, and git operations by combining allowed tools (Read, Bash, Edit, Grep, Glob) with specific instructions.

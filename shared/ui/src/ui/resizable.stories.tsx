@@ -5,7 +5,7 @@ import {
   ResizablePanel,
   ResizableHandle,
 } from './resizable';
-import { Button } from './button';
+import { CossUIButton as Button } from '../cossui';
 
 /**
  * Resizable panel component built on react-resizable-panels.

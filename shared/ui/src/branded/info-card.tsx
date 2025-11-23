@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { Button } from "../ui/button"
+import { CossUIButton as Button } from "../cossui"
 
 // Import design elements from shared assets
 import TopLightImage from "@/shared/assets/design-elements/TopLight.png"

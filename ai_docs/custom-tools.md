@@ -1,50 +1,36 @@
-# Custom Tools in Claude Agent SDK
+# Custom Tools for Claude Agent SDK
 
 ## Overview
 
-The documentation explains how to create and integrate custom tools that extend Claude's capabilities through in-process MCP (Model Context Protocol) servers.
+Custom tools extend Claude Code's capabilities through in-process MCP servers, allowing Claude to "interact with external services, APIs, or perform specialized operations."
 
-## Key Implementation Steps
+## Creating Custom Tools
 
-**Creating Tools:**
-Tools are defined using `createSdkMcpServer` and the `tool` helper function with Zod schemas for type safety:
+Use `createSdkMcpServer` and `tool` helper functions with Zod schemas for type-safe definitions. Tools consist of:
+- A descriptive name
+- Documentation string
+- Parameter schema (Zod validation)
+- Async handler function returning content
 
-```typescript
-const customServer = createSdkMcpServer({
-  name: "my-custom-tools",
-  version: "1.0.0",
-  tools: [
-    tool(
-      "get_weather",
-      "Get current temperature for a location",
-      { latitude: z.number(), longitude: z.number() },
-      async (args) => { /* implementation */ }
-    )
-  ]
-});
-```
+## Key Requirements
 
-**Tool Naming Format:**
-Tools follow the pattern: `mcp__{server_name}__{tool_name}` when exposed to Claude.
+**Streaming Input Mode Required**: "Custom MCP tools require streaming input mode. You must use an async generator/iterable for the `prompt` parameter."
 
-## Important Requirement
+## Tool Naming Convention
 
-"Custom MCP tools require streaming input mode. You must use an async generator/iterable for the `prompt` parameter."
+MCP tools follow the pattern: `mcp__{server_name}__{tool_name}`. For instance, a "get_weather" tool in "my-custom-tools" becomes `mcp__my-custom-tools__get_weather`.
 
-## Using Tools
+## Configuration
 
-Pass servers to the `query` function via `mcpServers` option and optionally restrict access through `allowedTools`:
+Pass custom servers to the `query` function via the `mcpServers` option as a dictionary. Control tool access using `allowedTools` to specify which tools Claude can invoke.
 
-```typescript
-for await (const message of query({
-  prompt: generateMessages(),
-  options: {
-    mcpServers: { "my-custom-tools": customServer },
-    allowedTools: ["mcp__my-custom-tools__get_weather"]
-  }
-})) { /* handle response */ }
-```
+## Use Cases
 
-## Example Use Cases
+The documentation provides example implementations for:
+- Database query execution
+- API gateway requests (Stripe, GitHub, OpenAI, Slack)
+- Mathematical calculations and compound interest
 
-The guide provides templates for database queries, API gateways, and calculator tools with comprehensive error handling patterns.
+## Error Handling
+
+Wrap tool logic in try-catch blocks to gracefully handle failures and provide meaningful feedback to Claude.

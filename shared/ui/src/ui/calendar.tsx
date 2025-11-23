@@ -7,7 +7,7 @@ import {
 import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker"
 
 import { cn } from '../utils'
-import { Button, buttonVariants } from './button'
+import { CossUIButton as Button, cossUIButtonVariants as buttonVariants } from '../cossui'
 
 function Calendar({
   className,

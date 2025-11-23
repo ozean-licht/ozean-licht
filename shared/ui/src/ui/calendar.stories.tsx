@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Calendar } from './calendar';
-import { Label } from './label';
+import { CossUILabel as Label } from '../cossui';
 import * as React from 'react';
 
 /**

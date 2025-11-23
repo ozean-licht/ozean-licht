@@ -12,7 +12,7 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from './command';
-import { Button } from './button';
+import { CossUIButton as Button } from '../cossui';
 import {
   Calculator,
   Calendar,

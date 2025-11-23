@@ -2,7 +2,7 @@
 import type { Course } from "../types/course"
 
 import Link from "next/link"
-import { Button } from "../ui/button"
+import { CossUIButton as Button } from "../cossui"
 import { Sparkles } from "lucide-react"
 
 

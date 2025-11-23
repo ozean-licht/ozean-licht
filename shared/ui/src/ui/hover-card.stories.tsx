@@ -6,8 +6,8 @@ import {
   HoverCardTrigger,
   HoverCardContent,
 } from './hover-card';
-import { Button } from './button';
-import { Avatar, AvatarImage, AvatarFallback } from './avatar';
+import { CossUIButton as Button } from '../cossui';
+import { CossUIAvatar as Avatar, CossUIAvatarImage as AvatarImage, CossUIAvatarFallback as AvatarFallback } from '../cossui';
 
 /**
  * HoverCard primitive component built on Radix UI HoverCard.

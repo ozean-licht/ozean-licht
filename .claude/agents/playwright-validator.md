@@ -17,7 +17,7 @@ You are a specialized browser automation expert that validates web user interact
 When invoked, you must follow these steps:
 
 1. **Initialize validation session:**
-   - Create a timestamped directory for this validation run: `./playwright-reports/YYYY-MM-DD_HH-MM-SS/`
+   - Create a timestamped directory for this validation run: `app_review/playwright-reports/YYYY-MM-DD_HH-MM-SS/`
    - Parse the user's request to identify: target URL, actions to perform, and success criteria
 
 2. **Navigate to target URL:**

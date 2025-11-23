@@ -1,7 +1,7 @@
 "use client"
 import type { Course } from "../types/course"
 
-import { Button } from "../ui/button"
+import { CossUIButton as Button } from "../cossui"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 

@@ -1,12 +1,12 @@
 "use client"
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select"
+  CossUISelect as Select,
+  CossUISelectPopup as SelectContent,
+  CossUISelectItem as SelectItem,
+  CossUISelectTrigger as SelectTrigger,
+  CossUISelectValue as SelectValue,
+} from "../cossui"
 import { useState } from "react"
 
 interface CourseFilterProps {

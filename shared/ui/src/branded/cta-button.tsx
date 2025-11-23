@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { Button } from "../ui/button"
+import { CossUIButton as Button } from "../cossui"
 import { cn } from "../utils"
 
 interface CtaButtonProps {

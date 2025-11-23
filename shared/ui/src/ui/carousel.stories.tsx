@@ -8,8 +8,8 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from './carousel';
-import { Button } from './button';
-import { Card } from './card';
+import { CossUIButton as Button } from '../cossui';
+import { CossUICard as Card } from '../cossui';
 
 /**
  * Carousel (Slider) primitive component built on Embla Carousel.

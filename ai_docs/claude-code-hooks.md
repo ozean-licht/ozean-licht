@@ -1,78 +1,96 @@
-# Claude Code Hooks Reference
+# Claude Code Hooks: Complete Reference
 
 ## Overview
 
-Claude Code hooks are automated scripts that execute at specific points in your workflow, enabling custom validation, automation, and control over Claude's operations.
+Claude Code hooks are automation mechanisms configured in settings files that execute in response to specific events during Claude's operation. They enable custom workflows, validation, permission handling, and context management throughout sessions.
 
 ## Configuration Structure
 
-Hooks are configured in JSON settings files across three levels:
+Hooks are organized hierarchically across three settings levels:
+- `~/.claude/settings.json` (user-wide)
+- `.claude/settings.json` (project-level)
+- `.claude/settings.local.json` (local, uncommitted)
 
-- **User level**: `~/.claude/settings.json`
-- **Project level**: `.claude/settings.json`
-- **Local project level**: `.claude/settings.local.json`
+The basic format groups hooks by event type with matchers and execution rules:
 
-Hooks are organized by matchers, where each matcher can have multiple hooks.
+```
+Matchers define target patterns (exact strings, regex, or wildcards)
+Hooks specify execution type and parameters
+```
 
 ## Hook Types
 
-### Command-based Hooks
+**Command Hooks** (`type: "command"`)
+Execute bash scripts with access to hook input via stdin and context through environment variables like `$CLAUDE_PROJECT_DIR`.
 
-Execute bash scripts for deterministic operations like validation or file checks.
+**Prompt-Based Hooks** (`type: "prompt"`)
+Send evaluation tasks to Claude Haiku for context-aware decisions. These work with `Stop`, `SubagentStop`, `UserPromptSubmit`, `PreToolUse`, and `PermissionRequest` events. The LLM responds with structured JSON containing approval/blocking decisions.
 
-### Prompt-based Hooks
+## Event Categories
 
-Use an LLM (Haiku) for context-aware decisions. Currently support `Stop`, `SubagentStop`, and `UserPromptSubmit` events.
+**Tool-Related Events:**
+- `PreToolUse` - Before tool execution, allows blocking or modification
+- `PostToolUse` - After successful tool completion
+- `PermissionRequest` - When permission dialogs appear
 
-## Hook Events
+**Session Events:**
+- `SessionStart` - New or resumed sessions; can inject context and set persistent environment variables via `CLAUDE_ENV_FILE`
+- `SessionEnd` - Cleanup when sessions terminate
+- `UserPromptSubmit` - Validates user input before processing
 
-| Event | Purpose |
-|-------|---------|
-| **PreToolUse** | Intercepts tool calls before execution; enables approval/denial/modification |
-| **PostToolUse** | Runs after successful tool completion for validation |
-| **UserPromptSubmit** | Validates or enriches user prompts before processing |
-| **Stop/SubagentStop** | Controls whether Claude should conclude work |
-| **SessionStart** | Loads context, environment setup at session initiation |
-| **Notification** | Handles system notifications with custom logic |
+**Agent Control:**
+- `Stop` - Main agent completion
+- `SubagentStop` - Subagent task completion
+- `PreCompact` - Before context compaction
 
-## Matcher Patterns
+**Other:**
+- `Notification` - System notifications with type-based filtering
 
-- **Exact string matching**: `"Write"` matches only the Write tool
-- **Regex patterns**: `"Edit|Write"` or `"Notebook.*"`
-- **Wildcard**: `"*"` matches all tools
-- **MCP tools**: `"mcp__memory__.*"` targets specific server operations
+## Input/Output Specification
 
-## Hook Output Control
+### Input Format
+Hooks receive JSON via stdin containing:
+- `session_id`, `transcript_path`, `cwd`
+- `permission_mode` (default/plan/acceptEdits/bypassPermissions)
+- Event-specific fields like `tool_name`, `tool_input`, `prompt`
 
-Hooks communicate results through exit codes:
+### Output Control
 
-- **Exit code 0**: Success; JSON stdout enables structured control
-- **Exit code 2**: Blocking error; stderr message blocks the action
-- **Other codes**: Non-blocking errors with stderr feedback
+**Exit Codes:**
+- `0` = Success (stdout shown in verbose mode, context for UserPromptSubmit/SessionStart)
+- `2` = Blocking error (stderr shown to Claude, prevents action)
+- Other = Non-blocking error (shown in verbose mode only)
 
-JSON output is only processed when the hook exits with code 0.
-
-## Security Requirements
-
-Claude Code hooks execute arbitrary shell commands on your system automatically. Users must:
-
-- Review commands thoroughly before deployment
-- Avoid processing sensitive files or unvalidated inputs
-- Understand the security implications of hook execution
+**JSON Response Structure:**
+```
+decision: "approve"/"block"/"allow"/"deny"
+reason: explanation shown to Claude
+continue: false stops processing
+permissionDecision: for PreToolUse control
+additionalContext: injected into conversation
+```
 
 ## Advanced Features
 
-### Environment Persistence
+**Tool Input Modification:** PreToolUse hooks can alter parameters via `updatedInput` before execution.
 
-SessionStart hooks can write to `CLAUDE_ENV_FILE` to persist variables across subsequent bash commands.
+**MCP Tools:** Support pattern matching like `mcp__memory__.*` for Model Context Protocol tools.
 
-### Plugin Integration
+**Plugin Hooks:** Plugins contribute hooks merged with user configuration, using `${CLAUDE_PLUGIN_ROOT}` environment variable.
 
-Plugins define hooks in `hooks/hooks.json` using variables like:
+**Parallelization:** Matching hooks execute simultaneously; identical commands deduplicate automatically.
 
-- `${CLAUDE_PLUGIN_ROOT}`
-- `${CLAUDE_PROJECT_DIR}`
+## Security Model
 
-### Parallel Execution
+Hooks capture a snapshot at startup, preventing mid-session modifications from affecting current sessions. Best practices include validating inputs, quoting variables properly, checking for path traversal attempts, and avoiding sensitive file access.
 
-Multiple matching hooks execute simultaneously, with identical commands automatically deduplicated.
+**Default timeout is 60 seconds per hook** (configurable individually).
+
+## Practical Applications
+
+- **Automatic formatting** post-tool execution
+- **Permission automation** for known-safe operations
+- **Prompt validation** blocking sensitive input
+- **Context injection** loading project state at startup
+- **Environment setup** persisting configuration across commands
+- **Notifications** for permission requests and idle states

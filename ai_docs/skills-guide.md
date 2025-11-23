@@ -1,62 +1,44 @@
-# Claude Agent Skills Guide: API Integration
+# Claude Agent Skills API Guide
 
-## Overview
+## Core Concepts
 
-Agent Skills extend Claude's capabilities through organized collections of instructions, scripts, and resources. The documentation demonstrates how to use both Anthropic-managed and custom Skills via the Messages API.
+Agent Skills extend Claude's capabilities through organized collections of instructions, scripts, and resources. The documentation describes how to integrate both Anthropic-managed and custom Skills with the Claude API.
 
-## Key Integration Points
+## Skill Types
 
-**Skill Sources:**
-- **Anthropic Skills**: Pre-built solutions like `pptx`, `xlsx`, `docx`, `pdf` with date-based versions
-- **Custom Skills**: User-uploaded with generated IDs and epoch timestamp versioning
+**Anthropic Skills** include pre-built document tools:
+- `pptx` (PowerPoint)
+- `xlsx` (Excel)
+- `docx` (Word)
+- `pdf`
 
-Skills integrate identically regardless of source, executed through the code execution tool with a `container` parameter supporting up to 8 Skills per request.
+**Custom Skills** are user-uploaded and managed via the Skills API with generated IDs like `skill_01AbCdEfGhIjKlMnOpQrStUv`.
 
-## Container Parameter Structure
+## Technical Requirements
 
-The implementation requires specifying Skills with:
-- `type`: either "anthropic" or "custom"
-- `skill_id`: short names for Anthropic or generated IDs for custom
-- `version`: date-format (Anthropic) or timestamp (custom), or "latest"
+Three beta headers enable Skills functionality:
+- `code-execution-2025-08-25` (required for code execution)
+- `skills-2025-10-02` (enables Skills API)
+- `files-api-2025-04-14` (file operations)
 
-## File Generation and Download
+Skills operate through the code execution tool and run in isolated containers without network access or runtime package installation.
 
-When Skills create documents, responses include `file_id` attributes. The Files API enables downloading generated content:
+## Key Operations
 
-```
-Extract file IDs → Use Files API retrieve_metadata() → Download with
-Files API download() → Save locally
-```
+**Container Integration**: Skills are specified via a container parameter accepting up to 8 Skills per request, each with type, skill_id, and optional version.
 
-## Multi-Turn Conversations
+**File Management**: Generated documents return file_ids accessible through the Files API for download and processing.
 
-Container reuse across conversation turns uses the container ID from previous responses, enabling context persistence without regenerating the Skills environment.
+**Multi-turn Support**: Reuse containers across conversations by specifying their ID in subsequent requests.
 
-## Custom Skill Management
+**Versioning**: Anthropic Skills use date-based versions (e.g., `20251013`); custom Skills use epoch timestamps with "latest" option available.
 
-**Creation requirements:**
-- Must include SKILL.md at root level
-- Maximum 8MB total upload size
-- YAML frontmatter with name (64 char max, lowercase/hyphens only) and description (1024 char max)
+## Skill Management
 
-**Operations available:**
-- Create new Skills from file collections
-- List all workspace Skills (filter by source)
-- Retrieve specific Skill details
-- Delete Skills (after removing all versions first)
+Create Skills by uploading directories containing a required `SKILL.md` file with YAML frontmatter specifying name (max 64 chars) and description (max 1024 chars). Maximum upload size is 8MB.
 
-## Versioning Strategy
-
-**Anthropic-managed**: Use specific date versions for stability in production
-**Custom Skills**: Pin to epoch timestamps for predictable behavior, use "latest" during development
-
-## Environment Constraints
-
-Skills execute in isolated containers with:
-- No external network access
-- Pre-installed packages only (no runtime installation)
-- Fresh container per request
+List, retrieve, delete, and create new versions of Skills through dedicated API endpoints.
 
 ## Best Practices
 
-Combine Skills when workflows involve multiple document types. Maintain consistent Skills lists for prompt caching effectiveness. Handle `pause_turn` stop reasons for long-running operations by continuing the conversation with the same container ID.
+Pin specific versions for production stability; use "latest" during development. Changing Skills lists breaks prompt caching. Keep Skills list consistent across requests for optimal performance. Handle `pause_turn` stop reasons for long-running operations.
