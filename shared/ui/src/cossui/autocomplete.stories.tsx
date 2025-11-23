@@ -1,860 +1,1198 @@
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */
-import { type Meta, type StoryObj } from '@storybook/react'
-import React from 'react'
+import { type Meta, type StoryObj } from "@storybook/react";
+import React from "react";
 import {
-  AutocompleteRoot,
-  AutocompleteInput,
-  AutocompleteList,
-  AutocompleteOption,
-  AutocompleteGroup,
-  AutocompleteSeparator,
-} from './autocomplete'
-import { Label } from './label'
+  CossUIAutocompleteRoot,
+  CossUIAutocompleteInput,
+  CossUIAutocompleteTrigger,
+  CossUIAutocompleteIcon,
+  CossUIAutocompletePopup,
+  CossUIAutocompleteList,
+  CossUIAutocompleteItem,
+  CossUIAutocompleteGroup,
+  CossUIAutocompleteGroupLabel,
+  CossUIAutocompleteSeparator,
+  CossUIAutocompleteEmpty,
+  CossUIAutocompleteClear,
+  CossUIAutocompleteChips,
+  CossUIAutocompleteChip,
+  CossUIAutocompleteChipRemove,
+} from "./autocomplete";
+import { Label } from "./label";
 
 const meta: Meta = {
-  title: 'Tier 1: Primitives/CossUI/Autocomplete',
+  title: "CossUI/Autocomplete",
   parameters: {
-    layout: 'centered',
+    layout: "centered",
     docs: {
       description: {
         component:
-          'Autocomplete component from Coss UI adapted for Ozean Licht design system. Built on Base UI Popover with combobox pattern, supports keyboard navigation (arrow keys, enter, escape), text highlighting, and accessible ARIA attributes.',
+          "Autocomplete component based on Base UI Combobox, adapted for Ozean Licht design system. A searchable input that filters suggestions as you type. Features glass morphism effects, proper focus management, correct popup positioning, keyboard navigation, single/multi-select modes, and custom rendering. Built with accessibility in mind.",
       },
     },
   },
-  tags: ['autodocs'],
-}
+  tags: ["autodocs"],
+};
 
-export default meta
-type Story = StoryObj
+export default meta;
+type Story = StoryObj;
 
-// Basic autocomplete
+// Sample data for stories
+const fruits = [
+  { value: "apple", label: "Apple", category: "Popular" },
+  { value: "banana", label: "Banana", category: "Popular" },
+  { value: "orange", label: "Orange", category: "Popular" },
+  { value: "grape", label: "Grape", category: "Popular" },
+  { value: "mango", label: "Mango", category: "Tropical" },
+  { value: "pineapple", label: "Pineapple", category: "Tropical" },
+  { value: "papaya", label: "Papaya", category: "Tropical" },
+  { value: "strawberry", label: "Strawberry", category: "Berries" },
+  { value: "blueberry", label: "Blueberry", category: "Berries" },
+  { value: "raspberry", label: "Raspberry", category: "Berries" },
+  { value: "watermelon", label: "Watermelon", category: "Melons" },
+  { value: "cantaloupe", label: "Cantaloupe", category: "Melons" },
+];
+
+const frameworks = [
+  { value: "react", label: "React", description: "A JavaScript library for building user interfaces" },
+  { value: "vue", label: "Vue.js", description: "The Progressive JavaScript Framework" },
+  { value: "angular", label: "Angular", description: "Platform for building mobile and desktop web applications" },
+  { value: "svelte", label: "Svelte", description: "Cybernetically enhanced web apps" },
+  { value: "nextjs", label: "Next.js", description: "The React Framework for Production" },
+  { value: "nuxt", label: "Nuxt.js", description: "The Intuitive Vue Framework" },
+  { value: "remix", label: "Remix", description: "Full stack web framework" },
+  { value: "astro", label: "Astro", description: "The all-in-one web framework" },
+  { value: "solid", label: "SolidJS", description: "Simple and performant reactivity" },
+];
+
+const countries = [
+  { value: "us", label: "United States", emoji: "🇺🇸" },
+  { value: "uk", label: "United Kingdom", emoji: "🇬🇧" },
+  { value: "ca", label: "Canada", emoji: "🇨🇦" },
+  { value: "au", label: "Australia", emoji: "🇦🇺" },
+  { value: "de", label: "Germany", emoji: "🇩🇪" },
+  { value: "fr", label: "France", emoji: "🇫🇷" },
+  { value: "jp", label: "Japan", emoji: "🇯🇵" },
+  { value: "cn", label: "China", emoji: "🇨🇳" },
+  { value: "in", label: "India", emoji: "🇮🇳" },
+  { value: "br", label: "Brazil", emoji: "🇧🇷" },
+];
+
+/**
+ * Basic autocomplete with simple string suggestions
+ */
 export const Default: Story = {
   render: () => (
-    <div className="w-full max-w-md">
-      <AutocompleteRoot>
-        <AutocompleteInput placeholder="Type to search..." />
-        <AutocompleteList>
-          <AutocompleteOption value="apple">Apple</AutocompleteOption>
-          <AutocompleteOption value="banana">Banana</AutocompleteOption>
-          <AutocompleteOption value="cherry">Cherry</AutocompleteOption>
-          <AutocompleteOption value="date">Date</AutocompleteOption>
-          <AutocompleteOption value="elderberry">Elderberry</AutocompleteOption>
-        </AutocompleteList>
-      </AutocompleteRoot>
+    <div className="w-[300px]">
+      <CossUIAutocompleteRoot>
+        <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+          <CossUIAutocompleteIcon />
+          <CossUIAutocompleteInput placeholder="Search fruits..." />
+          <CossUIAutocompleteTrigger />
+        </div>
+        <CossUIAutocompletePopup>
+          <CossUIAutocompleteList>
+            <CossUIAutocompleteItem value="apple">Apple</CossUIAutocompleteItem>
+            <CossUIAutocompleteItem value="banana">Banana</CossUIAutocompleteItem>
+            <CossUIAutocompleteItem value="orange">Orange</CossUIAutocompleteItem>
+            <CossUIAutocompleteItem value="grape">Grape</CossUIAutocompleteItem>
+            <CossUIAutocompleteItem value="mango">Mango</CossUIAutocompleteItem>
+          </CossUIAutocompleteList>
+        </CossUIAutocompletePopup>
+      </CossUIAutocompleteRoot>
     </div>
   ),
-}
+};
 
-// With label
-export const WithLabel: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2 w-full max-w-md">
-      <Label htmlFor="fruit-search">Search Fruits</Label>
-      <AutocompleteRoot>
-        <AutocompleteInput id="fruit-search" placeholder="Start typing fruit name..." />
-        <AutocompleteList>
-          <AutocompleteOption value="apple">Apple</AutocompleteOption>
-          <AutocompleteOption value="apricot">Apricot</AutocompleteOption>
-          <AutocompleteOption value="banana">Banana</AutocompleteOption>
-          <AutocompleteOption value="blueberry">Blueberry</AutocompleteOption>
-          <AutocompleteOption value="cherry">Cherry</AutocompleteOption>
-          <AutocompleteOption value="grape">Grape</AutocompleteOption>
-          <AutocompleteOption value="mango">Mango</AutocompleteOption>
-          <AutocompleteOption value="orange">Orange</AutocompleteOption>
-          <AutocompleteOption value="strawberry">Strawberry</AutocompleteOption>
-        </AutocompleteList>
-      </AutocompleteRoot>
-    </div>
-  ),
-}
-
-// Email autocomplete
-export const EmailAutocomplete: Story = {
+/**
+ * Single select with search and clear button
+ * Demonstrates proper focus management and popup positioning
+ */
+export const SingleSelectWithSearch: Story = {
   render: () => {
-    const emailDomains = ['@gmail.com', '@yahoo.com', '@outlook.com', '@hotmail.com', '@icloud.com']
-    const [inputValue, setInputValue] = React.useState('')
-    const suggestions = inputValue.includes('@')
-      ? emailDomains
-          .filter((domain) => !inputValue.includes(domain))
-          .map((domain) => inputValue.split('@')[0] + domain)
-      : []
+    const [value, setValue] = React.useState<string | null>(null);
+    return (
+      <div className="flex flex-col gap-4 w-[400px]">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="framework-autocomplete">Select a framework</Label>
+          <CossUIAutocompleteRoot value={value} onValueChange={setValue}>
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="framework-autocomplete"
+                placeholder="Type to search..."
+              />
+              {value && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {frameworks.map((framework) => (
+                  <CossUIAutocompleteItem key={framework.value} value={framework.value}>
+                    {framework.label}
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty>No frameworks found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+        {value && (
+          <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+            <p className="text-sm text-foreground">
+              Selected: <span className="font-medium text-primary">{value}</span>
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  },
+};
+
+/**
+ * Autocomplete with grouped suggestions
+ * Groups items by category with labels and separators
+ */
+export const WithGroups: Story = {
+  render: () => {
+    const [value, setValue] = React.useState<string | null>(null);
+    const categories = Array.from(new Set(fruits.map((f) => f.category)));
 
     return (
-      <div className="flex flex-col gap-2 w-full max-w-md">
-        <Label htmlFor="email-input">Email Address</Label>
-        <AutocompleteRoot>
-          <AutocompleteInput
-            id="email-input"
-            type="email"
-            placeholder="name@example.com"
-            onInputChange={setInputValue}
-          />
-          <AutocompleteList emptyMessage="Type @ to see suggestions">
-            {suggestions.map((email) => (
-              <AutocompleteOption key={email} value={email}>
-                {email}
-              </AutocompleteOption>
-            ))}
-          </AutocompleteList>
-        </AutocompleteRoot>
+      <div className="w-[400px]">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="fruit-autocomplete">Select a fruit</Label>
+          <CossUIAutocompleteRoot value={value} onValueChange={setValue}>
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="fruit-autocomplete"
+                placeholder="Search fruits..."
+              />
+              {value && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {categories.map((category, idx) => (
+                  <React.Fragment key={category}>
+                    {idx > 0 && <CossUIAutocompleteSeparator />}
+                    <CossUIAutocompleteGroup>
+                      <CossUIAutocompleteGroupLabel>{category}</CossUIAutocompleteGroupLabel>
+                      {fruits
+                        .filter((f) => f.category === category)
+                        .map((fruit) => (
+                          <CossUIAutocompleteItem key={fruit.value} value={fruit.value}>
+                            {fruit.label}
+                          </CossUIAutocompleteItem>
+                        ))}
+                    </CossUIAutocompleteGroup>
+                  </React.Fragment>
+                ))}
+                <CossUIAutocompleteEmpty>No fruits found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
       </div>
-    )
+    );
   },
-}
+};
 
-// City/Location search
-export const CitySearch: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2 w-full max-w-md">
-      <Label htmlFor="city-search">City or Location</Label>
-      <AutocompleteRoot>
-        <AutocompleteInput id="city-search" placeholder="Search cities..." />
-        <AutocompleteList>
-          <AutocompleteGroup label="Austria">
-            <AutocompleteOption value="vienna">Vienna</AutocompleteOption>
-            <AutocompleteOption value="salzburg">Salzburg</AutocompleteOption>
-            <AutocompleteOption value="innsbruck">Innsbruck</AutocompleteOption>
-            <AutocompleteOption value="graz">Graz</AutocompleteOption>
-          </AutocompleteGroup>
-          <AutocompleteSeparator />
-          <AutocompleteGroup label="Germany">
-            <AutocompleteOption value="berlin">Berlin</AutocompleteOption>
-            <AutocompleteOption value="munich">Munich</AutocompleteOption>
-            <AutocompleteOption value="hamburg">Hamburg</AutocompleteOption>
-            <AutocompleteOption value="frankfurt">Frankfurt</AutocompleteOption>
-          </AutocompleteGroup>
-          <AutocompleteSeparator />
-          <AutocompleteGroup label="Switzerland">
-            <AutocompleteOption value="zurich">Zurich</AutocompleteOption>
-            <AutocompleteOption value="geneva">Geneva</AutocompleteOption>
-            <AutocompleteOption value="basel">Basel</AutocompleteOption>
-            <AutocompleteOption value="bern">Bern</AutocompleteOption>
-          </AutocompleteGroup>
-        </AutocompleteList>
-      </AutocompleteRoot>
-    </div>
-  ),
-}
-
-// User search with avatars
-export const UserSearch: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2 w-full max-w-md">
-      <Label htmlFor="user-search">Search Users</Label>
-      <AutocompleteRoot>
-        <AutocompleteInput id="user-search" placeholder="Search by name or email..." />
-        <AutocompleteList>
-          <AutocompleteOption value="john-doe">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#0ec2bc]/20 flex items-center justify-center text-[#0ec2bc] font-medium text-xs">
-                JD
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-foreground">John Doe</span>
-                <span className="text-xs text-muted-foreground">john@example.com</span>
-              </div>
-            </div>
-          </AutocompleteOption>
-          <AutocompleteOption value="jane-smith">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#0ec2bc]/20 flex items-center justify-center text-[#0ec2bc] font-medium text-xs">
-                JS
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-foreground">Jane Smith</span>
-                <span className="text-xs text-muted-foreground">jane@example.com</span>
-              </div>
-            </div>
-          </AutocompleteOption>
-          <AutocompleteOption value="bob-johnson">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#0ec2bc]/20 flex items-center justify-center text-[#0ec2bc] font-medium text-xs">
-                BJ
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-foreground">Bob Johnson</span>
-                <span className="text-xs text-muted-foreground">bob@example.com</span>
-              </div>
-            </div>
-          </AutocompleteOption>
-          <AutocompleteOption value="alice-williams">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#0ec2bc]/20 flex items-center justify-center text-[#0ec2bc] font-medium text-xs">
-                AW
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-foreground">Alice Williams</span>
-                <span className="text-xs text-muted-foreground">alice@example.com</span>
-              </div>
-            </div>
-          </AutocompleteOption>
-        </AutocompleteList>
-      </AutocompleteRoot>
-    </div>
-  ),
-}
-
-// Framework/Technology search
-export const FrameworkSearch: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2 w-full max-w-md">
-      <Label htmlFor="framework-search">Framework or Library</Label>
-      <AutocompleteRoot>
-        <AutocompleteInput id="framework-search" placeholder="Search frameworks..." />
-        <AutocompleteList>
-          <AutocompleteGroup label="Frontend Frameworks">
-            <AutocompleteOption value="react">React</AutocompleteOption>
-            <AutocompleteOption value="vue">Vue.js</AutocompleteOption>
-            <AutocompleteOption value="angular">Angular</AutocompleteOption>
-            <AutocompleteOption value="svelte">Svelte</AutocompleteOption>
-          </AutocompleteGroup>
-          <AutocompleteSeparator />
-          <AutocompleteGroup label="Backend Frameworks">
-            <AutocompleteOption value="nextjs">Next.js</AutocompleteOption>
-            <AutocompleteOption value="express">Express.js</AutocompleteOption>
-            <AutocompleteOption value="nestjs">NestJS</AutocompleteOption>
-            <AutocompleteOption value="django">Django</AutocompleteOption>
-          </AutocompleteGroup>
-          <AutocompleteSeparator />
-          <AutocompleteGroup label="UI Libraries">
-            <AutocompleteOption value="mui">Material-UI</AutocompleteOption>
-            <AutocompleteOption value="chakra">Chakra UI</AutocompleteOption>
-            <AutocompleteOption value="tailwind">Tailwind CSS</AutocompleteOption>
-            <AutocompleteOption value="baseui">Base UI</AutocompleteOption>
-          </AutocompleteGroup>
-        </AutocompleteList>
-      </AutocompleteRoot>
-    </div>
-  ),
-}
-
-// Command palette style
-export const CommandPalette: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2 w-full max-w-lg">
-      <AutocompleteRoot>
-        <AutocompleteInput
-          placeholder="Type a command or search..."
-          className="h-12 text-base"
-        />
-        <AutocompleteList>
-          <AutocompleteGroup label="Actions">
-            <AutocompleteOption value="new-file">
-              <div className="flex items-center gap-3">
-                <span className="text-[#0ec2bc]">📄</span>
-                <div className="flex flex-col">
-                  <span className="text-sm">New File</span>
-                  <span className="text-xs text-muted-foreground">Create a new file</span>
-                </div>
-              </div>
-            </AutocompleteOption>
-            <AutocompleteOption value="new-folder">
-              <div className="flex items-center gap-3">
-                <span className="text-[#0ec2bc]">📁</span>
-                <div className="flex flex-col">
-                  <span className="text-sm">New Folder</span>
-                  <span className="text-xs text-muted-foreground">Create a new folder</span>
-                </div>
-              </div>
-            </AutocompleteOption>
-          </AutocompleteGroup>
-          <AutocompleteSeparator />
-          <AutocompleteGroup label="Navigation">
-            <AutocompleteOption value="go-home">
-              <div className="flex items-center gap-3">
-                <span className="text-[#0ec2bc]">🏠</span>
-                <span className="text-sm">Go to Home</span>
-              </div>
-            </AutocompleteOption>
-            <AutocompleteOption value="go-settings">
-              <div className="flex items-center gap-3">
-                <span className="text-[#0ec2bc]">⚙️</span>
-                <span className="text-sm">Go to Settings</span>
-              </div>
-            </AutocompleteOption>
-          </AutocompleteGroup>
-        </AutocompleteList>
-      </AutocompleteRoot>
-    </div>
-  ),
-}
-
-// Multi-column results
-export const MultiColumnResults: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2 w-full max-w-2xl">
-      <Label htmlFor="product-search">Search Products</Label>
-      <AutocompleteRoot>
-        <AutocompleteInput id="product-search" placeholder="Search products..." />
-        <AutocompleteList>
-          <AutocompleteOption value="laptop-pro">
-            <div className="grid grid-cols-[1fr_auto_auto] gap-4 w-full">
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-foreground">MacBook Pro 16"</span>
-                <span className="text-xs text-muted-foreground">M3 Max, 36GB RAM</span>
-              </div>
-              <div className="text-sm text-[#0ec2bc]">In Stock</div>
-              <div className="text-sm font-medium text-foreground">$3,499</div>
-            </div>
-          </AutocompleteOption>
-          <AutocompleteOption value="laptop-air">
-            <div className="grid grid-cols-[1fr_auto_auto] gap-4 w-full">
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-foreground">MacBook Air 13"</span>
-                <span className="text-xs text-muted-foreground">M2, 16GB RAM</span>
-              </div>
-              <div className="text-sm text-[#0ec2bc]">In Stock</div>
-              <div className="text-sm font-medium text-foreground">$1,299</div>
-            </div>
-          </AutocompleteOption>
-          <AutocompleteOption value="ipad-pro">
-            <div className="grid grid-cols-[1fr_auto_auto] gap-4 w-full">
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-foreground">iPad Pro 12.9"</span>
-                <span className="text-xs text-muted-foreground">M2, 256GB</span>
-              </div>
-              <div className="text-sm text-muted-foreground">Out of Stock</div>
-              <div className="text-sm font-medium text-foreground">$1,099</div>
-            </div>
-          </AutocompleteOption>
-        </AutocompleteList>
-      </AutocompleteRoot>
-    </div>
-  ),
-}
-
-// With categories/sections
-export const WithCategories: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2 w-full max-w-md">
-      <Label htmlFor="doc-search">Search Documentation</Label>
-      <AutocompleteRoot>
-        <AutocompleteInput id="doc-search" placeholder="Search docs..." />
-        <AutocompleteList>
-          <AutocompleteGroup label="Getting Started">
-            <AutocompleteOption value="intro">Introduction</AutocompleteOption>
-            <AutocompleteOption value="install">Installation</AutocompleteOption>
-            <AutocompleteOption value="quickstart">Quick Start Guide</AutocompleteOption>
-          </AutocompleteGroup>
-          <AutocompleteSeparator />
-          <AutocompleteGroup label="Components">
-            <AutocompleteOption value="button">Button</AutocompleteOption>
-            <AutocompleteOption value="input">Input</AutocompleteOption>
-            <AutocompleteOption value="select">Select</AutocompleteOption>
-            <AutocompleteOption value="autocomplete">Autocomplete</AutocompleteOption>
-          </AutocompleteGroup>
-          <AutocompleteSeparator />
-          <AutocompleteGroup label="API Reference">
-            <AutocompleteOption value="api-auth">Authentication</AutocompleteOption>
-            <AutocompleteOption value="api-users">Users API</AutocompleteOption>
-            <AutocompleteOption value="api-data">Data API</AutocompleteOption>
-          </AutocompleteGroup>
-        </AutocompleteList>
-      </AutocompleteRoot>
-    </div>
-  ),
-}
-
-// Async search with loading
-export const AsyncSearch: Story = {
+/**
+ * Multi-select autocomplete with chips
+ * Allows selecting multiple values displayed as removable chips
+ */
+export const MultiSelect: Story = {
   render: () => {
-    const [loading, setLoading] = React.useState(false)
-    const [results, setResults] = React.useState<string[]>([])
-
-    const handleInputChange = (value: string) => {
-      if (value.length === 0) {
-        setResults([])
-        return
-      }
-
-      setLoading(true)
-      // Simulate API call
-      setTimeout(() => {
-        const mockResults = [
-          'Result 1 for ' + value,
-          'Result 2 for ' + value,
-          'Result 3 for ' + value,
-          'Result 4 for ' + value,
-        ]
-        setResults(mockResults)
-        setLoading(false)
-      }, 500)
-    }
+    const [values, setValues] = React.useState<string[]>([]);
 
     return (
-      <div className="flex flex-col gap-2 w-full max-w-md">
-        <Label htmlFor="async-search">Async Search</Label>
-        <AutocompleteRoot>
-          <AutocompleteInput
-            id="async-search"
-            placeholder="Type to search..."
-            onInputChange={handleInputChange}
-          />
-          <AutocompleteList emptyMessage={loading ? 'Loading...' : 'No results found'}>
-            {results.map((result, index) => (
-              <AutocompleteOption key={index} value={result}>
-                {result}
-              </AutocompleteOption>
-            ))}
-          </AutocompleteList>
-        </AutocompleteRoot>
+      <div className="flex flex-col gap-4 w-[500px]">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="multi-framework">Select frameworks</Label>
+          <CossUIAutocompleteRoot
+            multiple
+            value={values}
+            onValueChange={(newValues) => setValues(newValues as string[])}
+          >
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="multi-framework"
+                placeholder="Type to search..."
+              />
+              {values.length > 0 && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {frameworks.map((framework) => (
+                  <CossUIAutocompleteItem key={framework.value} value={framework.value}>
+                    {framework.label}
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty>No frameworks found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+
+        {values.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-[#C4C8D4]">Selected ({values.length}):</p>
+            <CossUIAutocompleteChips>
+              {values.map((value) => {
+                const framework = frameworks.find((f) => f.value === value);
+                return (
+                  <CossUIAutocompleteChip key={value}>
+                    {framework?.label || value}
+                    <CossUIAutocompleteChipRemove
+                      onClick={() => setValues(values.filter((v) => v !== value))}
+                    />
+                  </CossUIAutocompleteChip>
+                );
+              })}
+            </CossUIAutocompleteChips>
+          </div>
+        )}
       </div>
-    )
+    );
   },
-}
+};
 
-// No results state
-export const NoResults: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2 w-full max-w-md">
-      <Label htmlFor="empty-search">Search (try typing something)</Label>
-      <AutocompleteRoot defaultOpen={true}>
-        <AutocompleteInput id="empty-search" placeholder="Search..." defaultValue="xyz123" />
-        <AutocompleteList emptyMessage="No matches found. Try a different search term.">
-          <AutocompleteOption value="apple">Apple</AutocompleteOption>
-          <AutocompleteOption value="banana">Banana</AutocompleteOption>
-          <AutocompleteOption value="cherry">Cherry</AutocompleteOption>
-        </AutocompleteList>
-      </AutocompleteRoot>
-    </div>
-  ),
-}
-
-// Recent searches
-export const RecentSearches: Story = {
-  render: () => {
-    const [recentSearches, setRecentSearches] = React.useState([
-      'Vienna',
-      'Salzburg',
-      'Munich',
-    ])
-
-    return (
-      <div className="flex flex-col gap-2 w-full max-w-md">
-        <Label htmlFor="recent-search">City Search</Label>
-        <AutocompleteRoot>
-          <AutocompleteInput id="recent-search" placeholder="Search cities..." />
-          <AutocompleteList>
-            {recentSearches.length > 0 && (
-              <>
-                <AutocompleteGroup label="Recent Searches">
-                  {recentSearches.map((search) => (
-                    <AutocompleteOption key={search} value={search}>
-                      <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground">🕐</span>
-                        <span>{search}</span>
-                      </div>
-                    </AutocompleteOption>
-                  ))}
-                </AutocompleteGroup>
-                <AutocompleteSeparator />
-              </>
-            )}
-            <AutocompleteGroup label="All Cities">
-              <AutocompleteOption value="vienna">Vienna</AutocompleteOption>
-              <AutocompleteOption value="salzburg">Salzburg</AutocompleteOption>
-              <AutocompleteOption value="munich">Munich</AutocompleteOption>
-              <AutocompleteOption value="berlin">Berlin</AutocompleteOption>
-              <AutocompleteOption value="zurich">Zurich</AutocompleteOption>
-            </AutocompleteGroup>
-          </AutocompleteList>
-        </AutocompleteRoot>
-      </div>
-    )
-  },
-}
-
-// Highlighted matching text
-export const HighlightedText: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2 w-full max-w-md">
-      <Label htmlFor="highlight-search">Search with Highlighting</Label>
-      <p className="text-xs text-muted-foreground mb-2">
-        Type to see matching text highlighted in cyan
-      </p>
-      <AutocompleteRoot>
-        <AutocompleteInput id="highlight-search" placeholder="Type 'java' or 'script'..." />
-        <AutocompleteList>
-          <AutocompleteOption value="javascript">JavaScript</AutocompleteOption>
-          <AutocompleteOption value="typescript">TypeScript</AutocompleteOption>
-          <AutocompleteOption value="java">Java</AutocompleteOption>
-          <AutocompleteOption value="python">Python</AutocompleteOption>
-          <AutocompleteOption value="ruby">Ruby</AutocompleteOption>
-          <AutocompleteOption value="rust">Rust</AutocompleteOption>
-          <AutocompleteOption value="go">Go</AutocompleteOption>
-        </AutocompleteList>
-      </AutocompleteRoot>
-    </div>
-  ),
-}
-
-// Custom rendering
+/**
+ * Custom rendering with descriptions
+ * Shows how to render custom content in items
+ */
 export const CustomRendering: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2 w-full max-w-md">
-      <Label htmlFor="custom-search">Repository Search</Label>
-      <AutocompleteRoot>
-        <AutocompleteInput id="custom-search" placeholder="Search repositories..." />
-        <AutocompleteList>
-          <AutocompleteOption value="ozean-licht-ecosystem">
-            <div className="flex items-start gap-3 py-1">
-              <div className="text-2xl">📦</div>
-              <div className="flex flex-col flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-foreground truncate">
-                    ozean-licht-ecosystem
-                  </span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-[#0ec2bc]/20 text-[#0ec2bc]">
-                    Public
-                  </span>
-                </div>
-                <span className="text-xs text-muted-foreground line-clamp-2">
-                  Monorepo for Austrian associations: Kids Ascension and Ozean Licht platforms
-                </span>
-                <div className="flex items-center gap-3 mt-1">
-                  <span className="text-xs text-muted-foreground">⭐ 42</span>
-                  <span className="text-xs text-muted-foreground">TypeScript</span>
-                </div>
-              </div>
-            </div>
-          </AutocompleteOption>
-          <AutocompleteOption value="kids-ascension">
-            <div className="flex items-start gap-3 py-1">
-              <div className="text-2xl">📚</div>
-              <div className="flex flex-col flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-foreground truncate">
-                    kids-ascension
-                  </span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-[#0ec2bc]/20 text-[#0ec2bc]">
-                    Public
-                  </span>
-                </div>
-                <span className="text-xs text-muted-foreground line-clamp-2">
-                  Educational platform for children with interactive learning modules
-                </span>
-                <div className="flex items-center gap-3 mt-1">
-                  <span className="text-xs text-muted-foreground">⭐ 28</span>
-                  <span className="text-xs text-muted-foreground">React</span>
-                </div>
-              </div>
-            </div>
-          </AutocompleteOption>
-        </AutocompleteList>
-      </AutocompleteRoot>
-    </div>
-  ),
-}
-
-// Glass effect variants
-export const GlassEffectVariants: Story = {
-  render: () => (
-    <div className="p-8 bg-gradient-to-br from-background via-card to-primary/20 rounded-lg space-y-6 min-w-md">
-      <div className="flex flex-col gap-2">
-        <Label className="text-foreground/90">Standard Glass</Label>
-        <AutocompleteRoot>
-          <AutocompleteInput placeholder="Search..." className="glass-card" />
-          <AutocompleteList>
-            <AutocompleteOption value="option1">Option 1</AutocompleteOption>
-            <AutocompleteOption value="option2">Option 2</AutocompleteOption>
-            <AutocompleteOption value="option3">Option 3</AutocompleteOption>
-          </AutocompleteList>
-        </AutocompleteRoot>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label className="text-foreground/90">Strong Glass</Label>
-        <AutocompleteRoot>
-          <AutocompleteInput placeholder="Search..." className="glass-card-strong" />
-          <AutocompleteList>
-            <AutocompleteOption value="option1">Option 1</AutocompleteOption>
-            <AutocompleteOption value="option2">Option 2</AutocompleteOption>
-            <AutocompleteOption value="option3">Option 3</AutocompleteOption>
-          </AutocompleteList>
-        </AutocompleteRoot>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label className="text-foreground/90">Subtle Glass</Label>
-        <AutocompleteRoot>
-          <AutocompleteInput placeholder="Search..." className="glass-subtle" />
-          <AutocompleteList>
-            <AutocompleteOption value="option1">Option 1</AutocompleteOption>
-            <AutocompleteOption value="option2">Option 2</AutocompleteOption>
-            <AutocompleteOption value="option3">Option 3</AutocompleteOption>
-          </AutocompleteList>
-        </AutocompleteRoot>
-      </div>
-    </div>
-  ),
-}
-
-// Keyboard navigation example
-export const KeyboardNavigation: Story = {
-  render: () => (
-    <div className="flex flex-col gap-4 w-full max-w-md">
-      <div>
-        <Label htmlFor="keyboard-search">Keyboard Navigation Demo</Label>
-        <p className="text-xs text-muted-foreground mt-1">
-          Use ↑↓ arrow keys to navigate, Enter to select, Escape to close
-        </p>
-      </div>
-      <AutocompleteRoot>
-        <AutocompleteInput id="keyboard-search" placeholder="Try keyboard navigation..." />
-        <AutocompleteList>
-          <AutocompleteOption value="option-1">
-            Press ↓ to highlight me
-          </AutocompleteOption>
-          <AutocompleteOption value="option-2">
-            Use ↑↓ to navigate
-          </AutocompleteOption>
-          <AutocompleteOption value="option-3">
-            Press Enter to select
-          </AutocompleteOption>
-          <AutocompleteOption value="option-4">
-            Press Escape to close
-          </AutocompleteOption>
-          <AutocompleteOption value="option-5">
-            Type to filter results
-          </AutocompleteOption>
-        </AutocompleteList>
-      </AutocompleteRoot>
-    </div>
-  ),
-}
-
-// Disabled options
-export const DisabledOptions: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2 w-full max-w-md">
-      <Label htmlFor="disabled-search">With Disabled Options</Label>
-      <AutocompleteRoot>
-        <AutocompleteInput id="disabled-search" placeholder="Search..." />
-        <AutocompleteList>
-          <AutocompleteOption value="available-1">Available Option 1</AutocompleteOption>
-          <AutocompleteOption value="unavailable" disabled>
-            Unavailable (Disabled)
-          </AutocompleteOption>
-          <AutocompleteOption value="available-2">Available Option 2</AutocompleteOption>
-          <AutocompleteOption value="coming-soon" disabled>
-            Coming Soon (Disabled)
-          </AutocompleteOption>
-          <AutocompleteOption value="available-3">Available Option 3</AutocompleteOption>
-        </AutocompleteList>
-      </AutocompleteRoot>
-    </div>
-  ),
-}
-
-// Programming language search
-export const ProgrammingLanguages: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2 w-full max-w-md">
-      <Label htmlFor="lang-search">Programming Language</Label>
-      <AutocompleteRoot>
-        <AutocompleteInput id="lang-search" placeholder="Search languages..." />
-        <AutocompleteList>
-          <AutocompleteOption value="javascript">
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded bg-yellow-500/20 flex items-center justify-center text-xs">
-                JS
-              </div>
-              <span>JavaScript</span>
-            </div>
-          </AutocompleteOption>
-          <AutocompleteOption value="typescript">
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded bg-blue-500/20 flex items-center justify-center text-xs">
-                TS
-              </div>
-              <span>TypeScript</span>
-            </div>
-          </AutocompleteOption>
-          <AutocompleteOption value="python">
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded bg-green-500/20 flex items-center justify-center text-xs">
-                PY
-              </div>
-              <span>Python</span>
-            </div>
-          </AutocompleteOption>
-          <AutocompleteOption value="rust">
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded bg-orange-500/20 flex items-center justify-center text-xs">
-                RS
-              </div>
-              <span>Rust</span>
-            </div>
-          </AutocompleteOption>
-          <AutocompleteOption value="go">
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded bg-cyan-500/20 flex items-center justify-center text-xs">
-                GO
-              </div>
-              <span>Go</span>
-            </div>
-          </AutocompleteOption>
-        </AutocompleteList>
-      </AutocompleteRoot>
-    </div>
-  ),
-}
-
-// Tag/Label search
-export const TagSearch: Story = {
   render: () => {
-    const [selectedTags, setSelectedTags] = React.useState<string[]>([])
+    const [value, setValue] = React.useState<string | null>(null);
 
     return (
-      <div className="flex flex-col gap-4 w-full max-w-md">
-        <div>
-          <Label htmlFor="tag-search">Add Tags</Label>
-          {selectedTags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
-              {selectedTags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-2 py-1 text-xs rounded-md bg-[#0ec2bc]/20 text-[#0ec2bc] border border-[#0ec2bc]/30"
-                >
-                  {tag}
-                </span>
-              ))}
+      <div className="w-[500px]">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="custom-autocomplete">Choose a framework</Label>
+          <CossUIAutocompleteRoot value={value} onValueChange={setValue}>
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="custom-autocomplete"
+                placeholder="Search frameworks..."
+              />
+              {value && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
             </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {frameworks.map((framework) => (
+                  <CossUIAutocompleteItem key={framework.value} value={framework.value}>
+                    <div className="flex flex-col gap-1">
+                      <span className="font-medium">{framework.label}</span>
+                      <span className="text-xs text-[#C4C8D4]/70">{framework.description}</span>
+                    </div>
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty>No frameworks found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * With icons/emojis in items
+ * Demonstrates rendering icons alongside text
+ */
+export const WithIcons: Story = {
+  render: () => {
+    const [value, setValue] = React.useState<string | null>(null);
+
+    return (
+      <div className="w-[400px]">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="country-autocomplete">Select a country</Label>
+          <CossUIAutocompleteRoot value={value} onValueChange={setValue}>
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon>
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </CossUIAutocompleteIcon>
+              <CossUIAutocompleteInput
+                id="country-autocomplete"
+                placeholder="Search countries..."
+              />
+              {value && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {countries.map((country) => (
+                  <CossUIAutocompleteItem key={country.value} value={country.value}>
+                    <span className="flex items-center gap-2">
+                      <span className="text-lg">{country.emoji}</span>
+                      <span>{country.label}</span>
+                    </span>
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty>No countries found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * Loading state
+ * Shows loading indicator while fetching suggestions
+ */
+export const LoadingState: Story = {
+  render: () => {
+    const [value, setValue] = React.useState<string | null>(null);
+    const [loading, setLoading] = React.useState(false);
+    const [items, setItems] = React.useState(frameworks);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const query = e.target.value;
+      if (query.length > 0) {
+        setLoading(true);
+        // Simulate API call
+        setTimeout(() => {
+          const filtered = frameworks.filter((f) =>
+            f.label.toLowerCase().includes(query.toLowerCase())
+          );
+          setItems(filtered);
+          setLoading(false);
+        }, 500);
+      } else {
+        setItems(frameworks);
+      }
+    };
+
+    return (
+      <div className="w-[400px]">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="loading-autocomplete">Search with loading</Label>
+          <CossUIAutocompleteRoot value={value} onValueChange={setValue}>
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="loading-autocomplete"
+                placeholder="Type to search..."
+                onChange={handleInputChange}
+              />
+              {value && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {loading ? (
+                  <div className="flex items-center justify-center py-6 gap-2">
+                    <svg
+                      className="animate-spin h-4 w-4 text-primary"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    <span className="text-sm text-[#C4C8D4]">Loading...</span>
+                  </div>
+                ) : (
+                  <>
+                    {items.map((framework) => (
+                      <CossUIAutocompleteItem key={framework.value} value={framework.value}>
+                        {framework.label}
+                      </CossUIAutocompleteItem>
+                    ))}
+                    <CossUIAutocompleteEmpty>No frameworks found</CossUIAutocompleteEmpty>
+                  </>
+                )}
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * Empty state
+ * Shows custom message when no suggestions match
+ */
+export const EmptyState: Story = {
+  render: () => {
+    const [value, setValue] = React.useState<string | null>(null);
+
+    return (
+      <div className="w-[400px]">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="empty-autocomplete">Search (will show empty)</Label>
+          <CossUIAutocompleteRoot value={value} onValueChange={setValue}>
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="empty-autocomplete"
+                placeholder="Type 'xyz' to see empty state..."
+              />
+              {value && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {/* Empty list to demonstrate empty state */}
+                <CossUIAutocompleteEmpty>
+                  <div className="flex flex-col items-center gap-2 py-4">
+                    <svg
+                      className="h-8 w-8 text-[#C4C8D4]/30"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <p className="text-sm text-[#C4C8D4]/70">No results found</p>
+                    <p className="text-xs text-[#C4C8D4]/50">Try a different search term</p>
+                  </div>
+                </CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * Disabled state
+ * Shows autocomplete in disabled state
+ */
+export const DisabledState: Story = {
+  render: () => (
+    <div className="w-[400px]">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="disabled-autocomplete">Disabled autocomplete</Label>
+        <CossUIAutocompleteRoot disabled>
+          <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md opacity-50">
+            <CossUIAutocompleteIcon />
+            <CossUIAutocompleteInput
+              id="disabled-autocomplete"
+              placeholder="This is disabled..."
+              disabled
+            />
+            <CossUIAutocompleteTrigger disabled />
+          </div>
+          <CossUIAutocompletePopup>
+            <CossUIAutocompleteList>
+              <CossUIAutocompleteItem value="disabled">This won't show</CossUIAutocompleteItem>
+            </CossUIAutocompleteList>
+          </CossUIAutocompletePopup>
+        </CossUIAutocompleteRoot>
+      </div>
+    </div>
+  ),
+};
+
+/**
+ * With disabled items
+ * Shows some items disabled in the list
+ */
+export const WithDisabledItems: Story = {
+  render: () => {
+    const [value, setValue] = React.useState<string | null>(null);
+
+    return (
+      <div className="w-[400px]">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="disabled-items">Frameworks (some disabled)</Label>
+          <CossUIAutocompleteRoot value={value} onValueChange={setValue}>
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="disabled-items"
+                placeholder="Search frameworks..."
+              />
+              {value && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                <CossUIAutocompleteItem value="react">React</CossUIAutocompleteItem>
+                <CossUIAutocompleteItem value="vue" disabled>
+                  Vue.js (Coming soon)
+                </CossUIAutocompleteItem>
+                <CossUIAutocompleteItem value="angular">Angular</CossUIAutocompleteItem>
+                <CossUIAutocompleteItem value="svelte" disabled>
+                  Svelte (Coming soon)
+                </CossUIAutocompleteItem>
+                <CossUIAutocompleteItem value="nextjs">Next.js</CossUIAutocompleteItem>
+                <CossUIAutocompleteEmpty>No frameworks found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * Form integration
+ * Demonstrates using autocomplete in a form
+ */
+export const FormIntegration: Story = {
+  render: () => {
+    const [framework, setFramework] = React.useState<string | null>(null);
+    const [country, setCountry] = React.useState<string | null>(null);
+    const [submitted, setSubmitted] = React.useState(false);
+
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 3000);
+    };
+
+    return (
+      <form onSubmit={handleSubmit} className="w-[400px] space-y-4">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="form-framework">Favorite framework *</Label>
+          <CossUIAutocompleteRoot value={framework} onValueChange={setFramework}>
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="form-framework"
+                placeholder="Select a framework..."
+                required
+              />
+              {framework && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {frameworks.slice(0, 5).map((fw) => (
+                  <CossUIAutocompleteItem key={fw.value} value={fw.value}>
+                    {fw.label}
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty>No frameworks found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="form-country">Country *</Label>
+          <CossUIAutocompleteRoot value={country} onValueChange={setCountry}>
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="form-country"
+                placeholder="Select a country..."
+                required
+              />
+              {country && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {countries.map((c) => (
+                  <CossUIAutocompleteItem key={c.value} value={c.value}>
+                    <span className="flex items-center gap-2">
+                      <span className="text-lg">{c.emoji}</span>
+                      <span>{c.label}</span>
+                    </span>
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty>No countries found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+
+        <button
+          type="submit"
+          className="w-full px-4 py-2 bg-primary text-white rounded-lg font-sans font-medium hover:bg-primary/90 transition-colors active:scale-95"
+        >
+          Submit
+        </button>
+
+        {submitted && (
+          <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+            <p className="text-sm text-foreground">
+              Form submitted! Framework: <span className="font-medium text-primary">{framework}</span>, Country: <span className="font-medium text-primary">{country}</span>
+            </p>
+          </div>
+        )}
+      </form>
+    );
+  },
+};
+
+/**
+ * Keyboard navigation demo
+ * Demonstrates keyboard shortcuts and navigation
+ */
+export const KeyboardNavigation: Story = {
+  render: () => {
+    const [value, setValue] = React.useState<string | null>(null);
+
+    return (
+      <div className="flex flex-col gap-4 w-[500px]">
+        <div className="p-4 rounded-lg bg-card/50 border border-border">
+          <h3 className="text-sm font-medium text-primary mb-2">Keyboard Shortcuts:</h3>
+          <ul className="text-xs text-[#C4C8D4] space-y-1">
+            <li>• <kbd className="px-1.5 py-0.5 bg-[#000F1F] rounded border border-border">↑</kbd> / <kbd className="px-1.5 py-0.5 bg-[#000F1F] rounded border border-border">↓</kbd> - Navigate items</li>
+            <li>• <kbd className="px-1.5 py-0.5 bg-[#000F1F] rounded border border-border">Enter</kbd> - Select highlighted item</li>
+            <li>• <kbd className="px-1.5 py-0.5 bg-[#000F1F] rounded border border-border">Esc</kbd> - Close popup</li>
+            <li>• <kbd className="px-1.5 py-0.5 bg-[#000F1F] rounded border border-border">Home</kbd> / <kbd className="px-1.5 py-0.5 bg-[#000F1F] rounded border border-border">End</kbd> - Jump to first/last item</li>
+            <li>• Type to filter suggestions</li>
+          </ul>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="keyboard-autocomplete">Try keyboard navigation</Label>
+          <CossUIAutocompleteRoot value={value} onValueChange={setValue}>
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="keyboard-autocomplete"
+                placeholder="Click here and use arrow keys..."
+              />
+              {value && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {frameworks.map((framework) => (
+                  <CossUIAutocompleteItem key={framework.value} value={framework.value}>
+                    {framework.label}
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty>No frameworks found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+
+        {value && (
+          <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+            <p className="text-sm text-foreground">
+              Selected: <span className="font-medium text-primary">{value}</span>
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  },
+};
+
+/**
+ * Accessible autocomplete
+ * Demonstrates ARIA labels and screen reader support
+ */
+export const AccessibilityDemo: Story = {
+  render: () => {
+    const [value, setValue] = React.useState<string | null>(null);
+
+    return (
+      <div className="flex flex-col gap-4 w-[500px]">
+        <div className="p-4 rounded-lg bg-card/50 border border-border">
+          <h3 className="text-sm font-medium text-primary mb-2">Accessibility Features:</h3>
+          <ul className="text-xs text-[#C4C8D4] space-y-1">
+            <li>• Proper ARIA labels and roles</li>
+            <li>• Screen reader announcements for selection</li>
+            <li>• Focus visible indicators</li>
+            <li>• Keyboard navigation support</li>
+            <li>• Status messages for screen readers</li>
+          </ul>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="accessible-autocomplete">Accessible autocomplete</Label>
+          <CossUIAutocompleteRoot
+            value={value}
+            onValueChange={setValue}
+            aria-label="Framework selection"
+          >
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon aria-hidden="true" />
+              <CossUIAutocompleteInput
+                id="accessible-autocomplete"
+                placeholder="Search frameworks..."
+                aria-describedby="autocomplete-description"
+              />
+              {value && <CossUIAutocompleteClear aria-label="Clear selection" />}
+              <CossUIAutocompleteTrigger aria-label="Toggle suggestions" />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {frameworks.map((framework) => (
+                  <CossUIAutocompleteItem
+                    key={framework.value}
+                    value={framework.value}
+                    aria-label={`${framework.label} - ${framework.description}`}
+                  >
+                    <div className="flex flex-col gap-1">
+                      <span className="font-medium">{framework.label}</span>
+                      <span className="text-xs text-[#C4C8D4]/70">{framework.description}</span>
+                    </div>
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty>No frameworks found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+          <p id="autocomplete-description" className="text-xs text-[#C4C8D4]/70">
+            Type to search and filter frameworks. Use arrow keys to navigate.
+          </p>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * Compact size variant
+ * Smaller autocomplete for tight spaces
+ */
+export const CompactSize: Story = {
+  render: () => {
+    const [value, setValue] = React.useState<string | null>(null);
+
+    return (
+      <div className="w-[300px]">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="compact-autocomplete" className="text-xs">
+            Compact autocomplete
+          </Label>
+          <CossUIAutocompleteRoot value={value} onValueChange={setValue}>
+            <div className="flex items-center border border-border rounded-md bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon className="px-1.5">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </CossUIAutocompleteIcon>
+              <CossUIAutocompleteInput
+                id="compact-autocomplete"
+                placeholder="Search..."
+                className="h-8 text-xs"
+              />
+              {value && (
+                <CossUIAutocompleteClear className="h-8">
+                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </CossUIAutocompleteClear>
+              )}
+              <CossUIAutocompleteTrigger className="h-8 px-1.5">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </CossUIAutocompleteTrigger>
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {fruits.slice(0, 6).map((fruit) => (
+                  <CossUIAutocompleteItem
+                    key={fruit.value}
+                    value={fruit.value}
+                    className="py-1.5 px-2 text-xs"
+                  >
+                    {fruit.label}
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty className="py-4 text-xs">
+                  No fruits found
+                </CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * Large size variant
+ * Larger autocomplete for emphasis
+ */
+export const LargeSize: Story = {
+  render: () => {
+    const [value, setValue] = React.useState<string | null>(null);
+
+    return (
+      <div className="w-[500px]">
+        <div className="flex flex-col gap-3">
+          <Label htmlFor="large-autocomplete" className="text-lg">
+            Large autocomplete
+          </Label>
+          <CossUIAutocompleteRoot value={value} onValueChange={setValue}>
+            <div className="flex items-center border border-border rounded-xl bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon className="px-4">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </CossUIAutocompleteIcon>
+              <CossUIAutocompleteInput
+                id="large-autocomplete"
+                placeholder="Search frameworks..."
+                className="h-14 text-base"
+              />
+              {value && <CossUIAutocompleteClear className="h-14 px-4" />}
+              <CossUIAutocompleteTrigger className="h-14 px-4" />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {frameworks.map((framework) => (
+                  <CossUIAutocompleteItem
+                    key={framework.value}
+                    value={framework.value}
+                    className="py-3 px-4"
+                  >
+                    <div className="flex flex-col gap-1">
+                      <span className="font-medium text-base">{framework.label}</span>
+                      <span className="text-xs text-[#C4C8D4]/70">{framework.description}</span>
+                    </div>
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty className="py-8">
+                  No frameworks found
+                </CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * With side offset
+ * Demonstrates controlling popup offset from trigger
+ */
+export const WithSideOffset: Story = {
+  render: () => {
+    const [value, setValue] = React.useState<string | null>(null);
+    const [offset, setOffset] = React.useState(8);
+
+    return (
+      <div className="flex flex-col gap-4 w-[400px]">
+        <div className="flex items-center gap-2">
+          <Label htmlFor="offset-slider" className="text-sm">
+            Popup offset: {offset}px
+          </Label>
+          <input
+            id="offset-slider"
+            type="range"
+            min="0"
+            max="32"
+            value={offset}
+            onChange={(e) => setOffset(Number(e.target.value))}
+            className="flex-1"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="offset-autocomplete">Autocomplete</Label>
+          <CossUIAutocompleteRoot value={value} onValueChange={setValue}>
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="offset-autocomplete"
+                placeholder="Search..."
+              />
+              {value && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup sideOffset={offset}>
+              <CossUIAutocompleteList>
+                {fruits.slice(0, 6).map((fruit) => (
+                  <CossUIAutocompleteItem key={fruit.value} value={fruit.value}>
+                    {fruit.label}
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty>No fruits found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * Controlled vs Uncontrolled
+ * Shows both controlled and uncontrolled usage
+ */
+export const ControlledVsUncontrolled: Story = {
+  render: () => {
+    const [controlledValue, setControlledValue] = React.useState<string | null>(null);
+
+    return (
+      <div className="flex flex-col gap-6 w-[500px]">
+        {/* Controlled */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="controlled">Controlled autocomplete</Label>
+          <CossUIAutocompleteRoot value={controlledValue} onValueChange={setControlledValue}>
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="controlled"
+                placeholder="Search..."
+              />
+              {controlledValue && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {fruits.slice(0, 6).map((fruit) => (
+                  <CossUIAutocompleteItem key={fruit.value} value={fruit.value}>
+                    {fruit.label}
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty>No fruits found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+          {controlledValue && (
+            <p className="text-xs text-[#C4C8D4]">Value: {controlledValue}</p>
           )}
         </div>
-        <AutocompleteRoot>
-          <AutocompleteInput id="tag-search" placeholder="Search tags..." />
-          <AutocompleteList>
-            <AutocompleteGroup label="Popular">
-              <AutocompleteOption value="react">react</AutocompleteOption>
-              <AutocompleteOption value="typescript">typescript</AutocompleteOption>
-              <AutocompleteOption value="javascript">javascript</AutocompleteOption>
-            </AutocompleteGroup>
-            <AutocompleteSeparator />
-            <AutocompleteGroup label="Categories">
-              <AutocompleteOption value="frontend">frontend</AutocompleteOption>
-              <AutocompleteOption value="backend">backend</AutocompleteOption>
-              <AutocompleteOption value="fullstack">fullstack</AutocompleteOption>
-              <AutocompleteOption value="design">design</AutocompleteOption>
-            </AutocompleteGroup>
-          </AutocompleteList>
-        </AutocompleteRoot>
-      </div>
-    )
-  },
-}
 
-// Accessibility example
-export const Accessibility: Story = {
-  render: () => (
-    <div className="flex flex-col gap-4 w-full max-w-md">
-      <div>
-        <h2 className="text-lg font-alt font-medium text-foreground">
-          Accessible Autocomplete
-        </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          With proper ARIA attributes and keyboard support
-        </p>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="accessible-search" className="flex items-center gap-1">
-          Search Countries <span className="text-red-500">*</span>
-        </Label>
-        <AutocompleteRoot>
-          <AutocompleteInput
-            id="accessible-search"
-            placeholder="Type to search countries..."
-            aria-label="Search for a country"
-            aria-required="true"
-            aria-describedby="search-description"
-          />
-          <AutocompleteList>
-            <AutocompleteOption value="austria">Austria</AutocompleteOption>
-            <AutocompleteOption value="germany">Germany</AutocompleteOption>
-            <AutocompleteOption value="switzerland">Switzerland</AutocompleteOption>
-            <AutocompleteOption value="france">France</AutocompleteOption>
-            <AutocompleteOption value="italy">Italy</AutocompleteOption>
-          </AutocompleteList>
-        </AutocompleteRoot>
-        <p id="search-description" className="text-xs text-muted-foreground">
-          Select your country. Use arrow keys to navigate, Enter to select.
-        </p>
-      </div>
-    </div>
-  ),
-}
-
-// Long list with scrolling
-export const LongList: Story = {
-  render: () => {
-    const countries = [
-      'Austria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic',
-      'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece',
-      'Hungary', 'Ireland', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg',
-      'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia',
-      'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'United Kingdom', 'Norway',
-    ]
-
-    return (
-      <div className="flex flex-col gap-2 w-full max-w-md">
-        <Label htmlFor="country-search">European Countries</Label>
-        <AutocompleteRoot>
-          <AutocompleteInput id="country-search" placeholder="Search countries..." />
-          <AutocompleteList>
-            {countries.map((country) => (
-              <AutocompleteOption key={country} value={country}>
-                {country}
-              </AutocompleteOption>
-            ))}
-          </AutocompleteList>
-        </AutocompleteRoot>
-      </div>
-    )
-  },
-}
-
-// Controlled component
-export const Controlled: Story = {
-  render: () => {
-    const [value, setValue] = React.useState('')
-    const [inputValue, setInputValue] = React.useState('')
-
-    return (
-      <div className="flex flex-col gap-4 w-full max-w-md">
+        {/* Uncontrolled */}
         <div className="flex flex-col gap-2">
-          <Label htmlFor="controlled-search">Controlled Autocomplete</Label>
-          <AutocompleteRoot value={value} onValueChange={setValue}>
-            <AutocompleteInput
-              id="controlled-search"
-              placeholder="Type to search..."
-              onInputChange={setInputValue}
-            />
-            <AutocompleteList>
-              <AutocompleteOption value="option-1">Option 1</AutocompleteOption>
-              <AutocompleteOption value="option-2">Option 2</AutocompleteOption>
-              <AutocompleteOption value="option-3">Option 3</AutocompleteOption>
-              <AutocompleteOption value="option-4">Option 4</AutocompleteOption>
-            </AutocompleteList>
-          </AutocompleteRoot>
+          <Label htmlFor="uncontrolled">Uncontrolled autocomplete</Label>
+          <CossUIAutocompleteRoot defaultValue="banana">
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="uncontrolled"
+                placeholder="Search..."
+              />
+              <CossUIAutocompleteClear />
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {fruits.slice(0, 6).map((fruit) => (
+                  <CossUIAutocompleteItem key={fruit.value} value={fruit.value}>
+                    {fruit.label}
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty>No fruits found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+          <p className="text-xs text-[#C4C8D4]">Default value: banana (check component state)</p>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * Real-world example: Tag selector
+ * Complex example with tags and multi-select
+ */
+export const TagSelector: Story = {
+  render: () => {
+    const tags = [
+      { value: "javascript", label: "JavaScript", color: "#F7DF1E" },
+      { value: "typescript", label: "TypeScript", color: "#3178C6" },
+      { value: "react", label: "React", color: "#61DAFB" },
+      { value: "vue", label: "Vue", color: "#4FC08D" },
+      { value: "angular", label: "Angular", color: "#DD0031" },
+      { value: "svelte", label: "Svelte", color: "#FF3E00" },
+      { value: "node", label: "Node.js", color: "#339933" },
+      { value: "python", label: "Python", color: "#3776AB" },
+      { value: "rust", label: "Rust", color: "#000000" },
+      { value: "go", label: "Go", color: "#00ADD8" },
+    ];
+
+    const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
+
+    return (
+      <div className="flex flex-col gap-4 w-[600px]">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="tag-selector">Select technologies</Label>
+          <CossUIAutocompleteRoot
+            multiple
+            value={selectedTags}
+            onValueChange={(values) => setSelectedTags(values as string[])}
+          >
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="tag-selector"
+                placeholder="Add tags..."
+              />
+              {selectedTags.length > 0 && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup>
+              <CossUIAutocompleteList>
+                {tags.map((tag) => (
+                  <CossUIAutocompleteItem key={tag.value} value={tag.value}>
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: tag.color }}
+                      />
+                      <span>{tag.label}</span>
+                    </span>
+                  </CossUIAutocompleteItem>
+                ))}
+                <CossUIAutocompleteEmpty>No tags found</CossUIAutocompleteEmpty>
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
         </div>
 
-        {(value || inputValue) && (
-          <div className="p-4 rounded-lg bg-card/50 border border-border">
-            <div className="text-sm space-y-1">
-              <div>
-                <span className="text-muted-foreground">Selected Value:</span>{' '}
-                <span className="font-medium text-[#0ec2bc]">{value || 'None'}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Input Value:</span>{' '}
-                <span className="font-medium text-foreground">{inputValue || 'None'}</span>
-              </div>
+        {selectedTags.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-[#C4C8D4]">Selected tags ({selectedTags.length}):</p>
+            <div className="flex flex-wrap gap-2">
+              {selectedTags.map((tagValue) => {
+                const tag = tags.find((t) => t.value === tagValue);
+                return tag ? (
+                  <div
+                    key={tag.value}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#000F1F] border border-[#0ec2bc]/30 text-sm"
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: tag.color }}
+                    />
+                    <span>{tag.label}</span>
+                    <button
+                      onClick={() => setSelectedTags(selectedTags.filter((v) => v !== tag.value))}
+                      className="text-[#C4C8D4]/50 hover:text-[#C4C8D4] transition-colors"
+                    >
+                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : null;
+              })}
             </div>
           </div>
         )}
       </div>
-    )
+    );
   },
-}
+};
+
+/**
+ * All features combined
+ * Kitchen sink example with all features enabled
+ */
+export const AllFeatures: Story = {
+  render: () => {
+    const [value, setValue] = React.useState<string | null>(null);
+    const [loading, setLoading] = React.useState(false);
+    const categories = Array.from(new Set(fruits.map((f) => f.category)));
+
+    const handleInputChange = () => {
+      setLoading(true);
+      setTimeout(() => setLoading(false), 300);
+    };
+
+    return (
+      <div className="flex flex-col gap-4 w-[500px]">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="all-features">Complete autocomplete</Label>
+          <p className="text-xs text-[#C4C8D4]/70">
+            Features: search, groups, clear, keyboard navigation, loading state
+          </p>
+          <CossUIAutocompleteRoot value={value} onValueChange={setValue}>
+            <div className="flex items-center border border-border rounded-lg bg-card/70 backdrop-blur-md">
+              <CossUIAutocompleteIcon />
+              <CossUIAutocompleteInput
+                id="all-features"
+                placeholder="Search fruits..."
+                onChange={handleInputChange}
+              />
+              {value && <CossUIAutocompleteClear />}
+              <CossUIAutocompleteTrigger />
+            </div>
+            <CossUIAutocompletePopup sideOffset={8}>
+              <CossUIAutocompleteList>
+                {loading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <svg className="animate-spin h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                  </div>
+                ) : (
+                  <>
+                    {categories.map((category, idx) => (
+                      <React.Fragment key={category}>
+                        {idx > 0 && <CossUIAutocompleteSeparator />}
+                        <CossUIAutocompleteGroup>
+                          <CossUIAutocompleteGroupLabel>{category}</CossUIAutocompleteGroupLabel>
+                          {fruits
+                            .filter((f) => f.category === category)
+                            .map((fruit) => (
+                              <CossUIAutocompleteItem key={fruit.value} value={fruit.value}>
+                                {fruit.label}
+                              </CossUIAutocompleteItem>
+                            ))}
+                        </CossUIAutocompleteGroup>
+                      </React.Fragment>
+                    ))}
+                    <CossUIAutocompleteEmpty>
+                      <div className="flex flex-col items-center gap-2 py-4">
+                        <svg className="h-8 w-8 text-[#C4C8D4]/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-sm text-[#C4C8D4]/70">No fruits found</p>
+                      </div>
+                    </CossUIAutocompleteEmpty>
+                  </>
+                )}
+              </CossUIAutocompleteList>
+            </CossUIAutocompletePopup>
+          </CossUIAutocompleteRoot>
+        </div>
+
+        {value && (
+          <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+            <p className="text-sm text-foreground">
+              Selected: <span className="font-medium text-primary">{value}</span>
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  },
+};

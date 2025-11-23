@@ -1,464 +1,525 @@
 /**
  * Autocomplete Component - Ozean Licht Edition
- * Custom implementation with WCAG combobox pattern
- * Implements keyboard navigation and proper focus management
+ * Based on Base UI Combobox with Ozean Licht design system
+ *
+ * An autocomplete is a searchable select component that filters suggestions
+ * as you type. It combines an input field with a dropdown list of options.
+ * Supports single and multi-select modes, custom rendering, and keyboard navigation.
+ *
+ * Note: This is an alias of the Combobox component, following the CossUI naming convention.
+ * Base UI does not have a separate Autocomplete component - Combobox serves this purpose.
  */
 
 import * as React from 'react'
+import { Combobox as BaseCombobox } from '@base-ui-components/react/combobox'
 import { cn } from '../utils/cn'
 
 /**
- * Autocomplete Context for managing shared state
- */
-interface AutocompleteContextValue {
-  open: boolean
-  setOpen: (open: boolean) => void
-  value: string
-  setValue: (value: string) => void
-  inputValue: string
-  setInputValue: (value: string) => void
-  highlightedIndex: number
-  setHighlightedIndex: (index: number | ((prev: number) => number)) => void
-}
-
-const AutocompleteContext = React.createContext<AutocompleteContextValue | null>(null)
-
-const useAutocompleteContext = () => {
-  const context = React.useContext(AutocompleteContext)
-  if (!context) {
-    throw new Error('Autocomplete components must be used within AutocompleteRoot')
-  }
-  return context
-}
-
-/**
  * Autocomplete Root Component
- * Manages state and keyboard navigation
+ * Groups all parts of the autocomplete. Doesn't render its own HTML element.
+ *
+ * Props:
+ * - value: The selected value(s)
+ * - onValueChange: Callback when selection changes
+ * - defaultValue: Initial value
+ * - multiple: Enable multi-select mode
+ * - disabled: Disable the entire autocomplete
  */
-interface AutocompleteRootProps {
-  children: React.ReactNode
-  value?: string
-  defaultValue?: string
-  onValueChange?: (value: string) => void
-  open?: boolean
-  defaultOpen?: boolean
-  onOpenChange?: (open: boolean) => void
-}
-
-const AutocompleteRoot = ({
-  children,
-  value: controlledValue,
-  defaultValue = '',
-  onValueChange,
-  open: controlledOpen,
-  defaultOpen = false,
-  onOpenChange,
-}: AutocompleteRootProps) => {
-  const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue)
-  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
-  const [inputValue, setInputValue] = React.useState(controlledValue || defaultValue)
-  const [highlightedIndex, setHighlightedIndex] = React.useState(-1)
-
-  const value = controlledValue !== undefined ? controlledValue : uncontrolledValue
-  const open = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen
-
-  const setValue = React.useCallback(
-    (newValue: string) => {
-      if (controlledValue === undefined) {
-        setUncontrolledValue(newValue)
-      }
-      onValueChange?.(newValue)
-    },
-    [controlledValue, onValueChange]
-  )
-
-  const setOpen = React.useCallback(
-    (newOpen: boolean) => {
-      if (controlledOpen === undefined) {
-        setUncontrolledOpen(newOpen)
-      }
-      onOpenChange?.(newOpen)
-    },
-    [controlledOpen, onOpenChange]
-  )
-
-  const contextValue: AutocompleteContextValue = {
-    open,
-    setOpen,
-    value,
-    setValue,
-    inputValue,
-    setInputValue,
-    highlightedIndex,
-    setHighlightedIndex,
-  }
-
-  return (
-    <AutocompleteContext.Provider value={contextValue}>
-      <div className="relative inline-block w-full">
-        {children}
-      </div>
-    </AutocompleteContext.Provider>
-  )
-}
+const AutocompleteRoot = BaseCombobox.Root
 
 /**
- * Autocomplete Input Component
- * Text input with combobox ARIA attributes
+ * Autocomplete Input - The searchable input field
+ * Users type here to filter suggestions and see selected values
+ *
+ * Key Features:
+ * - Glass morphism background with backdrop blur
+ * - Primary color focus ring
+ * - Smooth transitions on hover/focus
+ * - Proper focus management (no jumping or losing focus)
  */
-interface AutocompleteInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
-  onInputChange?: (value: string) => void
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void
-}
-
-const AutocompleteInput = React.forwardRef<HTMLInputElement, AutocompleteInputProps>(
-  ({ className, onInputChange, onKeyDown, onFocus, onBlur, ...restProps }, forwardedRef) => {
-    const { open, setOpen, inputValue, setInputValue, highlightedIndex, setHighlightedIndex } =
-      useAutocompleteContext()
-
-    const inputRef = React.useRef<HTMLInputElement>(null)
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = e.target.value
-      setInputValue(newValue)
-      onInputChange?.(newValue)
-      if (!open && newValue.length > 0) {
-        setOpen(true)
-      }
-      setHighlightedIndex(-1) // Reset highlight when typing
-    }
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      onKeyDown?.(e)
-
-      if (e.key === 'ArrowDown') {
-        e.preventDefault()
-        if (!open) {
-          setOpen(true)
-          setHighlightedIndex(0)
-        } else {
-          // Find the listbox
-          const listbox = document.getElementById('autocomplete-list')
-          if (!listbox) return
-
-          const visibleOptions = Array.from(listbox.querySelectorAll('[role="option"]'))
-          const maxIndex = visibleOptions.length - 1
-          setHighlightedIndex((prev: number) => (prev < maxIndex ? prev + 1 : prev))
-        }
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault()
-        if (open) {
-          setHighlightedIndex((prev: number) => (prev > 0 ? prev - 1 : -1))
-        }
-      } else if (e.key === 'Enter') {
-        if (open && highlightedIndex >= 0) {
-          e.preventDefault()
-          // Find the listbox
-          const listbox = document.getElementById('autocomplete-list')
-          if (!listbox) return
-
-          const visibleOptions = Array.from(listbox.querySelectorAll('[role="option"]'))
-          if (visibleOptions[highlightedIndex]) {
-            const option = visibleOptions[highlightedIndex] as HTMLElement
-            option.click()
-          }
-        }
-      } else if (e.key === 'Escape') {
-        if (open) {
-          e.preventDefault()
-          setOpen(false)
-          setHighlightedIndex(-1)
-        }
-      }
-    }
-
-    const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-      onFocus?.(e)
-      if (inputValue.length > 0) {
-        setOpen(true)
-      }
-    }
-
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-      onBlur?.(e)
-      // Delay closing to allow option clicks
-      setTimeout(() => {
-        setOpen(false)
-        setHighlightedIndex(-1)
-      }, 200)
-    }
-
-    return (
-      <input
-        ref={(node) => {
-          inputRef.current = node
-          if (typeof forwardedRef === 'function') {
-            forwardedRef(node)
-          } else if (forwardedRef) {
-            ;(forwardedRef as React.MutableRefObject<HTMLInputElement | null>).current = node
-          }
-        }}
-        {...restProps}
-        type="text"
-        role="combobox"
-        aria-expanded={open}
-        aria-autocomplete="list"
-        aria-controls="autocomplete-list"
-        aria-activedescendant={
-          highlightedIndex >= 0 ? `autocomplete-option-${highlightedIndex}` : undefined
-        }
-        autoComplete="off"
-        className={cn(
-          'flex w-full max-w-[480px] rounded-md border border-border bg-card/50 backdrop-blur-8 px-3 py-2',
-          'h-10 text-sm font-sans text-foreground shadow-sm transition-all',
-          'placeholder:text-muted-foreground',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0ec2bc] focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-          'disabled:cursor-not-allowed disabled:opacity-50',
-          'hover:border-[#0ec2bc]/30',
-          className
-        )}
-        value={inputValue}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-      />
-    )
-  }
-)
+const AutocompleteInput = React.forwardRef<
+  HTMLInputElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.Input>
+>(({ className, ...props }, ref) => (
+  <BaseCombobox.Input
+    ref={ref}
+    className={cn(
+      'flex h-10 w-full rounded-lg',
+      'bg-card/70 backdrop-blur-md border border-border px-3 py-2',
+      'text-sm font-sans font-light text-[#C4C8D4]',
+      'transition-all duration-200',
+      'placeholder:text-[#C4C8D4]/50',
+      'hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+      'disabled:cursor-not-allowed disabled:opacity-50',
+      className
+    )}
+    {...props}
+  />
+))
 AutocompleteInput.displayName = 'AutocompleteInput'
 
 /**
- * Autocomplete List Component
- * Container for autocomplete options
+ * Autocomplete Trigger - Button to toggle the dropdown
+ * Usually displays a chevron icon that rotates when open
  */
-interface AutocompleteListProps {
-  children: React.ReactNode
-  className?: string
-  sideOffset?: number
-  emptyMessage?: string
-}
+const AutocompleteTrigger = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.Trigger>
+>(({ className, children, ...props }, ref) => (
+  <BaseCombobox.Trigger
+    ref={ref}
+    className={cn(
+      'flex h-10 items-center justify-center',
+      'px-2 text-[#C4C8D4]',
+      'transition-colors hover:text-primary',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+      'disabled:cursor-not-allowed disabled:opacity-50',
+      className
+    )}
+    {...props}
+  >
+    {children || (
+      <svg
+        className="h-4 w-4 opacity-50 transition-transform data-[state=open]:rotate-180"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        aria-hidden="true"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M19 9l-7 7-7-7"
+        />
+      </svg>
+    )}
+  </BaseCombobox.Trigger>
+))
+AutocompleteTrigger.displayName = 'AutocompleteTrigger'
 
-const AutocompleteList = React.forwardRef<HTMLDivElement, AutocompleteListProps>(
-  ({ children, className, sideOffset = 4, emptyMessage = 'No results found' }, forwardedRef) => {
-    const { inputValue, open } = useAutocompleteContext()
+/**
+ * Autocomplete Icon - Icon indicator (typically a search icon)
+ * Displayed at the start of the input field
+ */
+const AutocompleteIcon = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.Icon>
+>(({ className, children, ...props }, ref) => (
+  <BaseCombobox.Icon
+    ref={ref}
+    className={cn(
+      'flex items-center justify-center px-2 text-[#C4C8D4]/50',
+      className
+    )}
+    {...props}
+  >
+    {children || (
+      <svg
+        className="h-4 w-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        aria-hidden="true"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        />
+      </svg>
+    )}
+  </BaseCombobox.Icon>
+))
+AutocompleteIcon.displayName = 'AutocompleteIcon'
 
-    // Count visible children
-    const childArray = React.Children.toArray(children)
-    const visibleChildren = childArray.filter((child) => {
-      if (React.isValidElement(child) && child.props.value) {
-        return true
-      }
-      return false
-    })
+/**
+ * Autocomplete Portal - Portal for overlay rendering
+ * Renders the popup in a portal at the document root to avoid z-index issues
+ */
+const AutocompletePortal = BaseCombobox.Portal
 
-    const isEmpty = visibleChildren.length === 0 && inputValue.length > 0
+/**
+ * Autocomplete Positioner - Required wrapper for Popup positioning
+ * Handles popup positioning relative to the trigger (below input by default)
+ *
+ * Critical for proper positioning - fixes the "popup spawns bottom-left" bug
+ */
+const AutocompletePositioner = BaseCombobox.Positioner
 
-    if (!open) return null
-
-    return (
-      <div
-        ref={forwardedRef}
-        id="autocomplete-list"
-        role="listbox"
-        onMouseDown={(e) => {
-          // Prevent focus loss when clicking in the popup
-          e.preventDefault()
-        }}
+/**
+ * Autocomplete Popup - The dropdown container
+ * Contains the list of suggestions
+ *
+ * Key Features:
+ * - Properly positioned below the input (via Portal + Positioner)
+ * - Glass morphism with backdrop blur
+ * - Smooth animations (fade + zoom + slide)
+ * - Proper z-index layering (z-50)
+ * - Border with primary color glow
+ *
+ * Critical Fix: Always wrap with Portal and Positioner for correct positioning
+ */
+const AutocompletePopup = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.Popup> & {
+    sideOffset?: number
+  }
+>(({ className, children, sideOffset = 4, ...props }, ref) => (
+  <BaseCombobox.Portal>
+    <BaseCombobox.Positioner sideOffset={sideOffset}>
+      <BaseCombobox.Popup
+        ref={ref}
         className={cn(
-          'absolute z-50 w-full max-w-[480px] max-h-[300px] overflow-y-auto rounded-lg',
-          'bg-[#00111A]/95 backdrop-blur-16 border border-[#0ec2bc]/20',
-          'shadow-lg shadow-[#0ec2bc]/10 p-1',
-          'animate-in fade-in-0 zoom-in-95 slide-in-from-top-2',
+          'z-50 min-w-[8rem] overflow-hidden rounded-lg',
+          'bg-card/90 backdrop-blur-lg border border-primary/20',
+          'shadow-lg shadow-primary/10',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out',
+          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+          'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+          'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
+          'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
           className
         )}
-        style={{
-          top: `calc(100% + ${sideOffset}px)`,
-          left: 0,
-        }}
+        {...props}
       >
-        {isEmpty ? (
-          <div className="px-3 py-6 text-center text-sm font-sans text-muted-foreground">
-            {emptyMessage}
-          </div>
-        ) : (
-          children
-        )}
-      </div>
-    )
-  }
-)
+        {children}
+      </BaseCombobox.Popup>
+    </BaseCombobox.Positioner>
+  </BaseCombobox.Portal>
+))
+AutocompletePopup.displayName = 'AutocompletePopup'
+
+/**
+ * Autocomplete List - Container for items
+ * Scrollable list that contains all the suggestion items
+ *
+ * Features:
+ * - Max height with overflow scroll
+ * - Keyboard navigation support (built into Base UI)
+ */
+const AutocompleteList = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.List>
+>(({ className, ...props }, ref) => (
+  <BaseCombobox.List
+    ref={ref}
+    className={cn('p-1 max-h-[300px] overflow-y-auto', className)}
+    {...props}
+  />
+))
 AutocompleteList.displayName = 'AutocompleteList'
 
 /**
- * Autocomplete Option Component
- * Individual selectable option
+ * Autocomplete Item - Individual suggestion in the dropdown
+ * Represents a single selectable option
+ *
+ * Features:
+ * - Hover effects with primary color
+ * - Focus management (no jumping or losing focus)
+ * - Selected state with checkmark indicator
+ * - Highlighted state during keyboard navigation
+ * - Disabled state support
  */
-interface AutocompleteOptionProps extends React.HTMLAttributes<HTMLDivElement> {
-  value: string
-  children: React.ReactNode
-  disabled?: boolean
-  keywords?: string[] // Additional keywords for filtering
-}
-
-const AutocompleteOption = React.forwardRef<HTMLDivElement, AutocompleteOptionProps>(
-  ({ value, children, disabled = false, keywords = [], className, onClick, ...props }, forwardedRef) => {
-    const { inputValue, setInputValue, setOpen, highlightedIndex, setHighlightedIndex } =
-      useAutocompleteContext()
-
-    const optionRef = React.useRef<HTMLDivElement>(null)
-    const [currentIndex, setCurrentIndex] = React.useState(-1)
-
-    // Filter logic - check if option matches input
-    const textContent = typeof children === 'string' ? children : value
-    const searchTerms = [textContent.toLowerCase(), value.toLowerCase(), ...keywords.map((k) => k.toLowerCase())]
-    const matches = searchTerms.some((term) => term.includes(inputValue.toLowerCase()))
-
-    if (!matches && inputValue.length > 0) {
-      return null
-    }
-
-    // Calculate this option's index among visible siblings
-    React.useLayoutEffect(() => {
-      const element = optionRef.current
-      if (!element || !element.parentElement) return
-
-      const siblings = Array.from(element.parentElement.querySelectorAll('[role="option"]'))
-      const index = siblings.indexOf(element)
-      setCurrentIndex(index)
-    })
-
-    // Scroll highlighted option into view
-    React.useEffect(() => {
-      if (currentIndex === highlightedIndex && optionRef.current) {
-        optionRef.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-      }
-    }, [highlightedIndex, currentIndex])
-
-    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-      if (disabled) return
-      e.preventDefault()
-      e.stopPropagation()
-      onClick?.(e)
-      setInputValue(textContent)
-      setTimeout(() => {
-        setOpen(false)
-        setHighlightedIndex(-1)
-      }, 0)
-    }
-
-    const handleMouseEnter = () => {
-      if (!disabled && currentIndex >= 0) {
-        setHighlightedIndex(currentIndex)
-      }
-    }
-
-    const handleMouseLeave = () => {
-      // Optional: clear highlight when mouse leaves
-      // setHighlightedIndex(-1)
-    }
-
-    // Highlight matching text
-    const highlightMatch = (text: string, query: string) => {
-      if (!query) return text
-      const lowerText = text.toLowerCase()
-      const lowerQuery = query.toLowerCase()
-      const startIndex = lowerText.indexOf(lowerQuery)
-
-      if (startIndex === -1) return text
-
-      const beforeMatch = text.slice(0, startIndex)
-      const match = text.slice(startIndex, startIndex + query.length)
-      const afterMatch = text.slice(startIndex + query.length)
-
-      return (
-        <>
-          {beforeMatch}
-          <span className="font-medium text-[#0ec2bc]">{match}</span>
-          {afterMatch}
-        </>
-      )
-    }
-
-    const isHighlighted = currentIndex >= 0 && currentIndex === highlightedIndex
-
-    return (
-      <div
-        ref={(node) => {
-          optionRef.current = node
-          if (typeof forwardedRef === 'function') {
-            forwardedRef(node)
-          } else if (forwardedRef) {
-            ;(forwardedRef as React.MutableRefObject<HTMLDivElement | null>).current = node
-          }
-        }}
-        role="option"
-        id={`autocomplete-option-${currentIndex}`}
-        aria-selected={isHighlighted}
-        aria-disabled={disabled}
-        data-index={currentIndex}
-        className={cn(
-          'relative flex cursor-pointer select-none items-center rounded-md px-3 py-2',
-          'text-sm font-sans font-light text-[#C4C8D4]',
-          'outline-none transition-colors',
-          isHighlighted && !disabled && 'bg-[#0ec2bc]/10 text-[#0ec2bc]',
-          !isHighlighted && !disabled && 'hover:bg-[#0ec2bc]/5 hover:text-[#C4C8D4]',
-          disabled && 'pointer-events-none opacity-50',
-          className
-        )}
-        onClick={handleClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        {...props}
+const AutocompleteItem = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.Item>
+>(({ className, children, disabled, ...props }, ref) => (
+  <BaseCombobox.Item
+    ref={ref}
+    className={cn(
+      'relative flex w-full cursor-pointer select-none items-center rounded-md py-2 px-3',
+      'text-sm font-sans font-light text-[#C4C8D4]',
+      'outline-none transition-colors',
+      'hover:bg-primary/10 hover:text-primary',
+      'focus:bg-primary/10 focus:text-primary',
+      'data-[selected]:bg-primary/20 data-[selected]:text-primary data-[selected]:font-medium',
+      'data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary',
+      'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      disabled && 'pointer-events-none opacity-50',
+      className
+    )}
+    {...props}
+  >
+    <span className="flex-1">{children}</span>
+    <BaseCombobox.ItemIndicator className="ml-2 flex h-4 w-4 items-center justify-center">
+      <svg
+        className="h-4 w-4 fill-current"
+        viewBox="0 0 16 16"
+        aria-hidden="true"
       >
-        {typeof children === 'string' ? highlightMatch(children, inputValue) : children}
-      </div>
-    )
-  }
-)
-AutocompleteOption.displayName = 'AutocompleteOption'
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z"
+        />
+      </svg>
+    </BaseCombobox.ItemIndicator>
+  </BaseCombobox.Item>
+))
+AutocompleteItem.displayName = 'AutocompleteItem'
 
 /**
- * Autocomplete Group Component
- * Groups related options with a label
+ * Autocomplete ItemIndicator - Indicator for selected items
+ * Displays a checkmark when item is selected
  */
-interface AutocompleteGroupProps {
-  label?: string
-  children: React.ReactNode
-  className?: string
-}
+const AutocompleteItemIndicator = BaseCombobox.ItemIndicator
 
-const AutocompleteGroup = ({ label, children, className }: AutocompleteGroupProps) => {
-  return (
-    <div className={cn('py-1', className)}>
-      {label && (
-        <div className="px-3 py-1.5 text-xs font-alt font-medium text-[#0ec2bc]/70">
-          {label}
-        </div>
-      )}
-      {children}
-    </div>
-  )
-}
+/**
+ * Autocomplete Group - Groups related items together
+ * Useful for categorizing suggestions (e.g., "Recent", "Popular")
+ */
+const AutocompleteGroup = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.Group>
+>(({ className, ...props }, ref) => (
+  <BaseCombobox.Group
+    ref={ref}
+    className={cn('p-1 w-full', className)}
+    {...props}
+  />
+))
 AutocompleteGroup.displayName = 'AutocompleteGroup'
 
 /**
- * Autocomplete Separator Component
+ * Autocomplete GroupLabel - Label for a group of items
+ * Displays the category name for a group
+ */
+const AutocompleteGroupLabel = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.GroupLabel>
+>(({ className, ...props }, ref) => (
+  <BaseCombobox.GroupLabel
+    ref={ref}
+    className={cn(
+      'px-2 py-1.5 text-xs font-alt font-medium text-primary/70',
+      className
+    )}
+    {...props}
+  />
+))
+AutocompleteGroupLabel.displayName = 'AutocompleteGroupLabel'
+
+/**
+ * Autocomplete Separator - Visual separator between items
+ * Used to divide different sections in the dropdown
  */
 const AutocompleteSeparator = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn('-mx-1 my-1 h-px bg-border', className)} {...props} />
+  <div
+    ref={ref}
+    className={cn('-mx-1 my-1 h-px bg-border', className)}
+    {...props}
+  />
 ))
 AutocompleteSeparator.displayName = 'AutocompleteSeparator'
 
+/**
+ * Autocomplete Empty - Message displayed when no items match
+ * Shown when user's search yields no results
+ */
+const AutocompleteEmpty = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.Empty>
+>(({ className, ...props }, ref) => (
+  <BaseCombobox.Empty
+    ref={ref}
+    className={cn(
+      'py-6 px-3 text-center text-sm text-muted-foreground',
+      className
+    )}
+    {...props}
+  />
+))
+AutocompleteEmpty.displayName = 'AutocompleteEmpty'
+
+/**
+ * Autocomplete Clear - Button to clear the selection
+ * Displays an X icon to reset the autocomplete
+ */
+const AutocompleteClear = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.Clear>
+>(({ className, children, ...props }, ref) => (
+  <BaseCombobox.Clear
+    ref={ref}
+    className={cn(
+      'flex h-10 items-center justify-center px-2',
+      'text-[#C4C8D4]/50 hover:text-[#C4C8D4]',
+      'transition-colors',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+      className
+    )}
+    {...props}
+  >
+    {children || (
+      <svg
+        className="h-4 w-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        aria-hidden="true"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M6 18L18 6M6 6l12 12"
+        />
+      </svg>
+    )}
+  </BaseCombobox.Clear>
+))
+AutocompleteClear.displayName = 'AutocompleteClear'
+
+/**
+ * Autocomplete Chips - Container for selected items as chips (multi-select)
+ * Displays selected values as removable chips
+ */
+const AutocompleteChips = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.Chips>
+>(({ className, ...props }, ref) => (
+  <BaseCombobox.Chips
+    ref={ref}
+    className={cn('flex flex-wrap gap-1', className)}
+    {...props}
+  />
+))
+AutocompleteChips.displayName = 'AutocompleteChips'
+
+/**
+ * Autocomplete Chip - Individual chip for selected item (multi-select)
+ * Represents a single selected value with remove button
+ */
+const AutocompleteChip = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.Chip>
+>(({ className, ...props }, ref) => (
+  <BaseCombobox.Chip
+    ref={ref}
+    className={cn(
+      'inline-flex items-center gap-1 rounded-md px-2 py-1',
+      'bg-[#000F1F] border border-[#0ec2bc]/30',
+      'text-xs font-sans text-[#C4C8D4]',
+      'transition-all',
+      'hover:border-[#0ec2bc]/50',
+      className
+    )}
+    {...props}
+  />
+))
+AutocompleteChip.displayName = 'AutocompleteChip'
+
+/**
+ * Autocomplete ChipRemove - Button to remove a chip (multi-select)
+ * X button on each chip to deselect that value
+ */
+const AutocompleteChipRemove = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.ChipRemove>
+>(({ className, children, ...props }, ref) => (
+  <BaseCombobox.ChipRemove
+    ref={ref}
+    className={cn(
+      'flex items-center justify-center',
+      'text-[#C4C8D4]/50 hover:text-[#C4C8D4]',
+      'transition-colors',
+      'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary',
+      className
+    )}
+    {...props}
+  >
+    {children || (
+      <svg
+        className="h-3 w-3"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        aria-hidden="true"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M6 18L18 6M6 6l12 12"
+        />
+      </svg>
+    )}
+  </BaseCombobox.ChipRemove>
+))
+AutocompleteChipRemove.displayName = 'AutocompleteChipRemove'
+
+/**
+ * Autocomplete Value - Displays the selected value
+ * Used to show the current selection in the input
+ */
+const AutocompleteValue = BaseCombobox.Value
+
+/**
+ * Autocomplete Status - Status message for screen readers
+ * Announces selection count and state to assistive technologies
+ */
+const AutocompleteStatus = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof BaseCombobox.Status>
+>(({ className, ...props }, ref) => (
+  <BaseCombobox.Status
+    ref={ref}
+    className={cn('sr-only', className)}
+    {...props}
+  />
+))
+AutocompleteStatus.displayName = 'AutocompleteStatus'
+
+// Export with CossUI prefix to avoid conflicts
+export {
+  AutocompleteRoot as CossUIAutocompleteRoot,
+  AutocompleteInput as CossUIAutocompleteInput,
+  AutocompleteTrigger as CossUIAutocompleteTrigger,
+  AutocompleteIcon as CossUIAutocompleteIcon,
+  AutocompletePortal as CossUIAutocompletePortal,
+  AutocompletePositioner as CossUIAutocompletePositioner,
+  AutocompletePopup as CossUIAutocompletePopup,
+  AutocompleteList as CossUIAutocompleteList,
+  AutocompleteItem as CossUIAutocompleteItem,
+  AutocompleteItemIndicator as CossUIAutocompleteItemIndicator,
+  AutocompleteGroup as CossUIAutocompleteGroup,
+  AutocompleteGroupLabel as CossUIAutocompleteGroupLabel,
+  AutocompleteSeparator as CossUIAutocompleteSeparator,
+  AutocompleteEmpty as CossUIAutocompleteEmpty,
+  AutocompleteClear as CossUIAutocompleteClear,
+  AutocompleteChips as CossUIAutocompleteChips,
+  AutocompleteChip as CossUIAutocompleteChip,
+  AutocompleteChipRemove as CossUIAutocompleteChipRemove,
+  AutocompleteValue as CossUIAutocompleteValue,
+  AutocompleteStatus as CossUIAutocompleteStatus,
+}
+
+// Also export without prefix for convenience
 export {
   AutocompleteRoot,
   AutocompleteInput,
+  AutocompleteTrigger,
+  AutocompleteIcon,
+  AutocompletePortal,
+  AutocompletePositioner,
+  AutocompletePopup,
   AutocompleteList,
-  AutocompleteOption,
+  AutocompleteItem,
+  AutocompleteItemIndicator,
   AutocompleteGroup,
+  AutocompleteGroupLabel,
   AutocompleteSeparator,
+  AutocompleteEmpty,
+  AutocompleteClear,
+  AutocompleteChips,
+  AutocompleteChip,
+  AutocompleteChipRemove,
+  AutocompleteValue,
+  AutocompleteStatus,
 }
