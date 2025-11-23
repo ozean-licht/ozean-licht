@@ -65,8 +65,8 @@ const preview: Preview = {
         colorSecondary: '#0ec2bc',
 
         // UI backgrounds
-        appBg: '#00070F',              // Deep ocean background
-        appContentBg: '#00111A',       // Card background (docs content area)
+        appBg: '#00111A',              // Sidebar background (card)
+        appContentBg: '#00070F',       // Docs content background (deep ocean)
         appBorderColor: '#0E282E',     // Border color
         appBorderRadius: 8,
 

@@ -15,9 +15,13 @@
 // Renamed to avoid conflicts with shadcn/ui components from ./ui
 export { Card as CossUICard, CardHeader as CossUICardHeader, CardPanel as CossUICardPanel, CardFooter as CossUICardFooter } from './card'
 export { Separator as CossUISeparator } from './separator'
+export { ScrollArea, ScrollBar } from './scrollarea'
 export { Accordion as CossUIAccordion, AccordionItem as CossUIAccordionItem, AccordionTrigger as CossUIAccordionTrigger, AccordionPanel as CossUIAccordionPanel } from './accordion'
 // Tabs are exported with CossUI prefix to avoid conflict with Radix UI Tabs from ./ui
 export { Tabs as CossUITabs, TabsList as CossUITabsList, TabsTab as CossUITabsTab, TabsPanel as CossUITabsPanel } from './tabs'
+export { Table as CossUITable, TableHeader as CossUITableHeader, TableBody as CossUITableBody, TableFooter as CossUITableFooter, TableRow as CossUITableRow, TableHead as CossUITableHead, TableCell as CossUITableCell, TableCaption as CossUITableCaption } from './table'
+export { Breadcrumb as CossUIBreadcrumb, BreadcrumbList as CossUIBreadcrumbList, BreadcrumbItem as CossUIBreadcrumbItem, BreadcrumbLink as CossUIBreadcrumbLink, BreadcrumbPage as CossUIBreadcrumbPage, BreadcrumbSeparator as CossUIBreadcrumbSeparator, BreadcrumbEllipsis as CossUIBreadcrumbEllipsis } from './breadcrumb'
+export { Pagination as CossUIPagination, PaginationContent as CossUIPaginationContent, PaginationItem as CossUIPaginationItem, PaginationLink as CossUIPaginationLink, PaginationPrevious as CossUIPaginationPrevious, PaginationNext as CossUIPaginationNext, PaginationEllipsis as CossUIPaginationEllipsis } from './pagination'
 
 // Form Components
 // Renamed to avoid conflicts with shadcn/ui components from ./ui
@@ -31,14 +35,19 @@ export { RadioGroup as CossUIRadioGroup, Radio as CossUIRadio, RadioIndicator as
 export { Switch as CossUISwitch, SwitchThumb as CossUISwitchThumb } from './switch'
 export { Slider as CossUISlider } from './slider'
 export { Toggle as CossUIToggle } from './toggle'
+export { Toolbar as CossUIToolbar, ToolbarGroup as CossUIToolbarGroup, ToolbarButton as CossUIToolbarButton, ToolbarSeparator as CossUIToolbarSeparator } from './toolbar'
 
 // Feedback Components
 // Renamed to avoid conflicts with shadcn/ui components from ./ui
 export { Alert as CossUIAlert, AlertTitle as CossUIAlertTitle, AlertDescription as CossUIAlertDescription } from './alert'
 export { Badge as CossUIBadge, badgeVariants as cossUIBadgeVariants } from './badge'
-export { Progress as CossUIProgress } from './progress'
+export { Kbd as CossUIKbd, kbdVariants as cossUIKbdVariants } from './kbd'
+export { Progress as CossUIProgress, ProgressLabel as CossUIProgressLabel, ProgressValue as CossUIProgressValue } from './progress'
+export { Meter as CossUIMeter, MeterTrack as CossUIMeterTrack, MeterIndicator as CossUIMeterIndicator, MeterLabel as CossUIMeterLabel, MeterValue as CossUIMeterValue } from './meter'
 export { Spinner as CossUISpinner } from './spinner'
 export { Skeleton as CossUISkeleton } from './skeleton'
+export { Avatar as CossUIAvatar, AvatarImage as CossUIAvatarImage, AvatarFallback as CossUIAvatarFallback } from './avatar'
+export { Toast as CossUIToast, ToastProvider as CossUIToastProvider, ToastViewport as CossUIToastViewport, ToastTitle as CossUIToastTitle, ToastDescription as CossUIToastDescription, ToastClose as CossUIToastClose, ToastAction as CossUIToastAction, toastVariants as cossUIToastVariants } from './toast'
 
 // Overlay Components
 // Renamed to avoid conflicts with shadcn/ui components from ./ui

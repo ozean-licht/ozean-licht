@@ -13,8 +13,8 @@ addons.setConfig({
     colorSecondary: '#0ec2bc',
 
     // UI
-    appBg: '#00070F',              // Deep ocean background
-    appContentBg: '#00111A',       // Card background
+    appBg: '#00111A',              // Sidebar background (card)
+    appContentBg: '#00070F',       // Content area background (deep ocean)
     appBorderColor: '#0E282E',     // Border color
     appBorderRadius: 8,
 
