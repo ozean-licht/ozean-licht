@@ -7,6 +7,7 @@ import {
   FrameFooter,
 } from './frame'
 import { Button } from './button'
+import { Play, Image, BarChart3, Map, Smartphone, Laptop, Watch } from 'lucide-react'
 
 const meta: Meta<typeof Frame> = {
   title: 'CossUI/Frame',
@@ -71,7 +72,7 @@ export const VideoEmbed: Story = {
     <Frame className="w-[800px]" aspectRatio="16/9" variant="bordered">
       <FrameContent className="flex items-center justify-center bg-gradient-to-br from-[#00070F] to-[#055D75]/20">
         <div className="text-center space-y-2">
-          <div className="text-6xl">▶️</div>
+          <Play className="w-16 h-16 mx-auto text-primary" />
           <p className="text-sm text-[#C4C8D4] font-sans font-light">
             16:9 Video Player Container
           </p>
@@ -86,7 +87,7 @@ export const ImageFrame: Story = {
     <Frame className="w-[500px]" aspectRatio="4/3" variant="elevated">
       <FrameContent className="flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/20">
         <div className="text-center space-y-2">
-          <div className="text-6xl">🖼️</div>
+          <Image className="w-16 h-16 mx-auto text-primary" />
           <p className="text-sm text-[#C4C8D4] font-sans font-light">
             4:3 Image Container
           </p>
@@ -176,7 +177,7 @@ export const ChartContainer: Story = {
       </FrameHeader>
       <FrameContent className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="text-center space-y-4">
-          <div className="text-6xl">📊</div>
+          <BarChart3 className="w-16 h-16 mx-auto text-primary" />
           <p className="text-sm text-[#C4C8D4] font-sans font-light">
             Chart visualization would appear here
           </p>
@@ -214,7 +215,7 @@ export const MapContainer: Story = {
       </FrameHeader>
       <FrameContent className="flex items-center justify-center bg-gradient-to-br from-[#00070F] via-[#055D75]/10 to-[#00070F]">
         <div className="text-center space-y-2">
-          <div className="text-6xl">🗺️</div>
+          <Map className="w-16 h-16 mx-auto text-primary" />
           <p className="text-sm text-[#C4C8D4] font-sans font-light">
             Interactive map would appear here
           </p>
@@ -470,7 +471,7 @@ export const ProductShowcase: Story = {
       <Frame variant="glass" aspectRatio="1/1">
         <FrameContent className="flex items-center justify-center bg-gradient-to-br from-primary/10 to-transparent">
           <div className="text-center">
-            <div className="text-6xl mb-2">📱</div>
+            <Smartphone className="w-16 h-16 mb-2 mx-auto text-primary" />
             <p className="text-sm text-white font-alt">Product A</p>
           </div>
         </FrameContent>
@@ -487,7 +488,7 @@ export const ProductShowcase: Story = {
       <Frame variant="glass" aspectRatio="1/1">
         <FrameContent className="flex items-center justify-center bg-gradient-to-br from-green-500/10 to-transparent">
           <div className="text-center">
-            <div className="text-6xl mb-2">💻</div>
+            <Laptop className="w-16 h-16 mb-2 mx-auto text-primary" />
             <p className="text-sm text-white font-alt">Product B</p>
           </div>
         </FrameContent>
@@ -504,7 +505,7 @@ export const ProductShowcase: Story = {
       <Frame variant="glass" aspectRatio="1/1">
         <FrameContent className="flex items-center justify-center bg-gradient-to-br from-blue-500/10 to-transparent">
           <div className="text-center">
-            <div className="text-6xl mb-2">⌚</div>
+            <Watch className="w-16 h-16 mb-2 mx-auto text-primary" />
             <p className="text-sm text-white font-alt">Product C</p>
           </div>
         </FrameContent>

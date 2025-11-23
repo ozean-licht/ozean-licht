@@ -34,7 +34,7 @@ This is the **official design system** for the Ozean Licht ecosystem:
 ```typescript
 // Backgrounds
 background: '#00070F',           // Main background (deep ocean)
-secondaryBackground: '#000F1F',  // Badges, spans, highlights
+secondaryBackground: '#001e1f',  // Badges, spans, highlights
 card: '#00111A',                 // Card background
 
 // Accents

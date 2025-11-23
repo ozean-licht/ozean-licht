@@ -77,7 +77,7 @@ const FrameHeader = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'border-b border-[#0E282E] px-4 py-3 bg-[#000F1F]',
+      'border-b border-[#0E282E] px-4 py-3 bg-[#00111A]',
       className
     )}
     {...props}
@@ -119,7 +119,7 @@ const FrameFooter = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'border-t border-[#0E282E] px-4 py-3 bg-[#000F1F]',
+      'border-t border-[#0E282E] px-4 py-3 bg-[#00111A]',
       className
     )}
     {...props}

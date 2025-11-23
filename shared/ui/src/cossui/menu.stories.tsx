@@ -2,6 +2,29 @@
 import { type Meta, type StoryObj } from '@storybook/react'
 import React, { useState } from 'react'
 import {
+  User,
+  Folder,
+  Eye,
+  Zap,
+  FilePlus,
+  FolderPlus,
+  Save,
+  Download,
+  Upload,
+  Search,
+  Tag,
+  Star,
+  Globe,
+  Palette,
+  Settings,
+  BarChart3,
+  Filter,
+  FileEdit,
+  Bell,
+  PenLine,
+  Sparkles,
+} from 'lucide-react'
+import {
   Menu,
   MenuTrigger,
   MenuPopup,
@@ -213,7 +236,7 @@ export const WithSubmenu: Story = {
 export const UserMenu: Story = {
   render: () => (
     <Menu>
-      <MenuTrigger>👤 Account</MenuTrigger>
+      <MenuTrigger><User className="w-4 h-4 text-primary" />Account</MenuTrigger>
       <MenuPopup>
         <MenuGroup>
           <MenuGroupLabel>User Profile</MenuGroupLabel>
@@ -242,7 +265,7 @@ export const UserMenu: Story = {
 export const FileOperationsMenu: Story = {
   render: () => (
     <Menu>
-      <MenuTrigger>📁 File</MenuTrigger>
+      <MenuTrigger><Folder className="w-4 h-4 text-primary" />File</MenuTrigger>
       <MenuPopup>
         <MenuGroup>
           <MenuGroupLabel>File Actions</MenuGroupLabel>
@@ -274,7 +297,7 @@ export const FileOperationsMenu: Story = {
 export const EditOperationsMenu: Story = {
   render: () => (
     <Menu>
-      <MenuTrigger>✏️ Edit</MenuTrigger>
+      <MenuTrigger><PenLine className="w-4 h-4 text-primary" />Edit</MenuTrigger>
       <MenuPopup>
         <MenuGroup>
           <MenuGroupLabel>Undo/Redo</MenuGroupLabel>
@@ -314,7 +337,7 @@ export const ViewMenu: Story = {
 
     return (
       <Menu>
-        <MenuTrigger>👁️ View</MenuTrigger>
+        <MenuTrigger><Eye className="w-4 h-4 text-primary" />View</MenuTrigger>
         <MenuPopup>
           <MenuGroup>
             <MenuGroupLabel>Display</MenuGroupLabel>
@@ -393,7 +416,7 @@ export const SettingsMenu: Story = {
 
     return (
       <Menu>
-        <MenuTrigger>⚙️ Settings</MenuTrigger>
+        <MenuTrigger><Settings className="w-4 h-4 text-primary" />Settings</MenuTrigger>
         <MenuPopup>
           <MenuGroup>
             <MenuGroupLabel>Application</MenuGroupLabel>
@@ -459,18 +482,18 @@ export const DisabledItems: Story = {
 export const WithIcons: Story = {
   render: () => (
     <Menu>
-      <MenuTrigger>📌 Quick Actions</MenuTrigger>
+      <MenuTrigger><Zap className="w-4 h-4 text-primary" />Quick Actions</MenuTrigger>
       <MenuPopup>
-        <MenuItem>📄 New Document</MenuItem>
-        <MenuItem>📁 New Folder</MenuItem>
+        <MenuItem><FilePlus className="w-4 h-4 text-primary" />New Document</MenuItem>
+        <MenuItem><FolderPlus className="w-4 h-4 text-primary" />New Folder</MenuItem>
         <MenuSeparator />
-        <MenuItem>💾 Save</MenuItem>
-        <MenuItem>📥 Import</MenuItem>
-        <MenuItem>📤 Export</MenuItem>
+        <MenuItem><Save className="w-4 h-4 text-primary" />Save</MenuItem>
+        <MenuItem><Download className="w-4 h-4 text-primary" />Import</MenuItem>
+        <MenuItem><Upload className="w-4 h-4 text-primary" />Export</MenuItem>
         <MenuSeparator />
-        <MenuItem>🔍 Search</MenuItem>
-        <MenuItem>🏷️ Tags</MenuItem>
-        <MenuItem>⭐ Favorites</MenuItem>
+        <MenuItem><Search className="w-4 h-4 text-primary" />Search</MenuItem>
+        <MenuItem><Tag className="w-4 h-4 text-primary" />Tags</MenuItem>
+        <MenuItem><Star className="w-4 h-4 text-primary" />Favorites</MenuItem>
       </MenuPopup>
     </Menu>
   ),
@@ -508,7 +531,7 @@ export const LanguageSelection: Story = {
 
     return (
       <Menu>
-        <MenuTrigger>🌍 Language</MenuTrigger>
+        <MenuTrigger><Globe className="w-4 h-4 text-primary" />Language</MenuTrigger>
         <MenuPopup>
           <MenuRadioGroup value={language} onValueChange={setLanguage}>
             <MenuRadioItem value="en">English</MenuRadioItem>
@@ -534,7 +557,7 @@ export const ThemeMenu: Story = {
 
     return (
       <Menu>
-        <MenuTrigger>🎨 Appearance</MenuTrigger>
+        <MenuTrigger><Palette className="w-4 h-4 text-primary" />Appearance</MenuTrigger>
         <MenuPopup>
           <MenuGroup>
             <MenuGroupLabel>Theme</MenuGroupLabel>
@@ -567,7 +590,7 @@ export const ThemeMenu: Story = {
 export const ComplexNestedSubmenus: Story = {
   render: () => (
     <Menu>
-      <MenuTrigger>🛠️ Advanced Tools</MenuTrigger>
+      <MenuTrigger><Settings className="w-4 h-4 text-primary" />Advanced Tools</MenuTrigger>
       <MenuPopup>
         <MenuSub>
           <MenuSubTrigger>Development</MenuSubTrigger>
@@ -651,7 +674,7 @@ export const GlassEffect: Story = {
   render: () => (
     <div className="p-8 bg-gradient-to-br from-background via-card to-primary/20 rounded-lg">
       <Menu>
-        <MenuTrigger>✨ Glassmorphic Menu</MenuTrigger>
+        <MenuTrigger><Sparkles className="w-4 h-4 text-primary" />Glassmorphic Menu</MenuTrigger>
         <MenuPopup className="glass-card-strong">
           <MenuGroup>
             <MenuGroupLabel>Appearance</MenuGroupLabel>
@@ -703,7 +726,7 @@ export const MixedContent: Story = {
 
     return (
       <Menu>
-        <MenuTrigger>📊 Dashboard</MenuTrigger>
+        <MenuTrigger><BarChart3 className="w-4 h-4 text-primary" />Dashboard</MenuTrigger>
         <MenuPopup>
           <MenuGroup>
             <MenuGroupLabel>Display Options</MenuGroupLabel>
@@ -782,7 +805,7 @@ export const EcommerceMenu: Story = {
 
     return (
       <Menu>
-        <MenuTrigger>🛍️ Filter & Sort</MenuTrigger>
+        <MenuTrigger><Filter className="w-4 h-4 text-primary" />Filter & Sort</MenuTrigger>
         <MenuPopup>
           <MenuGroup>
             <MenuGroupLabel>Sort By</MenuGroupLabel>
@@ -827,7 +850,7 @@ export const MarkdownEditorMenu: Story = {
 
     return (
       <Menu>
-        <MenuTrigger>📝 Editor Options</MenuTrigger>
+        <MenuTrigger><FileEdit className="w-4 h-4 text-primary" />Editor Options</MenuTrigger>
         <MenuPopup>
           <MenuGroup>
             <MenuGroupLabel>Text Formatting</MenuGroupLabel>
@@ -916,7 +939,7 @@ export const NotificationMenu: Story = {
 
     return (
       <Menu>
-        <MenuTrigger>🔔 Notifications</MenuTrigger>
+        <MenuTrigger><Bell className="w-4 h-4 text-primary" />Notifications</MenuTrigger>
         <MenuPopup>
           <MenuGroup>
             <MenuGroupLabel>Status</MenuGroupLabel>

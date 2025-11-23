@@ -610,3 +610,18 @@ Coss UI has been successfully integrated as the **cossui** subcategory with **33
 - 3 components reviewed and confirmed
 - 94% of Coss UI library now implemented
 - All done in a single session with parallel agent orchestration!
+
+
+## CossUI Component Implementation Human Review
+
+I will go through each component that needs a fix. Add a task state so you can track the feedback-revision loop.
+
+**Autocomplete** Doesn't stay focused, it jumps and the popup-overlay spawns bottom-left cornor. Completely misplaced.
+
+**Frame** Uses the old bg color: #000f1f but should be #001e1f -> i've updated the design-system.md file. Don't use #000f1f it's to blueish. There is also a blue gradient, make it greener/cyan/turquise.
+
+**Menu** Uses Emojis. Replace with single color icons that fit the context and use our primary color.
+
+**Pagination**  "Previous" & "Next" are inside a quadratic frame and overflow the borders.
+
+**Toast** Collapses to a width of 30px -> auto-layout bug, should be fixed width

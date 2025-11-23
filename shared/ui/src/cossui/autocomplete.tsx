@@ -1,11 +1,10 @@
 /**
  * Autocomplete Component - Ozean Licht Edition
- * Based on Base UI Popover with custom combobox pattern
- * Implements WCAG combobox pattern with keyboard navigation
+ * Custom implementation with WCAG combobox pattern
+ * Implements keyboard navigation and proper focus management
  */
 
 import * as React from 'react'
-import { Popover } from '@base-ui-components/react/popover'
 import { cn } from '../utils/cn'
 
 /**
@@ -20,8 +19,6 @@ interface AutocompleteContextValue {
   setInputValue: (value: string) => void
   highlightedIndex: number
   setHighlightedIndex: (index: number | ((prev: number) => number)) => void
-  options: React.ReactElement[]
-  registerOption: (element: React.ReactElement) => void
 }
 
 const AutocompleteContext = React.createContext<AutocompleteContextValue | null>(null)
@@ -61,7 +58,6 @@ const AutocompleteRoot = ({
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
   const [inputValue, setInputValue] = React.useState(controlledValue || defaultValue)
   const [highlightedIndex, setHighlightedIndex] = React.useState(-1)
-  const [options, setOptions] = React.useState<React.ReactElement[]>([])
 
   const value = controlledValue !== undefined ? controlledValue : uncontrolledValue
   const open = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen
@@ -86,10 +82,6 @@ const AutocompleteRoot = ({
     [controlledOpen, onOpenChange]
   )
 
-  const registerOption = React.useCallback((element: React.ReactElement) => {
-    setOptions((prev) => [...prev, element])
-  }, [])
-
   const contextValue: AutocompleteContextValue = {
     open,
     setOpen,
@@ -99,15 +91,13 @@ const AutocompleteRoot = ({
     setInputValue,
     highlightedIndex,
     setHighlightedIndex,
-    options,
-    registerOption,
   }
 
   return (
     <AutocompleteContext.Provider value={contextValue}>
-      <Popover.Root open={open} onOpenChange={setOpen}>
+      <div className="relative inline-block w-full">
         {children}
-      </Popover.Root>
+      </div>
     </AutocompleteContext.Provider>
   )
 }
@@ -119,18 +109,21 @@ const AutocompleteRoot = ({
 interface AutocompleteInputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   onInputChange?: (value: string) => void
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void
 }
 
 const AutocompleteInput = React.forwardRef<HTMLInputElement, AutocompleteInputProps>(
-  ({ className, onInputChange, onKeyDown, onFocus, ...restProps }, forwardedRef) => {
-    const { open, setOpen, inputValue, setInputValue, highlightedIndex, setHighlightedIndex, options } =
+  ({ className, onInputChange, onKeyDown, onFocus, onBlur, ...restProps }, forwardedRef) => {
+    const { open, setOpen, inputValue, setInputValue, highlightedIndex, setHighlightedIndex } =
       useAutocompleteContext()
+
+    const inputRef = React.useRef<HTMLInputElement>(null)
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value
       setInputValue(newValue)
       onInputChange?.(newValue)
-      if (!open) {
+      if (!open && newValue.length > 0) {
         setOpen(true)
       }
       setHighlightedIndex(-1) // Reset highlight when typing
@@ -143,67 +136,93 @@ const AutocompleteInput = React.forwardRef<HTMLInputElement, AutocompleteInputPr
         e.preventDefault()
         if (!open) {
           setOpen(true)
+          setHighlightedIndex(0)
         } else {
-          setHighlightedIndex((prev: number) => Math.min(prev + 1, options.length - 1))
+          // Find the listbox
+          const listbox = document.getElementById('autocomplete-list')
+          if (!listbox) return
+
+          const visibleOptions = Array.from(listbox.querySelectorAll('[role="option"]'))
+          const maxIndex = visibleOptions.length - 1
+          setHighlightedIndex((prev: number) => (prev < maxIndex ? prev + 1 : prev))
         }
       } else if (e.key === 'ArrowUp') {
         e.preventDefault()
-        setHighlightedIndex((prev: number) => Math.max(prev - 1, -1))
+        if (open) {
+          setHighlightedIndex((prev: number) => (prev > 0 ? prev - 1 : -1))
+        }
       } else if (e.key === 'Enter') {
-        e.preventDefault()
-        if (open && highlightedIndex >= 0 && options[highlightedIndex]) {
-          const option = options[highlightedIndex]
-          const value = option.props.value || ''
-          const label = option.props.children || value
-          setInputValue(typeof label === 'string' ? label : value)
+        if (open && highlightedIndex >= 0) {
+          e.preventDefault()
+          // Find the listbox
+          const listbox = document.getElementById('autocomplete-list')
+          if (!listbox) return
+
+          const visibleOptions = Array.from(listbox.querySelectorAll('[role="option"]'))
+          if (visibleOptions[highlightedIndex]) {
+            const option = visibleOptions[highlightedIndex] as HTMLElement
+            option.click()
+          }
+        }
+      } else if (e.key === 'Escape') {
+        if (open) {
+          e.preventDefault()
           setOpen(false)
           setHighlightedIndex(-1)
         }
-      } else if (e.key === 'Escape') {
-        e.preventDefault()
-        setOpen(false)
-        setHighlightedIndex(-1)
       }
     }
 
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
       onFocus?.(e)
-      if (inputValue) {
+      if (inputValue.length > 0) {
         setOpen(true)
       }
     }
 
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      onBlur?.(e)
+      // Delay closing to allow option clicks
+      setTimeout(() => {
+        setOpen(false)
+        setHighlightedIndex(-1)
+      }, 200)
+    }
+
     return (
-      <Popover.Trigger
-        ref={forwardedRef}
-        render={(triggerProps, triggerRef) => (
-          <input
-            {...triggerProps}
-            {...restProps}
-            ref={triggerRef as unknown as React.Ref<HTMLInputElement>}
-            type="text"
-            role="combobox"
-            aria-expanded={open}
-            aria-autocomplete="list"
-            aria-controls="autocomplete-list"
-            aria-activedescendant={
-              highlightedIndex >= 0 ? `autocomplete-option-${highlightedIndex}` : undefined
-            }
-            className={cn(
-              'flex w-full max-w-[480px] rounded-md border border-border bg-card/50 backdrop-blur-8 px-3 py-2',
-              'h-10 text-sm font-sans text-foreground shadow-sm transition-all',
-              'placeholder:text-muted-foreground',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0ec2bc] focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-              'disabled:cursor-not-allowed disabled:opacity-50',
-              'hover:border-[#0ec2bc]/30',
-              className
-            )}
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            onFocus={handleFocus}
-          />
+      <input
+        ref={(node) => {
+          inputRef.current = node
+          if (typeof forwardedRef === 'function') {
+            forwardedRef(node)
+          } else if (forwardedRef) {
+            ;(forwardedRef as React.MutableRefObject<HTMLInputElement | null>).current = node
+          }
+        }}
+        {...restProps}
+        type="text"
+        role="combobox"
+        aria-expanded={open}
+        aria-autocomplete="list"
+        aria-controls="autocomplete-list"
+        aria-activedescendant={
+          highlightedIndex >= 0 ? `autocomplete-option-${highlightedIndex}` : undefined
+        }
+        autoComplete="off"
+        className={cn(
+          'flex w-full max-w-[480px] rounded-md border border-border bg-card/50 backdrop-blur-8 px-3 py-2',
+          'h-10 text-sm font-sans text-foreground shadow-sm transition-all',
+          'placeholder:text-muted-foreground',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0ec2bc] focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          'disabled:cursor-not-allowed disabled:opacity-50',
+          'hover:border-[#0ec2bc]/30',
+          className
         )}
+        value={inputValue}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
       />
     )
   }
@@ -223,7 +242,7 @@ interface AutocompleteListProps {
 
 const AutocompleteList = React.forwardRef<HTMLDivElement, AutocompleteListProps>(
   ({ children, className, sideOffset = 4, emptyMessage = 'No results found' }, forwardedRef) => {
-    const { inputValue } = useAutocompleteContext()
+    const { inputValue, open } = useAutocompleteContext()
 
     // Count visible children
     const childArray = React.Children.toArray(children)
@@ -236,34 +255,37 @@ const AutocompleteList = React.forwardRef<HTMLDivElement, AutocompleteListProps>
 
     const isEmpty = visibleChildren.length === 0 && inputValue.length > 0
 
+    if (!open) return null
+
     return (
-      <Popover.Portal>
-        <Popover.Positioner sideOffset={sideOffset}>
-          <Popover.Popup
-            ref={forwardedRef}
-            id="autocomplete-list"
-            role="listbox"
-            className={cn(
-              'z-50 w-full min-w-[var(--anchor-width)] max-h-[300px] overflow-y-auto rounded-lg',
-              'bg-[#00111A]/95 backdrop-blur-16 border border-[#0ec2bc]/20',
-              'shadow-lg shadow-[#0ec2bc]/10 p-1',
-              'data-[state=open]:animate-in data-[state=closed]:animate-out',
-              'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-              'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-              'data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2',
-              className
-            )}
-          >
-            {isEmpty ? (
-              <div className="px-3 py-6 text-center text-sm font-sans text-muted-foreground">
-                {emptyMessage}
-              </div>
-            ) : (
-              children
-            )}
-          </Popover.Popup>
-        </Popover.Positioner>
-      </Popover.Portal>
+      <div
+        ref={forwardedRef}
+        id="autocomplete-list"
+        role="listbox"
+        onMouseDown={(e) => {
+          // Prevent focus loss when clicking in the popup
+          e.preventDefault()
+        }}
+        className={cn(
+          'absolute z-50 w-full max-w-[480px] max-h-[300px] overflow-y-auto rounded-lg',
+          'bg-[#00111A]/95 backdrop-blur-16 border border-[#0ec2bc]/20',
+          'shadow-lg shadow-[#0ec2bc]/10 p-1',
+          'animate-in fade-in-0 zoom-in-95 slide-in-from-top-2',
+          className
+        )}
+        style={{
+          top: `calc(100% + ${sideOffset}px)`,
+          left: 0,
+        }}
+      >
+        {isEmpty ? (
+          <div className="px-3 py-6 text-center text-sm font-sans text-muted-foreground">
+            {emptyMessage}
+          </div>
+        ) : (
+          children
+        )}
+      </div>
     )
   }
 )
@@ -282,26 +304,11 @@ interface AutocompleteOptionProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const AutocompleteOption = React.forwardRef<HTMLDivElement, AutocompleteOptionProps>(
   ({ value, children, disabled = false, keywords = [], className, onClick, ...props }, forwardedRef) => {
-    const { inputValue, setInputValue, setOpen, highlightedIndex, setHighlightedIndex, registerOption } =
+    const { inputValue, setInputValue, setOpen, highlightedIndex, setHighlightedIndex } =
       useAutocompleteContext()
 
     const optionRef = React.useRef<HTMLDivElement>(null)
-    const [index, setIndex] = React.useState(-1)
-
-    // Register this option with the context
-    React.useEffect(() => {
-      const element = <AutocompleteOption value={value}>{children}</AutocompleteOption>
-      registerOption(element)
-      setIndex((prev: number) => prev + 1)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    // Scroll highlighted option into view
-    React.useEffect(() => {
-      if (index === highlightedIndex && optionRef.current) {
-        optionRef.current.scrollIntoView({ block: 'nearest' })
-      }
-    }, [highlightedIndex, index])
+    const [currentIndex, setCurrentIndex] = React.useState(-1)
 
     // Filter logic - check if option matches input
     const textContent = typeof children === 'string' ? children : value
@@ -312,20 +319,44 @@ const AutocompleteOption = React.forwardRef<HTMLDivElement, AutocompleteOptionPr
       return null
     }
 
-    const isHighlighted = index === highlightedIndex
+    // Calculate this option's index among visible siblings
+    React.useLayoutEffect(() => {
+      const element = optionRef.current
+      if (!element || !element.parentElement) return
+
+      const siblings = Array.from(element.parentElement.querySelectorAll('[role="option"]'))
+      const index = siblings.indexOf(element)
+      setCurrentIndex(index)
+    })
+
+    // Scroll highlighted option into view
+    React.useEffect(() => {
+      if (currentIndex === highlightedIndex && optionRef.current) {
+        optionRef.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+      }
+    }, [highlightedIndex, currentIndex])
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
       if (disabled) return
+      e.preventDefault()
+      e.stopPropagation()
       onClick?.(e)
       setInputValue(textContent)
-      setOpen(false)
-      setHighlightedIndex(-1)
+      setTimeout(() => {
+        setOpen(false)
+        setHighlightedIndex(-1)
+      }, 0)
     }
 
     const handleMouseEnter = () => {
-      if (!disabled) {
-        setHighlightedIndex(index)
+      if (!disabled && currentIndex >= 0) {
+        setHighlightedIndex(currentIndex)
       }
+    }
+
+    const handleMouseLeave = () => {
+      // Optional: clear highlight when mouse leaves
+      // setHighlightedIndex(-1)
     }
 
     // Highlight matching text
@@ -350,13 +381,23 @@ const AutocompleteOption = React.forwardRef<HTMLDivElement, AutocompleteOptionPr
       )
     }
 
+    const isHighlighted = currentIndex >= 0 && currentIndex === highlightedIndex
+
     return (
       <div
-        ref={forwardedRef || optionRef}
+        ref={(node) => {
+          optionRef.current = node
+          if (typeof forwardedRef === 'function') {
+            forwardedRef(node)
+          } else if (forwardedRef) {
+            ;(forwardedRef as React.MutableRefObject<HTMLDivElement | null>).current = node
+          }
+        }}
         role="option"
+        id={`autocomplete-option-${currentIndex}`}
         aria-selected={isHighlighted}
         aria-disabled={disabled}
-        id={`autocomplete-option-${index}`}
+        data-index={currentIndex}
         className={cn(
           'relative flex cursor-pointer select-none items-center rounded-md px-3 py-2',
           'text-sm font-sans font-light text-[#C4C8D4]',
@@ -368,6 +409,7 @@ const AutocompleteOption = React.forwardRef<HTMLDivElement, AutocompleteOptionPr
         )}
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         {...props}
       >
         {typeof children === 'string' ? highlightMatch(children, inputValue) : children}

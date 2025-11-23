@@ -55,7 +55,7 @@ ToastViewport.displayName = ToastPrimitives.Viewport.displayName
  * Each with appropriate glass morphism styling
  */
 const toastVariants = cva(
-  'group pointer-events-auto relative flex w-full items-center gap-4 overflow-hidden rounded-lg border px-4 py-3 pr-8 backdrop-blur-12 transition-all duration-200 data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=open]:slide-in-from-top-full data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right-full data-[state=closed]:fade-out-80 sm:data-[state=open]:slide-in-from-bottom-full',
+  'group pointer-events-auto relative flex w-full min-w-[350px] max-w-[420px] items-center gap-4 overflow-hidden rounded-lg border px-4 py-3 pr-8 backdrop-blur-12 transition-all duration-200 data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=open]:slide-in-from-top-full data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right-full data-[state=closed]:fade-out-80 sm:data-[state=open]:slide-in-from-bottom-full',
   {
     variants: {
       variant: {
