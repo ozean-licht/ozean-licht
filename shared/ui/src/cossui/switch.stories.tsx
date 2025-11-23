@@ -43,10 +43,10 @@ export const Default: Story = {
 }
 
 /**
- * Switch in checked/on state
+ * Switch in checked/on state (uncontrolled)
  */
 export const Checked: Story = {
-  render: () => <Switch checked />,
+  render: () => <Switch defaultChecked />,
 }
 
 /**
@@ -60,7 +60,7 @@ export const DisabledUnchecked: Story = {
  * Disabled checked switch - shows on state but cannot be changed
  */
 export const DisabledChecked: Story = {
-  render: () => <Switch checked disabled />,
+  render: () => <Switch defaultChecked disabled />,
 }
 
 // ============================================================================
@@ -80,12 +80,12 @@ export const WithLabel: Story = {
 }
 
 /**
- * Checked switch with label
+ * Checked switch with label (uncontrolled)
  */
 export const WithLabelChecked: Story = {
   render: () => (
     <div className="flex items-center gap-3">
-      <Switch id="switch-label-checked" checked />
+      <Switch id="switch-label-checked" defaultChecked />
       <Label htmlFor="switch-label-checked">Dark mode enabled</Label>
     </div>
   ),
@@ -129,13 +129,13 @@ export const WithDescription: Story = {
 }
 
 /**
- * Checked switch with description
+ * Checked switch with description (uncontrolled)
  */
 export const WithDescriptionChecked: Story = {
   render: () => (
     <div className="flex flex-col gap-2 w-full max-w-sm">
       <div className="flex items-center gap-3">
-        <Switch id="switch-desc-checked" checked />
+        <Switch id="switch-desc-checked" defaultChecked />
         <div>
           <Label htmlFor="switch-desc-checked" className="block">
             Two-factor authentication
@@ -186,7 +186,7 @@ export const ControlledSwitch: Story = {
           <Switch
             id="controlled"
             checked={isEnabled}
-            onChange={(e) => setIsEnabled((e.target as HTMLInputElement).checked)}
+            onCheckedChange={setIsEnabled}
           />
           <Label htmlFor="controlled">
             {isEnabled ? 'Enabled' : 'Disabled'} - Click to toggle

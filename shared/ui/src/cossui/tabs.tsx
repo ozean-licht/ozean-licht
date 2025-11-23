@@ -33,38 +33,59 @@ TabsComponent.displayName = 'Tabs'
 /**
  * Tabs List - Container for tab buttons
  * Wraps Base UI Tabs.List with Ozean Licht styling
+ * Locks width on mount to prevent jumping when tabs change state
  */
 const TabsList = React.forwardRef<
   HTMLDivElement,
   React.ComponentPropsWithoutRef<typeof BaseTabs.List>
->(({ className, ...props }, ref) => (
-  <BaseTabs.List
-    ref={ref}
-    className={cn(
-      'inline-flex h-10 items-center justify-center rounded-lg',
-      'bg-card/70 backdrop-blur-12 border border-border p-1',
-      'text-[#C4C8D4] shadow-sm',
-      className
-    )}
-    {...props}
-  />
-))
+>(({ className, ...props }, ref) => {
+  const internalRef = React.useRef<HTMLDivElement>(null)
+  const [lockedWidth, setLockedWidth] = React.useState<number | null>(null)
+
+  // Lock width on mount to prevent jumping
+  React.useEffect(() => {
+    if (internalRef.current && !lockedWidth) {
+      const width = internalRef.current.offsetWidth
+      setLockedWidth(width)
+    }
+  }, [lockedWidth])
+
+  // Combine refs
+  React.useImperativeHandle(ref, () => internalRef.current!)
+
+  return (
+    <BaseTabs.List
+      ref={internalRef}
+      style={lockedWidth ? { width: `${lockedWidth}px` } : undefined}
+      className={cn(
+        'inline-flex h-10 items-center rounded-lg',
+        'bg-card/70 backdrop-blur-12 border border-border p-1 gap-1',
+        'text-[#C4C8D4] shadow-sm',
+        className
+      )}
+      {...props}
+    />
+  )
+})
 TabsList.displayName = 'TabsList'
 
 /**
  * Tabs Tab - Individual tab button
  * Wraps Base UI Tabs.Tab with Ozean Licht styling
  * Using Tabs.Tab naming convention (Coss UI)
+ * Width managed by parent TabsList
  */
 const TabsTab = React.forwardRef<
   HTMLButtonElement,
   React.ComponentPropsWithoutRef<typeof BaseTabs.Tab>
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <BaseTabs.Tab
     ref={ref}
     className={cn(
       'inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-1.5',
-      'text-sm font-sans font-medium transition-all',
+      'text-sm font-sans font-medium',
+      // Only transition colors to avoid layout shifts
+      'transition-colors duration-200',
       'ring-offset-background',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
       'disabled:pointer-events-none disabled:opacity-50',
@@ -74,7 +95,9 @@ const TabsTab = React.forwardRef<
       className
     )}
     {...props}
-  />
+  >
+    {children}
+  </BaseTabs.Tab>
 ))
 TabsTab.displayName = 'TabsTab'
 
