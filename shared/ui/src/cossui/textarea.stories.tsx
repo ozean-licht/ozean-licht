@@ -8,7 +8,7 @@ import { Label } from './label'
 const Textarea = TextareaBase as any
 
 const meta: Meta<typeof TextareaBase> = {
-  title: 'CossUI/Textarea',
+  title: 'Tier 1: Primitives/CossUI/Textarea',
   component: Textarea as any,
   parameters: {
     layout: 'centered',

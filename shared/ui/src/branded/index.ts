@@ -1,6 +1,9 @@
 // Tier 2: Branded Ozean Licht Components
 // Reusable components with Ozean Licht branding (oceanic cyan, glass effects, cosmic aesthetic)
 
+// Brand Identity
+export { Logo } from './logo'
+
 export { SpanBadge } from './span-badge'
 export { default as SpanDesign } from './span-design'
 export { default as TestimonialCard } from './testimonial-card'

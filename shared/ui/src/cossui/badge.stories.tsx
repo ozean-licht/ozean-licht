@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { Badge } from './badge'
 
 const meta: Meta<typeof Badge> = {
-  title: 'CossUI/Badge',
+  title: 'Tier 1: Primitives/CossUI/Badge',
   component: Badge,
   parameters: {
     layout: 'centered',

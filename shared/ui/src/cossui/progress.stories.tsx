@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { Progress, ProgressLabel, ProgressValue } from './progress'
 
 const meta: Meta<typeof Progress> = {
-  title: 'CossUI/Progress',
+  title: 'Tier 1: Primitives/CossUI/Progress',
   component: Progress,
   parameters: {
     layout: 'centered',

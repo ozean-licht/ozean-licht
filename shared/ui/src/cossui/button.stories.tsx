@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { Button } from './button'
 
 const meta: Meta<typeof Button> = {
-  title: 'CossUI/Button',
+  title: 'Tier 1: Primitives/CossUI/Button',
   component: Button,
   parameters: {
     layout: 'centered',

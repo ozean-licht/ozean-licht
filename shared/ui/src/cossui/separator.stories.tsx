@@ -4,7 +4,7 @@ import { Button } from './button'
 import { Badge } from './badge'
 
 const meta: Meta<typeof Separator> = {
-  title: 'CossUI/Separator',
+  title: 'Tier 1: Primitives/CossUI/Separator',
   component: Separator,
   parameters: {
     layout: 'centered',

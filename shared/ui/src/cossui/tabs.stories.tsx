@@ -7,7 +7,7 @@ import { Input } from './input'
 import { Label } from './label'
 
 const meta: Meta<typeof Tabs> = {
-  title: 'CossUI/Tabs',
+  title: 'Tier 1: Primitives/CossUI/Tabs',
   component: Tabs,
   parameters: {
     layout: 'centered',

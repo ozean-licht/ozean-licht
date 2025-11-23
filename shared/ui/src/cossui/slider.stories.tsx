@@ -4,7 +4,7 @@ import { Slider, SliderValue } from './slider'
 import { Label } from './label'
 
 const meta: Meta<typeof Slider> = {
-  title: 'CossUI/Slider',
+  title: 'Tier 1: Primitives/CossUI/Slider',
   component: Slider,
   parameters: {
     layout: 'centered',

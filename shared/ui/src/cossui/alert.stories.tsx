@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { Alert, AlertTitle, AlertDescription } from './alert'
 
 const meta: Meta<typeof Alert> = {
-  title: 'CossUI/Alert',
+  title: 'Tier 1: Primitives/CossUI/Alert',
   component: Alert,
   parameters: {
     layout: 'centered',

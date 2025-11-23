@@ -21,7 +21,7 @@ import {
 import { Button } from './button'
 
 const meta: Meta<typeof EmptyRoot> = {
-  title: 'CossUI/Empty',
+  title: 'Tier 1: Primitives/CossUI/Empty',
   component: EmptyRoot,
   parameters: {
     layout: 'centered',

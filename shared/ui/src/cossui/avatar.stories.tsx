@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { Avatar, AvatarImage, AvatarFallback } from './avatar'
 
 const meta: Meta<typeof Avatar> = {
-  title: 'CossUI/Avatar',
+  title: 'Tier 1: Primitives/CossUI/Avatar',
   component: Avatar,
   parameters: {
     layout: 'centered',

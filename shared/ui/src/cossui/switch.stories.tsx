@@ -4,7 +4,7 @@ import { Switch } from './switch'
 import { Label } from './label'
 
 const meta: Meta<typeof Switch> = {
-  title: 'CossUI/Switch',
+  title: 'Tier 1: Primitives/CossUI/Switch',
   component: Switch,
   parameters: {
     layout: 'centered',

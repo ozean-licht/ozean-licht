@@ -6,7 +6,7 @@ import { Input } from './input'
 import { Label } from './label'
 
 const meta: Meta<typeof GroupRoot> = {
-  title: 'CossUI/Group',
+  title: 'Tier 1: Primitives/CossUI/Group',
   component: GroupRoot,
   parameters: {
     layout: 'centered',

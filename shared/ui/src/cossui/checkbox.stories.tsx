@@ -4,7 +4,7 @@ import { Checkbox, CheckboxGroup, CheckboxIndicator } from './checkbox'
 import { Label } from './label'
 
 const meta: Meta<typeof Checkbox> = {
-  title: 'CossUI/Checkbox',
+  title: 'Tier 1: Primitives/CossUI/Checkbox',
   component: Checkbox,
   parameters: {
     layout: 'centered',

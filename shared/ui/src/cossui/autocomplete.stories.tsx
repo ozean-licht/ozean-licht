@@ -12,7 +12,7 @@ import {
 import { Label } from './label'
 
 const meta: Meta = {
-  title: 'CossUI/Autocomplete',
+  title: 'Tier 1: Primitives/CossUI/Autocomplete',
   parameters: {
     layout: 'centered',
     docs: {

@@ -11,7 +11,7 @@ import {
 } from './table'
 
 const meta: Meta<typeof Table> = {
-  title: 'CossUI/Table',
+  title: 'Tier 1: Primitives/CossUI/Table',
   component: Table,
   parameters: {
     layout: 'centered',

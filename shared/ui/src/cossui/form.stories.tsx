@@ -19,7 +19,7 @@ import { Checkbox, CheckboxIndicator } from './checkbox'
 import { Label } from './label'
 
 const meta: Meta = {
-  title: 'CossUI/Form',
+  title: 'Tier 1: Primitives/CossUI/Form',
   parameters: {
     layout: 'centered',
     docs: {

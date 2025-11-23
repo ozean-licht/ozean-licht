@@ -13,7 +13,7 @@ import { Textarea } from './textarea'
 import { Checkbox, CheckboxIndicator } from './checkbox'
 
 const meta: Meta<typeof FieldRoot> = {
-  title: 'CossUI/Field',
+  title: 'Tier 1: Primitives/CossUI/Field',
   component: FieldRoot,
   parameters: {
     layout: 'centered',

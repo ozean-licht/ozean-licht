@@ -14,7 +14,7 @@ import {
 import { Button } from './button'
 
 const meta: Meta<typeof AlertDialog> = {
-  title: 'CossUI/AlertDialog',
+  title: 'Tier 1: Primitives/CossUI/AlertDialog',
   component: AlertDialog,
   parameters: {
     layout: 'centered',

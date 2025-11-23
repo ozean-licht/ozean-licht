@@ -12,7 +12,7 @@ import {
 } from './card'
 
 const meta: Meta<typeof Spinner> = {
-  title: 'CossUI/Spinner',
+  title: 'Tier 1: Primitives/CossUI/Spinner',
   component: Spinner,
   parameters: {
     layout: 'centered',

@@ -10,7 +10,7 @@ import { ScrollArea } from './scrollarea'
 import { Card, CardHeader, CardTitle, CardDescription, CardPanel } from './card'
 
 const meta: Meta<typeof ScrollArea> = {
-  title: 'CossUI/ScrollArea',
+  title: 'Tier 1: Primitives/CossUI/ScrollArea',
   component: ScrollArea,
   parameters: {
     layout: 'centered',

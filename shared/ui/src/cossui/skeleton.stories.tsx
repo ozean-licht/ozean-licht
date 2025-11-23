@@ -8,7 +8,7 @@ import {
 } from './card'
 
 const meta: Meta<typeof Skeleton> = {
-  title: 'CossUI/Skeleton',
+  title: 'Tier 1: Primitives/CossUI/Skeleton',
   component: Skeleton,
   parameters: {
     layout: 'centered',

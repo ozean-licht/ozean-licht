@@ -26,7 +26,7 @@ import { useToast } from '../hooks/use-toast'
 import { Button } from './button'
 
 const meta: Meta<typeof Toast> = {
-  title: 'CossUI/Toast',
+  title: 'Tier 1: Primitives/CossUI/Toast',
   component: Toast,
   parameters: {
     layout: 'centered',

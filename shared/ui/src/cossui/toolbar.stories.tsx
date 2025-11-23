@@ -5,7 +5,7 @@ import { Toggle } from './toggle'
 import { Label } from './label'
 
 const meta: Meta<typeof Toolbar> = {
-  title: 'CossUI/Toolbar',
+  title: 'Tier 1: Primitives/CossUI/Toolbar',
   component: Toolbar,
   parameters: {
     layout: 'centered',

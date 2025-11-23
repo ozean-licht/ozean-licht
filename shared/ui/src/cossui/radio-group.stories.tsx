@@ -4,7 +4,7 @@ import { RadioGroup, Radio } from './radio-group'
 import { Label } from './label'
 
 const meta: Meta<typeof RadioGroup> = {
-  title: 'CossUI/RadioGroup',
+  title: 'Tier 1: Primitives/CossUI/RadioGroup',
   component: RadioGroup,
   parameters: {
     layout: 'centered',

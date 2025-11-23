@@ -16,7 +16,7 @@ import {
 import { Label } from './label'
 
 const meta: Meta<typeof InputGroupRoot> = {
-  title: 'CossUI/InputGroup',
+  title: 'Tier 1: Primitives/CossUI/InputGroup',
   component: InputGroupRoot,
   parameters: {
     layout: 'centered',

@@ -4,7 +4,7 @@ import { Toggle, ToggleGroup } from './toggle'
 import { Label } from './label'
 
 const meta: Meta<typeof Toggle> = {
-  title: 'CossUI/Toggle',
+  title: 'Tier 1: Primitives/CossUI/Toggle',
   component: Toggle,
   parameters: {
     layout: 'centered',

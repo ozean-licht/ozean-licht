@@ -9,8 +9,8 @@ export function Footer() {
         <div className="text-center space-y-8">
           <div className="flex justify-center">
             <img
-              src="/logo-akademie.png"
-              alt="Ozean Licht Logo"
+              src="/shared/assets/ozean-licht-logo/00_With_Text/PNG/Ozean_Licht_Akadmie_720px.png"
+              alt="Ozean Licht Akademie Logo"
               className="h-24 w-auto"
             />
           </div>

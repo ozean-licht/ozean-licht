@@ -13,7 +13,7 @@ import { RadioGroup, Radio } from './radio-group'
 import { Checkbox, CheckboxIndicator } from './checkbox'
 
 const meta: Meta<typeof FieldsetRoot> = {
-  title: 'CossUI/Fieldset',
+  title: 'Tier 1: Primitives/CossUI/Fieldset',
   component: FieldsetRoot,
   parameters: {
     layout: 'centered',

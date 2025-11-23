@@ -13,7 +13,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardPanel } from './card'
 import { Button } from './button'
 
 const meta: Meta<typeof Pagination> = {
-  title: 'CossUI/Pagination',
+  title: 'Tier 1: Primitives/CossUI/Pagination',
   component: Pagination,
   parameters: {
     layout: 'centered',

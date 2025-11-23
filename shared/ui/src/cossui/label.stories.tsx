@@ -5,7 +5,7 @@ import { Input } from './input'
 import { Textarea } from './textarea'
 
 const meta: Meta<typeof Label> = {
-  title: 'CossUI/Label',
+  title: 'Tier 1: Primitives/CossUI/Label',
   component: Label,
   parameters: {
     layout: 'centered',

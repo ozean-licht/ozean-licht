@@ -7,7 +7,7 @@ import { Label } from './label'
 const Input = InputBase as any
 
 const meta: Meta<typeof InputBase> = {
-  title: 'CossUI/Input',
+  title: 'Tier 1: Primitives/CossUI/Input',
   component: Input as any,
   parameters: {
     layout: 'centered',

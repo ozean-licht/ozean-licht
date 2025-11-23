@@ -41,7 +41,7 @@ import {
 } from './menu'
 
 const meta: Meta = {
-  title: 'CossUI/Menu',
+  title: 'Tier 1: Primitives/CossUI/Menu',
   parameters: {
     layout: 'centered',
     docs: {

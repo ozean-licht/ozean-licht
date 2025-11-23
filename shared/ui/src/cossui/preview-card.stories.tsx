@@ -9,7 +9,7 @@ import { Badge } from './badge'
 import { Avatar, AvatarImage, AvatarFallback } from './avatar'
 
 const meta: Meta<typeof PreviewCardRoot> = {
-  title: 'CossUI/PreviewCard',
+  title: 'Tier 1: Primitives/CossUI/PreviewCard',
   component: PreviewCardRoot,
   parameters: {
     layout: 'centered',

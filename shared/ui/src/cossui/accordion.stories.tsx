@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardPanel } from './card'
 import { Button } from './button'
 
 const meta: Meta<typeof Accordion> = {
-  title: 'CossUI/Accordion',
+  title: 'Tier 1: Primitives/CossUI/Accordion',
   component: Accordion,
   parameters: {
     layout: 'centered',

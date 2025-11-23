@@ -15,7 +15,7 @@ import {
 } from './breadcrumb'
 
 const meta: Meta<typeof Breadcrumb> = {
-  title: 'CossUI/Navigation/Breadcrumb',
+  title: 'Tier 1: Primitives/CossUI/Navigation/Breadcrumb',
   component: Breadcrumb,
   parameters: {
     layout: 'centered',

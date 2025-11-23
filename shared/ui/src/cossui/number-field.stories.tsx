@@ -14,7 +14,7 @@ import { Label } from './label'
 const NumberField = NumberFieldBase as any
 
 const meta: Meta<typeof NumberFieldBase> = {
-  title: 'CossUI/NumberField',
+  title: 'Tier 1: Primitives/CossUI/NumberField',
   component: NumberField as any,
   parameters: {
     layout: 'centered',

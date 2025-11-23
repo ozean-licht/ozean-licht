@@ -79,7 +79,7 @@ const CheckIcon = () => (
 )
 
 const meta: Meta<typeof Popover> = {
-  title: 'CossUI/Popover',
+  title: 'Tier 1: Primitives/CossUI/Popover',
   component: Popover,
   parameters: {
     layout: 'centered',

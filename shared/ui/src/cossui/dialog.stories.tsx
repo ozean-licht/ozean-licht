@@ -13,7 +13,7 @@ import {
 import { Button } from './button'
 
 const meta: Meta<typeof Dialog> = {
-  title: 'CossUI/Dialog',
+  title: 'Tier 1: Primitives/CossUI/Dialog',
   component: Dialog,
   parameters: {
     layout: 'centered',

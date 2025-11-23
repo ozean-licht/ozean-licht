@@ -10,7 +10,7 @@ import {
 import { Button } from './button'
 
 const meta: Meta<typeof Card> = {
-  title: 'CossUI/Card',
+  title: 'Tier 1: Primitives/CossUI/Card',
   component: Card,
   parameters: {
     layout: 'centered',

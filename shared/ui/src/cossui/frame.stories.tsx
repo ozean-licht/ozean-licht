@@ -10,7 +10,7 @@ import { Button } from './button'
 import { Play, Image, BarChart3, Map, Smartphone, Laptop, Watch } from 'lucide-react'
 
 const meta: Meta<typeof Frame> = {
-  title: 'CossUI/Frame',
+  title: 'Tier 1: Primitives/CossUI/Frame',
   component: Frame,
   parameters: {
     layout: 'centered',

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { Meter, MeterTrack, MeterIndicator, MeterLabel, MeterValue } from './meter'
 
 const meta: Meta<typeof Meter> = {
-  title: 'CossUI/Meter',
+  title: 'Tier 1: Primitives/CossUI/Meter',
   component: Meter,
   parameters: {
     layout: 'centered',

@@ -13,7 +13,7 @@ import {
 import { Button } from './button'
 
 const meta: Meta<typeof Sheet> = {
-  title: 'CossUI/Sheet',
+  title: 'Tier 1: Primitives/CossUI/Sheet',
   component: Sheet,
   parameters: {
     layout: 'fullscreen',

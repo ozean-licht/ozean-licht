@@ -6,7 +6,7 @@ import { Button } from './button'
 import { Badge } from './badge'
 
 const meta: Meta<typeof CollapsibleRoot> = {
-  title: 'CossUI/Collapsible',
+  title: 'Tier 1: Primitives/CossUI/Collapsible',
   component: CollapsibleRoot,
   parameters: {
     layout: 'centered',

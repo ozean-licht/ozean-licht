@@ -5,7 +5,7 @@ import { Button } from './button'
 import { Badge } from './badge'
 
 const meta: Meta<typeof Tooltip> = {
-  title: 'CossUI/Tooltip',
+  title: 'Tier 1: Primitives/CossUI/Tooltip',
   component: Tooltip,
   parameters: {
     layout: 'centered',
