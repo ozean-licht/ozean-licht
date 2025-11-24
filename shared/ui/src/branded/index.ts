@@ -20,6 +20,9 @@ export { LightRays } from './light-rays'
 export { Folder } from './folder'
 export { Tree, Folder as TreeFolder, File as TreeFile, CollapseButton, type TreeViewElement } from './file-tree'
 
+// Storage Components
+export * from './storage'
+
 // Layout Components
 export { AppHeader, type AppHeaderProps } from './layout/app-header'
 export { AppSidebar, type AppSidebarProps, type NavigationItem } from './layout/app-sidebar'
