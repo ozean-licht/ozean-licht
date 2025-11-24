@@ -8,60 +8,76 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Ozean Licht Primary (Oceanic Cyan) - Brand Color
+        // === OFFICIAL OZEAN LICHT DESIGN SYSTEM ===
+        // Source: /design-system.md v2.1.0
+
+        // Primary - Turquoise (Main brand color)
         primary: {
           DEFAULT: '#0ec2bc',
-          50: '#E6F7FA',
-          100: '#CCF0F5',
-          200: '#99E1EB',
-          300: '#66D1E1',
-          400: '#33C2D7',
+          50: '#E6F9F8',
+          100: '#CCF3F1',
+          200: '#99E7E3',
+          300: '#66DBD5',
+          400: '#33CFC7',
           500: '#0ec2bc',
-          600: '#0B859A',
-          700: '#086473',
-          800: '#055D75',
+          600: '#0B9B96',
+          700: '#087470',
+          800: '#055D75',  // Muted accent
           900: '#033B4D',
           foreground: '#FFFFFF',
         },
-        // Deep ocean background (Ozean Licht signature)
-        background: '#00070F',
+
+        // Backgrounds
+        background: '#00070F',           // Main background (deep ocean)
         foreground: '#FFFFFF',
-        // Secondary background (badges, spans)
-        secondaryBackground: '#000F1F',
-        // Muted colors
-        muted: {
-          DEFAULT: '#055D75',
-          foreground: '#C4C8D4',
-        },
-        // Card colors (elevated surfaces)
+
+        // Secondary background (badges, spans, highlights)
+        secondaryBackground: '#001e1f',
+
+        // Card (elevated surfaces)
         card: {
           DEFAULT: '#00111A',
           foreground: '#FFFFFF',
         },
+
         // Popover
         popover: {
           DEFAULT: '#00111A',
           foreground: '#FFFFFF',
         },
+
+        // Muted colors
+        muted: {
+          DEFAULT: '#055D75',       // Muted accent (secondary actions)
+          foreground: '#C4C8D4',    // Paragraph text
+        },
+
+        // Accent (hover states)
+        accent: {
+          DEFAULT: '#00111A',
+          foreground: '#FFFFFF',
+        },
+
         // Border
-        border: '#0E282E',
+        border: '#0E282E',              // Card borders, dividers
         input: '#0E282E',
         ring: '#0ec2bc',
+
         // Semantic colors
         destructive: {
-          DEFAULT: '#EF4444',
+          DEFAULT: '#EF4444',       // Red - errors, delete
           foreground: '#FFFFFF',
         },
         success: {
-          DEFAULT: '#10B981',
+          DEFAULT: '#10B981',       // Green - success
           foreground: '#FFFFFF',
         },
         warning: {
-          DEFAULT: '#F59E0B',
+          DEFAULT: '#F59E0B',       // Amber - warnings
           foreground: '#000000',
         },
         info: {
-          DEFAULT: '#3B82F6',
+          DEFAULT: '#3B82F6',       // Blue - info
           foreground: '#FFFFFF',
         },
       },
@@ -86,8 +102,8 @@ module.exports = {
       },
       keyframes: {
         glow: {
-          '0%': { boxShadow: '0 0 20px rgba(14, 166, 193, 0.3)' },
-          '100%': { boxShadow: '0 0 30px rgba(14, 166, 193, 0.6)' },
+          '0%': { boxShadow: '0 0 20px rgba(14, 194, 188, 0.3)' },
+          '100%': { boxShadow: '0 0 30px rgba(14, 194, 188, 0.6)' },
         },
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },

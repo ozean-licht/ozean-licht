@@ -1,5 +1,4 @@
-# <
- Ozean Licht Ecosystem
+# Ozean Licht Ecosystem
 
 > **Monorepo powering two Austrian associations with shared technical infrastructure and autonomous AI development**
 
@@ -62,12 +61,11 @@ import { Button, Card, Badge } from '@ozean-licht/shared-ui'
 
 **Signature Elements:**
 - Primary Color: Turquoise (#0ec2bc)
-- Background: Cosmic Dark (#0A0F1A)
 - Glass morphism effects
 - Cinzel Decorative + Montserrat fonts
 - Glow, float, and shine animations
 
-**Note:** Kids Ascension has separate branding. See `/BRANDING.md` for details.
+**Note:** Kids Ascension has separate branding.
 
 ---
 

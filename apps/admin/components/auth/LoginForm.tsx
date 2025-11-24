@@ -4,6 +4,15 @@ import { useState, FormEvent } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
+import {
+  CossUIInput,
+  CossUIButton,
+  CossUIAlert,
+  CossUIAlertTitle,
+  CossUIAlertDescription,
+  CossUILabel
+} from '@shared/ui'
+import { Loader2, AlertCircle } from 'lucide-react'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('')
@@ -42,12 +51,12 @@ export default function LoginForm() {
 
   return (
     <>
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-8">
         <Image
-          src="/images/ozean-licht-logo-horizontal.webp"
-          alt="Ozean Licht"
-          width={220}
-          height={60}
+          src="/images/Ozean_Licht_Akademie_480px.webp"
+          alt="Ozean Licht Akademie"
+          width={240}
+          height={70}
           className="object-contain"
           priority
         />
@@ -59,82 +68,79 @@ export default function LoginForm() {
 
       <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
         {error && (
-        <div className="rounded-md bg-red-50 p-4" role="alert">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
+          <CossUIAlert variant="destructive" className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <div>
+              <CossUIAlertTitle>Authentication Error</CossUIAlertTitle>
+              <CossUIAlertDescription>{error}</CossUIAlertDescription>
             </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-800">{error}</p>
-            </div>
+          </CossUIAlert>
+        )}
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <CossUILabel htmlFor="email" className="text-[#C4C8D4] font-sans">
+              Email address
+            </CossUILabel>
+            <CossUIInput
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@ozean-licht.dev"
+              disabled={loading}
+              size="lg"
+              className="w-full"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <CossUILabel htmlFor="password" className="text-[#C4C8D4] font-sans">
+              Password
+            </CossUILabel>
+            <CossUIInput
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              disabled={loading}
+              size="lg"
+              className="w-full"
+            />
           </div>
         </div>
-      )}
 
-      <div className="rounded-md shadow-sm -space-y-px">
         <div>
-          <label htmlFor="email" className="sr-only">
-            Email address
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-            placeholder="Email address"
+          <CossUIButton
+            type="submit"
             disabled={loading}
-          />
+            variant="primary"
+            size="lg"
+            className="w-full"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              'Sign in'
+            )}
+          </CossUIButton>
         </div>
-        <div>
-          <label htmlFor="password" className="sr-only">
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-            placeholder="Password"
-            disabled={loading}
-          />
+
+        <div className="text-sm text-center text-[#C4C8D4]">
+          <p className="mt-2">
+            Test credentials: <code className="text-xs px-2 py-1 rounded bg-[#00111A] text-primary font-mono">super@ozean-licht.dev</code>
+          </p>
         </div>
-      </div>
-
-      <div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#055D75] hover:bg-[#055D75]/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#055D75] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Signing in...
-            </>
-          ) : (
-            'Sign in'
-          )}
-        </button>
-      </div>
-
-      <div className="text-sm text-center text-white/70">
-        <p className="mt-2">
-          Test credentials: <code className="text-xs px-2 py-1 rounded">super@ozean-licht.dev</code>
-        </p>
-      </div>
       </form>
     </>
   )

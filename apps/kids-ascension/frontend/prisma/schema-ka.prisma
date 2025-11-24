@@ -1,0 +1,45 @@
+// ============================================
+// Kids Ascension - Database Schema
+// Database: kids_ascension_db
+// ============================================
+// This schema manages Kids Ascension-specific data including
+// waitlist entries, course progress, and platform-specific features.
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_KA")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client-ka"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+// ============================================
+// Waitlist Management
+// ============================================
+
+enum WaitlistStatus {
+  PENDING      // Email sent, awaiting confirmation
+  CONFIRMED    // Email confirmed by user
+  UNSUBSCRIBED // User unsubscribed from waitlist
+}
+
+model Waitlist {
+  id          String         @id @default(uuid())
+  email       String         @unique
+  status      WaitlistStatus @default(PENDING)
+  token       String         @unique // Secure token for email confirmation
+  ipAddress   String?        // For spam detection
+  userAgent   String?        // For analytics
+  confirmedAt DateTime?      // When email was confirmed
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([email])
+  @@index([token])
+  @@index([status])
+  @@index([createdAt])
+  @@map("waitlist")
+}

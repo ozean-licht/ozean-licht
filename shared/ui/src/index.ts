@@ -23,6 +23,9 @@ export * from './branded'
 // TEMPORARILY DISABLED - compositions have import errors that need fixing
 // export * from './compositions'
 
+// Export storage components
+export * from './storage'
+
 // Export utilities
 export * from './utils'
 

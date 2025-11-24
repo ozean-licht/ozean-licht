@@ -10,6 +10,10 @@ import {
   Users,
   Activity,
   Lock,
+  FolderKanban,
+  Cloud,
+  Blocks,
+  BookOpen,
 } from 'lucide-react';
 import { NavigationSection, UserEntity, EntityScope } from '@/types/navigation';
 import { canAccessRoute } from '@/lib/rbac/constants';
@@ -80,19 +84,28 @@ export default function Sidebar({
       ],
     },
     {
-      title: 'Platforms',
+      title: 'Tools & Resources',
       items: [
-        // Future: Kids Ascension, Ozean Licht sections
-        // {
-        //   label: 'Kids Ascension',
-        //   href: '/dashboard/platforms/kids-ascension',
-        //   icon: Baby,
-        // },
-        // {
-        //   label: 'Ozean Licht',
-        //   href: '/dashboard/platforms/ozean-licht',
-        //   icon: BookOpen,
-        // },
+        {
+          label: 'Project Management',
+          href: '/dashboard/tools/projects',
+          icon: FolderKanban,
+        },
+        {
+          label: 'Ozean Cloud',
+          href: '/dashboard/tools/cloud',
+          icon: Cloud,
+        },
+        {
+          label: 'Components',
+          href: '/dashboard/tools/components',
+          icon: Blocks,
+        },
+        {
+          label: 'Docs',
+          href: '/dashboard/tools/docs',
+          icon: BookOpen,
+        },
       ],
     },
   ];
