@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: UserDetailPageProps): Promise
 
 export default async function UserDetailPage({ params }: UserDetailPageProps) {
   // Require admin role
-  await requireAnyRole(['super_admin', 'ka_admin', 'ol_admin']);
+  await requireAnyRole(['super_admin', 'ol_admin']);
 
   // Fetch user detail
   const user = await mcpClient.getUserDetail(params.id);

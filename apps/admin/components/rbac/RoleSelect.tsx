@@ -26,7 +26,7 @@ interface RoleSelectProps {
 }
 
 export function RoleSelect({ value, onChange, disabled, className }: RoleSelectProps) {
-  const roles: AdminRole[] = ['super_admin', 'ka_admin', 'ol_admin', 'support'];
+  const roles: AdminRole[] = ['super_admin', 'ol_admin', 'ol_editor', 'support'];
 
   return (
     <Select

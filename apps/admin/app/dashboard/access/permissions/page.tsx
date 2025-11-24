@@ -26,7 +26,7 @@ export default async function PermissionsPage() {
   const permissions = await client.listAdminPermissions();
 
   // Define roles to include in matrix
-  const roles: AdminRole[] = ['super_admin', 'ka_admin', 'ol_admin', 'support'];
+  const roles: AdminRole[] = ['super_admin', 'ol_admin', 'ol_editor', 'support'];
 
   // Format permission matrix
   const matrix = formatPermissionMatrix(roles, permissions);

@@ -1,7 +1,7 @@
 /**
  * Platforms Section Layout
- * Wrapper layout for all platform-specific admin pages
- * Future: Kids Ascension, Ozean Licht platform management
+ * Wrapper layout for platform-specific admin pages
+ * Note: This folder is reserved for future Ozean Licht platform features
  */
 
 export default function PlatformsLayout({

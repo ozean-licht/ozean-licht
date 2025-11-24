@@ -1,10 +1,11 @@
-# Admin Dashboard Context Map
+# Ozean Licht Admin Dashboard Context Map
 
 **Single Source of Truth for AI Agent Navigation**
 
-**Last Updated:** 2025-11-11
+**Last Updated:** 2025-11-24
 **Codebase Size:** ~14,107 LOC (142 TypeScript files)
 **Structure:** Post-Spec 0.1 Cleanup (Functional Areas Organization)
+**Scope:** Ozean Licht platform only (Kids Ascension has separate admin dashboard)
 
 ---
 
@@ -78,7 +79,7 @@ lib/rbac/permission-categories.ts (690 LOC)  # Permission definitions [CRITICAL]
   Lines 76-135:  Content management permissions (7)
   Lines 140-206: Course management permissions (7)
   Lines 211-260: Member management permissions (5)
-  Lines 265-314: Classroom management permissions (5)
+  Lines 265-314: Community management permissions (5)
   Lines 319-359: Payment management permissions (4)
   Lines 364-398: Analytics permissions (3)
   Lines 403-473: Settings management permissions (6)
@@ -90,6 +91,12 @@ lib/rbac/constants.ts (166 LOC)        # Role configurations [CRITICAL]
   - Default permissions per role
   - Route access mappings (ROUTE_ROLES)
 ```
+
+**Ozean Licht Roles:**
+- `super_admin` - Full system access, can manage roles
+- `ol_admin` - Ozean Licht admin, full platform access
+- `ol_editor` - Content editor, can manage courses and content
+- `support` - Read-only support access
 
 **Supporting Files:**
 ```
@@ -116,11 +123,11 @@ app/dashboard/access/users/columns.tsx                   # Table column definiti
 
 app/api/admin-users/[id]/route.ts (122 LOC)              # User CRUD API [ENTRY POINT]
   - GET: Fetch admin user
-  - PATCH: Update admin user (super_admin only)
+  - PATCH: Update admin user (super_admin/ol_admin only)
 
 app/api/admin-users/[id]/permissions/route.ts (122 LOC)  # Permission API
   - GET: Fetch user permissions
-  - PATCH: Update user permissions (super_admin only)
+  - PATCH: Update user permissions (super_admin/ol_admin only)
 ```
 
 **Supporting Components:**
@@ -183,6 +190,10 @@ lib/mcp-client/health.ts (299 LOC)     # Health checks [CRITICAL]
   Lines 217-275:  checkAllHealth()
 ```
 
+**Database Targets:**
+- `ozean-licht-db` - Primary database for Ozean Licht platform data
+- `shared-users-db` - Authentication and shared user data
+
 **Supporting Files:**
 ```
 lib/mcp-client/errors.ts               # Error types (MCPError, MCPClientError, MCPServerError)
@@ -221,7 +232,7 @@ components/health/ServerHealthCard.tsx         # Server metrics
 **Core Files:**
 ```
 components/dashboard/Sidebar.tsx (266 LOC)     # Main navigation [CRITICAL]
-  Lines 44-98:   Navigation section definitions (Overview, Access, System, Platforms)
+  Lines 44-98:   Navigation section definitions (Overview, Access, System, Content, Members)
   Lines 100-119: Role-based filtering logic
   Lines 121-126: Active route detection
   Lines 128-264: Sidebar render (mobile overlay, logo, sections, collapse toggle)
@@ -247,7 +258,7 @@ lib/navigation/keyboard-shortcuts.ts (151 LOC) # Keyboard navigation
 ### 8. UI Context
 **Responsibility:** Shared UI components, design system
 
-**Base Components (shadcn/ui):**
+**Base Components (shadcn/ui + Ozean Licht Design System):**
 ```
 components/ui/                          # Generic UI primitives
   - alert.tsx, badge.tsx, button.tsx, card.tsx, checkbox.tsx
@@ -322,14 +333,14 @@ components/data-table/                  # TanStack Table components
 | **Content Management** | 76-135 | 7 permissions |
 | **Course Management** | 140-206 | 7 permissions |
 | **Member Management** | 211-260 | 5 permissions |
-| **Classroom Management** | 265-314 | 5 permissions |
+| **Community Management** | 265-314 | 5 permissions |
 | **Payment Management** | 319-359 | 4 permissions |
 | **Analytics** | 364-398 | 3 permissions |
 | **Settings Management** | 403-473 | 6 permissions |
 | **System Administration** | 478-537 | 5 permissions |
 | **Admin Management** | 542-690 | 11 permissions |
 
-**Total:** 57 permissions across 9 categories
+**Total:** 57 permissions across 10 categories (Ozean Licht platform)
 
 ---
 
@@ -354,7 +365,7 @@ components/data-table/                  # TanStack Table components
 
 | Section | Lines | Purpose |
 |---------|-------|---------|
-| **Navigation Definitions** | 44-98 | Define all navigation sections (Overview, Access, System, Platforms) |
+| **Navigation Definitions** | 44-98 | Define all navigation sections (Overview, Access, System, Content, Members, Analytics) |
 | **Role-Based Filtering** | 100-119 | Filter navigation by user role |
 | **Active Route Detection** | 121-126 | Determine current active route |
 | **Mobile Overlay** | 131-137 | Mobile sidebar overlay |
@@ -413,12 +424,20 @@ app/
     │       ├── page.tsx
     │       └── actions.ts
     │
-    ├── platforms/                    → Platform-Specific Area (Future)
-    │   └── layout.tsx
-    │       ├── kids-ascension/       → Future: KA Context
-    │       └── ozean-licht/          → Future: OL Context
+    ├── content/                      → Content Management Area (Phase 2)
+    │   ├── courses/                  → Future: Course management
+    │   ├── lessons/                  → Future: Lesson management
+    │   └── media/                    → Future: Media library
     │
-    └── settings/                     → Future: Settings Context
+    ├── members/                      → Member Management Area (Phase 2)
+    │   ├── overview/                 → Future: Member overview
+    │   ├── subscriptions/            → Future: Subscriptions
+    │   └── engagement/               → Future: Engagement tracking
+    │
+    └── analytics/                    → Analytics Area (Phase 3)
+        ├── overview/                 → Future: Platform overview
+        ├── content/                  → Future: Content performance
+        └── members/                  → Future: Member insights
 ```
 
 ### Route → Context Table:
@@ -427,13 +446,13 @@ app/
 |-------|-----------|------|----------------|
 | `/login` | AUTH | Public | `app/(auth)/login/page.tsx`, `components/auth/LoginForm.tsx` |
 | `/dashboard` | NAVIGATION | All admins | `app/dashboard/page.tsx`, `components/dashboard/Sidebar.tsx` |
-| `/dashboard/access/users` | USER_MANAGEMENT, NAVIGATION | super_admin, ka_admin, ol_admin | `app/dashboard/access/users/page.tsx`, `lib/mcp-client/queries.ts:48-225` |
-| `/dashboard/access/users/[id]` | USER_MANAGEMENT, RBAC | super_admin, ka_admin, ol_admin | `app/dashboard/access/users/[id]/page.tsx`, `components/rbac/RoleBadge.tsx` |
-| `/dashboard/access/users/[id]/permissions` | USER_MANAGEMENT, PERMISSIONS, RBAC | super_admin only | `app/dashboard/access/users/[id]/permissions/page.tsx`, `lib/rbac/permissions.ts` |
-| `/dashboard/access/permissions` | PERMISSIONS, RBAC | super_admin only | `app/dashboard/access/permissions/page.tsx`, `components/permissions/PermissionMatrix.tsx` |
+| `/dashboard/access/users` | USER_MANAGEMENT, NAVIGATION | super_admin, ol_admin | `app/dashboard/access/users/page.tsx`, `lib/mcp-client/queries.ts:48-225` |
+| `/dashboard/access/users/[id]` | USER_MANAGEMENT, RBAC | super_admin, ol_admin | `app/dashboard/access/users/[id]/page.tsx`, `components/rbac/RoleBadge.tsx` |
+| `/dashboard/access/users/[id]/permissions` | USER_MANAGEMENT, PERMISSIONS, RBAC | super_admin, ol_admin | `app/dashboard/access/users/[id]/permissions/page.tsx`, `lib/rbac/permissions.ts` |
+| `/dashboard/access/permissions` | PERMISSIONS, RBAC | super_admin, ol_admin | `app/dashboard/access/permissions/page.tsx`, `components/permissions/PermissionMatrix.tsx` |
 | `/dashboard/system/health` | HEALTH | All admins | `app/dashboard/system/health/page.tsx`, `lib/mcp-client/health.ts` |
-| `/api/admin-users/[id]` | USER_MANAGEMENT, AUTH, MCP_CLIENT | super_admin (PATCH), All (GET) | `app/api/admin-users/[id]/route.ts`, `lib/mcp-client/queries.ts:48-225` |
-| `/api/permissions/*` | PERMISSIONS, AUTH, MCP_CLIENT | super_admin only | `app/api/permissions/*.ts`, `lib/rbac/permissions.ts` |
+| `/api/admin-users/[id]` | USER_MANAGEMENT, AUTH, MCP_CLIENT | super_admin/ol_admin (PATCH), All (GET) | `app/api/admin-users/[id]/route.ts`, `lib/mcp-client/queries.ts:48-225` |
+| `/api/permissions/*` | PERMISSIONS, AUTH, MCP_CLIENT | super_admin, ol_admin | `app/api/permissions/*.ts`, `lib/rbac/permissions.ts` |
 
 ---
 
@@ -444,7 +463,7 @@ app/
 **Goal:** Implement a new feature in the admin dashboard
 
 **Steps:**
-1. **Identify Context** - Which functional area? (Access, System, Platforms)
+1. **Identify Context** - Which functional area? (Access, System, Content, Members, Analytics)
 2. **Find Entry Point** - Use Quick Navigation Table (§1)
 3. **Read Minimal Set** - Read only critical files for that context
 4. **Check Types** - Review `types/admin.ts` for data structures
@@ -454,16 +473,16 @@ app/
 8. **Update Tests** - Add tests in `tests/unit/` or `tests/integration/`
 9. **Update Docs** - Update `docs/routes.md` and this file (§8)
 
-**Example: Adding a new "Audit Log" feature in System area**
+**Example: Adding a new "Course Management" feature in Content area**
 ```
-1. Context: HEALTH (similar infrastructure feature)
-2. Entry Point: Create app/dashboard/system/audit/page.tsx
-3. Read: lib/mcp-client/queries.ts:376-486 (audit operations)
-4. Types: types/admin.ts (AuditLog types)
-5. Pattern: app/dashboard/system/health/page.tsx (similar structure)
+1. Context: CONTENT (new feature area for Ozean Licht)
+2. Entry Point: Create app/dashboard/content/courses/page.tsx
+3. Read: lib/mcp-client/queries.ts (add course operations)
+4. Types: types/admin.ts (add Course types)
+5. Pattern: app/dashboard/access/users/page.tsx (similar list structure)
 6. Implement: Create page, components, API routes
-7. Navigation: Add to Sidebar.tsx system section (lines 72-81)
-8. Tests: tests/unit/audit/audit.test.ts
+7. Navigation: Add to Sidebar.tsx content section
+8. Tests: tests/unit/courses/courses.test.ts
 9. Docs: Update this file and docs/routes.md
 ```
 
@@ -492,7 +511,7 @@ app/
 5. MCP: Check lib/mcp-client/queries.ts:158-193 (listAdminUsers)
 6. RBAC: Not relevant for filtering
 7. Test: tests/integration/users/filtering.test.ts
-8. Verify: npm test && npm run dev
+8. Verify: pnpm test && pnpm run dev
 ```
 
 ---
@@ -502,7 +521,7 @@ app/
 **Goal:** Add a new page/route to the dashboard
 
 **Steps:**
-1. **Determine Area** - Access, System, or Platforms?
+1. **Determine Area** - Access, System, Content, Members, or Analytics?
 2. **Create Page** - Create `page.tsx` in appropriate directory
 3. **Add RBAC** - Add role checks using `requireAnyRole()`
 4. **Update Navigation** - Add to `components/dashboard/Sidebar.tsx:44-98`
@@ -512,17 +531,17 @@ app/
 8. **Update Docs** - Update `docs/routes.md` and this file (§8)
 9. **Test** - Manual test and add automated tests
 
-**Example: Adding "Settings" page**
+**Example: Adding "Member Subscriptions" page**
 ```
-1. Area: System (infrastructure-related)
-2. Create: app/dashboard/system/settings/page.tsx
-3. RBAC: await requireAnyRole(['super_admin', 'ka_admin', 'ol_admin'])
-4. Navigation: Add to Sidebar.tsx:72-81 (system section)
-5. Route Config: lib/rbac/constants.ts ROUTE_ROLES['/dashboard/system/settings']
-6. Components: components/settings/*.tsx
-7. API: app/api/settings/route.ts (if needed)
+1. Area: Members (member management)
+2. Create: app/dashboard/members/subscriptions/page.tsx
+3. RBAC: await requireAnyRole(['super_admin', 'ol_admin'])
+4. Navigation: Add to Sidebar.tsx members section
+5. Route Config: lib/rbac/constants.ts ROUTE_ROLES['/dashboard/members/subscriptions']
+6. Components: components/members/*.tsx
+7. API: app/api/subscriptions/route.ts
 8. Docs: Add to docs/routes.md and update §8 in this file
-9. Test: Navigate to /dashboard/system/settings, verify RBAC
+9. Test: Navigate to /dashboard/members/subscriptions, verify RBAC
 ```
 
 ---
@@ -540,20 +559,20 @@ app/
 6. **Add Tests** - Test permission checks in relevant features
 7. **Document** - Update `docs/rbac-guide.md`
 
-**Example: Adding "audit.export" permission**
+**Example: Adding "courses.publish" permission**
 ```
-1. Define: lib/rbac/permission-categories.ts (add to System Administration category, lines 478-537)
+1. Define: lib/rbac/permission-categories.ts (add to Course Management category, lines 140-206)
    {
-     name: 'audit.export',
-     description: 'Export audit logs to CSV',
-     category: 'SYSTEM_ADMINISTRATION',
-     risks: ['Data exposure'],
+     name: 'courses.publish',
+     description: 'Publish courses to make them live',
+     category: 'COURSE_MANAGEMENT',
+     risks: ['Public visibility', 'Content exposure'],
    }
-2. Roles: lib/rbac/constants.ts (add to super_admin default permissions)
-3. Checks: In audit export handler, add hasPermission(session.user.permissions, 'audit.export')
+2. Roles: lib/rbac/constants.ts (add to ol_admin and ol_editor default permissions)
+3. Checks: In course publish handler, add hasPermission(session.user.permissions, 'courses.publish')
 4. Migration: CREATE migration to INSERT permission into admin_permissions table
 5. Matrix: Load /dashboard/access/permissions, verify new permission visible
-6. Tests: tests/unit/rbac/permissions.test.ts (test hasPermission with 'audit.export')
+6. Tests: tests/unit/rbac/permissions.test.ts (test hasPermission with 'courses.publish')
 7. Document: docs/rbac-guide.md (add to permission list)
 ```
 
@@ -741,7 +760,7 @@ Root:
   CONTEXT-MAP.md                         # THIS FILE - Agent navigation [SSoT]
   README.md                              # Project overview
   DEVELOPER_GUIDE.md                     # Quick developer reference
-  BRANDING.md                            # Brand guidelines
+  BRANDING.md                            # Brand guidelines (Ozean Licht)
   DEPLOYMENT.md                          # Deployment quick reference
   CHANGELOG.md                           # Version history
   .claude/CLAUDE.md                      # AI agent development guide
@@ -750,7 +769,7 @@ docs/:
   README.md                              # Documentation index
   architecture.md                        # Architecture overview
   routes.md                              # Route map
-  design-system.md                       # UI/UX guidelines
+  design-system.md                       # UI/UX guidelines (Ozean Licht)
   rbac-guide.md                          # RBAC usage guide
   roadmap-specs-list.md                  # Implementation roadmap
 
@@ -770,6 +789,7 @@ docs/deployment/:
 docs/decisions/:
   cleanup-summary.md                     # Spec 0.1 cleanup decision
   storage-feature-status.md              # Storage feature decision
+  separation-of-concerns-2025-11-24.md   # KA/OL separation decision
 
 docs/reports/:
   rbac-implementation-report.md          # RBAC implementation
@@ -862,15 +882,15 @@ Task: "Add health check for new service"
 
 **Example:**
 ```
-Task: "Add new 'Videos' page in System area"
+Task: "Add new 'Courses' page in Content area"
 
 ✅ GOOD:
-  1. Find similar feature: app/dashboard/system/health/
+  1. Find similar feature: app/dashboard/access/users/
   2. Copy structure:
      - page.tsx (server component with requireAuth)
-     - actions.ts (server actions)
-     - components/ (feature-specific components)
-  3. Adapt for videos
+     - columns.tsx (table columns)
+     - DataTable component
+  3. Adapt for courses
 ```
 
 ---
@@ -887,6 +907,7 @@ Task: "Add new 'Videos' page in System area"
 - ✅ Adding new critical file that all agents should know about
 - ✅ Modifying context boundaries or dependencies
 - ✅ Creating new patterns or workflows
+- ✅ Architectural decisions that affect navigation
 
 **Update Process:**
 1. Make code changes
@@ -902,6 +923,7 @@ Task: "Add new 'Videos' page in System area"
 | Date | Version | Changes |
 |------|---------|---------|
 | 2025-11-11 | 1.0.0 | Initial creation after Spec 0.1 cleanup |
+| 2025-11-24 | 2.0.0 | Updated for Ozean Licht-only scope (Kids Ascension separation) |
 
 ---
 
@@ -910,7 +932,7 @@ Task: "Add new 'Videos' page in System area"
 **Copy this to your notes:**
 
 ```
-ADMIN DASHBOARD QUICK REFERENCE
+OZEAN LICHT ADMIN DASHBOARD QUICK REFERENCE
 
 Working on...           Start Here                        Lines
 ─────────────────────────────────────────────────────────────────
@@ -926,6 +948,9 @@ Navigation              components/dashboard/Sidebar.tsx  44-98
 Critical Files (Read First):
   types/admin.ts, lib/auth/config.ts, lib/rbac/permissions.ts,
   lib/mcp-client/queries.ts, middleware.ts
+
+Ozean Licht Roles:
+  super_admin, ol_admin, ol_editor, support
 
 Context Layers:
   L0: UI, MCP_CLIENT
@@ -944,5 +969,5 @@ Navigation Pattern:
 
 **END OF CONTEXT-MAP.md**
 
-*This file is the Single Source of Truth for agent navigation in the admin dashboard.*
+*This file is the Single Source of Truth for agent navigation in the Ozean Licht admin dashboard.*
 *Keep it updated and consult it FIRST when navigating the codebase.*

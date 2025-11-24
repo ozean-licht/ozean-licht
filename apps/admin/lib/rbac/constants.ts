@@ -25,29 +25,9 @@ export const ROLE_CONFIG: Record<AdminRole, {
     defaultPermissions: ['*'], // Wildcard: all permissions
     allowedRoutes: ['/dashboard'], // All routes
   },
-  ka_admin: {
-    label: 'Kids Ascension Admin',
-    description: 'Full access to Kids Ascension platform',
-    color: 'default',
-    icon: 'GraduationCap',
-    defaultPermissions: [
-      'users.read', 'users.write',
-      'content.read', 'content.write', 'content.approve',
-      'classrooms.read', 'classrooms.write',
-      'analytics.read',
-      'settings.read',
-    ],
-    allowedRoutes: [
-      '/dashboard',
-      '/dashboard/users',
-      '/dashboard/kids-ascension',
-      '/dashboard/health',
-      '/dashboard/storage',
-    ],
-  },
   ol_admin: {
     label: 'Ozean Licht Admin',
-    description: 'Full access to Ozean Licht platform',
+    description: 'Full platform access, can manage users and settings',
     color: 'default',
     icon: 'Sparkles',
     defaultPermissions: [
@@ -56,14 +36,28 @@ export const ROLE_CONFIG: Record<AdminRole, {
       'members.read', 'members.write',
       'payments.read',
       'analytics.read',
-      'settings.read',
+      'settings.read', 'settings.write',
+    ],
+    allowedRoutes: ['/dashboard'], // All routes
+  },
+  ol_editor: {
+    label: 'Content Editor',
+    description: 'Can manage courses and content',
+    color: 'outline',
+    icon: 'FileEdit',
+    defaultPermissions: [
+      'users.read',
+      'courses.read', 'courses.write', 'courses.publish',
+      'content.read', 'content.write',
+      'members.read',
+      'analytics.read',
     ],
     allowedRoutes: [
       '/dashboard',
-      '/dashboard/users',
-      '/dashboard/ozean-licht',
+      '/dashboard/content',
+      '/dashboard/courses',
+      '/dashboard/members',
       '/dashboard/health',
-      '/dashboard/storage',
     ],
   },
   support: {
@@ -73,35 +67,29 @@ export const ROLE_CONFIG: Record<AdminRole, {
     icon: 'Headphones',
     defaultPermissions: [
       'users.read',
-      'content.read',
       'courses.read',
       'members.read',
-      'classrooms.read',
+      'content.read',
       'analytics.read',
     ],
     allowedRoutes: [
       '/dashboard',
       '/dashboard/users',
-      '/dashboard/kids-ascension',
-      '/dashboard/ozean-licht',
+      '/dashboard/content',
+      '/dashboard/members',
     ],
   },
 };
 
 /**
  * Entity scope display metadata
+ * Note: This admin dashboard is exclusively for Ozean Licht platform
  */
 export const ENTITY_CONFIG = {
-  kids_ascension: {
-    label: 'Kids Ascension',
-    shortLabel: 'KA',
-    color: 'default',
-    icon: 'GraduationCap',
-  },
   ozean_licht: {
     label: 'Ozean Licht',
     shortLabel: 'OL',
-    color: 'outline',
+    color: 'default',
     icon: 'Sparkles',
   },
 } as const;
@@ -111,15 +99,14 @@ export const ENTITY_CONFIG = {
  * Maps route prefixes to required roles
  */
 export const ROUTE_ROLES: Record<string, AdminRole[]> = {
-  '/dashboard/kids-ascension': ['super_admin', 'ka_admin', 'support'],
-  '/dashboard/ozean-licht': ['super_admin', 'ol_admin', 'support'],
-  '/dashboard/users': ['super_admin', 'ka_admin', 'ol_admin'],
-  '/dashboard/settings': ['super_admin', 'ka_admin', 'ol_admin'],
+  '/dashboard/access/users': ['super_admin', 'ol_admin'],
+  '/dashboard/access/permissions': ['super_admin', 'ol_admin'],
+  '/dashboard/system': ['super_admin', 'ol_admin', 'support'],
+  '/dashboard/content': ['super_admin', 'ol_admin', 'ol_editor'],
+  '/dashboard/members': ['super_admin', 'ol_admin', 'ol_editor'],
+  '/dashboard/analytics': ['super_admin', 'ol_admin', 'ol_editor'],
+  '/dashboard/settings': ['super_admin', 'ol_admin'],
   '/dashboard/audit': ['super_admin'],
-  '/dashboard/permissions': ['super_admin'], // Permission management (super_admin only)
-  // Health and storage accessible to all roles
-  '/dashboard/health': ['super_admin', 'ka_admin', 'ol_admin', 'support'],
-  '/dashboard/storage': ['super_admin', 'ka_admin', 'ol_admin', 'support'],
 };
 
 /**

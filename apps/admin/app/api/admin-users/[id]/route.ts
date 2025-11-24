@@ -12,12 +12,12 @@ import { z } from 'zod';
 
 const mcpClient = new MCPGatewayClientWithQueries({
   baseUrl: process.env.MCP_GATEWAY_URL || 'http://localhost:8100',
-  database: 'kids-ascension-db',
+  database: 'shared-users-db',
 });
 
 const updateAdminUserSchema = z.object({
-  adminRole: z.enum(['super_admin', 'ka_admin', 'ol_admin', 'support']).optional(),
-  entityScope: z.enum(['kids_ascension', 'ozean_licht']).nullable().optional(),
+  adminRole: z.enum(['super_admin', 'ol_admin', 'ol_editor', 'support']).optional(),
+  entityScope: z.enum(['ozean_licht']).nullable().optional(),
   isActive: z.boolean().optional(),
 });
 

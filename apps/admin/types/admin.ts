@@ -5,13 +5,15 @@
 
 /**
  * Admin user role types
+ * Note: This admin dashboard is exclusively for Ozean Licht platform
  */
-export type AdminRole = 'super_admin' | 'ka_admin' | 'ol_admin' | 'support';
+export type AdminRole = 'super_admin' | 'ol_admin' | 'ol_editor' | 'support';
 
 /**
  * Entity scope types
+ * Note: Only Ozean Licht platform is supported
  */
-export type EntityScope = 'kids_ascension' | 'ozean_licht' | null;
+export type EntityScope = 'ozean_licht' | null;
 
 /**
  * Admin user entity

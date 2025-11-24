@@ -93,8 +93,9 @@ export function canManageRoles(session: Session): boolean {
 
 /**
  * Check if user can view entity data
+ * Note: This admin dashboard is exclusively for Ozean Licht platform
  */
-export function canViewEntity(session: Session, entity: 'kids_ascension' | 'ozean_licht'): boolean {
+export function canViewEntity(session: Session, entity: 'ozean_licht'): boolean {
   const role = session.user?.adminRole as AdminRole;
   const entityScope = session.user?.entityScope;
 
@@ -108,12 +109,8 @@ export function canViewEntity(session: Session, entity: 'kids_ascension' | 'ozea
     return true;
   }
 
-  // Check role-based access
-  if (entity === 'kids_ascension' && role === 'ka_admin') {
-    return true;
-  }
-
-  if (entity === 'ozean_licht' && role === 'ol_admin') {
+  // Check role-based access for Ozean Licht
+  if (entity === 'ozean_licht' && (role === 'ol_admin' || role === 'ol_editor')) {
     return true;
   }
 

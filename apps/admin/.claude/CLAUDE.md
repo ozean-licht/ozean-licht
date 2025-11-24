@@ -1,7 +1,8 @@
-# Admin Dashboard - AI Agent Development Guide
+# Ozean Licht Admin Dashboard - AI Agent Development Guide
 
-**Context**: Ozean Licht Ecosystem Admin Dashboard
+**Context**: Ozean Licht Platform Admin Dashboard
 **Stack**: Next.js 14 + NextAuth v5 + TypeScript + MCP Gateway + Tailwind
+**Scope**: Ozean Licht platform ONLY (Kids Ascension has separate admin dashboard)
 
 ---
 
@@ -30,13 +31,17 @@ The admin dashboard is organized into **functional areas** for easy navigation:
 /dashboard
 ├── /access      # User management, permissions, RBAC
 ├── /system      # Health monitoring, configuration
-└── /platforms   # Platform-specific admin (future: KA, OL)
+├── /content     # Course management, content publishing (future)
+├── /members     # Member management, subscriptions (future)
+└── /analytics   # Platform analytics, insights (future)
 ```
 
 **When implementing features:**
 - **User/permission features** → Place in `/dashboard/access/`
 - **System/infrastructure features** → Place in `/dashboard/system/`
-- **Platform-specific features** → Place in `/dashboard/platforms/[platform]/`
+- **Content management features** → Place in `/dashboard/content/`
+- **Member management features** → Place in `/dashboard/members/`
+- **Analytics features** → Place in `/dashboard/analytics/`
 
 ### Finding Relevant Code
 
@@ -68,11 +73,11 @@ import { requireAuth } from '@/lib/auth-utils'
 import { requireAnyRole } from '@/lib/auth-utils'
 import { MCPGatewayClientWithQueries } from '@/lib/mcp-client'
 
-const client = new MCPGatewayClientWithQueries({ database: 'shared-users-db' })
+const client = new MCPGatewayClientWithQueries({ database: 'ozean-licht-db' })
 
 export default async function UsersPage() {
   // ALWAYS check auth first
-  await requireAnyRole(['super_admin', 'ka_admin', 'ol_admin'])
+  await requireAnyRole(['super_admin', 'ol_admin'])
 
   // Fetch data on server
   const users = await client.listAdminUsers()
@@ -133,7 +138,7 @@ import { MCPGatewayClientWithQueries } from '@/lib/mcp-client'
 // Initialize with target database
 const client = new MCPGatewayClientWithQueries({
   baseUrl: process.env.MCP_GATEWAY_URL || 'http://localhost:8100',
-  database: 'shared-users-db', // or 'kids-ascension-db', 'ozean-licht-db'
+  database: 'ozean-licht-db', // or 'shared-users-db' for auth operations
 })
 
 // Query operations
@@ -141,7 +146,7 @@ const users = await client.listAdminUsers()
 const user = await client.getAdminUserById(userId)
 
 // Mutations
-await client.updateAdminUser(userId, { adminRole: 'ka_admin' })
+await client.updateAdminUser(userId, { adminRole: 'ol_admin' })
 await client.deleteAdminUser(userId)
 
 // Audit logging
@@ -168,7 +173,7 @@ import { requireAnyRole } from '@/lib/auth-utils'
 
 export default async function MyPage() {
   // Redirect if user doesn't have required role
-  await requireAnyRole(['super_admin', 'ka_admin'])
+  await requireAnyRole(['super_admin', 'ol_admin'])
 
   // ... rest of page
 }
@@ -181,8 +186,8 @@ import { useSession } from 'next-auth/react'
 export function EditButton() {
   const { data: session } = useSession()
 
-  // Only show to super_admin
-  if (session?.user?.adminRole !== 'super_admin') {
+  // Only show to super_admin or ol_admin
+  if (!['super_admin', 'ol_admin'].includes(session?.user?.adminRole)) {
     return null
   }
 
@@ -212,7 +217,7 @@ const client = new MCPGatewayClientWithQueries({ database: 'shared-users-db' })
 
 // Validation schema
 const updateUserSchema = z.object({
-  adminRole: z.enum(['super_admin', 'ka_admin', 'ol_admin', 'support']),
+  adminRole: z.enum(['super_admin', 'ol_admin', 'ol_editor', 'support']),
 })
 
 export async function PATCH(
@@ -225,8 +230,8 @@ export async function PATCH(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // 2. Check permissions
-  if (session.user.adminRole !== 'super_admin') {
+  // 2. Check permissions (only super_admin or ol_admin can modify users)
+  if (!['super_admin', 'ol_admin'].includes(session.user.adminRole)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
@@ -257,10 +262,14 @@ export async function PATCH(
 
 ### UI Components
 ```typescript
-// Use shadcn/ui base components
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+// Use shared UI components (Ozean Licht design system)
+import { Button } from '@ozean-licht/shared-ui'
+import { Card } from '@ozean-licht/shared-ui'
+import { Badge } from '@ozean-licht/shared-ui'
+
+// Use shadcn/ui components
+import { Input } from '@/components/ui/input'
+import { Dialog } from '@/components/ui/dialog'
 
 // Use admin-specific components
 import { RoleBadge } from '@/components/rbac/RoleBadge'
@@ -287,7 +296,7 @@ export function MyForm() {
 
 ### Task: Add New Page
 
-1. **Determine functional area** (access/system/platforms)
+1. **Determine functional area** (access/system/content/members/analytics)
 2. **Create page file**:
    ```bash
    touch apps/admin/app/dashboard/[area]/[feature]/page.tsx
@@ -317,7 +326,7 @@ export function MyForm() {
 
 1. **Add route protection** in page:
    ```typescript
-   await requireAnyRole(['super_admin', 'ka_admin'])
+   await requireAnyRole(['super_admin', 'ol_admin'])
    ```
 2. **Hide UI elements** for unauthorized roles:
    ```typescript
@@ -334,7 +343,7 @@ Before committing code, verify:
 
 - [ ] All `/dashboard/*` pages use `requireAuth()` or `requireAnyRole()`
 - [ ] All API routes check `await auth()` for session
-- [ ] Sensitive operations (delete, role change) restricted to super_admin
+- [ ] Sensitive operations (delete, role change) restricted to super_admin or ol_admin
 - [ ] User inputs validated with Zod schemas
 - [ ] SQL queries parameterized (via MCP client - automatic)
 - [ ] Audit logs created for admin actions
@@ -424,12 +433,13 @@ npm run build
 **Documentation:**
 - [routes.md](../docs/routes.md) - Route map
 - [architecture.md](../docs/architecture.md) - Architecture overview
-- [design-system.md](../docs/design-system.md) - UI/UX guidelines
+- [design-system.md](../../../design-system.md) - Ozean Licht design system
 - [README.md](../README.md) - Setup and quick start
 - [DEVELOPER_GUIDE.md](../DEVELOPER_GUIDE.md) - Developer quick reference
 
 ---
 
-**Last Updated**: 2025-11-11
-**Purpose**: AI agent development guide
+**Last Updated**: 2025-11-24
+**Purpose**: AI agent development guide for Ozean Licht Admin Dashboard
 **Audience**: Claude Code, autonomous agents, developers
+**Scope**: Ozean Licht platform only (Kids Ascension has separate admin dashboard)

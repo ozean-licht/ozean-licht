@@ -1,6 +1,6 @@
-# Admin Dashboard
+# Ozean Licht Admin Dashboard
 
-**Unified admin interface for Kids Ascension and Ozean Licht platforms**
+**Admin interface for Ozean Licht platform**
 
 **Status**: Phase 1 - Foundation | **Port**: 9200 | **Stack**: Next.js 14 + NextAuth v5 + MCP Gateway
 
@@ -8,13 +8,16 @@
 
 ## Overview
 
-Centralized admin dashboard serving two legally separate Austrian associations (Vereine):
+Admin dashboard for the Ozean Licht platform (Austrian association/Verein):
 
-- **Ecosystem Admin** - Cross-platform user management, system health, RBAC
-- **Ozean Licht Admin** - Course management, member tracking, payment monitoring (future)
-- **Kids Ascension Admin** - Video content, review workflows, classroom management (future)
+- **Platform Management** - Course management, content publishing, member tracking
+- **Access Control** - User management, RBAC, permissions matrix
+- **System Administration** - Health monitoring, configuration, audit logs
+- **Analytics** - Platform insights, member engagement, content performance (future)
 
-Both platforms share authentication (`shared_users_db`) but maintain separate operational databases.
+**Note**: Kids Ascension has its own separate admin dashboard with distinct branding and features.
+
+---
 
 ## Quick Start
 
@@ -53,6 +56,8 @@ Visit `http://localhost:9200/login`
 - Password: `admin123`
 - Role: `super_admin`
 
+---
+
 ## Route Structure
 
 ```
@@ -64,30 +69,44 @@ Visit `http://localhost:9200/login`
 │   └── /permissions               # System permissions
 ├── /system                         # System Administration
 │   └── /health                    # Health monitoring
-└── /platforms                      # Platform-specific admin (future)
-    ├── /kids-ascension            # KA admin (Phase 2)
-    └── /ozean-licht               # OL admin (Phase 2)
+├── /content                        # Content Management (Phase 2)
+│   ├── /courses                   # Course management
+│   ├── /lessons                   # Lesson management
+│   └── /media                     # Media library
+├── /members                        # Member Management (Phase 2)
+│   ├── /overview                  # Member overview
+│   ├── /subscriptions             # Subscription management
+│   └── /engagement                # Engagement tracking
+└── /analytics                      # Analytics (Phase 3)
+    ├── /overview                  # Platform overview
+    ├── /content                   # Content performance
+    └── /members                   # Member insights
 ```
 
 **See [docs/routes.md](./docs/routes.md) for complete route documentation.**
+
+---
 
 ## Technology Stack
 
 **Frontend**
 - Next.js 14 (App Router, Server Components)
 - TypeScript (strict mode)
-- Tailwind CSS + shadcn/ui
+- Tailwind CSS + Ozean Licht Design System (`@ozean-licht/shared-ui`)
+- shadcn/ui components
 
 **Backend**
 - NextAuth v5 (authentication)
 - MCP Gateway (database operations)
-- PostgreSQL (multi-tenant: `shared_users_db`, `ozean_licht_db`, `kids_ascension_db`)
+- PostgreSQL (databases: `shared_users_db`, `ozean_licht_db`)
 
 **Infrastructure**
 - Coolify (deployment)
 - MinIO → Cloudflare R2 → Stream (storage pipeline)
 
 **See [docs/architecture.md](./docs/architecture.md) for detailed architecture.**
+
+---
 
 ## Development
 
@@ -116,6 +135,12 @@ app/dashboard/access/[feature]/page.tsx
 
 # For system features
 app/dashboard/system/[feature]/page.tsx
+
+# For content management features
+app/dashboard/content/[feature]/page.tsx
+
+# For member management features
+app/dashboard/members/[feature]/page.tsx
 ```
 
 #### 2. Add Navigation
@@ -126,7 +151,7 @@ Update `components/dashboard/Sidebar.tsx` with new route
 import { requireAnyRole } from '@/lib/auth-utils'
 
 export default async function MyPage() {
-  await requireAnyRole(['super_admin', 'ka_admin'])
+  await requireAnyRole(['super_admin', 'ol_admin'])
   // ... rest of page
 }
 ```
@@ -136,19 +161,21 @@ export default async function MyPage() {
 import { MCPGatewayClientWithQueries } from '@/lib/mcp-client'
 
 const client = new MCPGatewayClientWithQueries({
-  database: 'shared-users-db',
+  database: 'ozean-licht-db',
 })
 
 const data = await client.query('SELECT ...')
 ```
 
+---
+
 ## Role-Based Access Control (RBAC)
 
 ### Roles
 
-- **super_admin**: Full system access, can manage roles
-- **ka_admin**: Kids Ascension admin, full KA access
-- **ol_admin**: Ozean Licht admin, full OL access
+- **super_admin**: Full system access across all platforms, can manage roles
+- **ol_admin**: Ozean Licht admin, full platform access
+- **ol_editor**: Content editor, can manage courses and content
 - **support**: Read-only support access
 
 ### Permission Checking
@@ -156,17 +183,19 @@ const data = await client.query('SELECT ...')
 ```typescript
 // Server components
 import { requireAnyRole } from '@/lib/auth-utils'
-await requireAnyRole(['super_admin', 'ka_admin'])
+await requireAnyRole(['super_admin', 'ol_admin'])
 
 // Client components
 import { useSession } from 'next-auth/react'
 const { data: session } = useSession()
-const canEdit = session?.user?.adminRole === 'super_admin'
+const canEdit = ['super_admin', 'ol_admin'].includes(session?.user?.adminRole)
 
 // Manual permission check
 import { hasPermission } from '@/lib/auth-utils'
 const canDelete = hasPermission(session.user.permissions, 'users.delete')
 ```
+
+---
 
 ## MCP Gateway Integration
 
@@ -178,15 +207,17 @@ import { MCPGatewayClientWithQueries } from '@/lib/mcp-client'
 // Initialize client
 const client = new MCPGatewayClientWithQueries({
   baseUrl: process.env.MCP_GATEWAY_URL || 'http://localhost:8100',
-  database: 'shared-users-db',
+  database: 'ozean-licht-db',
 })
 
 // Query examples
 const users = await client.listAdminUsers()
 const user = await client.getAdminUserById(userId)
-await client.updateAdminUser(userId, { adminRole: 'ka_admin' })
+await client.updateAdminUser(userId, { adminRole: 'ol_admin' })
 await client.createAuditLog({ action: 'user.update', ... })
 ```
+
+---
 
 ## Testing
 
@@ -215,6 +246,8 @@ tests/
 │   └── pages/        # Page rendering tests
 └── e2e/              # End-to-end tests
 ```
+
+---
 
 ## Deployment
 
@@ -247,6 +280,8 @@ MCP_GATEWAY_URL=https://mcp.ozean-licht.dev
 NODE_ENV=production
 ```
 
+---
+
 ## Documentation
 
 **Core Docs:**
@@ -256,13 +291,18 @@ NODE_ENV=production
 - [Developer Guide](./DEVELOPER_GUIDE.md) - Quick patterns and troubleshooting
 - [AI Agent Guide](./.claude/CLAUDE.md) - AI agent development patterns
 
+**Design System:**
+- [Ozean Licht Design System](../../design-system.md) - Official design guidelines
+- [Shared UI Components](../../shared/ui/README.md) - Component library
+
 **API References:**
 - [MCP Client API](./lib/mcp-client/README.md) - Database operations (if exists)
-- [Design System](./docs/design-system.md) - UI component library
 
 **Specs & Plans:**
 - [Specs Directory](./specs/) - Implementation specifications
 - [Decisions](./docs/decisions/) - Architecture decision records
+
+---
 
 ## Troubleshooting
 
@@ -293,18 +333,29 @@ pnpm install
 pnpm build
 ```
 
+---
+
 ## Contributing
 
 1. Review [docs/architecture.md](./docs/architecture.md)
 2. Check [specs/](./specs/) for planned features
 3. Follow patterns in [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md) or [.claude/CLAUDE.md](./.claude/CLAUDE.md)
-4. Create feature branch: `feature/description`
-5. Write tests for new features
-6. Submit PR with clear description
+4. Follow [Ozean Licht Design System](../../design-system.md) guidelines
+5. Create feature branch: `feature/description`
+6. Write tests for new features
+7. Submit PR with clear description
 
-## Recent Changes (Spec 0.1 Cleanup)
+---
 
-### Code Removed (~700 LOC)
+## Recent Changes
+
+### Architectural Decision (2025-11-24)
+- ✅ **Separation of Concerns**: Kids Ascension now has its own separate admin dashboard
+- ✅ This dashboard is now exclusively for Ozean Licht platform
+- ✅ Removed `ka_admin` role and Kids Ascension-specific features
+- ✅ Simplified RBAC to focus on Ozean Licht roles only
+
+### Code Cleanup (Spec 0.1)
 - ❌ Demo pages: `components-demo`, `examples/data-table`
 - ⏸️ Storage feature deferred to `_deferred/` (not MVP critical)
 - ✂️ MCP client simplified (merged config, reduced errors)
@@ -315,22 +366,42 @@ pnpm build
 - ✅ Health: `/dashboard/health` → `/dashboard/system/health`
 
 ### Navigation Updated
-- ✅ Sidebar organized by functional areas (Overview, Access, System, Platforms)
+- ✅ Sidebar organized by functional areas (Overview, Access, System, Content, Members, Analytics)
 - ✅ Removed Examples section
 - ✅ Clean, MVP-focused structure
 
 **See [docs/decisions/cleanup-summary.md](./docs/decisions/cleanup-summary.md) for full details.**
 
+---
+
 ## Success Criteria
 
 **MVP (Phase 1):**
 - [x] Authentication with NextAuth v5
-- [x] RBAC system (4 roles)
+- [x] RBAC system (Ozean Licht roles)
 - [x] User management interface
 - [x] System health monitoring
 - [x] Permissions matrix UI
-- [ ] Ozean Licht critical features (Phase 2)
-- [ ] Kids Ascension critical features (Phase 3)
+
+**Phase 2 - Content Management:**
+- [ ] Course management interface
+- [ ] Lesson editor
+- [ ] Media library integration
+- [ ] Content publishing workflow
+
+**Phase 3 - Member Management:**
+- [ ] Member overview dashboard
+- [ ] Subscription management
+- [ ] Engagement tracking
+- [ ] Communication tools
+
+**Phase 4 - Analytics:**
+- [ ] Platform analytics dashboard
+- [ ] Content performance metrics
+- [ ] Member insights
+- [ ] Revenue tracking
+
+---
 
 ## License
 
@@ -338,6 +409,7 @@ pnpm build
 
 ---
 
-**Last Updated**: 2025-11-11
+**Last Updated**: 2025-11-24
 **Status**: Phase 1 - Foundation Complete
-**Maintainer**: Platform Team + Autonomous Agents
+**Maintainer**: Ozean Licht Platform Team + Autonomous Agents
+**Scope**: Ozean Licht platform only (Kids Ascension has separate admin dashboard)

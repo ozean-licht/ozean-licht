@@ -85,8 +85,8 @@ export function PermissionMatrix({ permissions, roles }: PermissionMatrixProps) 
       header: () => {
         const roleLabels: Record<AdminRole, string> = {
           super_admin: 'Super Admin',
-          ka_admin: 'KA Admin',
           ol_admin: 'OL Admin',
+          ol_editor: 'Content Editor',
           support: 'Support',
         };
         return <div className="text-center">{roleLabels[role]}</div>;
@@ -130,8 +130,8 @@ export function PermissionMatrix({ permissions, roles }: PermissionMatrixProps) 
       ...roles.map((r) => {
         const labels: Record<AdminRole, string> = {
           super_admin: 'Super Admin',
-          ka_admin: 'KA Admin',
           ol_admin: 'OL Admin',
+          ol_editor: 'Content Editor',
           support: 'Support',
         };
         return labels[r];

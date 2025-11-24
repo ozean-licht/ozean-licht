@@ -1,7 +1,7 @@
 /**
  * Users List Page
  *
- * Unified user list across both platforms (Kids Ascension + Ozean Licht).
+ * User list for Ozean Licht platform.
  * Server component that fetches data and passes to client data table.
  */
 
@@ -15,7 +15,7 @@ import { DataTableSkeleton } from '@/components/ui/data-table-skeleton';
 
 export const metadata: Metadata = {
   title: 'Users | Admin Dashboard',
-  description: 'Manage users across Kids Ascension and Ozean Licht platforms',
+  description: 'Manage users for Ozean Licht platform',
 };
 
 const mcpClient = new MCPGatewayClientWithQueries({
@@ -33,8 +33,8 @@ interface UsersPageProps {
 }
 
 export default async function UsersPage({ searchParams }: UsersPageProps) {
-  // Require admin role (super_admin, ka_admin, or ol_admin)
-  await requireAnyRole(['super_admin', 'ka_admin', 'ol_admin']);
+  // Require admin role (super_admin or ol_admin)
+  await requireAnyRole(['super_admin', 'ol_admin']);
 
   // Parse search params into filters
   const filters: UserFilters = {
