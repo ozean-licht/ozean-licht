@@ -6,8 +6,8 @@
 import * as React from 'react'
 import { Download, Trash2, X, CheckSquare, FolderInput } from 'lucide-react'
 import { cn } from '../utils/cn'
-import { Button } from '../ui/button'
-import { Separator } from '../ui/separator'
+import { Button } from '../cossui/button'
+import { Separator } from '../cossui/separator'
 import type { StorageFile, BulkActionItem } from './types'
 
 export interface BulkActionsToolbarProps {

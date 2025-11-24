@@ -7,15 +7,15 @@ import * as React from 'react'
 import { FolderPlus, AlertCircle } from 'lucide-react'
 import {
   Dialog,
-  DialogContent,
+  DialogPopup,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
+} from '../cossui/dialog'
+import { Button } from '../cossui/button'
+import { Input } from '../cossui/input'
+import { Label } from '../cossui/label'
 import { cn } from '../utils/cn'
 
 export interface CreateFolderDialogProps {
@@ -111,7 +111,7 @@ export function CreateFolderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-card-strong border-primary/30 sm:max-w-md">
+      <DialogPopup className="glass-card-strong border-primary/30 sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-sans text-xl text-white">
             <FolderPlus className="h-5 w-5 text-primary" />
@@ -194,7 +194,7 @@ export function CreateFolderDialog({
             </Button>
           </DialogFooter>
         </form>
-      </DialogContent>
+      </DialogPopup>
     </Dialog>
   )
 }

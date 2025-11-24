@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react'
 import {
   Select,
-  SelectContent,
+  SelectPopup,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectPortal,
+  SelectPositioner,
 } from '../../cossui/select'
 
 export interface Language {
@@ -78,21 +80,25 @@ export function LanguagePicker({
       >
         <SelectValue />
       </SelectTrigger>
-      <SelectContent className="bg-[#0A1A1A] border-[#0E282E] rounded-md max-h-[300px] overflow-y-auto w-[80px]">
-        {languages.map((lang) => (
-          <SelectItem
-            key={lang.code}
-            value={lang.code}
-            className="text-white hover:bg-[#0E282E] focus:bg-[#0E282E] h-14 flex items-center justify-center p-1"
-          >
-            <img
-              src={lang.flag}
-              alt={lang.name}
-              className="w-8 h-6 object-cover rounded-sm"
-            />
-          </SelectItem>
-        ))}
-      </SelectContent>
+      <SelectPortal>
+        <SelectPositioner>
+          <SelectPopup className="bg-[#0A1A1A] border-[#0E282E] rounded-md max-h-[300px] overflow-y-auto w-[80px]">
+            {languages.map((lang) => (
+              <SelectItem
+                key={lang.code}
+                value={lang.code}
+                className="text-white hover:bg-[#0E282E] focus:bg-[#0E282E] h-14 flex items-center justify-center p-1"
+              >
+                <img
+                  src={lang.flag}
+                  alt={lang.name}
+                  className="w-8 h-6 object-cover rounded-sm"
+                />
+              </SelectItem>
+            ))}
+          </SelectPopup>
+        </SelectPositioner>
+      </SelectPortal>
     </Select>
   )
 }

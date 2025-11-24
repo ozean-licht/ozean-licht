@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
 import { CreateFolderDialog } from './create-folder-dialog'
 import { FolderPlus } from 'lucide-react'
-import { Button } from '../ui/button'
+import { Button } from '../cossui/button'
 
 const meta = {
   title: 'Storage/CreateFolderDialog',

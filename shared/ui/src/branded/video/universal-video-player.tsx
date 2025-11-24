@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, SkipBack, SkipForward } from 'lucide-react'
-import { CossUIButton as Button } from '../../cossui/button'
+import { Button } from '../../cossui/button'
 import { Slider } from '../../cossui/slider'
 
 export interface UniversalVideoPlayerProps {

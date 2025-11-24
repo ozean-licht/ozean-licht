@@ -6,7 +6,7 @@
 import * as React from 'react'
 import { X, CheckCircle2, AlertCircle, Loader2, XCircle } from 'lucide-react'
 import { cn } from '../utils/cn'
-import { Progress } from '../ui/progress'
+import { Progress } from '../cossui/progress'
 import type { UploadProgress } from './types'
 
 export interface FileUploadQueueProps {

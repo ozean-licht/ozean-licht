@@ -4,7 +4,7 @@
 
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
-import { action } from '@storybook/addon-actions'
+import { fn } from '@storybook/test'
 import { Share, Archive, Copy, Star } from 'lucide-react'
 import { BulkActionsToolbar } from './bulk-actions-toolbar'
 import type { StorageFile } from './types'
@@ -102,10 +102,10 @@ type Story = StoryObj<typeof meta>
 export const SingleFile: Story = {
   args: {
     selectedFiles: [mockFiles[0]],
-    onDownloadAll: action('download-all'),
-    onDeleteSelected: action('delete-selected'),
-    onMoveSelected: action('move-selected'),
-    onClearSelection: action('clear-selection'),
+    onDownloadAll: fn('download-all'),
+    onDeleteSelected: fn('delete-selected'),
+    onMoveSelected: fn('move-selected'),
+    onClearSelection: fn('clear-selection'),
   },
   render: (args) => (
     <div className="flex flex-col gap-6 p-6 min-h-[200px]">
@@ -126,12 +126,12 @@ export const SingleFile: Story = {
 export const MultipleFiles: Story = {
   args: {
     selectedFiles: mockFiles.slice(0, 4),
-    onDownloadAll: action('download-all'),
-    onDeleteSelected: action('delete-selected'),
-    onMoveSelected: action('move-selected'),
-    onClearSelection: action('clear-selection'),
+    onDownloadAll: fn('download-all'),
+    onDeleteSelected: fn('delete-selected'),
+    onMoveSelected: fn('move-selected'),
+    onClearSelection: fn('clear-selection'),
     totalFiles: 12,
-    onSelectAll: action('select-all'),
+    onSelectAll: fn('select-all'),
   },
   render: (args) => (
     <div className="flex flex-col gap-6 p-6 min-h-[200px]">
@@ -152,12 +152,12 @@ export const MultipleFiles: Story = {
 export const ManyFiles: Story = {
   args: {
     selectedFiles: mockFiles.slice(0, 10),
-    onDownloadAll: action('download-all'),
-    onDeleteSelected: action('delete-selected'),
-    onMoveSelected: action('move-selected'),
-    onClearSelection: action('clear-selection'),
+    onDownloadAll: fn('download-all'),
+    onDeleteSelected: fn('delete-selected'),
+    onMoveSelected: fn('move-selected'),
+    onClearSelection: fn('clear-selection'),
     totalFiles: 12,
-    onSelectAll: action('select-all'),
+    onSelectAll: fn('select-all'),
   },
   render: (args) => (
     <div className="flex flex-col gap-6 p-6 min-h-[200px]">
@@ -178,12 +178,12 @@ export const ManyFiles: Story = {
 export const AllFilesSelected: Story = {
   args: {
     selectedFiles: mockFiles,
-    onDownloadAll: action('download-all'),
-    onDeleteSelected: action('delete-selected'),
-    onMoveSelected: action('move-selected'),
-    onClearSelection: action('clear-selection'),
+    onDownloadAll: fn('download-all'),
+    onDeleteSelected: fn('delete-selected'),
+    onMoveSelected: fn('move-selected'),
+    onClearSelection: fn('clear-selection'),
     totalFiles: 12,
-    onSelectAll: action('select-all'),
+    onSelectAll: fn('select-all'),
   },
   render: (args) => (
     <div className="flex flex-col gap-6 p-6 min-h-[200px]">
@@ -204,34 +204,34 @@ export const AllFilesSelected: Story = {
 export const WithCustomActions: Story = {
   args: {
     selectedFiles: mockFiles.slice(0, 3),
-    onDownloadAll: action('download-all'),
-    onDeleteSelected: action('delete-selected'),
-    onMoveSelected: action('move-selected'),
-    onClearSelection: action('clear-selection'),
+    onDownloadAll: fn('download-all'),
+    onDeleteSelected: fn('delete-selected'),
+    onMoveSelected: fn('move-selected'),
+    onClearSelection: fn('clear-selection'),
     customActions: [
       {
         id: 'share',
         label: 'Share',
         icon: Share,
-        onClick: (files: StorageFile[]) => action('share-files')(files),
+        onClick: (files: StorageFile[]) => fn('share-files')(files),
       },
       {
         id: 'archive',
         label: 'Archive',
         icon: Archive,
-        onClick: (files: StorageFile[]) => action('archive-files')(files),
+        onClick: (files: StorageFile[]) => fn('archive-files')(files),
       },
       {
         id: 'copy',
         label: 'Copy',
         icon: Copy,
-        onClick: (files: StorageFile[]) => action('copy-files')(files),
+        onClick: (files: StorageFile[]) => fn('copy-files')(files),
       },
       {
         id: 'favorite',
         label: 'Add to Favorites',
         icon: Star,
-        onClick: (files: StorageFile[]) => action('favorite-files')(files),
+        onClick: (files: StorageFile[]) => fn('favorite-files')(files),
       },
     ],
   },
@@ -254,10 +254,10 @@ export const WithCustomActions: Story = {
 export const LoadingState: Story = {
   args: {
     selectedFiles: mockFiles.slice(0, 3),
-    onDownloadAll: action('download-all'),
-    onDeleteSelected: action('delete-selected'),
-    onMoveSelected: action('move-selected'),
-    onClearSelection: action('clear-selection'),
+    onDownloadAll: fn('download-all'),
+    onDeleteSelected: fn('delete-selected'),
+    onMoveSelected: fn('move-selected'),
+    onClearSelection: fn('clear-selection'),
     isLoading: true,
   },
   render: (args) => (
@@ -279,9 +279,9 @@ export const LoadingState: Story = {
 export const WithoutDeleteAction: Story = {
   args: {
     selectedFiles: mockFiles.slice(0, 3),
-    onDownloadAll: action('download-all'),
-    onMoveSelected: action('move-selected'),
-    onClearSelection: action('clear-selection'),
+    onDownloadAll: fn('download-all'),
+    onMoveSelected: fn('move-selected'),
+    onClearSelection: fn('clear-selection'),
     // onDeleteSelected is intentionally omitted
   },
   render: (args) => (
@@ -303,8 +303,8 @@ export const WithoutDeleteAction: Story = {
 export const MinimalActions: Story = {
   args: {
     selectedFiles: mockFiles.slice(0, 3),
-    onDownloadAll: action('download-all'),
-    onClearSelection: action('clear-selection'),
+    onDownloadAll: fn('download-all'),
+    onClearSelection: fn('clear-selection'),
     // onDeleteSelected and onMoveSelected are intentionally omitted
   },
   render: (args) => (
@@ -329,14 +329,14 @@ export const InteractiveDemo: Story = {
     const [isLoading, setIsLoading] = useState(false)
 
     const handleDownloadAll = async () => {
-      action('download-all')()
+      fn('download-all')()
       setIsLoading(true)
       await new Promise((resolve) => setTimeout(resolve, 2000))
       setIsLoading(false)
     }
 
     const handleDeleteSelected = async () => {
-      action('delete-selected')()
+      fn('delete-selected')()
       setIsLoading(true)
       await new Promise((resolve) => setTimeout(resolve, 1500))
       setIsLoading(false)
@@ -344,19 +344,19 @@ export const InteractiveDemo: Story = {
     }
 
     const handleMoveSelected = async () => {
-      action('move-selected')()
+      fn('move-selected')()
       setIsLoading(true)
       await new Promise((resolve) => setTimeout(resolve, 1500))
       setIsLoading(false)
     }
 
     const handleClearSelection = () => {
-      action('clear-selection')()
+      fn('clear-selection')()
       setSelectedFiles([])
     }
 
     const handleSelectAll = () => {
-      action('select-all')()
+      fn('select-all')()
       setSelectedFiles(mockFiles)
     }
 
@@ -446,16 +446,16 @@ export const InteractiveDemo: Story = {
 export const ResponsiveBehavior: Story = {
   args: {
     selectedFiles: mockFiles.slice(0, 3),
-    onDownloadAll: action('download-all'),
-    onDeleteSelected: action('delete-selected'),
-    onMoveSelected: action('move-selected'),
-    onClearSelection: action('clear-selection'),
+    onDownloadAll: fn('download-all'),
+    onDeleteSelected: fn('delete-selected'),
+    onMoveSelected: fn('move-selected'),
+    onClearSelection: fn('clear-selection'),
     customActions: [
       {
         id: 'share',
         label: 'Share',
         icon: Share,
-        onClick: (files: StorageFile[]) => action('share-files')(files),
+        onClick: (files: StorageFile[]) => fn('share-files')(files),
       },
     ],
   },
@@ -494,9 +494,9 @@ export const ResponsiveBehavior: Story = {
 export const EmptyState: Story = {
   args: {
     selectedFiles: [],
-    onDownloadAll: action('download-all'),
-    onDeleteSelected: action('delete-selected'),
-    onClearSelection: action('clear-selection'),
+    onDownloadAll: fn('download-all'),
+    onDeleteSelected: fn('delete-selected'),
+    onClearSelection: fn('clear-selection'),
   },
   render: (args) => (
     <div className="flex flex-col gap-6 p-6 min-h-[200px]">
