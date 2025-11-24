@@ -3,16 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "frontend",
-    "backend",
-    "shared"
+    "frontend"
   ],
   "scripts": {
     "dev": "pnpm --filter @ka/web dev",
-    "dev:admin": "pnpm --filter @admin/dashboard dev",
-    "build": "pnpm --parallel build",
-    "test": "pnpm --parallel test",
-    "db:push": "pnpm --filter @ka/web db:push",
-    "db:studio": "pnpm --filter @ka/web db:studio"
+    "build": "pnpm --filter @ka/web build",
+    "start": "pnpm --filter @ka/web start",
+    "lint": "pnpm --filter @ka/web lint"
   }
 }
