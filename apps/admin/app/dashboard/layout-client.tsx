@@ -114,21 +114,21 @@ export default function DashboardLayoutClient({
   return (
     <BreadcrumbProvider>
       <div className="relative min-h-screen bg-[#00070F]">
-        {/* LightRays Background */}
-        <div className="fixed inset-0 z-0 pointer-events-none">
+        {/* LightRays Background - Fullscreen Widespread Variant */}
+        <div className="fixed inset-0 z-0 pointer-events-none" style={{ width: '100vw', height: '100vh' }}>
           <LightRays
             raysOrigin="top-center"
             raysColor="#0ec2bc"
-            raysSpeed={0.8}
-            lightSpread={1.2}
+            raysSpeed={1}
+            lightSpread={3}
             rayLength={2.5}
-            pulsating={true}
-            fadeDistance={1.2}
-            saturation={0.9}
-            followMouse={true}
-            mouseInfluence={0.15}
-            noiseAmount={0.05}
-            distortion={0.1}
+            pulsating={false}
+            fadeDistance={1.5}
+            saturation={1.0}
+            followMouse={false}
+            mouseInfluence={0}
+            noiseAmount={0.0}
+            distortion={0.0}
             className="opacity-30"
           />
         </div>

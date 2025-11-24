@@ -19,7 +19,7 @@ export default async function DashboardPage({
   const { user } = session
 
   return (
-    <div className="min-h-screen bg-[#00070F] px-4 py-6 sm:px-6 lg:px-8">
+    <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       {/* Error Messages */}
       {searchParams.error === 'route_not_allowed' && (
         <div className="glass-card border-destructive/40 bg-destructive/10 p-6 mb-8 rounded-2xl">
