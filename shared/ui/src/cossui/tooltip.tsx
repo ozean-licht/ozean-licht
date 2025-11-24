@@ -24,16 +24,17 @@ const Tooltip = TooltipPrimitive.Root;
 
 /**
  * Tooltip Trigger - Element that shows the tooltip on hover
+ * Supports asChild prop to render as a different element
  */
 const TooltipTrigger = React.forwardRef<
   HTMLButtonElement,
   TooltipPrimitive.Trigger.Props
->((props, ref) => {
+>(({ className, ...props }, ref) => {
   return (
     <TooltipPrimitive.Trigger
       ref={ref}
       data-slot="tooltip-trigger"
-      className={cn("cursor-help", props.className)}
+      className={cn("cursor-help", className)}
       {...props}
     />
   );

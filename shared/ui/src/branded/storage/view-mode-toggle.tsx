@@ -64,7 +64,8 @@ export const ViewModeToggle = React.forwardRef<
         setInternalValue(stored)
       }
     }
-  }, [storageKey, value])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey])
 
   // Determine current value (controlled vs uncontrolled)
   const currentValue = value ?? internalValue
@@ -104,24 +105,22 @@ export const ViewModeToggle = React.forwardRef<
       >
         {/* List View Button */}
         <Tooltip>
-          <TooltipTrigger
-            render={
-              <ToggleGroupPrimitive.Item
-                value="list"
-                aria-label="List view"
-                className={cn(
-                  'flex items-center justify-center p-2 transition-all duration-200',
-                  'rounded-l-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card',
-                  'disabled:opacity-50 disabled:cursor-not-allowed',
-                  currentValue === 'list'
-                    ? 'bg-primary text-white'
-                    : 'text-[#C4C8D4] hover:text-primary hover:bg-primary/10'
-                )}
-              >
-                <LayoutList className="w-4 h-4" aria-hidden="true" />
-              </ToggleGroupPrimitive.Item>
-            }
-          />
+          <TooltipTrigger asChild>
+            <ToggleGroupPrimitive.Item
+              value="list"
+              aria-label="List view"
+              className={cn(
+                'flex items-center justify-center p-2 transition-all duration-200',
+                'rounded-l-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card',
+                'disabled:opacity-50 disabled:cursor-not-allowed',
+                currentValue === 'list'
+                  ? 'bg-primary text-white'
+                  : 'text-[#C4C8D4] hover:text-primary hover:bg-primary/10'
+              )}
+            >
+              <LayoutList className="w-4 h-4" aria-hidden="true" />
+            </ToggleGroupPrimitive.Item>
+          </TooltipTrigger>
           <TooltipContent>
             <p>List view</p>
           </TooltipContent>
@@ -129,24 +128,22 @@ export const ViewModeToggle = React.forwardRef<
 
         {/* Grid View Button */}
         <Tooltip>
-          <TooltipTrigger
-            render={
-              <ToggleGroupPrimitive.Item
-                value="grid"
-                aria-label="Grid view"
-                className={cn(
-                  'flex items-center justify-center p-2 transition-all duration-200',
-                  'rounded-r-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card',
-                  'disabled:opacity-50 disabled:cursor-not-allowed',
-                  currentValue === 'grid'
-                    ? 'bg-primary text-white'
-                    : 'text-[#C4C8D4] hover:text-primary hover:bg-primary/10'
-                )}
-              >
-                <LayoutGrid className="w-4 h-4" aria-hidden="true" />
-              </ToggleGroupPrimitive.Item>
-            }
-          />
+          <TooltipTrigger asChild>
+            <ToggleGroupPrimitive.Item
+              value="grid"
+              aria-label="Grid view"
+              className={cn(
+                'flex items-center justify-center p-2 transition-all duration-200',
+                'rounded-r-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card',
+                'disabled:opacity-50 disabled:cursor-not-allowed',
+                currentValue === 'grid'
+                  ? 'bg-primary text-white'
+                  : 'text-[#C4C8D4] hover:text-primary hover:bg-primary/10'
+              )}
+            >
+              <LayoutGrid className="w-4 h-4" aria-hidden="true" />
+            </ToggleGroupPrimitive.Item>
+          </TooltipTrigger>
           <TooltipContent>
             <p>Grid view</p>
           </TooltipContent>
