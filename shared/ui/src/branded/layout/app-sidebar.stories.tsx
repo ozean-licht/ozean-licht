@@ -45,7 +45,7 @@ import { AppSidebar, type NavigationItem, type AppSidebarProps } from './app-sid
  * - Font: Decorative alternative font (`font-alt`) for navigation labels
  */
 const meta = {
-  title: 'Branded/Layout/AppSidebar',
+  title: 'Tier 2: Branded/Layout/AppSidebar',
   component: AppSidebar,
   parameters: {
     layout: 'fullscreen',

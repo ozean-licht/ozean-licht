@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from "react"
 import { AppHeader, type AppHeaderProps } from "./app-header"
 import { AppSidebar, type AppSidebarProps } from "./app-sidebar"
-import { cn } from "../../lib/utils"
+import { cn } from "../../utils"
 
 export interface AppLayoutProps {
   children: ReactNode

@@ -42,7 +42,7 @@ import { BackgroundModeSwitch, type BackgroundMode } from './background-mode-swi
  * ```
  */
 const meta = {
-  title: 'Branded/Layout/BackgroundModeSwitch',
+  title: 'Tier 2: Branded/Layout/BackgroundModeSwitch',
   component: BackgroundModeSwitch,
   parameters: {
     layout: 'centered',

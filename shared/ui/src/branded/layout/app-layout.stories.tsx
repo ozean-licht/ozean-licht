@@ -47,7 +47,7 @@ import {
  * ```
  */
 const meta = {
-  title: 'Branded/Layout/AppLayout',
+  title: 'Tier 2: Branded/Layout/AppLayout',
   component: AppLayout,
   parameters: {
     layout: 'fullscreen',
