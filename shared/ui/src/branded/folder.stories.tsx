@@ -65,13 +65,6 @@ const meta = {
       description: 'Additional CSS classes',
     },
   },
-  decorators: [
-    (Story) => (
-      <div className="flex items-center justify-center p-12 bg-background rounded-lg">
-        <Story />
-      </div>
-    ),
-  ],
 } satisfies Meta<typeof Folder>;
 
 export default meta;
@@ -86,6 +79,13 @@ export const Default: Story = {
     color: '#0ec2bc',
     size: 1,
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -98,6 +98,13 @@ export const Empty: Story = {
     size: 1,
     items: [],
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -120,6 +127,13 @@ export const WithFileIcons: Story = {
       </div>,
     ],
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -142,6 +156,13 @@ export const WithLabels: Story = {
       </div>,
     ],
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -153,6 +174,13 @@ export const Large: Story = {
     color: '#0ec2bc',
     size: 2,
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -164,6 +192,13 @@ export const Small: Story = {
     color: '#0ec2bc',
     size: 0.7,
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -195,6 +230,13 @@ export const ColorVariations: Story = {
       </div>
     </div>
   ),
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -222,6 +264,13 @@ export const SizeComparison: Story = {
       </div>
     </div>
   ),
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -229,55 +278,60 @@ export const SizeComparison: Story = {
  * Multiple folders in a grid layout like a file manager.
  */
 export const FolderGrid: Story = {
+  parameters: {
+    layout: 'fullscreen',
+  },
   render: () => (
-    <div className="grid grid-cols-4 gap-6 p-8 bg-card rounded-lg border border-border">
-      <div className="flex flex-col items-center gap-2">
-        <Folder
-          color="#0ec2bc"
-          size={1}
-          items={[
-            <div key="1" className="flex items-center justify-center h-full">
-              <Image size={20} className="text-primary" />
-            </div>,
-          ]}
-        />
-        <span className="text-xs text-white/80 font-montserrat-alt">Images</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <Folder
-          color="#10B981"
-          size={1}
-          items={[
-            <div key="1" className="flex items-center justify-center h-full">
-              <FileText size={20} className="text-success" />
-            </div>,
-          ]}
-        />
-        <span className="text-xs text-white/80 font-montserrat-alt">Documents</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <Folder
-          color="#F59E0B"
-          size={1}
-          items={[
-            <div key="1" className="flex items-center justify-center h-full">
-              <Music size={20} className="text-warning" />
-            </div>,
-          ]}
-        />
-        <span className="text-xs text-white/80 font-montserrat-alt">Music</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <Folder
-          color="#8B5CF6"
-          size={1}
-          items={[
-            <div key="1" className="flex items-center justify-center h-full">
-              <Video size={20} className="text-purple-500" />
-            </div>,
-          ]}
-        />
-        <span className="text-xs text-white/80 font-montserrat-alt">Videos</span>
+    <div className="max-w-[800px] mx-auto px-8 py-12">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-8 bg-card rounded-lg border border-border">
+        <div className="flex flex-col items-center gap-2">
+          <Folder
+            color="#0ec2bc"
+            size={1}
+            items={[
+              <div key="1" className="flex items-center justify-center h-full">
+                <Image size={20} className="text-primary" />
+              </div>,
+            ]}
+          />
+          <span className="text-xs text-white/80 font-montserrat-alt">Images</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Folder
+            color="#10B981"
+            size={1}
+            items={[
+              <div key="1" className="flex items-center justify-center h-full">
+                <FileText size={20} className="text-success" />
+              </div>,
+            ]}
+          />
+          <span className="text-xs text-white/80 font-montserrat-alt">Documents</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Folder
+            color="#F59E0B"
+            size={1}
+            items={[
+              <div key="1" className="flex items-center justify-center h-full">
+                <Music size={20} className="text-warning" />
+              </div>,
+            ]}
+          />
+          <span className="text-xs text-white/80 font-montserrat-alt">Music</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Folder
+            color="#8B5CF6"
+            size={1}
+            items={[
+              <div key="1" className="flex items-center justify-center h-full">
+                <Video size={20} className="text-purple-500" />
+              </div>,
+            ]}
+          />
+          <span className="text-xs text-white/80 font-montserrat-alt">Videos</span>
+        </div>
       </div>
     </div>
   ),
@@ -320,6 +374,13 @@ export const MinIOStorage: Story = {
       </div>
     </div>
   ),
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -351,4 +412,11 @@ export const ListView: Story = {
       ))}
     </div>
   ),
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };

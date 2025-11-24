@@ -554,8 +554,11 @@ export const ChatMessageSkeleton: Story = {
  * Loading state for image gallery or media grid
  */
 export const MediaGridSkeleton: Story = {
+  parameters: {
+    layout: 'fullscreen',
+  },
   render: () => (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full max-w-4xl">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-4xl mx-auto px-8 py-12">
       {Array.from({ length: 12 }).map((_, i) => (
         <div key={i} className="relative group">
           <Skeleton className="aspect-square rounded-lg" />
@@ -641,8 +644,11 @@ export const VideoThumbnailSkeleton: Story = {
  * Demonstrates responsive behavior across different breakpoints
  */
 export const ResponsiveGridSkeleton: Story = {
+  parameters: {
+    layout: 'fullscreen',
+  },
   render: () => (
-    <div className="w-full max-w-6xl">
+    <div className="max-w-6xl mx-auto px-8 py-12">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {Array.from({ length: 9 }).map((_, i) => (
           <Card key={i} className="overflow-hidden">

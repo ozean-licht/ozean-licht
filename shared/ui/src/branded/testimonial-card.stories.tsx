@@ -61,6 +61,13 @@ export const Default: Story = {
     location: 'Wien, Österreich',
     testimonial: 'Die Kurse haben mein Leben verändert. Ich habe so viel über mich selbst gelernt und bin jetzt auf einem klaren spirituellen Weg.',
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -72,6 +79,13 @@ export const ShortTestimonial: Story = {
     location: 'München, Deutschland',
     testimonial: 'Absolut empfehlenswert! Vielen Dank für die wertvollen Inhalte.',
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -83,6 +97,13 @@ export const LongTestimonial: Story = {
     location: 'Salzburg, Österreich',
     testimonial: 'Ich bin so dankbar für diese Plattform und die transformativen Inhalte. Die Kurse sind professionell gestaltet, leicht verständlich und voller tiefer Weisheit. Seit ich mit den Meditationen begonnen habe, fühle ich mich ausgeglichener und verbundener mit meinem wahren Selbst. Absolute Empfehlung für jeden der auf seinem spirituellen Weg weiterkommen möchte!',
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -108,14 +129,24 @@ export const Locations: Story = {
       />
     </div>
   ),
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
  * Testimonial grid layout.
  */
 export const TestimonialGrid: Story = {
+  parameters: {
+    layout: 'fullscreen',
+  },
   render: () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px] mx-auto px-8 py-12">
       <TestimonialCard
         name="Petra Nowak"
         location="Graz, Österreich"

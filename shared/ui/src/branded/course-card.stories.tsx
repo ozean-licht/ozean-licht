@@ -51,13 +51,6 @@ const meta = {
       },
     },
   },
-  decorators: [
-    (Story) => (
-      <div className="max-w-[400px]">
-        <Story />
-      </div>
-    ),
-  ],
 } satisfies Meta<typeof CourseCard>;
 
 export default meta;
@@ -81,6 +74,13 @@ const mockCourse: Course = {
  * Default course card.
  */
 export const Default: Story = {
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
   args: {
     course: mockCourse,
   },
@@ -90,6 +90,13 @@ export const Default: Story = {
  * Course with LCQ tag (yellow).
  */
 export const LCQCourse: Story = {
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
   args: {
     course: {
       ...mockCourse,
@@ -104,6 +111,13 @@ export const LCQCourse: Story = {
  * Course with Master tag (rose).
  */
 export const MasterCourse: Story = {
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
   args: {
     course: {
       ...mockCourse,
@@ -118,6 +132,13 @@ export const MasterCourse: Story = {
  * Free course with Kostenlos tag (teal).
  */
 export const FreeCourse: Story = {
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
   args: {
     course: {
       ...mockCourse,
@@ -132,6 +153,13 @@ export const FreeCourse: Story = {
  * Course with multiple tags.
  */
 export const MultipleTags: Story = {
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
   args: {
     course: {
       ...mockCourse,
@@ -146,6 +174,13 @@ export const MultipleTags: Story = {
  * Course without thumbnail (fallback).
  */
 export const NoThumbnail: Story = {
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
   args: {
     course: {
       ...mockCourse,
@@ -160,6 +195,13 @@ export const NoThumbnail: Story = {
  * Long title example.
  */
 export const LongTitle: Story = {
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
   args: {
     course: {
       ...mockCourse,
@@ -173,6 +215,13 @@ export const LongTitle: Story = {
  * Compact variant.
  */
 export const Compact: Story = {
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
   args: {
     course: mockCourse,
     variant: 'compact',
@@ -183,8 +232,11 @@ export const Compact: Story = {
  * Grid of course cards.
  */
 export const CourseGrid: Story = {
+  parameters: {
+    layout: 'fullscreen',
+  },
   render: () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px]">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px] mx-auto px-8 py-12">
       <CourseCard course={{ ...mockCourse, title: 'Meditation Basics', tags: ['Basis'] }} />
       <CourseCard course={{ ...mockCourse, title: 'Advanced Channeling', tags: ['Master', 'LCQ'], price: 199 }} />
       <CourseCard course={{ ...mockCourse, title: 'Q&A Session', tags: ['Q&A'], price: 29 }} />

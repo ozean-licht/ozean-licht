@@ -69,6 +69,13 @@ export const Default: Story = {
     heading: 'Transformative Inhalte',
     paragraph: 'Entdecke lebensverändernde Kurse und spirituelle Praktiken die dein Leben bereichern.',
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -80,6 +87,13 @@ export const WithSparklesIcon: Story = {
     paragraph: 'Zugang zu exklusiven Master-Level Kursen und persönlicher Begleitung.',
     icon: <Sparkles className="w-6 h-6" />,
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -91,6 +105,13 @@ export const WithHeartIcon: Story = {
     paragraph: 'Werde Teil einer liebevollen Gemeinschaft von Gleichgesinnten.',
     icon: <Heart className="w-6 h-6" />,
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -102,6 +123,13 @@ export const WithLightbulbIcon: Story = {
     paragraph: 'Umfangreiches Wissen aus jahrelanger Erfahrung und Praxis.',
     icon: <Lightbulb className="w-6 h-6" />,
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -113,6 +141,13 @@ export const WithStarIcon: Story = {
     paragraph: 'Professionell produzierte Inhalte in höchster Qualität.',
     icon: <Star className="w-6 h-6" />,
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -124,6 +159,13 @@ export const WithZapIcon: Story = {
     paragraph: 'Sofort loslegen und erste Ergebnisse in wenigen Tagen sehen.',
     icon: <Zap className="w-6 h-6" />,
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -134,6 +176,13 @@ export const LongContent: Story = {
     heading: 'Umfassende spirituelle Transformation',
     paragraph: 'Entdecke lebensverändernde Kurse, spirituelle Praktiken und transformative Inhalte die dein Leben nachhaltig bereichern und deine spirituelle Entwicklung fördern.',
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -144,6 +193,13 @@ export const ShortContent: Story = {
     heading: 'Einfach starten',
     paragraph: 'Jetzt beginnen!',
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -159,6 +215,13 @@ export const WithButton: Story = {
       icon={<Sparkles className="w-6 h-6" />}
     />
   ),
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -173,14 +236,24 @@ export const WithButtonNoHref: Story = {
       icon={<Star className="w-6 h-6" />}
     />
   ),
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
  * Grid of info cards.
  */
 export const InfoCardGrid: Story = {
+  parameters: {
+    layout: 'fullscreen',
+  },
   render: () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px] mx-auto px-8 py-12">
       <InfoCard
         heading="Qualität"
         paragraph="Professionell produzierte Inhalte in höchster Qualität."
@@ -236,6 +309,13 @@ export const Comparison: Story = {
       />
     </div>
   ),
+  decorators: [
+    (Story) => (
+      <div className="max-w-[800px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**

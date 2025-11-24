@@ -528,8 +528,11 @@ export const HorizontalLayout: Story = {
  * Grid layout with switches in columns
  */
 export const GridLayout: Story = {
+  parameters: {
+    layout: 'fullscreen',
+  },
   render: () => (
-    <div className="grid grid-cols-2 gap-6 w-full max-w-2xl">
+    <div className="grid grid-cols-2 gap-6 max-w-2xl mx-auto px-8 py-12">
       <div className="flex items-center gap-3">
         <Switch id="g-1" checked />
         <Label htmlFor="g-1">Enable feature A</Label>

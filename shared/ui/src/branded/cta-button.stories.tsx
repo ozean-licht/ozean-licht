@@ -75,7 +75,7 @@ export const WithIcons: Story = {
     <div className="flex flex-col gap-4">
       <CtaButton>
         <Sparkles className="h-5 w-5" />
-        Premium Werden
+        Zugang Erhalten
       </CtaButton>
       <CtaButton>
         Jetzt Starten
@@ -83,7 +83,7 @@ export const WithIcons: Story = {
       </CtaButton>
       <CtaButton>
         <Star className="h-5 w-5" />
-        Exklusives Angebot
+        Zur Akademie
         <Star className="h-5 w-5" />
       </CtaButton>
     </div>
@@ -109,9 +109,9 @@ export const UseCases: Story = {
       <CtaButton>Jetzt Kaufen €99</CtaButton>
       <CtaButton>
         <Sparkles className="h-5 w-5" />
-        Limited Offer - 50% OFF
+        Jetzt Einsteigen
       </CtaButton>
-      <CtaButton>Premium Mitgliedschaft</CtaButton>
+      <CtaButton>Mitgliedschaft Starten</CtaButton>
       <CtaButton>
         Sofort Zugang
         <ArrowRight className="h-5 w-5" />
@@ -154,7 +154,7 @@ export const ComparisonWithPrimary: Story = {
     <div className="flex flex-col gap-4">
       <div>
         <p className="text-sm text-muted-foreground mb-2">CtaButton (Gradient):</p>
-        <CtaButton>Premium Action</CtaButton>
+        <CtaButton>Wichtige Aktion</CtaButton>
       </div>
       <div>
         <p className="text-sm text-muted-foreground mb-2">Note: For standard primary button without gradient, use PrimaryButton component</p>

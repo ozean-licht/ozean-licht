@@ -42,13 +42,6 @@ const meta = {
     },
   },
   tags: ['autodocs'],
-  decorators: [
-    (Story) => (
-      <div className="max-w-[400px]">
-        <Story />
-      </div>
-    ),
-  ],
 } satisfies Meta<typeof BlogItem>;
 
 export default meta;
@@ -73,6 +66,13 @@ export const Default: Story = {
   args: {
     blog: mockBlog,
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -86,6 +86,13 @@ export const WithoutThumbnail: Story = {
       thumbnail_url_mobile: undefined,
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -98,6 +105,13 @@ export const WithoutAuthorImage: Story = {
       author_image_url: undefined,
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -110,6 +124,13 @@ export const DefaultAuthor: Story = {
       author: undefined,
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -123,6 +144,13 @@ export const LongRead: Story = {
       read_time_minutes: 25,
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -136,6 +164,13 @@ export const QuickRead: Story = {
       read_time_minutes: 2,
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -148,6 +183,13 @@ export const LongTitle: Story = {
       title: 'Ein sehr langer Blogtitel der über mehrere Zeilen gehen könnte und zeigt wie die Karte damit umgeht',
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -160,6 +202,13 @@ export const LongDescription: Story = {
       description: 'Eine sehr ausführliche Beschreibung die deutlich mehr als zwei Zeilen Text enthält und demonstriert wie der line-clamp-2 Mechanismus funktioniert um den Text auf genau zwei Zeilen zu begrenzen und den Rest abzuschneiden.',
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -174,14 +223,24 @@ export const Categories: Story = {
       <BlogItem blog={{ ...mockBlog, category: 'Persönlichkeit', title: 'Selbstentwicklung' }} />
     </div>
   ),
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
  * Blog grid layout.
  */
 export const BlogGrid: Story = {
+  parameters: {
+    layout: 'fullscreen',
+  },
   render: () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px]">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px] mx-auto px-8 py-12">
       <BlogItem blog={{ ...mockBlog, title: 'Meditation Basics', read_time_minutes: 5 }} />
       <BlogItem blog={{ ...mockBlog, title: 'Advanced Channeling', category: 'Channeling', read_time_minutes: 12 }} />
       <BlogItem blog={{ ...mockBlog, title: 'Selbstheilung', category: 'Heilung', read_time_minutes: 8 }} />

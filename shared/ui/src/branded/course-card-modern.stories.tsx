@@ -37,13 +37,6 @@ const meta = {
     },
   },
   tags: ['autodocs'],
-  decorators: [
-    (Story) => (
-      <div className="max-w-[400px]">
-        <Story />
-      </div>
-    ),
-  ],
 } satisfies Meta<typeof CourseCardModern>;
 
 export default meta;
@@ -68,6 +61,13 @@ export const Default: Story = {
   args: {
     course: mockCourse,
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -81,6 +81,13 @@ export const WithImage: Story = {
       thumbnail_url_desktop: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=337&fit=crop',
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -95,6 +102,13 @@ export const WithoutImage: Story = {
       thumbnail_url_mobile: undefined,
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -108,6 +122,13 @@ export const FreeCourse: Story = {
       price: 0,
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -122,6 +143,13 @@ export const PremiumCourse: Story = {
       price: 499,
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -135,6 +163,13 @@ export const LongContent: Story = {
       description: 'Eine sehr ausführliche Beschreibung die deutlich mehr als 120 Zeichen enthält und demonstriert wie der Text nach 120 Zeichen abgeschnitten wird mit drei Punkten am Ende um anzuzeigen dass es noch mehr Text gibt.',
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -148,6 +183,13 @@ export const ShortDescription: Story = {
       description: 'Kurze Beschreibung.',
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
@@ -161,14 +203,24 @@ export const NoDescription: Story = {
       description: undefined,
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="max-w-[400px]">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**
  * Grid of modern course cards.
  */
 export const CourseGrid: Story = {
+  parameters: {
+    layout: 'fullscreen',
+  },
   render: () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px]">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px] mx-auto px-8 py-12">
       <CourseCardModern course={{ ...mockCourse, title: 'Meditation Basics', price: 49 }} />
       <CourseCardModern course={{ ...mockCourse, title: 'Advanced Channeling', price: 199 }} />
       <CourseCardModern course={{ ...mockCourse, title: 'Free Introduction', price: 0 }} />
