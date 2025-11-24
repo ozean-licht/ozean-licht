@@ -1,17 +1,36 @@
 import * as React from 'react'
-import { Text, Button, Section } from '@react-email/components'
-import EmailLayout from './components/layout'
+import { Text, Button, Section, Container, Body, Html, Head, Img, Link } from '@react-email/components'
 
 export default function KAWaitlistWelcome() {
   const previewText = 'Willkommen bei Kids Ascension! Deine E-Mail wurde bestätigt.'
   const launchDate = new Date('2026-03-01T00:00:00Z')
   const now = new Date()
   const daysUntilLaunch = Math.ceil((launchDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  const logoUrl = 'https://framerusercontent.com/images/roSRkCMYnbq64NyHwaubaBsS9Ts.png?scale-down-to=512&width=542&height=299'
 
   return (
-    <EmailLayout brandName="Kids Ascension" previewText={previewText}>
-      <Section>
-        <Text style={heading}>🎉 Willkommen bei Kids Ascension!</Text>
+    <Html>
+      <Head>
+        <title>Kids Ascension - Willkommen!</title>
+      </Head>
+      <Body style={body}>
+        {/* Preview text */}
+        <div style={{ display: 'none', overflow: 'hidden', lineHeight: '1px', opacity: 0, maxHeight: 0, maxWidth: 0 }}>
+          {previewText}
+        </div>
+
+        <Container style={container}>
+          <Section style={box}>
+            {/* Logo */}
+            <Section style={logoContainer}>
+              <Img
+                src={logoUrl}
+                alt="Kids Ascension"
+                width="200"
+                height="110"
+                style={logo}
+              />
+            </Section>
 
         <Text style={paragraph}>
           Deine E-Mail-Adresse wurde erfolgreich bestätigt. Du bist jetzt offiziell
@@ -26,38 +45,12 @@ export default function KAWaitlistWelcome() {
           <Text style={countdownDate}>1. März 2026</Text>
         </Section>
 
-        <Text style={subheading}>Was erwartet dich?</Text>
-
-        <Text style={featureItem}>
-          📚 <strong>Hochwertige Video-Kurse</strong>
-          <br />
-          Professionell produzierte Lerninhalte in Lehrer-Qualität
-        </Text>
-
-        <Text style={featureItem}>
-          🎯 <strong>Selbstgesteuertes Lernen</strong>
-          <br />
-          Kinder lernen in ihrem eigenen Tempo, wann und wo sie möchten
-        </Text>
-
-        <Text style={featureItem}>
-          💯 <strong>100% Kostenlos</strong>
-          <br />
-          Keine versteckten Kosten, keine Abonnements - für immer gratis
-        </Text>
-
-        <Text style={featureItem}>
-          🌟 <strong>Altersgruppengerecht</strong>
-          <br />
-          Speziell entwickelt für Kinder zwischen 6 und 14 Jahren
-        </Text>
-
         <Section style={ctaSection}>
           <Text style={ctaText}>
             Teile Kids Ascension mit Freunden und Familie!
           </Text>
-          <Button href="https://kids-ascension.dev" style={button}>
-            Zur Warteliste-Seite
+          <Button href="https://kids-ascension.org" style={button}>
+            Link Kopieren
           </Button>
         </Section>
 
@@ -68,27 +61,57 @@ export default function KAWaitlistWelcome() {
           Zwischenzeit arbeiten wir fleißig daran, dir das beste Lernerlebnis zu bieten.
         </Text>
 
-        <Text style={signature}>
-          Mit freundlichen Grüßen,
-          <br />
-          Das Kids Ascension Team
-          <br />
-          <em style={{ color: '#8898aa', fontSize: '14px' }}>
-            Gemeinsam für eine bessere Bildung
-          </em>
-        </Text>
-      </Section>
-    </EmailLayout>
+            <Text style={signature}>
+              Mit freundlichen Grüßen,
+              <br />
+              Das Kids Ascension Team
+              <br />
+              <em style={{ color: '#8898aa', fontSize: '14px' }}>
+                Gemeinsam für eine bessere Bildung
+              </em>
+            </Text>
+
+            {/* Footer */}
+            <Section style={footer}>
+              <Link href="https://kids-ascension.org" style={footerLink}>
+                kids-ascension.org
+              </Link>
+            </Section>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
   )
 }
 
 // Styles
-const heading = {
-  fontSize: '28px',
-  fontWeight: 'bold',
-  color: '#1a1a1a',
+const body = {
+  backgroundColor: '#f6f9fc',
+  fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
+  padding: '40px 0'
+}
+
+const container = {
+  maxWidth: '600px',
+  margin: '0 auto'
+}
+
+const box = {
+  backgroundColor: '#ffffff',
+  borderRadius: '12px',
+  padding: '48px 32px',
+  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+  border: '1px solid #e6ebf1'
+}
+
+const logoContainer = {
   textAlign: 'center' as const,
-  margin: '0 0 24px'
+  marginBottom: '32px'
+}
+
+const logo = {
+  margin: '0 auto',
+  borderRadius: '8px'
 }
 
 const paragraph = {
@@ -194,4 +217,18 @@ const signature = {
   color: '#525f7f',
   textAlign: 'center' as const,
   margin: '40px 0 0'
+}
+
+const footer = {
+  textAlign: 'center' as const,
+  paddingTop: '24px',
+  borderTop: '1px solid #e6ebf1',
+  marginTop: '32px'
+}
+
+const footerLink = {
+  color: '#0ea5e9',
+  textDecoration: 'none',
+  fontSize: '14px',
+  fontWeight: '500'
 }

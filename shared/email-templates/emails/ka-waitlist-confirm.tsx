@@ -7,7 +7,7 @@ interface KAWaitlistConfirmProps {
 
 export default function KAWaitlistConfirm({ confirmUrl }: KAWaitlistConfirmProps) {
   const previewText = 'Bestätige deine E-Mail-Adresse für die Kids Ascension Warteliste'
-  const logoUrl = 'https://kids-ascension.org/images/ka-sidebar-logo.png'
+  const logoUrl = 'https://framerusercontent.com/images/roSRkCMYnbq64NyHwaubaBsS9Ts.png?scale-down-to=512&width=542&height=299'
 
   return (
     <Html>
@@ -27,8 +27,8 @@ export default function KAWaitlistConfirm({ confirmUrl }: KAWaitlistConfirmProps
               <Img
                 src={logoUrl}
                 alt="Kids Ascension"
-                width="80"
-                height="80"
+                width="200"
+                height="110"
                 style={logo}
               />
             </Section>
