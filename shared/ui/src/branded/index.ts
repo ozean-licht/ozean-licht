@@ -19,3 +19,10 @@ export { Notification } from './notification'
 export { LightRays } from './light-rays'
 export { Folder } from './folder'
 export { Tree, Folder as TreeFolder, File as TreeFile, CollapseButton, type TreeViewElement } from './file-tree'
+
+// Layout Components
+export { AppHeader, type AppHeaderProps } from './layout/app-header'
+export { AppSidebar, type AppSidebarProps, type NavigationItem } from './layout/app-sidebar'
+export { AppLayout, type AppLayoutProps } from './layout/app-layout'
+export { Header, type HeaderProps } from './layout/header'
+export { BackgroundModeSwitch, type BackgroundModeSwitchProps, type BackgroundMode } from './layout/background-mode-switch'

@@ -38,6 +38,8 @@ const config: StorybookConfig = {
       config.resolve.alias = {
         ...config.resolve.alias,
         'next/link': join(__dirname, 'next-link-mock.tsx'),
+        'next/image': join(__dirname, 'next-image-mock.tsx'),
+        'next/navigation': join(__dirname, 'next-navigation-mock.tsx'),
         '@/shared/assets': join(__dirname, '../../../shared/assets'),
         '@shared/ui/dist': join(__dirname, '../../../shared/ui/dist'),
         '@shared/ui': join(__dirname, '../../../shared/ui/src'),
