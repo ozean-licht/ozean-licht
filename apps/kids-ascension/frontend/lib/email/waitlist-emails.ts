@@ -16,7 +16,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
  */
 export async function sendConfirmationEmail(email: string, token: string) {
   try {
-    const confirmUrl = `${BASE_URL}/waitlist/confirm/${token}`
+    const confirmUrl = `${BASE_URL}/api/waitlist/confirm/${token}`
 
     const html = await render(
       KAWaitlistConfirm({

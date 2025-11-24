@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { Text, Button, Section } from '@react-email/components'
-import EmailLayout from './components/layout'
+import { Text, Button, Section, Container, Body, Html, Head, Img, Link } from '@react-email/components'
 
 interface KAWaitlistConfirmProps {
   confirmUrl: string
@@ -8,122 +7,122 @@ interface KAWaitlistConfirmProps {
 
 export default function KAWaitlistConfirm({ confirmUrl }: KAWaitlistConfirmProps) {
   const previewText = 'Bestätige deine E-Mail-Adresse für die Kids Ascension Warteliste'
+  const logoUrl = 'https://kids-ascension.org/images/ka-sidebar-logo.png'
 
   return (
-    <EmailLayout brandName="Kids Ascension" previewText={previewText}>
-      <Section>
-        <Text style={heading}>Bestätige deine E-Mail-Adresse</Text>
+    <Html>
+      <Head>
+        <title>Kids Ascension - E-Mail bestätigen</title>
+      </Head>
+      <Body style={body}>
+        {/* Preview text */}
+        <div style={{ display: 'none', overflow: 'hidden', lineHeight: '1px', opacity: 0, maxHeight: 0, maxWidth: 0 }}>
+          {previewText}
+        </div>
 
-        <Text style={paragraph}>
-          Vielen Dank für dein Interesse an <strong>Kids Ascension</strong>!
-        </Text>
+        <Container style={container}>
+          <Section style={box}>
+            {/* Logo */}
+            <Section style={logoContainer}>
+              <Img
+                src={logoUrl}
+                alt="Kids Ascension"
+                width="80"
+                height="80"
+                style={logo}
+              />
+            </Section>
 
-        <Text style={paragraph}>
-          Wir freuen uns, dich auf unserer Warteliste begrüßen zu dürfen. Um deine
-          Anmeldung abzuschließen, bestätige bitte deine E-Mail-Adresse durch einen
-          Klick auf den Button unten:
-        </Text>
+            <Text style={heading}>
+              Jetzt bestätigen um informiert zu werden.
+            </Text>
 
-        <Section style={buttonContainer}>
-          <Button href={confirmUrl} style={button}>
-            E-Mail bestätigen
-          </Button>
-        </Section>
+            <Section style={buttonContainer}>
+              <Button href={confirmUrl} style={button}>
+                E-Mail bestätigen
+              </Button>
+            </Section>
 
-        <Text style={paragraph}>
-          Oder kopiere diesen Link in deinen Browser:
-        </Text>
-
-        <Text style={linkText}>{confirmUrl}</Text>
-
-        <Text style={infoBox}>
-          <strong>ℹ️ Was ist Kids Ascension?</strong>
-          <br />
-          Kids Ascension ist eine 100% kostenlose Bildungsplattform für Kinder im
-          Alter von 6-14 Jahren. Wir bieten hochwertige Video-Kurse und
-          selbstgesteuertes Lernen - komplett kostenlos und ohne versteckte Kosten.
-        </Text>
-
-        <Text style={launchInfo}>
-          🚀 <strong>Start:</strong> 1. März 2026
-        </Text>
-
-        <Text style={paragraph}>
-          Wir senden dir eine Benachrichtigung, sobald die Plattform verfügbar ist!
-        </Text>
-
-        <Text style={signature}>
-          Mit freundlichen Grüßen,
-          <br />
-          Das Kids Ascension Team
-        </Text>
-      </Section>
-    </EmailLayout>
+            {/* Footer */}
+            <Section style={footer}>
+              <Link href="https://kids-ascension.org" style={footerLink}>
+                kids-ascension.org
+              </Link>
+            </Section>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
   )
 }
 
 // Styles
-const heading = {
-  fontSize: '24px',
-  fontWeight: 'bold',
-  color: '#1a1a1a',
-  margin: '0 0 24px'
+const body = {
+  backgroundColor: '#f6f9fc',
+  fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
+  padding: '40px 0'
 }
 
-const paragraph = {
-  fontSize: '16px',
-  lineHeight: '24px',
-  color: '#525f7f',
-  margin: '0 0 16px'
+const container = {
+  maxWidth: '600px',
+  margin: '0 auto'
+}
+
+const box = {
+  backgroundColor: '#ffffff',
+  borderRadius: '12px',
+  padding: '48px 32px',
+  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+  border: '1px solid #e6ebf1'
+}
+
+const logoContainer = {
+  textAlign: 'center' as const,
+  marginBottom: '32px'
+}
+
+const logo = {
+  margin: '0 auto',
+  borderRadius: '8px'
+}
+
+const heading = {
+  fontSize: '20px',
+  fontWeight: '600',
+  color: '#1a1a1a',
+  textAlign: 'center' as const,
+  margin: '0 0 32px',
+  lineHeight: '28px'
 }
 
 const buttonContainer = {
   textAlign: 'center' as const,
-  margin: '32px 0'
+  margin: '0 0 32px'
 }
 
 const button = {
   backgroundColor: '#0ea5e9',
   borderRadius: '8px',
   color: '#ffffff',
-  fontSize: '16px',
+  fontSize: '18px',
   fontWeight: 'bold',
   textDecoration: 'none',
   textAlign: 'center' as const,
   display: 'inline-block',
-  padding: '12px 32px',
-  cursor: 'pointer'
+  padding: '14px 40px',
+  cursor: 'pointer',
+  border: 'none'
 }
 
-const linkText = {
-  fontSize: '14px',
-  color: '#8898aa',
-  wordBreak: 'break-all' as const,
-  margin: '0 0 24px'
-}
-
-const infoBox = {
-  backgroundColor: '#f0f9ff',
-  border: '1px solid #bae6fd',
-  borderRadius: '8px',
-  padding: '16px',
-  fontSize: '14px',
-  lineHeight: '20px',
-  color: '#0c4a6e',
-  margin: '24px 0'
-}
-
-const launchInfo = {
-  fontSize: '16px',
-  fontWeight: 'bold',
-  color: '#0ea5e9',
+const footer = {
   textAlign: 'center' as const,
-  margin: '24px 0'
+  paddingTop: '24px',
+  borderTop: '1px solid #e6ebf1'
 }
 
-const signature = {
-  fontSize: '16px',
-  lineHeight: '24px',
-  color: '#525f7f',
-  margin: '32px 0 0'
+const footerLink = {
+  color: '#0ea5e9',
+  textDecoration: 'none',
+  fontSize: '14px',
+  fontWeight: '500'
 }

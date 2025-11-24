@@ -14,12 +14,8 @@ if (!process.env.RESEND_API_KEY) {
 export const resend = new Resend(process.env.RESEND_API_KEY)
 
 // Default sender email
-// In development: use onboarding@resend.dev
-// In production: use noreply@kids-ascension.dev (after domain verification)
-export const DEFAULT_FROM_EMAIL =
-  process.env.NODE_ENV === 'production'
-    ? 'Kids Ascension <noreply@kids-ascension.dev>'
-    : 'Kids Ascension <onboarding@resend.dev>'
+// Using verified domain: updates.kids-ascension.org
+export const DEFAULT_FROM_EMAIL = 'Kids Ascension <hello@updates.kids-ascension.org>'
 
 // Email sending helper with error handling
 export async function sendEmail({
