@@ -1,11 +1,19 @@
 ---
 name: context-mapper
-description: Creates navigation maps in README.md for agent consumption. Use when mapping directories, creating navigation structures, or preparing codebases for agentic workflows. Read the template, explore the directory, then write a quality map.
+description: Creates README.md navigation maps for agent consumption. README IS the map - no human READMEs exist. Use when mapping directories, creating navigation structures, or preparing codebases for agentic workflows.
 ---
 
 # Context Mapper
 
-A cartographer for codebases. Creates navigation maps that help agents find what they need fast.
+Cartographer for codebases. Creates navigation maps that help agents find what they need fast.
+
+## Core Philosophy
+
+1. **README IS the map** - Not a section within README, the entire file
+2. **Task-oriented** - "If you need to X, start at Y" (not just file lists)
+3. **Fractal** - Complex dirs get their own maps, linked together
+4. **Gravity-aware** - Highlight files many others depend on
+5. **Specific** - "JWT validation with expiry check" not "utilities"
 
 ## Workflow
 
@@ -13,141 +21,171 @@ When asked to map a directory:
 
 ### 1. Read the Template
 
-```bash
+```
 Read: .claude/skills/context-mapper/context-map-template.md
 ```
 
-Understand what a good context map looks like before starting.
+Understand the output format before starting.
 
 ### 2. Explore the Directory
 
-Explore the target directory to understand:
-- What is this directory's PURPOSE?
-- What are the ENTRY POINTS?
-- What are the HOT PATHS (most important flows)?
-- How do the parts CONNECT?
-
-Use these tools:
-```bash
-Glob: <directory>/**/*.ts     # Find all code files
-Read: <directory>/README.md   # Existing context
-Read: <directory>/package.json # Dependencies
-Read: key files to understand purpose
+```
+Glob: <directory>/**/*.ts          # Find all code files
+Read: <directory>/package.json     # Understand purpose
+Read: 3-5 key files                # Understand structure
 ```
 
-### 3. Identify Hot Paths
+Answer these questions:
+- What IS this directory? (one sentence)
+- What do agents typically DO here?
+- Which files are most important?
+- Which subdirs are complex enough for their own map?
 
-Ask: "If an agent needs to work here, where do they START?"
+### 3. Identify Tasks (Hot Paths)
 
-Hot paths are:
-- Entry points (`index.ts`, `server.ts`, `app.ts`)
-- Configuration files
-- Files that MANY other files import
-- Files that represent key flows
+Think: "If an agent lands here, what are they trying to accomplish?"
 
-### 4. Write the Map
+Common task patterns:
+- **Add feature:** Where to create, what to register
+- **Fix bug:** Where to find logs, how to trace
+- **Update config:** Which file, what to restart
+- **Extend API:** Where to add route, handler, types
 
-Following the template structure:
+### 4. Analyze Gravity
 
+Which files are imported by many others? These are navigation anchors.
+
+```typescript
+// High gravity: imported by 5+ files
+server.ts, config/env.ts, types/index.ts
+
+// Medium gravity: imported by 2-4 files
+auth/jwt.ts, utils/logger.ts
+
+// Low gravity: imported by 0-1 files
+specific-feature.ts
+```
+
+Use gravity indicators: `●●●` (high), `●●` (medium), `●` (low)
+
+### 5. Detect Complexity
+
+Flag directories that need their own README:
+
+**Criteria:**
+- More than 10 code files
+- More than 2 levels of nesting
+- Contains distinct subsystem
+- Would benefit from its own task flows
+
+Output as checklist:
 ```markdown
-<!-- CONTEXT-MAP:START -->
-
-> **[Name]** - [One-line description]
-
-## Start Here
-
-**Main entry:** `[file]`
-
-**Key flows:**
-1. **[Flow]:** `path` → `path` → `path`
-
-## Key Files
-
-| File | What it does |
-|------|-------------|
-| `file.ts` | Specific description |
-
-## Directories
-
-| Directory | Purpose | Navigate |
-|-----------|---------|----------|
-| `dir/` | Purpose | [→ README](./dir/) |
-
-<!-- CONTEXT-MAP:END -->
+## Needs Deeper Mapping
+- [ ] `src/mcp/` — 15 files, each integrates external service
 ```
 
-### 5. Merge into README.md
+### 6. Generate ASCII Tree
 
-Append or replace the context map section in the directory's README.md.
+Visual hierarchy beats flat tables:
 
-If no README exists, create one with the map.
+```
+.
+├── src/              # Core implementation
+│   ├── mcp/          # Service handlers [→](./src/mcp/)
+│   └── auth/         # Authentication
+├── config/           # Settings
+└── tests/            # Test suites
+```
 
-## Scripts (for batch operations)
+Rules:
+- Max 15 items
+- Max 3 levels deep
+- Link complex subdirs with `[→](./path/)`
 
-For mechanical batch updates, use the scripts:
+### 7. Write the Map
+
+Follow template structure exactly:
+1. Title + one-line essence
+2. Quick Nav (3 key locations)
+3. If You Need To... (task table)
+4. Structure (ASCII tree)
+5. Key Files (with gravity)
+6. Needs Deeper Mapping (checklist)
+7. Footer metadata
+
+### 8. Replace README.md
+
+**REPLACE entirely** - do not append or merge.
+
+```
+Write: <directory>/README.md
+```
+
+The map IS the README. Old content is superseded.
+
+## Scripts (Batch Operations)
+
+For mechanical batch updates:
 
 ```bash
-# Auto-generate a basic map (less quality, but fast)
-npx tsx scripts/generate-context-map.ts <directory>
+# Auto-generate basic map (fast, lower quality)
+npx tsx .claude/skills/context-mapper/scripts/generate-context-map.ts <directory>
 
-# Organize files + create nav READMEs + auto-map
-npx tsx scripts/organize.ts <directory> --apply --map
+# Organize files + create stub READMEs
+npx tsx .claude/skills/context-mapper/scripts/organize.ts <directory> --apply
 
-# Map all watched directories (batch)
-npx tsx scripts/sweep.ts
+# Map all watched directories
+npx tsx .claude/skills/context-mapper/scripts/sweep.ts
 ```
 
-**Note:** Scripts generate basic maps. For high-quality maps, do manual exploration.
+**Note:** Scripts generate basic maps. For high-quality maps, do manual exploration and write custom task flows.
 
 ## Quality Standards
 
-From the template:
-
 **Good descriptions:**
-- ✅ `server.ts` - Express server, port 8100, mounts MCP routes
-- ✅ `utils.ts` - URL signing and request retry helpers
+```
+server.ts     → Express app, port 8100, mounts /mcp/* and /health routes
+config/env.ts → Zod schema for env vars, validates on startup
+auth/jwt.ts   → JWT verification, extracts claims, validates expiry
+```
 
 **Bad descriptions:**
-- ❌ `server.ts` - Server
-- ❌ `utils.ts` - Utilities
+```
+utils.ts  → Utilities
+types.ts  → Type definitions
+config.ts → Configuration
+```
 
 **Required sections:**
-1. One-line summary (what IS this?)
-2. Start Here (hot paths)
-3. Key Files (with specific purposes)
-4. Directories (with README links)
-
-## Example: Mapping /tools
-
-```
-User: Map /tools for me
-
-Agent thinking:
-1. Read the template
-2. Explore /tools - what's in there?
-   - tools/mcp-gateway/ - MCP integration
-   - tools/scripts/ - Deployment scripts
-   - tools/coolify/ - Coolify configs
-3. Identify hot paths:
-   - MCP Gateway is the main thing
-   - Scripts are secondary
-4. Write the map following template
-5. Merge into /tools/README.md
-```
+1. One-line essence (what IS this?)
+2. Quick Nav (3 key locations)
+3. If You Need To... (task flows)
+4. Structure (ASCII tree)
+5. Key Files (with gravity)
+6. Needs Deeper Mapping (if applicable)
 
 ## Configuration
 
-Edit `watched-dirs.json` to define which directories to track for batch mapping.
+Edit `watched-dirs.json` to track high-traffic directories:
+
+```json
+{
+  "watched": [
+    { "path": "apps/admin", "priority": "high", "reason": "Current focus" },
+    { "path": "tools/mcp-gateway", "priority": "high", "reason": "Integration layer" }
+  ]
+}
+```
 
 ## Files
 
 ```
 .claude/skills/context-mapper/
 ├── SKILL.md                    # This file
-├── context-map-template.md     # Template for quality maps
-├── watched-dirs.json           # Dirs for batch mapping
+├── context-map-template.md     # Output format template
+├── watched-dirs.json           # Directories to track
 └── scripts/
     ├── generate-context-map.ts # Auto-generate basic maps
-    ├── organize.ts             # Restructure + create nav READMEs
-    └── sweep.ts                # Batch map all watched dirs
+    ├── organize.ts             # Organize markdown files
+    └── sweep.ts                # Batch map watched dirs
 ```
