@@ -8,65 +8,229 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need parent commit for diff
+
       - name: Send to Telegram
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}
+          COMMIT_SHA: ${{ github.event.head_commit.id }}
+          COMMIT_AUTHOR: ${{ github.event.head_commit.author.name }}
+          BRANCH: ${{ github.ref_name }}
+          REPO_URL: ${{ github.event.repository.html_url }}
         run: |
-          # Extract first line of commit message
+          # Extract first line and body of commit message
           FIRST_LINE=$(echo "$COMMIT_MSG" | head -n 1)
+          BODY=$(echo "$COMMIT_MSG" | tail -n +3 | grep -v "^Co-Authored-By:" | grep -v "Generated with" | sed '/^$/d' | head -20)
 
-          # Determine headline based on conventional commit type
+          # Get file change statistics
+          STATS=$(git diff --shortstat HEAD~1 HEAD 2>/dev/null || echo "")
+          FILES_CHANGED=$(echo "$STATS" | grep -oE '[0-9]+ file' | grep -oE '[0-9]+' || echo "0")
+          INSERTIONS=$(echo "$STATS" | grep -oE '[0-9]+ insertion' | grep -oE '[0-9]+' || echo "0")
+          DELETIONS=$(echo "$STATS" | grep -oE '[0-9]+ deletion' | grep -oE '[0-9]+' || echo "0")
+
+          # Get list of changed files (top 8)
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | head -8)
+          TOTAL_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | wc -l)
+
+          # Extract scope from conventional commit (e.g., feat(admin): -> admin)
+          SCOPE=""
+          if [[ "$FIRST_LINE" == *"("*"):"* ]]; then
+            SCOPE=$(echo "$FIRST_LINE" | sed -n 's/^[a-z]*(\([^)]*\)):.*$/\1/p')
+          fi
+
+          # Count new files created
+          NEW_FILES=$(git diff --diff-filter=A --name-only HEAD~1 HEAD 2>/dev/null | wc -l | tr -d ' ')
+
+          # Count unique top-level directories touched
+          DIRS_TOUCHED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | cut -d'/' -f1-2 | sort -u | wc -l | tr -d ' ')
+
+          # Determine headline, action verb, and base innovation score
           if [[ "$FIRST_LINE" == feat:* ]] || [[ "$FIRST_LINE" == feat\(* ]]; then
-            HEADLINE="New Feature"
+            HEADLINE="New Feature Shipped"
             EMOJI="🚀"
+            ACTION="Built"
+            BASE_SCORE=45
             DESC=$(echo "$FIRST_LINE" | sed 's/^feat[^:]*: *//')
           elif [[ "$FIRST_LINE" == fix:* ]] || [[ "$FIRST_LINE" == fix\(* ]]; then
-            HEADLINE="Bug Fix"
+            HEADLINE="Bug Squashed"
             EMOJI="🔧"
+            ACTION="Fixed"
+            BASE_SCORE=25
             DESC=$(echo "$FIRST_LINE" | sed 's/^fix[^:]*: *//')
           elif [[ "$FIRST_LINE" == chore:* ]] || [[ "$FIRST_LINE" == chore\(* ]]; then
-            HEADLINE="Maintenance"
+            HEADLINE="Housekeeping Complete"
             EMOJI="🧹"
+            ACTION="Cleaned up"
+            BASE_SCORE=10
             DESC=$(echo "$FIRST_LINE" | sed 's/^chore[^:]*: *//')
           elif [[ "$FIRST_LINE" == docs:* ]] || [[ "$FIRST_LINE" == docs\(* ]]; then
-            HEADLINE="Documentation"
+            HEADLINE="Documentation Enhanced"
             EMOJI="📚"
+            ACTION="Documented"
+            BASE_SCORE=15
             DESC=$(echo "$FIRST_LINE" | sed 's/^docs[^:]*: *//')
           elif [[ "$FIRST_LINE" == refactor:* ]] || [[ "$FIRST_LINE" == refactor\(* ]]; then
-            HEADLINE="Code Improvement"
+            HEADLINE="Code Refined"
             EMOJI="♻️"
+            ACTION="Refactored"
+            BASE_SCORE=35
             DESC=$(echo "$FIRST_LINE" | sed 's/^refactor[^:]*: *//')
           elif [[ "$FIRST_LINE" == test:* ]] || [[ "$FIRST_LINE" == test\(* ]]; then
-            HEADLINE="Testing"
+            HEADLINE="Tests Strengthened"
             EMOJI="🧪"
+            ACTION="Tested"
+            BASE_SCORE=30
             DESC=$(echo "$FIRST_LINE" | sed 's/^test[^:]*: *//')
           elif [[ "$FIRST_LINE" == style:* ]] || [[ "$FIRST_LINE" == style\(* ]]; then
-            HEADLINE="Styling"
+            HEADLINE="Style Polished"
             EMOJI="🎨"
+            ACTION="Styled"
+            BASE_SCORE=10
             DESC=$(echo "$FIRST_LINE" | sed 's/^style[^:]*: *//')
           elif [[ "$FIRST_LINE" == perf:* ]] || [[ "$FIRST_LINE" == perf\(* ]]; then
-            HEADLINE="Performance"
+            HEADLINE="Performance Boosted"
             EMOJI="⚡"
+            ACTION="Optimized"
+            BASE_SCORE=40
             DESC=$(echo "$FIRST_LINE" | sed 's/^perf[^:]*: *//')
+          elif [[ "$FIRST_LINE" == ci:* ]] || [[ "$FIRST_LINE" == ci\(* ]]; then
+            HEADLINE="CI/CD Improved"
+            EMOJI="🔄"
+            ACTION="Automated"
+            BASE_SCORE=20
+            DESC=$(echo "$FIRST_LINE" | sed 's/^ci[^:]*: *//')
+          elif [[ "$FIRST_LINE" == build:* ]] || [[ "$FIRST_LINE" == build\(* ]]; then
+            HEADLINE="Build System Updated"
+            EMOJI="🏗️"
+            ACTION="Configured"
+            BASE_SCORE=15
+            DESC=$(echo "$FIRST_LINE" | sed 's/^build[^:]*: *//')
           else
-            HEADLINE="Update"
+            HEADLINE="Progress Made"
             EMOJI="📦"
+            ACTION="Updated"
+            BASE_SCORE=20
             DESC="$FIRST_LINE"
+          fi
+
+          # Calculate Innovation Score (0-100)
+          SCORE=$BASE_SCORE
+
+          # Bonus for new files created (+3 per file, max +15)
+          NEW_FILE_BONUS=$((NEW_FILES * 3))
+          [[ $NEW_FILE_BONUS -gt 15 ]] && NEW_FILE_BONUS=15
+          SCORE=$((SCORE + NEW_FILE_BONUS))
+
+          # Bonus for meaningful code changes (sweet spot: 50-500 lines)
+          if [[ "$INSERTIONS" -ge 50 ]] && [[ "$INSERTIONS" -le 500 ]]; then
+            SCORE=$((SCORE + 15))
+          elif [[ "$INSERTIONS" -ge 20 ]] && [[ "$INSERTIONS" -lt 50 ]]; then
+            SCORE=$((SCORE + 8))
+          elif [[ "$INSERTIONS" -gt 500 ]]; then
+            SCORE=$((SCORE + 5))  # Large changes get less (might be generated/bulk)
+          fi
+
+          # Bonus for cross-cutting changes (multiple directories)
+          if [[ "$DIRS_TOUCHED" -ge 4 ]]; then
+            SCORE=$((SCORE + 12))
+          elif [[ "$DIRS_TOUCHED" -ge 2 ]]; then
+            SCORE=$((SCORE + 6))
+          fi
+
+          # Bonus for descriptive commit body (shows thoughtfulness)
+          if [[ -n "$BODY" ]]; then
+            BODY_LINES=$(echo "$BODY" | wc -l | tr -d ' ')
+            if [[ "$BODY_LINES" -ge 3 ]]; then
+              SCORE=$((SCORE + 8))
+            elif [[ "$BODY_LINES" -ge 1 ]]; then
+              SCORE=$((SCORE + 4))
+            fi
+          fi
+
+          # Cap at 100
+          [[ $SCORE -gt 100 ]] && SCORE=100
+
+          # Determine score emoji
+          if [[ $SCORE -ge 80 ]]; then
+            SCORE_EMOJI="🔥"
+          elif [[ $SCORE -ge 60 ]]; then
+            SCORE_EMOJI="⭐"
+          elif [[ $SCORE -ge 40 ]]; then
+            SCORE_EMOJI="✨"
+          else
+            SCORE_EMOJI="📍"
           fi
 
           # Capitalize first letter of description
           DESC="$(echo "${DESC:0:1}" | tr '[:lower:]' '[:upper:]')${DESC:1}"
 
           # Escape HTML special characters
-          DESC=$(echo "$DESC" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+          escape_html() {
+            echo "$1" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g'
+          }
+          DESC=$(escape_html "$DESC")
 
-          # Build message
-          MESSAGE="${EMOJI} <b>${HEADLINE}</b>%0A%0A${DESC}"
+          # Build scope badge if present
+          SCOPE_BADGE=""
+          if [[ -n "$SCOPE" ]]; then
+            SCOPE_BADGE=" [<code>$SCOPE</code>]"
+          fi
 
+          # Build stats line
+          STATS_LINE=""
+          if [[ "$FILES_CHANGED" != "0" ]] || [[ -n "$STATS" ]]; then
+            STATS_LINE="📊 <b>${FILES_CHANGED}</b> files"
+            if [[ "$INSERTIONS" != "0" ]]; then
+              STATS_LINE="$STATS_LINE · <b>+${INSERTIONS}</b>"
+            fi
+            if [[ "$DELETIONS" != "0" ]]; then
+              STATS_LINE="$STATS_LINE · <b>-${DELETIONS}</b>"
+            fi
+          fi
+
+          # Build file list
+          FILE_LIST=""
+          if [[ -n "$CHANGED_FILES" ]]; then
+            FILE_LIST=$(echo "$CHANGED_FILES" | while read -r file; do
+              # Shorten paths for readability
+              short_file=$(echo "$file" | sed 's|apps/||;s|tools/||;s|shared/||' | head -c 45)
+              echo "  • <code>$short_file</code>"
+            done)
+            if [[ "$TOTAL_FILES" -gt 8 ]]; then
+              REMAINING=$((TOTAL_FILES - 8))
+              FILE_LIST="${FILE_LIST}"$'\n'"  <i>...and ${REMAINING} more</i>"
+            fi
+          fi
+
+          # Build context section from commit body (decisions/notes)
+          CONTEXT_SECTION=""
+          if [[ -n "$BODY" ]]; then
+            # Take first 3 meaningful lines from body
+            CONTEXT=$(echo "$BODY" | head -3 | while read -r line; do
+              escaped=$(escape_html "$line")
+              if [[ -n "$escaped" ]]; then
+                echo "  → $escaped"
+              fi
+            done)
+            if [[ -n "$CONTEXT" ]]; then
+              CONTEXT_SECTION=$'\n\n'"💡 <b>Context:</b>"$'\n'"$CONTEXT"
+            fi
+          fi
+
+          # Build the message
+          SHORT_SHA="${COMMIT_SHA:0:7}"
+          NL=$'\n'
+
+          MESSAGE="${EMOJI} <b>${HEADLINE}</b>${SCOPE_BADGE}${NL}${NL}${DESC}${NL}${NL}${STATS_LINE}${NL}${SCORE_EMOJI} Innovation: <b>${SCORE}/100</b>${NL}${NL}📁 <b>Changed:</b>${NL}${FILE_LIST}${CONTEXT_SECTION}${NL}${NL}<a href=\"${REPO_URL}/commit/${COMMIT_SHA}\">${SHORT_SHA}</a> on <code>${BRANCH}</code> by ${COMMIT_AUTHOR}"
+
+          # Send to Telegram
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAM_CHAT_ID}" \
             -d "parse_mode=HTML" \
             -d "disable_web_page_preview=true" \
-            -d "text=${MESSAGE}"
+            --data-urlencode "text=${MESSAGE}"
