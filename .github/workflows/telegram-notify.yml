@@ -12,14 +12,58 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
-          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -c 200 | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
-          BRANCH="${{ github.ref_name }}"
-          AUTHOR="${{ github.actor }}"
-          URL="${{ github.event.head_commit.url }}"
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          # Extract first line of commit message
+          FIRST_LINE=$(echo "$COMMIT_MSG" | head -n 1)
 
-          MESSAGE="<b>Ozean Licht Commit</b>%0A%0A<b>Branch:</b> <code>${BRANCH}</code>%0A<b>Author:</b> ${AUTHOR}%0A<b>Commit:</b> <code>${SHORT_SHA}</code>%0A%0A<i>${COMMIT_MSG}</i>%0A%0A<a href=\"${URL}\">View on GitHub</a>"
+          # Determine headline based on conventional commit type
+          if [[ "$FIRST_LINE" == feat:* ]] || [[ "$FIRST_LINE" == feat\(* ]]; then
+            HEADLINE="New Feature"
+            EMOJI="🚀"
+            DESC=$(echo "$FIRST_LINE" | sed 's/^feat[^:]*: *//')
+          elif [[ "$FIRST_LINE" == fix:* ]] || [[ "$FIRST_LINE" == fix\(* ]]; then
+            HEADLINE="Bug Fix"
+            EMOJI="🔧"
+            DESC=$(echo "$FIRST_LINE" | sed 's/^fix[^:]*: *//')
+          elif [[ "$FIRST_LINE" == chore:* ]] || [[ "$FIRST_LINE" == chore\(* ]]; then
+            HEADLINE="Maintenance"
+            EMOJI="🧹"
+            DESC=$(echo "$FIRST_LINE" | sed 's/^chore[^:]*: *//')
+          elif [[ "$FIRST_LINE" == docs:* ]] || [[ "$FIRST_LINE" == docs\(* ]]; then
+            HEADLINE="Documentation"
+            EMOJI="📚"
+            DESC=$(echo "$FIRST_LINE" | sed 's/^docs[^:]*: *//')
+          elif [[ "$FIRST_LINE" == refactor:* ]] || [[ "$FIRST_LINE" == refactor\(* ]]; then
+            HEADLINE="Code Improvement"
+            EMOJI="♻️"
+            DESC=$(echo "$FIRST_LINE" | sed 's/^refactor[^:]*: *//')
+          elif [[ "$FIRST_LINE" == test:* ]] || [[ "$FIRST_LINE" == test\(* ]]; then
+            HEADLINE="Testing"
+            EMOJI="🧪"
+            DESC=$(echo "$FIRST_LINE" | sed 's/^test[^:]*: *//')
+          elif [[ "$FIRST_LINE" == style:* ]] || [[ "$FIRST_LINE" == style\(* ]]; then
+            HEADLINE="Styling"
+            EMOJI="🎨"
+            DESC=$(echo "$FIRST_LINE" | sed 's/^style[^:]*: *//')
+          elif [[ "$FIRST_LINE" == perf:* ]] || [[ "$FIRST_LINE" == perf\(* ]]; then
+            HEADLINE="Performance"
+            EMOJI="⚡"
+            DESC=$(echo "$FIRST_LINE" | sed 's/^perf[^:]*: *//')
+          else
+            HEADLINE="Update"
+            EMOJI="📦"
+            DESC="$FIRST_LINE"
+          fi
+
+          # Capitalize first letter of description
+          DESC="$(echo "${DESC:0:1}" | tr '[:lower:]' '[:upper:]')${DESC:1}"
+
+          # Escape HTML special characters
+          DESC=$(echo "$DESC" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+
+          # Build message
+          MESSAGE="${EMOJI} <b>${HEADLINE}</b>%0A%0A${DESC}"
 
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAM_CHAT_ID}" \
