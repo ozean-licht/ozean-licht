@@ -1,21 +1,82 @@
 #!/usr/bin/env npx tsx
 /**
- * Context Map Generator v2
+ * Context Map Generator v3 - "Merge Sort" Architecture
  *
- * Generates README.md navigation maps for agent consumption.
- * README IS the map - replaces entirely, no merging.
+ * Divide: Specialized extractors for each data type
+ * Conquer: Deep analysis within each domain
+ * Merge: Combine all extractions into rich README
+ * Enrich: Markers for agent enhancement
  *
- * Features:
- * - Gravity analysis (import counting)
- * - ASCII tree structure
- * - Task-oriented hot paths
- * - Complexity detection
- *
- * Usage: npx tsx generate-context-map.ts <directory>
+ * Usage: npx tsx generate-context-map.ts <directory> [--no-enrich]
  */
 
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "node:fs";
-import { join, extname, basename, resolve, relative, dirname } from "node:path";
+import { join, extname, basename, resolve, dirname, relative } from "node:path";
+
+// ============================================================================
+// Types
+// ============================================================================
+
+interface PackageData {
+  name: string;
+  description: string;
+  version: string;
+  scripts: Record<string, string>;
+  dependencies: string[];
+  devDependencies: string[];
+  main?: string;
+  type?: string;
+}
+
+interface EnvVar {
+  name: string;
+  file: string;
+  line: number;
+  hasDefault: boolean;
+  defaultValue?: string;
+}
+
+interface Route {
+  method: string;
+  path: string;
+  handler: string;
+  file: string;
+}
+
+interface FileGravity {
+  path: string;
+  relativePath: string;
+  gravity: number;
+  importedBy: string[];
+  purpose: string;
+}
+
+interface DirComplexity {
+  name: string;
+  path: string;
+  fileCount: number;
+  depth: number;
+  needsMap: boolean;
+  reason: string;
+}
+
+interface ExistingDocs {
+  path: string;
+  title: string;
+  type: "guide" | "api" | "readme" | "other";
+}
+
+interface Extraction {
+  package: PackageData | null;
+  envVars: EnvVar[];
+  routes: Route[];
+  gravity: FileGravity[];
+  complexity: DirComplexity[];
+  docs: ExistingDocs[];
+  entryPoint: string | null;
+  port: number | null;
+  framework: string | null;
+}
 
 // ============================================================================
 // Configuration
@@ -28,246 +89,221 @@ const SKIP_DIRS = new Set([
 ]);
 
 const CODE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx"]);
-const CONFIG_FILES = new Set(["package.json", "tsconfig.json", ".env", ".env.example"]);
-
-// Complexity thresholds
-const DEEP_MAP_FILE_THRESHOLD = 10;
-const DEEP_MAP_DEPTH_THRESHOLD = 2;
 
 // ============================================================================
-// Types
+// DIVIDE: Specialized Extractors
 // ============================================================================
 
-interface FileInfo {
-  name: string;
-  relativePath: string;
-  fullPath: string;
-  isEntry: boolean;
-  purpose: string;
-  gravity: number;
-  importedBy: string[];
-}
+/**
+ * Extract package.json data
+ */
+function extractPackage(dir: string): PackageData | null {
+  const pkgPath = join(dir, "package.json");
+  if (!existsSync(pkgPath)) return null;
 
-interface DirInfo {
-  name: string;
-  relativePath: string;
-  fullPath: string;
-  fileCount: number;
-  depth: number;
-  purpose: string;
-  needsDeepMap: boolean;
-  reason?: string;
-}
-
-interface DirectoryAnalysis {
-  name: string;
-  essence: string;
-  files: FileInfo[];
-  dirs: DirInfo[];
-  entryPoints: FileInfo[];
-  configDir?: string;
-  typesDir?: string;
-  totalFiles: number;
-}
-
-// ============================================================================
-// Purpose Inference
-// ============================================================================
-
-const FILE_PURPOSE_PATTERNS: Array<{ pattern: RegExp; purpose: string }> = [
-  // Entry points
-  { pattern: /^index\.(ts|tsx|js|jsx)$/, purpose: "Module entry point and exports" },
-  { pattern: /^server\.(ts|js)$/, purpose: "Server entry point" },
-  { pattern: /^main\.(ts|js)$/, purpose: "Application entry point" },
-  { pattern: /^app\.(ts|tsx)$/, purpose: "App component or entry" },
-
-  // Next.js specific
-  { pattern: /^page\.(ts|tsx)$/, purpose: "Next.js page component" },
-  { pattern: /^layout\.(ts|tsx)$/, purpose: "Next.js layout component" },
-  { pattern: /^route\.(ts|js)$/, purpose: "Next.js API route handler" },
-  { pattern: /^middleware\.(ts|js)$/, purpose: "Next.js middleware" },
-  { pattern: /^loading\.(ts|tsx)$/, purpose: "Next.js loading state" },
-  { pattern: /^error\.(ts|tsx)$/, purpose: "Next.js error boundary" },
-
-  // Common patterns
-  { pattern: /config/i, purpose: "Configuration and settings" },
-  { pattern: /env/i, purpose: "Environment variables schema" },
-  { pattern: /constants?/i, purpose: "Constant values" },
-  { pattern: /types?\./, purpose: "TypeScript type definitions" },
-  { pattern: /schema/i, purpose: "Data schema definitions" },
-
-  // Auth
-  { pattern: /auth/i, purpose: "Authentication logic" },
-  { pattern: /jwt/i, purpose: "JWT token handling" },
-  { pattern: /session/i, purpose: "Session management" },
-  { pattern: /permission/i, purpose: "Permission checking" },
-
-  // Data
-  { pattern: /db|database/i, purpose: "Database operations" },
-  { pattern: /pool/i, purpose: "Connection pooling" },
-  { pattern: /query|queries/i, purpose: "Database queries" },
-  { pattern: /adapter/i, purpose: "Data adapter layer" },
-  { pattern: /client/i, purpose: "Client implementation" },
-
-  // API
-  { pattern: /api/i, purpose: "API handlers" },
-  { pattern: /route/i, purpose: "Route definitions" },
-  { pattern: /handler/i, purpose: "Request handlers" },
-  { pattern: /controller/i, purpose: "Controller logic" },
-
-  // React
-  { pattern: /hook/i, purpose: "React hook" },
-  { pattern: /context/i, purpose: "React context" },
-  { pattern: /provider/i, purpose: "Context provider" },
-  { pattern: /component/i, purpose: "React component" },
-
-  // Utilities
-  { pattern: /utils?/i, purpose: "Utility functions" },
-  { pattern: /helpers?/i, purpose: "Helper functions" },
-  { pattern: /logger?/i, purpose: "Logging utilities" },
-  { pattern: /error/i, purpose: "Error handling" },
-  { pattern: /validation/i, purpose: "Input validation" },
-];
-
-const DIR_PURPOSE_MAP: Record<string, string> = {
-  "src": "Source code",
-  "lib": "Core libraries",
-  "app": "Next.js app router",
-  "pages": "Next.js pages",
-  "api": "API routes",
-  "components": "UI components",
-  "ui": "UI primitives",
-  "hooks": "React hooks",
-  "utils": "Utility functions",
-  "helpers": "Helper functions",
-  "types": "Type definitions",
-  "config": "Configuration",
-  "auth": "Authentication",
-  "services": "Business logic",
-  "modules": "Feature modules",
-  "contexts": "React contexts",
-  "providers": "Context providers",
-  "styles": "Stylesheets",
-  "assets": "Static assets",
-  "public": "Public files",
-  "tests": "Test files",
-  "specs": "Specifications",
-  "docs": "Documentation",
-  "scripts": "Build/utility scripts",
-  "migrations": "Database migrations",
-  "middleware": "Middleware functions",
-  "routes": "Route handlers",
-  "mcp": "MCP service handlers",
-  "health": "Health check endpoints",
-  "rbac": "Role-based access control",
-  "data-table": "Data table components",
-  "dashboard": "Dashboard features",
-};
-
-// Task patterns based on directory type
-const TASK_PATTERNS: Record<string, Array<{ task: string; start: string; flow: string }>> = {
-  "next-app": [
-    { task: "Add page", start: "`app/`", flow: "Create `[route]/page.tsx` → Add layout if needed" },
-    { task: "Add API route", start: "`app/api/`", flow: "Create `[route]/route.ts` → Export handlers" },
-    { task: "Add component", start: "`components/`", flow: "Create component → Export from index" },
-  ],
-  "express-server": [
-    { task: "Add route", start: "`src/routes/`", flow: "Create handler → Register in `index.ts`" },
-    { task: "Add middleware", start: "`src/middleware/`", flow: "Create function → Add to chain in `server.ts`" },
-    { task: "Update config", start: "`config/`", flow: "Modify schema → Update `.env.example`" },
-  ],
-  "component-library": [
-    { task: "Add component", start: "`src/`", flow: "Create component → Add story → Export from index" },
-    { task: "Update theme", start: "`src/theme/`", flow: "Modify tokens → Update components" },
-  ],
-  "mcp-gateway": [
-    { task: "Add MCP service", start: "`src/mcp/`", flow: "Create handler → Add to `catalog.json` → Register route" },
-    { task: "Debug request", start: "`src/middleware/`", flow: "Check logs → Trace to handler → Verify external API" },
-    { task: "Update auth", start: "`src/auth/`", flow: "Modify validation → Update middleware chain" },
-  ],
-  "default": [
-    { task: "Add feature", start: "`src/`", flow: "Create module → Register in index → Add tests" },
-    { task: "Fix bug", start: "logs/errors", flow: "Find error → Trace to source → Apply fix" },
-    { task: "Update config", start: "`config/`", flow: "Modify values → Restart if needed" },
-  ],
-};
-
-// ============================================================================
-// Analysis Functions
-// ============================================================================
-
-function inferFilePurpose(filename: string, content?: string): string {
-  // Check patterns first
-  for (const { pattern, purpose } of FILE_PURPOSE_PATTERNS) {
-    if (pattern.test(filename)) return purpose;
+  try {
+    const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+    return {
+      name: pkg.name || basename(dir),
+      description: pkg.description || "",
+      version: pkg.version || "0.0.0",
+      scripts: pkg.scripts || {},
+      dependencies: Object.keys(pkg.dependencies || {}),
+      devDependencies: Object.keys(pkg.devDependencies || {}),
+      main: pkg.main,
+      type: pkg.type,
+    };
+  } catch {
+    return null;
   }
-
-  // Try to infer from content if available
-  if (content) {
-    if (content.includes("express()") || content.includes("createServer")) {
-      return "Server initialization";
-    }
-    if (content.includes("NextAuth") || content.includes("getServerSession")) {
-      return "NextAuth configuration";
-    }
-    if (content.includes("createContext") && content.includes("useContext")) {
-      return "React context with provider";
-    }
-    if (content.includes("z.object") || content.includes("z.string")) {
-      return "Zod validation schema";
-    }
-    if (content.includes("prisma") || content.includes("PrismaClient")) {
-      return "Prisma database client";
-    }
-  }
-
-  return ""; // Empty means needs manual description
 }
 
-function inferDirPurpose(dirname: string): string {
-  return DIR_PURPOSE_MAP[dirname.toLowerCase()] || "";
-}
+/**
+ * Extract environment variable references from code
+ */
+function extractEnvVars(dir: string): EnvVar[] {
+  const envVars: EnvVar[] = [];
+  const seen = new Set<string>();
 
-function detectProjectType(dir: string): string {
-  const packageJsonPath = join(dir, "package.json");
-  if (existsSync(packageJsonPath)) {
+  function scanFile(filePath: string) {
     try {
-      const pkg = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
-      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      const content = readFileSync(filePath, "utf-8");
+      const lines = content.split("\n");
 
-      if (deps["next"]) return "next-app";
-      if (deps["express"]) return "express-server";
-      if (deps["@storybook/react"]) return "component-library";
+      lines.forEach((line, idx) => {
+        // Match process.env.VAR_NAME or process.env['VAR_NAME'] or process.env["VAR_NAME"]
+        const patterns = [
+          /process\.env\.([A-Z_][A-Z0-9_]*)/g,
+          /process\.env\[['"]([A-Z_][A-Z0-9_]*)['"]\]/g,
+          // Also match env.VAR from destructured imports
+          /env\.([A-Z_][A-Z0-9_]*)/g,
+        ];
+
+        for (const pattern of patterns) {
+          let match;
+          while ((match = pattern.exec(line)) !== null) {
+            const varName = match[1];
+            if (!seen.has(varName)) {
+              seen.add(varName);
+
+              // Check for default value patterns
+              const hasDefault = line.includes("||") || line.includes("??") || line.includes(":");
+              let defaultValue: string | undefined;
+
+              // Try to extract default value
+              const defaultMatch = line.match(new RegExp(`${varName}['"\\]]*\\s*(?:\\|\\||\\?\\?)\\s*['"]?([^'",;\\)]+)['"]?`));
+              if (defaultMatch) {
+                defaultValue = defaultMatch[1].trim();
+              }
+
+              envVars.push({
+                name: varName,
+                file: relative(dir, filePath),
+                line: idx + 1,
+                hasDefault,
+                defaultValue,
+              });
+            }
+          }
+        }
+      });
     } catch {}
   }
 
-  // Check for MCP gateway patterns
-  if (existsSync(join(dir, "src/mcp")) || basename(dir).includes("mcp")) {
-    return "mcp-gateway";
+  function walkDir(d: string) {
+    try {
+      const entries = readdirSync(d, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.name.startsWith(".") || SKIP_DIRS.has(entry.name)) continue;
+        const fullPath = join(d, entry.name);
+        if (entry.isDirectory()) {
+          walkDir(fullPath);
+        } else if (CODE_EXTENSIONS.has(extname(entry.name))) {
+          scanFile(fullPath);
+        }
+      }
+    } catch {}
   }
 
-  return "default";
+  walkDir(dir);
+
+  // Also check .env.example if it exists
+  const envExample = join(dir, ".env.example");
+  if (existsSync(envExample)) {
+    try {
+      const content = readFileSync(envExample, "utf-8");
+      content.split("\n").forEach((line, idx) => {
+        const match = line.match(/^([A-Z_][A-Z0-9_]*)=/);
+        if (match && !seen.has(match[1])) {
+          seen.add(match[1]);
+          envVars.push({
+            name: match[1],
+            file: ".env.example",
+            line: idx + 1,
+            hasDefault: true,
+            defaultValue: line.split("=")[1]?.trim(),
+          });
+        }
+      });
+    } catch {}
+  }
+
+  return envVars.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-function calculateGravity(
-  file: string,
-  allFiles: string[],
-  importMap: Map<string, string[]>
-): number {
-  const importedBy = importMap.get(file) || [];
-  return importedBy.length;
+/**
+ * Extract API routes from Express/Next.js patterns
+ */
+function extractRoutes(dir: string): Route[] {
+  const routes: Route[] = [];
+
+  function scanFile(filePath: string) {
+    try {
+      const content = readFileSync(filePath, "utf-8");
+      const relPath = relative(dir, filePath);
+
+      // Express patterns: app.get('/path', ...) or router.post('/path', ...)
+      const expressPatterns = [
+        /(?:app|router)\.(get|post|put|delete|patch|use)\s*\(\s*['"`]([^'"`]+)['"`]/gi,
+      ];
+
+      for (const pattern of expressPatterns) {
+        let match;
+        while ((match = pattern.exec(content)) !== null) {
+          routes.push({
+            method: match[1].toUpperCase(),
+            path: match[2],
+            handler: relPath,
+            file: relPath,
+          });
+        }
+      }
+
+      // Next.js App Router: export async function GET/POST/etc
+      const nextPatterns = /export\s+(?:async\s+)?function\s+(GET|POST|PUT|DELETE|PATCH)\s*\(/gi;
+      let nextMatch;
+      while ((nextMatch = nextPatterns.exec(content)) !== null) {
+        // Derive path from file location (app/api/xxx/route.ts -> /api/xxx)
+        const pathMatch = relPath.match(/app(.*)\/route\.(ts|js)/);
+        if (pathMatch) {
+          routes.push({
+            method: nextMatch[1].toUpperCase(),
+            path: pathMatch[1] || "/",
+            handler: nextMatch[1],
+            file: relPath,
+          });
+        }
+      }
+    } catch {}
+  }
+
+  function walkDir(d: string) {
+    try {
+      const entries = readdirSync(d, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.name.startsWith(".") || SKIP_DIRS.has(entry.name)) continue;
+        const fullPath = join(d, entry.name);
+        if (entry.isDirectory()) {
+          walkDir(fullPath);
+        } else if (CODE_EXTENSIONS.has(extname(entry.name))) {
+          scanFile(fullPath);
+        }
+      }
+    } catch {}
+  }
+
+  walkDir(dir);
+  return routes;
 }
 
-function buildImportMap(dir: string, files: string[]): Map<string, string[]> {
+/**
+ * Calculate file gravity (import analysis)
+ */
+function extractGravity(dir: string): FileGravity[] {
+  const allFiles: string[] = [];
   const importMap = new Map<string, string[]>();
 
-  // Initialize all files
-  for (const file of files) {
-    importMap.set(file, []);
+  function collectFiles(d: string, depth = 0) {
+    if (depth > 10) return;
+    try {
+      const entries = readdirSync(d, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.name.startsWith(".") || SKIP_DIRS.has(entry.name)) continue;
+        const fullPath = join(d, entry.name);
+        if (entry.isDirectory()) {
+          collectFiles(fullPath, depth + 1);
+        } else if (CODE_EXTENSIONS.has(extname(entry.name))) {
+          allFiles.push(fullPath);
+          importMap.set(fullPath, []);
+        }
+      }
+    } catch {}
   }
 
+  collectFiles(dir);
+
   // Analyze imports
-  for (const filePath of files) {
+  for (const filePath of allFiles) {
     try {
       const content = readFileSync(filePath, "utf-8");
       const importRegex = /(?:import|from)\s+['"]([^'"]+)['"]/g;
@@ -275,18 +311,12 @@ function buildImportMap(dir: string, files: string[]): Map<string, string[]> {
 
       while ((match = importRegex.exec(content)) !== null) {
         const importPath = match[1];
-
-        // Resolve relative imports
         if (importPath.startsWith(".")) {
           const resolved = resolve(dirname(filePath), importPath);
-
-          // Try to find matching file
-          for (const ext of ["", ".ts", ".tsx", ".js", ".jsx", "/index.ts", "/index.tsx"]) {
+          for (const ext of ["", ".ts", ".tsx", ".js", ".jsx", "/index.ts", "/index.tsx", "/index.js"]) {
             const candidate = resolved + ext;
             if (importMap.has(candidate)) {
-              const importedBy = importMap.get(candidate) || [];
-              importedBy.push(filePath);
-              importMap.set(candidate, importedBy);
+              importMap.get(candidate)!.push(filePath);
               break;
             }
           }
@@ -295,331 +325,502 @@ function buildImportMap(dir: string, files: string[]): Map<string, string[]> {
     } catch {}
   }
 
-  return importMap;
-}
-
-function countCodeFiles(dir: string, depth = 0, maxDepth = 5): number {
-  if (depth > maxDepth) return 0;
-
-  let count = 0;
-  try {
-    const entries = readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (entry.name.startsWith(".") || SKIP_DIRS.has(entry.name)) continue;
-
-      if (entry.isDirectory()) {
-        count += countCodeFiles(join(dir, entry.name), depth + 1, maxDepth);
-      } else if (CODE_EXTENSIONS.has(extname(entry.name))) {
-        count++;
-      }
+  // Build gravity list
+  const gravityList: FileGravity[] = [];
+  for (const [file, importedBy] of importMap) {
+    const gravity = importedBy.length;
+    if (gravity > 0) {
+      gravityList.push({
+        path: file,
+        relativePath: relative(dir, file),
+        gravity,
+        importedBy: importedBy.map(f => relative(dir, f)),
+        purpose: inferPurpose(file),
+      });
     }
-  } catch {}
-  return count;
+  }
+
+  return gravityList.sort((a, b) => b.gravity - a.gravity);
 }
 
-function getMaxDepth(dir: string, current = 0, maxDepth = 5): number {
-  if (current > maxDepth) return current;
+/**
+ * Infer file purpose from name and content
+ */
+function inferPurpose(filePath: string): string {
+  const name = basename(filePath).toLowerCase();
+  const content = (() => {
+    try { return readFileSync(filePath, "utf-8"); } catch { return ""; }
+  })();
 
-  let max = current;
-  try {
-    const entries = readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (entry.isDirectory() && !entry.name.startsWith(".") && !SKIP_DIRS.has(entry.name)) {
-        const subDepth = getMaxDepth(join(dir, entry.name), current + 1, maxDepth);
-        max = Math.max(max, subDepth);
+  // Check content patterns first (more specific)
+  if (content.includes("express()") || content.includes("createServer")) return "Server initialization";
+  if (content.includes("NextAuth") || content.includes("getServerSession")) return "NextAuth configuration";
+  if (content.includes("z.object") || content.includes("z.string")) return "Zod validation schema";
+  if (content.includes("PrismaClient")) return "Prisma database client";
+  if (content.includes("createContext") && content.includes("Provider")) return "React context provider";
+
+  // Fall back to name patterns
+  if (name.includes("error")) return "Error handling utilities";
+  if (name.includes("type")) return "TypeScript type definitions";
+  if (name.includes("config") || name.includes("env")) return "Configuration management";
+  if (name.includes("logger") || name.includes("log")) return "Logging utilities";
+  if (name.includes("auth")) return "Authentication logic";
+  if (name.includes("middleware")) return "Middleware functions";
+  if (name.includes("route")) return "Route handlers";
+  if (name.includes("util") || name.includes("helper")) return "Utility functions";
+  if (name.includes("hook")) return "React hooks";
+  if (name.includes("context")) return "React context";
+  if (name.includes("client")) return "Client implementation";
+  if (name.includes("server")) return "Server-side logic";
+  if (name.includes("index")) return "Module exports";
+  if (name.includes("metric")) return "Metrics collection";
+  if (name.includes("health")) return "Health check endpoints";
+
+  return "";
+}
+
+/**
+ * Analyze directory complexity for "Needs Deeper Mapping"
+ */
+function extractComplexity(dir: string): DirComplexity[] {
+  const result: DirComplexity[] = [];
+
+  function countFiles(d: string, depth = 0): { count: number; maxDepth: number } {
+    if (depth > 10) return { count: 0, maxDepth: depth };
+    let count = 0;
+    let maxDepth = depth;
+
+    try {
+      const entries = readdirSync(d, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.name.startsWith(".") || SKIP_DIRS.has(entry.name)) continue;
+        const fullPath = join(d, entry.name);
+        if (entry.isDirectory()) {
+          const sub = countFiles(fullPath, depth + 1);
+          count += sub.count;
+          maxDepth = Math.max(maxDepth, sub.maxDepth);
+        } else if (CODE_EXTENSIONS.has(extname(entry.name))) {
+          count++;
+        }
       }
-    }
-  } catch {}
-  return max;
-}
+    } catch {}
 
-function collectAllCodeFiles(dir: string, files: string[] = [], depth = 0, maxDepth = 5): string[] {
-  if (depth > maxDepth) return files;
+    return { count, maxDepth };
+  }
 
   try {
     const entries = readdirSync(dir, { withFileTypes: true });
     for (const entry of entries) {
-      if (entry.name.startsWith(".") || SKIP_DIRS.has(entry.name)) continue;
+      if (!entry.isDirectory() || entry.name.startsWith(".") || SKIP_DIRS.has(entry.name)) continue;
 
       const fullPath = join(dir, entry.name);
-      if (entry.isDirectory()) {
-        collectAllCodeFiles(fullPath, files, depth + 1, maxDepth);
-      } else if (CODE_EXTENSIONS.has(extname(entry.name))) {
-        files.push(fullPath);
-      }
+      const { count, maxDepth } = countFiles(fullPath);
+
+      const needsMap = count > 8 || maxDepth > 2;
+      const reasons: string[] = [];
+      if (count > 8) reasons.push(`${count} files`);
+      if (maxDepth > 2) reasons.push(`${maxDepth} levels deep`);
+
+      result.push({
+        name: entry.name,
+        path: entry.name,
+        fileCount: count,
+        depth: maxDepth,
+        needsMap,
+        reason: reasons.join(", ") || "small",
+      });
     }
   } catch {}
-  return files;
+
+  return result.sort((a, b) => b.fileCount - a.fileCount);
 }
 
-// ============================================================================
-// Directory Analysis
-// ============================================================================
+/**
+ * Find existing documentation
+ */
+function extractDocs(dir: string): ExistingDocs[] {
+  const docs: ExistingDocs[] = [];
 
-function analyzeDirectory(dir: string): DirectoryAnalysis {
-  const dirName = basename(dir);
-  const allCodeFiles = collectAllCodeFiles(dir);
-  const importMap = buildImportMap(dir, allCodeFiles);
-
-  const files: FileInfo[] = [];
-  const dirs: DirInfo[] = [];
-
-  let entries;
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return { name: dirName, essence: "", files: [], dirs: [], entryPoints: [], totalFiles: 0 };
-  }
-
-  for (const entry of entries) {
-    if (entry.name.startsWith(".") || SKIP_DIRS.has(entry.name)) continue;
-
-    const fullPath = join(dir, entry.name);
-    const relativePath = entry.name;
-
-    if (entry.isDirectory()) {
-      const fileCount = countCodeFiles(fullPath);
-      const depth = getMaxDepth(fullPath);
-      const needsDeepMap = fileCount > DEEP_MAP_FILE_THRESHOLD || depth > DEEP_MAP_DEPTH_THRESHOLD;
-
-      let reason: string | undefined;
-      if (needsDeepMap) {
-        const reasons: string[] = [];
-        if (fileCount > DEEP_MAP_FILE_THRESHOLD) reasons.push(`${fileCount} files`);
-        if (depth > DEEP_MAP_DEPTH_THRESHOLD) reasons.push(`${depth} levels deep`);
-        reason = reasons.join(", ");
-      }
-
-      dirs.push({
-        name: entry.name,
-        relativePath,
-        fullPath,
-        fileCount,
-        depth,
-        purpose: inferDirPurpose(entry.name),
-        needsDeepMap,
-        reason,
-      });
-    } else if (CODE_EXTENSIONS.has(extname(entry.name))) {
-      let content: string | undefined;
-      try {
-        content = readFileSync(fullPath, "utf-8");
-      } catch {}
-
-      const stem = basename(entry.name, extname(entry.name)).toLowerCase();
-      const isEntry = ["index", "main", "server", "app", "entry"].includes(stem);
-      const gravity = calculateGravity(fullPath, allCodeFiles, importMap);
-
-      files.push({
-        name: entry.name,
-        relativePath,
-        fullPath,
-        isEntry,
-        purpose: inferFilePurpose(entry.name, content),
-        gravity,
-        importedBy: importMap.get(fullPath) || [],
-      });
-    }
-  }
-
-  // Sort files by gravity (highest first), then by name
-  files.sort((a, b) => {
-    if (b.gravity !== a.gravity) return b.gravity - a.gravity;
-    if (a.isEntry && !b.isEntry) return -1;
-    if (!a.isEntry && b.isEntry) return 1;
-    return a.name.localeCompare(b.name);
-  });
-
-  // Sort dirs by importance
-  const dirOrder = ["src", "app", "lib", "components", "config", "api", "pages", "types"];
-  dirs.sort((a, b) => {
-    const aIdx = dirOrder.indexOf(a.name.toLowerCase());
-    const bIdx = dirOrder.indexOf(b.name.toLowerCase());
-    if (aIdx >= 0 && bIdx >= 0) return aIdx - bIdx;
-    if (aIdx >= 0) return -1;
-    if (bIdx >= 0) return 1;
-    return a.name.localeCompare(b.name);
-  });
-
-  // Identify special directories
-  const configDir = dirs.find(d => d.name.toLowerCase() === "config")?.name;
-  const typesDir = dirs.find(d => d.name.toLowerCase() === "types")?.name;
-
-  // Generate essence based on package.json or directory analysis
-  let essence = "";
-  const packageJsonPath = join(dir, "package.json");
-  if (existsSync(packageJsonPath)) {
+  function scanDir(d: string, depth = 0) {
+    if (depth > 2) return;
     try {
-      const pkg = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
-      if (pkg.description) {
-        essence = pkg.description;
+      const entries = readdirSync(d, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.name.startsWith(".") || SKIP_DIRS.has(entry.name)) continue;
+
+        const fullPath = join(d, entry.name);
+        if (entry.isDirectory() && (entry.name === "docs" || entry.name === "documentation")) {
+          scanDir(fullPath, depth + 1);
+        } else if (entry.name.endsWith(".md") && entry.name !== "README.md") {
+          const relPath = relative(dir, fullPath);
+          let type: ExistingDocs["type"] = "other";
+          const nameLower = entry.name.toLowerCase();
+
+          if (nameLower.includes("guide") || nameLower.includes("tutorial")) type = "guide";
+          else if (nameLower.includes("api")) type = "api";
+
+          // Try to extract title from first heading
+          let title = entry.name.replace(".md", "");
+          try {
+            const content = readFileSync(fullPath, "utf-8");
+            const titleMatch = content.match(/^#\s+(.+)$/m);
+            if (titleMatch) title = titleMatch[1];
+          } catch {}
+
+          docs.push({ path: relPath, title, type });
+        }
       }
     } catch {}
   }
 
+  scanDir(dir);
+  return docs;
+}
+
+/**
+ * Detect entry point and port
+ */
+function extractEntryAndPort(dir: string, pkg: PackageData | null): { entry: string | null; port: number | null; framework: string | null } {
+  let entry: string | null = null;
+  let port: number | null = null;
+  let framework: string | null = null;
+
+  // Check package.json main/scripts
+  if (pkg) {
+    if (pkg.main) entry = pkg.main;
+    if (pkg.scripts.dev) {
+      // Extract port from dev script if present
+      const portMatch = pkg.scripts.dev.match(/(?:PORT|port)[=\s]+(\d+)/);
+      if (portMatch) port = parseInt(portMatch[1]);
+    }
+
+    // Detect framework
+    if (pkg.dependencies.includes("next") || pkg.devDependencies.includes("next")) {
+      framework = "Next.js";
+    } else if (pkg.dependencies.includes("express")) {
+      framework = "Express";
+    } else if (pkg.dependencies.includes("fastify")) {
+      framework = "Fastify";
+    } else if (pkg.dependencies.includes("hono")) {
+      framework = "Hono";
+    }
+  }
+
+  // Scan for common entry points
+  const entryPoints = ["src/server.ts", "src/index.ts", "src/main.ts", "server.ts", "index.ts", "app.ts"];
+  for (const ep of entryPoints) {
+    const fullPath = join(dir, ep);
+    if (existsSync(fullPath)) {
+      if (!entry) entry = ep;
+
+      // Try to extract port from file
+      try {
+        const content = readFileSync(fullPath, "utf-8");
+        const portMatch = content.match(/(?:listen|PORT)[(\s:=]+(\d{4})/);
+        if (portMatch && !port) port = parseInt(portMatch[1]);
+      } catch {}
+    }
+  }
+
+  return { entry, port, framework };
+}
+
+// ============================================================================
+// CONQUER: Run All Extractors
+// ============================================================================
+
+function runExtraction(dir: string): Extraction {
+  const pkg = extractPackage(dir);
+  const { entry, port, framework } = extractEntryAndPort(dir, pkg);
+
   return {
-    name: dirName,
-    essence,
-    files,
-    dirs,
-    entryPoints: files.filter(f => f.isEntry),
-    configDir,
-    typesDir,
-    totalFiles: allCodeFiles.length,
+    package: pkg,
+    envVars: extractEnvVars(dir),
+    routes: extractRoutes(dir),
+    gravity: extractGravity(dir),
+    complexity: extractComplexity(dir),
+    docs: extractDocs(dir),
+    entryPoint: entry,
+    port,
+    framework,
   };
 }
 
 // ============================================================================
-// Output Generation
+// MERGE: Combine Into README
 // ============================================================================
 
-function gravityIndicator(gravity: number): string {
-  if (gravity >= 5) return "●●●";
-  if (gravity >= 2) return "●●";
-  return "●";
-}
+function mergeToReadme(dir: string, ext: Extraction, includeEnrich: boolean): string {
+  const lines: string[] = [];
+  const dirName = basename(dir);
+  const timestamp = new Date().toISOString().slice(0, 10);
 
-function generateAsciiTree(analysis: DirectoryAnalysis): string {
-  const lines: string[] = ["```", "."];
-  const items: Array<{ name: string; purpose: string; isDir: boolean; needsLink?: boolean }> = [];
+  // ── Title & Description ──
+  const title = ext.package?.name || dirName;
+  const description = ext.package?.description || `${dirName} - add description`;
 
-  // Add directories first
-  for (const dir of analysis.dirs.slice(0, 10)) {
-    items.push({
-      name: dir.name + "/",
-      purpose: dir.purpose || "...",
-      isDir: true,
-      needsLink: dir.needsDeepMap,
-    });
-  }
+  lines.push(`# ${title}`);
+  lines.push("");
+  lines.push(`> ${description}`);
+  lines.push("");
 
-  // Add top files (limited)
-  for (const file of analysis.files.slice(0, 5)) {
-    if (!analysis.dirs.some(d => file.relativePath.startsWith(d.name + "/"))) {
-      items.push({
-        name: file.name,
-        purpose: file.purpose || "...",
-        isDir: false,
-      });
+  // ── Quick Start ──
+  lines.push("## Quick Start");
+  lines.push("");
+  lines.push("```bash");
+
+  if (ext.package?.scripts) {
+    const scripts = ext.package.scripts;
+    if (scripts.install || existsSync(join(dir, "package.json"))) {
+      lines.push("npm install");
     }
-  }
-
-  // Generate tree lines
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    const isLast = i === items.length - 1;
-    const prefix = isLast ? "└── " : "├── ";
-    const link = item.needsLink ? ` [→](./${item.name})` : "";
-    lines.push(`${prefix}${item.name.padEnd(16)} # ${item.purpose}${link}`);
+    if (scripts.dev) {
+      const devComment = ext.port ? ` # Port ${ext.port}` : "";
+      lines.push(`npm run dev${devComment}`);
+    }
+    if (scripts.build) {
+      lines.push("npm run build");
+    }
+    if (scripts.start && scripts.start !== scripts.dev) {
+      lines.push("npm start");
+    }
+    if (scripts.test) {
+      lines.push("npm test");
+    }
+  } else {
+    lines.push("# No package.json found");
   }
 
   lines.push("```");
-  return lines.join("\n");
-}
+  lines.push("");
 
-function generateTaskTable(dir: string): string {
-  const projectType = detectProjectType(dir);
-  const tasks = TASK_PATTERNS[projectType] || TASK_PATTERNS["default"];
+  // ── Environment Variables ──
+  if (ext.envVars.length > 0) {
+    lines.push("## Environment Variables");
+    lines.push("");
+    lines.push("| Variable | Required | Default | Source |");
+    lines.push("|----------|----------|---------|--------|");
 
-  const lines = [
-    "| Task | Start Here | Flow |",
-    "|------|------------|------|",
-  ];
+    for (const env of ext.envVars.slice(0, 20)) {
+      const required = env.hasDefault ? "No" : "Yes";
+      const defaultVal = env.defaultValue || "-";
+      lines.push(`| \`${env.name}\` | ${required} | ${defaultVal} | \`${env.file}:${env.line}\` |`);
+    }
 
-  for (const task of tasks) {
-    lines.push(`| ${task.task} | ${task.start} | ${task.flow} |`);
+    if (ext.envVars.length > 20) {
+      lines.push(`| ... | | | *${ext.envVars.length - 20} more* |`);
+    }
+    lines.push("");
   }
 
-  return lines.join("\n");
-}
+  // ── API Endpoints ──
+  if (ext.routes.length > 0) {
+    lines.push("## API Endpoints");
+    lines.push("");
+    lines.push("| Method | Path | Handler |");
+    lines.push("|--------|------|---------|");
 
-function generateContextMap(dir: string): string {
-  const analysis = analyzeDirectory(dir);
-  const timestamp = new Date().toISOString().slice(0, 10);
+    for (const route of ext.routes.slice(0, 25)) {
+      lines.push(`| ${route.method} | \`${route.path}\` | \`${route.file}\` |`);
+    }
 
-  const lines: string[] = [];
+    if (ext.routes.length > 25) {
+      lines.push(`| ... | | *${ext.routes.length - 25} more routes* |`);
+    }
+    lines.push("");
+  }
 
-  // Title and essence
-  lines.push(`# ${analysis.name}`);
-  lines.push("");
-  lines.push(`> ${analysis.essence || `${analysis.name} - add description`}`);
-  lines.push("");
-
-  // Quick Nav
-  const entryFile = analysis.entryPoints[0]?.name || analysis.files[0]?.name || "index.ts";
-  const configPath = analysis.configDir || "config";
-  const typesPath = analysis.typesDir || "types";
-
-  lines.push("## Quick Nav");
-  lines.push("");
-  lines.push(`**Entry:** \`${entryFile}\` | **Config:** \`${configPath}/\` | **Types:** \`${typesPath}/\``);
-  lines.push("");
-
-  // Task-oriented hot paths
-  lines.push("## If You Need To...");
-  lines.push("");
-  lines.push(generateTaskTable(dir));
-  lines.push("");
-
-  // ASCII tree structure
+  // ── Structure ──
   lines.push("## Structure");
   lines.push("");
-  lines.push(generateAsciiTree(analysis));
+  lines.push("```");
+  lines.push(".");
+
+  const dirs = ext.complexity.slice(0, 12);
+  for (let i = 0; i < dirs.length; i++) {
+    const d = dirs[i];
+    const isLast = i === dirs.length - 1 && !ext.entryPoint;
+    const prefix = isLast ? "└── " : "├── ";
+    const mapLink = d.needsMap ? " [needs map]" : "";
+    const purpose = getDirPurpose(d.name);
+    lines.push(`${prefix}${d.name}/`.padEnd(20) + `# ${purpose}${mapLink}`);
+  }
+
+  if (ext.entryPoint) {
+    lines.push(`└── ${ext.entryPoint}`.padEnd(20) + "# Entry point");
+  }
+
+  lines.push("```");
   lines.push("");
 
-  // Key files with gravity
-  if (analysis.files.length > 0) {
+  // ── Key Files (by Gravity) ──
+  if (ext.gravity.length > 0) {
     lines.push("## Key Files");
     lines.push("");
-    lines.push("| File | Purpose | Gravity |");
+    lines.push("Files ranked by import frequency (gravity):");
+    lines.push("");
+    lines.push("| File | Imports | Purpose |");
     lines.push("|------|---------|---------|");
 
-    const keyFiles = analysis.files.slice(0, 12);
-    for (const file of keyFiles) {
-      const purpose = file.purpose || "_add description_";
-      const gravity = gravityIndicator(file.gravity);
-      lines.push(`| \`${file.name}\` | ${purpose} | ${gravity} |`);
+    const topFiles = ext.gravity.slice(0, 15);
+    for (const file of topFiles) {
+      const purpose = file.purpose || (includeEnrich ? "<!-- ENRICH -->" : "-");
+      lines.push(`| \`${file.relativePath}\` | ${file.gravity} | ${purpose} |`);
     }
     lines.push("");
   }
 
-  // Needs deeper mapping
-  const needsDeepMap = analysis.dirs.filter(d => d.needsDeepMap);
-  if (needsDeepMap.length > 0) {
+  // ── If You Need To... (Tasks) ──
+  lines.push("## If You Need To...");
+  lines.push("");
+
+  if (includeEnrich) {
+    lines.push("<!-- ENRICH: Add 3-5 common tasks based on understanding of the codebase -->");
+    lines.push("");
+  }
+
+  lines.push("| Task | Start Here | Flow |");
+  lines.push("|------|------------|------|");
+
+  // Generate tasks based on framework and structure
+  const tasks = generateTasks(ext);
+  for (const task of tasks) {
+    lines.push(`| ${task.task} | \`${task.start}\` | ${task.flow} |`);
+  }
+  lines.push("");
+
+  // ── Existing Documentation ──
+  if (ext.docs.length > 0) {
+    lines.push("## Documentation");
+    lines.push("");
+    for (const doc of ext.docs) {
+      lines.push(`- [${doc.title}](./${doc.path})`);
+    }
+    lines.push("");
+  }
+
+  // ── Needs Deeper Mapping ──
+  const needsMap = ext.complexity.filter(d => d.needsMap);
+  if (needsMap.length > 0) {
     lines.push("## Needs Deeper Mapping");
     lines.push("");
-    for (const dir of needsDeepMap) {
-      lines.push(`- [ ] \`${dir.name}/\` — ${dir.reason}`);
+    lines.push("These directories are complex enough for their own README:");
+    lines.push("");
+    for (const d of needsMap) {
+      lines.push(`- [ ] \`${d.name}/\` — ${d.reason}`);
     }
     lines.push("");
   }
 
-  // Footer
+  // ── Footer ──
   lines.push("---");
   lines.push("");
-  lines.push(`*Mapped: ${timestamp} | Files: ${analysis.totalFiles}*`);
+  const mode = includeEnrich ? "hybrid (enrichment markers present)" : "auto";
+  const fileCount = ext.gravity.length + ext.complexity.reduce((sum, d) => sum + d.fileCount, 0);
+  lines.push(`*Mapped: ${timestamp} | Mode: ${mode} | Files: ~${fileCount}*`);
 
   return lines.join("\n");
+}
+
+/**
+ * Get directory purpose from name
+ */
+function getDirPurpose(name: string): string {
+  const purposes: Record<string, string> = {
+    src: "Source code",
+    lib: "Core libraries",
+    app: "Next.js app router",
+    api: "API routes",
+    components: "UI components",
+    hooks: "React hooks",
+    utils: "Utilities",
+    types: "Type definitions",
+    config: "Configuration",
+    auth: "Authentication",
+    mcp: "MCP handlers",
+    tests: "Test suites",
+    docs: "Documentation",
+    scripts: "Build scripts",
+    public: "Static assets",
+    monitoring: "Metrics & health",
+    middleware: "Middleware",
+    routes: "Route handlers",
+    services: "Business logic",
+    database: "Database layer",
+    prisma: "Prisma schema",
+  };
+  return purposes[name.toLowerCase()] || "...";
+}
+
+/**
+ * Generate task suggestions based on extraction
+ */
+function generateTasks(ext: Extraction): Array<{ task: string; start: string; flow: string }> {
+  const tasks: Array<{ task: string; start: string; flow: string }> = [];
+
+  // Framework-specific tasks
+  if (ext.framework === "Next.js") {
+    tasks.push({ task: "Add page", start: "app/", flow: "Create `[route]/page.tsx` → Add to nav" });
+    tasks.push({ task: "Add API route", start: "app/api/", flow: "Create `route.ts` → Export handlers" });
+  } else if (ext.framework === "Express") {
+    if (ext.routes.length > 0) {
+      const routeFile = ext.routes[0].file;
+      tasks.push({ task: "Add route", start: dirname(routeFile) + "/", flow: "Create handler → Register in router" });
+    }
+    tasks.push({ task: "Add middleware", start: "src/middleware/", flow: "Create function → Add to app chain" });
+  }
+
+  // Structure-based tasks
+  const hasComponents = ext.complexity.some(d => d.name === "components");
+  if (hasComponents) {
+    tasks.push({ task: "Add component", start: "components/", flow: "Create file → Export from index" });
+  }
+
+  const hasMcp = ext.complexity.some(d => d.name === "mcp");
+  if (hasMcp) {
+    tasks.push({ task: "Add MCP handler", start: "mcp/", flow: "Create handler → Register in index" });
+  }
+
+  // Generic tasks
+  if (ext.envVars.length > 0) {
+    const configFile = ext.envVars[0].file;
+    tasks.push({ task: "Add env var", start: configFile, flow: "Add to schema → Update `.env.example`" });
+  }
+
+  // Default fallback
+  if (tasks.length === 0) {
+    tasks.push({ task: "Add feature", start: "src/", flow: "Create module → Export → Add tests" });
+    tasks.push({ task: "Fix bug", start: "logs/", flow: "Find error → Trace source → Apply fix" });
+  }
+
+  return tasks.slice(0, 5);
 }
 
 // ============================================================================
 // Main
 // ============================================================================
 
-const directory = process.argv[2];
+const args = process.argv.slice(2);
+const directory = args.find(a => !a.startsWith("--"));
+const noEnrich = args.includes("--no-enrich");
+
 if (!directory) {
-  console.log("Context Map Generator v2");
-  console.log("========================");
+  console.log("Context Map Generator v3 - Merge Sort Architecture");
+  console.log("===================================================");
   console.log("");
-  console.log("Usage: npx tsx generate-context-map.ts <directory>");
+  console.log("Usage: npx tsx generate-context-map.ts <directory> [--no-enrich]");
   console.log("");
-  console.log("Features:");
-  console.log("  - Gravity analysis (import counting)");
-  console.log("  - ASCII tree structure");
-  console.log("  - Task-oriented hot paths");
-  console.log("  - Complexity detection");
+  console.log("Extractors:");
+  console.log("  - package.json    → name, scripts, dependencies");
+  console.log("  - Code scan       → env vars, routes, ports");
+  console.log("  - Import analysis → gravity (file importance)");
+  console.log("  - Structure       → complexity, needs-map flags");
+  console.log("  - Existing docs   → links to documentation");
   console.log("");
-  console.log("Output: Replaces README.md entirely (README IS the map)");
+  console.log("Options:");
+  console.log("  --no-enrich   Skip <!-- ENRICH --> markers");
+  console.log("");
+  console.log("Output: README.md with real extracted data");
   process.exit(1);
 }
 
@@ -629,19 +830,33 @@ if (!existsSync(resolvedDir) || !statSync(resolvedDir).isDirectory()) {
   process.exit(1);
 }
 
-const contextMap = generateContextMap(resolvedDir);
+console.log("Extracting...");
+const extraction = runExtraction(resolvedDir);
+
+console.log(`  Package: ${extraction.package?.name || "not found"}`);
+console.log(`  Env vars: ${extraction.envVars.length}`);
+console.log(`  Routes: ${extraction.routes.length}`);
+console.log(`  Files with gravity: ${extraction.gravity.length}`);
+console.log(`  Directories: ${extraction.complexity.length}`);
+console.log(`  Existing docs: ${extraction.docs.length}`);
+console.log(`  Entry point: ${extraction.entryPoint || "not found"}`);
+console.log(`  Port: ${extraction.port || "not found"}`);
+console.log(`  Framework: ${extraction.framework || "unknown"}`);
+console.log("");
+
+console.log("Merging...");
+const readme = mergeToReadme(resolvedDir, extraction, !noEnrich);
+
 const readmePath = join(resolvedDir, "README.md");
+writeFileSync(readmePath, readme);
+console.log(`Written: ${readmePath}`);
 
-writeFileSync(readmePath, contextMap);
-console.log(`Context map written: ${readmePath}`);
-
-// Report if there are directories needing deeper mapping
-const analysis = analyzeDirectory(resolvedDir);
-const needsDeepMap = analysis.dirs.filter(d => d.needsDeepMap);
-if (needsDeepMap.length > 0) {
+// Report directories needing maps
+const needsMap = extraction.complexity.filter(d => d.needsMap);
+if (needsMap.length > 0) {
   console.log("");
   console.log("Directories needing their own maps:");
-  for (const dir of needsDeepMap) {
-    console.log(`  - ${dir.name}/ (${dir.reason})`);
+  for (const d of needsMap) {
+    console.log(`  - ${d.name}/ (${d.reason})`);
   }
 }
