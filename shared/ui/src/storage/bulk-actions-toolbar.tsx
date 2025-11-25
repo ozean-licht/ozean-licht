@@ -42,12 +42,12 @@ export function BulkActionsToolbar({
 
   const handleAction = async (
     actionId: string,
-    actionFn?: () => void | Promise<void>
+    actionFn?: (files: StorageFile[]) => void | Promise<void>
   ) => {
     if (!actionFn) return
     setActionLoading(actionId)
     try {
-      await actionFn()
+      await actionFn(selectedFiles)
     } finally {
       setActionLoading(null)
     }
@@ -58,21 +58,21 @@ export function BulkActionsToolbar({
       id: 'download',
       label: 'Download',
       icon: Download,
-      onClick: onDownloadAll || (() => {}),
+      onClick: onDownloadAll ? () => onDownloadAll() : () => {},
       disabled: !onDownloadAll || isLoading,
     },
     {
       id: 'move',
       label: 'Move',
       icon: FolderInput,
-      onClick: onMoveSelected || (() => {}),
+      onClick: onMoveSelected ? () => onMoveSelected() : () => {},
       disabled: !onMoveSelected || isLoading,
     },
     {
       id: 'delete',
       label: 'Delete',
       icon: Trash2,
-      onClick: onDeleteSelected || (() => {}),
+      onClick: onDeleteSelected ? () => onDeleteSelected() : () => {},
       disabled: !onDeleteSelected || isLoading,
       variant: 'destructive' as const,
     },

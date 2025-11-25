@@ -164,7 +164,7 @@ export default function Sidebar({
           <div className="flex items-center justify-between h-20 px-4 border-b border-primary/20">
             <Link href="/dashboard" className="group flex items-center w-full">
               <Image
-                src="/images/ozean-licht-logo-horizontal.webp"
+                src="/images/Ozean_Licht_Akadmie_Sidebar_1530px.webp"
                 alt="Ozean Licht"
                 width={isCollapsed ? 50 : 240}
                 height={isCollapsed ? 50 : 70}

@@ -76,35 +76,27 @@ const meta = {
     },
     onDownload: {
       description: 'Callback when download is clicked',
-      action: 'download',
     },
     onDelete: {
       description: 'Callback when delete is clicked',
-      action: 'delete',
     },
     onRename: {
       description: 'Callback when rename is clicked',
-      action: 'rename',
     },
     onShare: {
       description: 'Callback when share is clicked',
-      action: 'share',
     },
     onViewDetails: {
       description: 'Callback when view details is clicked',
-      action: 'viewDetails',
     },
     onCopyUrl: {
       description: 'Callback when copy URL is clicked',
-      action: 'copyUrl',
     },
     onPreview: {
       description: 'Callback when preview is clicked (files only)',
-      action: 'preview',
     },
     onOpenInBucket: {
       description: 'Callback when open in bucket is clicked (folders only)',
-      action: 'openInBucket',
     },
     customActions: {
       description: 'Array of custom actions to add',
@@ -178,7 +170,7 @@ const mockFolder: StorageFile = {
 
 // Reusable trigger card component
 const FileCard = ({ file }: { file: StorageFile }) => (
-  <div className="flex h-[200px] w-[350px] flex-col items-center justify-center gap-3 rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 p-6 text-center glass-card-strong">
+  <div className="flex h-[200px] w-[350px] flex-col items-center justify-center gap-3 rounded-lg border border-primary/30 p-6 text-center glass-card-strong">
     {file.isFolder ? (
       <FolderOpen className="h-12 w-12 text-primary" />
     ) : (
@@ -200,21 +192,31 @@ const FileCard = ({ file }: { file: StorageFile }) => (
 
 /**
  * Default file context menu with all standard actions
+ *
+ * Right-click on the card to open the custom context menu.
  */
 export const Default: Story = {
   render: () => (
-    <FileContextMenu
-      file={mockImageFile}
-      onDownload={fn('download')}
-      onDelete={fn('delete')}
-      onRename={fn('rename')}
-      onShare={fn('share')}
-      onViewDetails={fn('viewDetails')}
-      onCopyUrl={fn('copyUrl')}
-      onPreview={fn('preview')}
-    >
-      <FileCard file={mockImageFile} />
-    </FileContextMenu>
+    <div className="flex flex-col gap-4 items-center p-6">
+      <div className="glass-card rounded-lg p-4 max-w-md">
+        <p className="text-sm text-primary font-medium mb-2">Instructions:</p>
+        <p className="text-xs text-[#C4C8D4]">
+          Right-click on the card below to open the custom context menu.
+        </p>
+      </div>
+      <FileContextMenu
+        file={mockImageFile}
+        onDownload={fn()}
+        onDelete={fn()}
+        onRename={fn()}
+        onShare={fn()}
+        onViewDetails={fn()}
+        onCopyUrl={fn()}
+        onPreview={fn()}
+      >
+        <FileCard file={mockImageFile} />
+      </FileContextMenu>
+    </div>
   ),
 }
 
@@ -225,13 +227,13 @@ export const ImageFileMenu: Story = {
   render: () => (
     <FileContextMenu
       file={mockImageFile}
-      onDownload={fn('download')}
-      onDelete={fn('delete')}
-      onRename={fn('rename')}
-      onShare={fn('share')}
-      onViewDetails={fn('viewDetails')}
-      onCopyUrl={fn('copyUrl')}
-      onPreview={fn('preview')}
+      onDownload={fn()}
+      onDelete={fn()}
+      onRename={fn()}
+      onShare={fn()}
+      onViewDetails={fn()}
+      onCopyUrl={fn()}
+      onPreview={fn()}
     >
       <FileCard file={mockImageFile} />
     </FileContextMenu>
@@ -245,13 +247,13 @@ export const DocumentFileMenu: Story = {
   render: () => (
     <FileContextMenu
       file={mockPdfFile}
-      onDownload={fn('download')}
-      onDelete={fn('delete')}
-      onRename={fn('rename')}
-      onShare={fn('share')}
-      onViewDetails={fn('viewDetails')}
-      onCopyUrl={fn('copyUrl')}
-      onPreview={fn('preview')}
+      onDownload={fn()}
+      onDelete={fn()}
+      onRename={fn()}
+      onShare={fn()}
+      onViewDetails={fn()}
+      onCopyUrl={fn()}
+      onPreview={fn()}
     >
       <FileCard file={mockPdfFile} />
     </FileContextMenu>
@@ -265,13 +267,13 @@ export const VideoFileMenu: Story = {
   render: () => (
     <FileContextMenu
       file={mockVideoFile}
-      onDownload={fn('download')}
-      onDelete={fn('delete')}
-      onRename={fn('rename')}
-      onShare={fn('share')}
-      onViewDetails={fn('viewDetails')}
-      onCopyUrl={fn('copyUrl')}
-      onPreview={fn('preview')}
+      onDownload={fn()}
+      onDelete={fn()}
+      onRename={fn()}
+      onShare={fn()}
+      onViewDetails={fn()}
+      onCopyUrl={fn()}
+      onPreview={fn()}
     >
       <FileCard file={mockVideoFile} />
     </FileContextMenu>
@@ -285,10 +287,10 @@ export const FolderMenu: Story = {
   render: () => (
     <FileContextMenu
       file={mockFolder}
-      onDelete={fn('delete')}
-      onRename={fn('rename')}
-      onViewDetails={fn('viewDetails')}
-      onOpenInBucket={fn('openInBucket')}
+      onDelete={fn()}
+      onRename={fn()}
+      onViewDetails={fn()}
+      onOpenInBucket={fn()}
     >
       <FileCard file={mockFolder} />
     </FileContextMenu>
@@ -305,29 +307,29 @@ export const WithCustomActions: Story = {
         id: 'archive',
         label: 'Archive',
         icon: Archive,
-        onClick: fn('archive'),
+        onClick: fn(),
       },
       {
         id: 'refresh',
         label: 'Refresh Metadata',
         icon: RotateCw,
-        onClick: fn('refresh'),
+        onClick: fn(),
       },
       {
         id: 'lock',
         label: 'Lock File',
         icon: Lock,
-        onClick: fn('lock'),
+        onClick: fn(),
       },
     ]
 
     return (
       <FileContextMenu
         file={mockImageFile}
-        onDownload={fn('download')}
-        onDelete={fn('delete')}
-        onRename={fn('rename')}
-        onShare={fn('share')}
+        onDownload={fn()}
+        onDelete={fn()}
+        onRename={fn()}
+        onShare={fn()}
         customActions={customActions}
       >
         <FileCard file={mockImageFile} />
@@ -343,16 +345,16 @@ export const WithDisabledActions: Story = {
   render: () => (
     <FileContextMenu
       file={mockImageFile}
-      onDownload={fn('download')}
-      onDelete={fn('delete')}
-      onRename={fn('rename')}
-      onShare={fn('share')}
-      onViewDetails={fn('viewDetails')}
-      onCopyUrl={fn('copyUrl')}
-      onPreview={fn('preview')}
+      onDownload={fn()}
+      onDelete={fn()}
+      onRename={fn()}
+      onShare={fn()}
+      onViewDetails={fn()}
+      onCopyUrl={fn()}
+      onPreview={fn()}
       disabledActions={['delete', 'share']}
     >
-      <div className="flex h-[200px] w-[350px] flex-col items-center justify-center gap-3 rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 p-6 text-center glass-card-strong">
+      <div className="flex h-[200px] w-[350px] flex-col items-center justify-center gap-3 rounded-lg border border-primary/30 p-6 text-center glass-card-strong">
         <Lock className="h-12 w-12 text-primary/50" />
         <div>
           <p className="text-sm font-medium text-white">vacation-photo.jpg</p>
@@ -369,8 +371,8 @@ export const WithDisabledActions: Story = {
  */
 export const MinimalMenu: Story = {
   render: () => (
-    <FileContextMenu file={mockImageFile} onDownload={fn('download')}>
-      <div className="flex h-[200px] w-[350px] flex-col items-center justify-center gap-3 rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 p-6 text-center glass-card-strong">
+    <FileContextMenu file={mockImageFile} onDownload={fn()}>
+      <div className="flex h-[200px] w-[350px] flex-col items-center justify-center gap-3 rounded-lg border border-primary/30 p-6 text-center glass-card-strong">
         <Download className="h-12 w-12 text-primary" />
         <div>
           <p className="text-sm font-medium text-white">vacation-photo.jpg</p>
@@ -392,26 +394,26 @@ export const FullFeatured: Story = {
         id: 'archive',
         label: 'Archive File',
         icon: Archive,
-        onClick: fn('archive'),
+        onClick: fn(),
       },
       {
         id: 'unlock',
         label: 'Unlock for Editing',
         icon: Unlock,
-        onClick: fn('unlock'),
+        onClick: fn(),
       },
     ]
 
     return (
       <FileContextMenu
         file={mockImageFile}
-        onDownload={fn('download')}
-        onDelete={fn('delete')}
-        onRename={fn('rename')}
-        onShare={fn('share')}
-        onViewDetails={fn('viewDetails')}
-        onCopyUrl={fn('copyUrl')}
-        onPreview={fn('preview')}
+        onDownload={fn()}
+        onDelete={fn()}
+        onRename={fn()}
+        onShare={fn()}
+        onViewDetails={fn()}
+        onCopyUrl={fn()}
+        onPreview={fn()}
         customActions={customActions}
       >
         <FileCard file={mockImageFile} />
@@ -437,14 +439,14 @@ export const GridViewUsage: Story = {
             <FileContextMenu
               key={file.id}
               file={file}
-              onDownload={file.isFolder ? undefined : fn('download')}
-              onDelete={fn('delete')}
-              onRename={fn('rename')}
-              onShare={fn('share')}
-              onViewDetails={fn('viewDetails')}
-              onCopyUrl={file.isFolder ? undefined : fn('copyUrl')}
-              onPreview={file.isFolder ? undefined : fn('preview')}
-              onOpenInBucket={file.isFolder ? fn('openInBucket') : undefined}
+              onDownload={file.isFolder ? undefined : fn()}
+              onDelete={fn()}
+              onRename={fn()}
+              onShare={fn()}
+              onViewDetails={fn()}
+              onCopyUrl={file.isFolder ? undefined : fn()}
+              onPreview={file.isFolder ? undefined : fn()}
+              onOpenInBucket={file.isFolder ? fn() : undefined}
             >
               <div className="group relative cursor-pointer rounded-lg border border-primary/20 bg-gradient-to-br from-[#0a1f24] to-[#0E282E] p-4 transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10">
                 <div className="flex flex-col items-center gap-3">
@@ -509,14 +511,14 @@ export const ListViewUsage: Story = {
                 <FileContextMenu
                   key={file.id}
                   file={file}
-                  onDownload={file.isFolder ? undefined : fn('download')}
-                  onDelete={fn('delete')}
-                  onRename={fn('rename')}
-                  onShare={fn('share')}
-                  onViewDetails={fn('viewDetails')}
-                  onCopyUrl={file.isFolder ? undefined : fn('copyUrl')}
-                  onPreview={file.isFolder ? undefined : fn('preview')}
-                  onOpenInBucket={file.isFolder ? fn('openInBucket') : undefined}
+                  onDownload={file.isFolder ? undefined : fn()}
+                  onDelete={fn()}
+                  onRename={fn()}
+                  onShare={fn()}
+                  onViewDetails={fn()}
+                  onCopyUrl={file.isFolder ? undefined : fn()}
+                  onPreview={file.isFolder ? undefined : fn()}
+                  onOpenInBucket={file.isFolder ? fn() : undefined}
                 >
                   <tr className="border-b border-[#0E282E]/50 hover:bg-primary/5 cursor-pointer transition-colors">
                     <td className="p-3">

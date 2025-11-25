@@ -15,6 +15,9 @@ const config: StorybookConfig = {
     '../../../shared/ui/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
 
+  // Serve static files from public directory
+  staticDirs: ['../public'],
+
   // Explicitly set preview path
   previewAnnotations: [
     join(__dirname, 'preview.tsx'),

@@ -2,9 +2,8 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
-import { Card, CardContent } from '@/components/ui/card'
+import { Header, Footer } from '@shared/ui/branded/layout'
+import { Card } from '@shared/ui/cossui'
 import { Loader2 } from 'lucide-react'
 
 // DEMO MODE: Simplified auth callback that redirects to dashboard
@@ -23,16 +22,14 @@ export default function AuthCallbackPage() {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-32">
-        <Card className="max-w-md mx-auto">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center gap-4 text-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-lg">Authentifizierung läuft...</p>
-              <p className="text-sm text-muted-foreground">
-                Du wirst weitergeleitet...
-              </p>
-            </div>
-          </CardContent>
+        <Card className="max-w-md mx-auto p-6">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-lg">Authentifizierung läuft...</p>
+            <p className="text-sm text-muted-foreground">
+              Du wirst weitergeleitet...
+            </p>
+          </div>
         </Card>
       </main>
       <Footer />

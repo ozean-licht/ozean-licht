@@ -53,6 +53,7 @@ export function FileContextMenu({
   disabledActions = [],
 }: FileContextMenuProps) {
   const isDisabled = (actionId: string) => disabledActions.includes(actionId)
+  const [open, setOpen] = React.useState(false)
 
   const defaultActions = [
     {
@@ -121,8 +122,10 @@ export function FileContextMenu({
   ]
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
+    <ContextMenu open={open} onOpenChange={setOpen}>
+      <ContextMenuTrigger asChild>
+        {children}
+      </ContextMenuTrigger>
       <ContextMenuContent className="w-56 glass-card-strong border-primary/30">
         {/* Default Actions */}
         {defaultActions

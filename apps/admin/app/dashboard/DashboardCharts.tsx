@@ -276,7 +276,7 @@ export function GrowthIndexCharts() {
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-sans font-medium text-white">
-                      {platform.value.toLocaleString()}
+                      {platform.value.toLocaleString('en-US')}
                     </div>
                     <div className="text-sm text-[#C4C8D4]">
                       {((platform.value / platformDistribution.reduce((a, b) => a + b.value, 0)) * 100).toFixed(1)}%

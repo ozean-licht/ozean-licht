@@ -1,3 +1,6 @@
+/* Import shared design system styles */
+@import '@shared/ui/styles';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

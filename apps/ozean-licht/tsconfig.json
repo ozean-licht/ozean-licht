@@ -11,10 +11,10 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "allowJs": true,
-    "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": false,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -30,6 +30,12 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@shared/ui": [
+        "../../shared/ui/src/index.ts"
+      ],
+      "@shared/ui/*": [
+        "../../shared/ui/src/*"
       ]
     },
     "noEmit": true

@@ -1,11 +1,10 @@
 'use client'
 
 import { useState } from 'react';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { PrimaryButton } from '@/components/primary-button';
+import { Header, Footer } from '@shared/ui/branded/layout';
+import { Input } from '@shared/ui/cossui';
+import { Textarea } from '@shared/ui/cossui';
+import { Button as PrimaryButton } from '@shared/ui/cossui';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
