@@ -13,26 +13,16 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          # Escape special characters for Telegram HTML
           COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -c 200 | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
           BRANCH="${{ github.ref_name }}"
           AUTHOR="${{ github.actor }}"
-          REPO="${{ github.repository }}"
           URL="${{ github.event.head_commit.url }}"
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
 
-          MESSAGE="<b>Ozean Licht Commit</b>
-
-<b>Branch:</b> <code>${BRANCH}</code>
-<b>Author:</b> ${AUTHOR}
-<b>Commit:</b> <code>${SHORT_SHA}</code>
-
-<i>${COMMIT_MSG}</i>
-
-<a href=\"${URL}\">View on GitHub</a>"
+          MESSAGE="<b>Ozean Licht Commit</b>%0A%0A<b>Branch:</b> <code>${BRANCH}</code>%0A<b>Author:</b> ${AUTHOR}%0A<b>Commit:</b> <code>${SHORT_SHA}</code>%0A%0A<i>${COMMIT_MSG}</i>%0A%0A<a href=\"${URL}\">View on GitHub</a>"
 
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAM_CHAT_ID}" \
             -d "parse_mode=HTML" \
             -d "disable_web_page_preview=true" \
-            --data-urlencode "text=${MESSAGE}"
+            -d "text=${MESSAGE}"
