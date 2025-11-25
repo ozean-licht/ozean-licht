@@ -80,3 +80,20 @@ npm run test:e2e
 ---
 
 **🎓 "Kids Ascension lights the fire, then gets out of the way."**
+
+---
+
+<!-- CONTEXT-MAP:START - Auto-generated navigation map. Edit the content, keep the markers. -->
+
+## Navigation
+
+> Last mapped: 2025-11-25
+
+### Directories
+
+| Directory | Purpose | Navigate |
+|-----------|---------|----------|
+| `frontend/` | _add description_ | 4 files |
+| `specs/` | Specifications | 1 files |
+
+<!-- CONTEXT-MAP:END -->

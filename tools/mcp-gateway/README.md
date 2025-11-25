@@ -1216,3 +1216,35 @@ MIT
 - ✅ Environment variables properly configured for all services
 - ✅ **Total: 9 MCP services operational** (6 server-side, 3 local references)
 - ✅ Documentation updated with MinIO integration details
+
+---
+
+<!-- CONTEXT-MAP:START - Auto-generated navigation map. Edit the content, keep the markers. -->
+
+## Navigation
+
+> Last mapped: 2025-11-25
+
+### Key Files
+
+| File | Purpose |
+|------|--------|
+| `ecosystem.config.js` | Configuration |
+| `jest.config.js` | Configuration |
+| `query-storybook-docs.js` | _add description_ |
+| `test-context7.js` | React context |
+
+### Directories
+
+| Directory | Purpose | Navigate |
+|-----------|---------|----------|
+| `src/` | Source code | [README](./src/) |
+| `config/` | Configuration | [README](./config/) |
+| `docs/` | Documentation | 4 files |
+| `logs/` | _add description_ | 0 files |
+| `monitoring/` | _add description_ | [README](./monitoring/) |
+| `scripts/` | Build/utility scripts | 0 files |
+| `tests/` | Test files | [README](./tests/) |
+| `tools/` | _add description_ | [README](./tools/) |
+
+<!-- CONTEXT-MAP:END -->

@@ -243,3 +243,19 @@ Change port in `package.json`:
 
 **Maintained by:** Ozean Licht Platform Team + AI Agents
 **Status:** Production-ready (Internal use only)
+
+---
+
+<!-- CONTEXT-MAP:START - Auto-generated navigation map. Edit the content, keep the markers. -->
+
+## Navigation
+
+> Last mapped: 2025-11-25
+
+### Directories
+
+| Directory | Purpose | Navigate |
+|-----------|---------|----------|
+| `public/` | Public files | 0 files |
+
+<!-- CONTEXT-MAP:END -->

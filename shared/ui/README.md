@@ -478,3 +478,31 @@ All modern browsers with CSS Grid, CSS Variables, and `backdrop-filter` support.
 
 **Maintained by:** Ozean Licht Platform Team + AI Agents
 **Questions:** See `/design-system.md` or create issue in repository
+
+---
+
+<!-- CONTEXT-MAP:START - Auto-generated navigation map. Edit the content, keep the markers. -->
+
+## Navigation
+
+> Last mapped: 2025-11-25
+
+### Key Files
+
+| File | Purpose |
+|------|--------|
+| `tsup.config.ts` | Configuration |
+
+### Directories
+
+| Directory | Purpose | Navigate |
+|-----------|---------|----------|
+| `src/` | Source code | [README](./src/) |
+| `app_review/` | _add description_ | 0 files |
+| `docs/` | Documentation | 11 files |
+| `logs/` | _add description_ | 0 files |
+| `reports/` | _add description_ | 0 files |
+| `shared/` | _add description_ | 0 files |
+| `specs/` | Specifications | 1 files |
+
+<!-- CONTEXT-MAP:END -->

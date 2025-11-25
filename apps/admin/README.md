@@ -413,3 +413,41 @@ pnpm build
 **Status**: Phase 1 - Foundation Complete
 **Maintainer**: Ozean Licht Platform Team + Autonomous Agents
 **Scope**: Ozean Licht platform only (Kids Ascension has separate admin dashboard)
+
+---
+
+<!-- CONTEXT-MAP:START - Auto-generated navigation map. Edit the content, keep the markers. -->
+
+## Navigation
+
+> Last mapped: 2025-11-25
+
+### Key Files
+
+| File | Purpose |
+|------|--------|
+| `jest.config.js` | Configuration |
+| `middleware.ts` | Request middleware |
+| `next-env.d.ts` | _add description_ |
+| `next.config.js` | Configuration |
+| `postcss.config.js` | Configuration |
+| `tailwind.config.js` | Configuration |
+| `test-spec-1.1.js` | _add description_ |
+
+### Directories
+
+| Directory | Purpose | Navigate |
+|-----------|---------|----------|
+| `app/` | Next.js app router | [README](./app/) |
+| `lib/` | Core libraries | [README](./lib/) |
+| `components/` | UI components | [README](./components/) |
+| `docs/` | Documentation | [README](./docs/) |
+| `hooks/` | React hooks | [README](./hooks/) |
+| `migrations/` | Database migrations | [README](./migrations/) |
+| `public/` | Public files | 0 files |
+| `scripts/` | Build/utility scripts | [README](./scripts/) |
+| `specs/` | Specifications | 10 files |
+| `tests/` | Test files | [README](./tests/) |
+| `types/` | Type definitions | [README](./types/) |
+
+<!-- CONTEXT-MAP:END -->

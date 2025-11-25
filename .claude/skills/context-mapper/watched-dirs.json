@@ -1,0 +1,35 @@
+{
+  "$schema": "Directories that agents frequently work in. Keep this list focused on high-traffic areas.",
+  "watched": [
+    {
+      "path": "apps/admin",
+      "priority": "high",
+      "reason": "Phase 1 focus - admin dashboard"
+    },
+    {
+      "path": "apps/storybook",
+      "priority": "medium",
+      "reason": "Component documentation"
+    },
+    {
+      "path": "shared/ui",
+      "priority": "high",
+      "reason": "Shared component library"
+    },
+    {
+      "path": "tools/mcp-gateway",
+      "priority": "high",
+      "reason": "MCP integration layer"
+    },
+    {
+      "path": "apps/ozean-licht",
+      "priority": "medium",
+      "reason": "Main platform frontend"
+    },
+    {
+      "path": "apps/kids-ascension",
+      "priority": "low",
+      "reason": "Secondary platform"
+    }
+  ]
+}
