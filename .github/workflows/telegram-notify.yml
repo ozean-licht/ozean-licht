@@ -226,7 +226,7 @@ jobs:
           SHORT_SHA="${COMMIT_SHA:0:7}"
           NL=$'\n'
 
-          MESSAGE="${EMOJI} <b>${HEADLINE}</b>${SCOPE_BADGE}${NL}${NL}${DESC}${NL}${NL}${STATS_LINE}${NL}${SCORE_EMOJI} Innovation: <b>${SCORE}/100</b>${NL}${NL}📁 <b>Changed:</b>${NL}${FILE_LIST}${CONTEXT_SECTION}${NL}${NL}<a href=\"${REPO_URL}/commit/${COMMIT_SHA}\">${SHORT_SHA}</a> on <code>${BRANCH}</code> by ${COMMIT_AUTHOR}"
+          MESSAGE="${EMOJI} <b>${HEADLINE}</b>${SCOPE_BADGE}${NL}${NL}${DESC}${NL}${NL}${STATS_LINE}${NL}${SCORE_EMOJI} Innovation: <b>${SCORE}/100</b>${NL}${NL}📁 <b>Changed:</b>${NL}${FILE_LIST}${CONTEXT_SECTION}"
 
           # Send to Telegram
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
