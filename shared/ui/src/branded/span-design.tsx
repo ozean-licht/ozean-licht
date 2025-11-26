@@ -1,7 +1,8 @@
 import type React from "react"
 
 // Import design elements from shared assets
-import SpanAccentImage from "@/shared/assets/design-elements/SpanAccent.png"
+// Using relative path since @/ alias doesn't resolve in consumer apps
+import SpanAccentImage from "../../../assets/design-elements/SpanAccent.png"
 
 interface SpanDesignProps {
   children: React.ReactNode

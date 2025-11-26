@@ -43,10 +43,9 @@ import {
   deleteStorageFilesBulk,
   getStorageUrl,
   createFolder,
-  BUCKETS,
   type StorageFileUI,
-  type BucketInfo,
 } from './actions';
+import { BUCKETS, DEFAULT_BUCKET, type BucketInfo } from './constants';
 import { cn } from '@/lib/utils';
 
 /**
@@ -128,7 +127,7 @@ export default function OzeanCloudPage() {
   // State
   const [files, setFiles] = useState<StorageFileUI[]>([]);
   const [buckets] = useState<BucketInfo[]>(BUCKETS);
-  const [currentBucket, setCurrentBucket] = useState(BUCKETS[0].name);
+  const [currentBucket, setCurrentBucket] = useState(DEFAULT_BUCKET);
   const [currentPath, setCurrentPath] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [searchQuery, setSearchQuery] = useState('');
