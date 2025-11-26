@@ -8,7 +8,7 @@ import { StorageQuotaCard } from './storage-quota-card'
 import type { FileTypeBreakdown } from './storage-quota-card'
 
 const meta: Meta<typeof StorageQuotaCard> = {
-  title: 'Storage/Phase 3/StorageQuotaCard',
+  title: 'Storage/StorageQuotaCard',
   component: StorageQuotaCard,
   parameters: {
     layout: 'centered',

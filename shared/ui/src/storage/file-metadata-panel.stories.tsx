@@ -7,7 +7,7 @@ import { FileMetadataPanel } from './file-metadata-panel'
 import type { StorageFile } from './types'
 
 const meta: Meta<typeof FileMetadataPanel> = {
-  title: 'Storage/Phase 3/FileMetadataPanel',
+  title: 'Storage/FileMetadataPanel',
   component: FileMetadataPanel,
   parameters: {
     layout: 'centered',

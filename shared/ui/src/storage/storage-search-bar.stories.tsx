@@ -9,7 +9,7 @@ import { StorageSearchBar } from './storage-search-bar'
 import type { FileFilter } from './types'
 
 const meta: Meta<typeof StorageSearchBar> = {
-  title: 'Storage/Phase 3/StorageSearchBar',
+  title: 'Storage/StorageSearchBar',
   component: StorageSearchBar,
   parameters: {
     layout: 'padded',

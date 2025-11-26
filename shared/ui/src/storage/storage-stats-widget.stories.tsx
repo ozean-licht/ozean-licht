@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { StorageStatsWidget, type StorageStatsData } from './storage-stats-widget'
 
 const meta: Meta<typeof StorageStatsWidget> = {
-  title: 'Storage/Phase 3/StorageStatsWidget',
+  title: 'Storage/StorageStatsWidget',
   component: StorageStatsWidget,
   parameters: {
     layout: 'centered',

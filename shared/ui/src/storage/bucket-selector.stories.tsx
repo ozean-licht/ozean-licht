@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { BucketSelector, type Bucket } from './bucket-selector'
 
 const meta: Meta<typeof BucketSelector> = {
-  title: 'Storage/Phase 3/BucketSelector',
+  title: 'Storage/BucketSelector',
   component: BucketSelector,
   parameters: {
     layout: 'centered',

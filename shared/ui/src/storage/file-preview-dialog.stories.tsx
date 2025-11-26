@@ -10,7 +10,7 @@ import type { StorageFile } from './types'
 import { Button } from '../cossui/button'
 
 const meta: Meta<typeof FilePreviewDialog> = {
-  title: 'Storage/Phase 3/FilePreviewDialog',
+  title: 'Storage/FilePreviewDialog',
   component: FilePreviewDialog,
   parameters: {
     layout: 'centered',

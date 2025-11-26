@@ -9,7 +9,7 @@ import type { StorageFile } from './types'
 import { Button } from '../cossui/button'
 
 const meta: Meta<typeof ShareDialog> = {
-  title: 'Storage/Phase 3/ShareDialog',
+  title: 'Storage/ShareDialog',
   component: ShareDialog,
   parameters: {
     layout: 'centered',
