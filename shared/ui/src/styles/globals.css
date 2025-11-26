@@ -101,6 +101,25 @@
   }
 }
 
+/* Glass effect utilities */
+@layer components {
+  .glass-card {
+    @apply bg-card/70 backdrop-blur-xl border border-primary/25;
+  }
+
+  .glass-card-strong {
+    @apply bg-card/80 backdrop-blur-2xl border border-primary/30;
+  }
+
+  .glass-subtle {
+    @apply bg-card/50 backdrop-blur-lg border border-primary/15;
+  }
+
+  .glass-hover {
+    @apply transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/15;
+  }
+}
+
 /* Toast Progress Animation */
 @keyframes toast-progress {
   from {
