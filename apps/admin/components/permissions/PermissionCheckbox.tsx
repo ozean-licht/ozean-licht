@@ -9,10 +9,8 @@
 
 'use client';
 
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
+import { Checkbox, Label, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/lib/ui';
 import { Shield, Check, X } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export type PermissionCheckboxValue = 'inherited' | 'granted' | 'denied';
 

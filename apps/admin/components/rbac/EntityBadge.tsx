@@ -4,7 +4,7 @@
  * Displays the entity scope (Kids Ascension or Ozean Licht) for an admin user.
  */
 
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/lib/ui';
 import { ENTITY_CONFIG } from '@/lib/rbac/constants';
 import * as Icons from 'lucide-react';
 import { cn } from '@/lib/utils';

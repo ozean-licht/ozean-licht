@@ -30,6 +30,12 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@shared/ui": [
+        "../../shared/ui/src/index.ts"
+      ],
+      "@shared/ui/*": [
+        "../../shared/ui/*"
       ]
     },
     "noEmit": true

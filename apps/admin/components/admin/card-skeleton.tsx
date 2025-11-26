@@ -1,5 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Skeleton, Card, CardContent, CardHeader } from '@/lib/ui';
 
 interface CardSkeletonProps {
   /** Number of cards to display (default: 3) */

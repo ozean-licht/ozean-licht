@@ -23,13 +23,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+  Checkbox,
+} from '@/lib/ui';
 import { DataTableToolbar } from './data-table-toolbar';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableSkeleton } from '@/components/admin/data-table-skeleton';
 import { EmptyState } from '@/components/admin/empty-state';
 import { DataTableProps } from '@/types/data-table';
-import { Checkbox } from '@/components/ui/checkbox';
 
 export function DataTable<TData, TValue>({
   columns,

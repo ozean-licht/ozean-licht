@@ -10,13 +10,11 @@
 import { useState, useMemo } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/data-table/data-table';
-import { Badge } from '@/components/ui/badge';
-import { Check, Asterisk } from 'lucide-react';
+import { Badge, Button } from '@/lib/ui';
+import { Check, Asterisk, Download } from 'lucide-react';
 import { AdminRole } from '@/types/admin';
 import { PermissionMatrixRow } from '@/lib/rbac/permissions';
 import { CategoryFilter } from './CategoryFilter';
-import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
 import { CATEGORY_METADATA } from '@/lib/rbac/permission-categories';
 
 interface PermissionMatrixProps {

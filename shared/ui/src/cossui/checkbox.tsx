@@ -11,6 +11,7 @@ import { cn } from '../utils/cn'
 /**
  * Checkbox Component
  * Wraps Base UI Checkbox.Root with Ozean Licht styling
+ * Note: Base UI Checkbox already supports onCheckedChange prop for shadcn compatibility
  */
 const Checkbox = React.forwardRef<
   HTMLElement,

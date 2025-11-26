@@ -5,13 +5,13 @@ import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import {
-  CossUIInput,
-  CossUIButton,
-  CossUIAlert,
-  CossUIAlertTitle,
-  CossUIAlertDescription,
-  CossUILabel
-} from '@shared/ui'
+  Input,
+  Button,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  Label
+} from '@/lib/ui'
 import { Loader2, AlertCircle } from 'lucide-react'
 
 export default function LoginForm() {
@@ -68,28 +68,28 @@ export default function LoginForm() {
 
       <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
         {error && (
-          <CossUIAlert variant="destructive" className="flex items-start gap-3">
+          <Alert variant="destructive" className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <div>
-              <CossUIAlertTitle>Authentication Error</CossUIAlertTitle>
-              <CossUIAlertDescription>{error}</CossUIAlertDescription>
+              <AlertTitle>Authentication Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
             </div>
-          </CossUIAlert>
+          </Alert>
         )}
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <CossUILabel htmlFor="email" className="text-[#C4C8D4] font-sans">
+            <Label htmlFor="email" className="text-[#C4C8D4] font-sans">
               Email address
-            </CossUILabel>
-            <CossUIInput
+            </Label>
+            <Input
               id="email"
               name="email"
               type="email"
               autoComplete="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               placeholder="admin@ozean-licht.dev"
               disabled={loading}
               size="lg"
@@ -98,17 +98,17 @@ export default function LoginForm() {
           </div>
 
           <div className="space-y-2">
-            <CossUILabel htmlFor="password" className="text-[#C4C8D4] font-sans">
+            <Label htmlFor="password" className="text-[#C4C8D4] font-sans">
               Password
-            </CossUILabel>
-            <CossUIInput
+            </Label>
+            <Input
               id="password"
               name="password"
               type="password"
               autoComplete="current-password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               placeholder="Enter your password"
               disabled={loading}
               size="lg"
@@ -118,7 +118,7 @@ export default function LoginForm() {
         </div>
 
         <div>
-          <CossUIButton
+          <Button
             type="submit"
             disabled={loading}
             variant="primary"
@@ -133,7 +133,7 @@ export default function LoginForm() {
             ) : (
               'Sign in'
             )}
-          </CossUIButton>
+          </Button>
         </div>
 
         <div className="text-sm text-center text-[#C4C8D4]">

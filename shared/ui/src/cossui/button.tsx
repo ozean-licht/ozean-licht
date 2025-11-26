@@ -5,6 +5,7 @@
 
 import * as React from 'react'
 import { Button as BaseButton } from '@base-ui-components/react/button'
+import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '../utils/cn'
 
@@ -14,6 +15,9 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        // Alias for shadcn compatibility
+        default:
+          'bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30',
         primary:
           'bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30',
         secondary:
@@ -50,29 +54,27 @@ const buttonVariants = cva(
 )
 
 export interface ButtonProps
-  extends React.ComponentPropsWithoutRef<typeof BaseButton>,
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
+  /**
+   * Button content (children)
+   */
+  children?: React.ReactNode
   /**
    * Render prop to wrap the button (replaces asChild from shadcn/ui)
    * Example: <Button render={<Link href="/login" />}>Login</Button>
    */
   render?: React.ReactElement
+  /**
+   * asChild support for compatibility with shadcn patterns
+   * When true, the button will render as its child element
+   */
+  asChild?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, render, children, ...props }, ref) => {
-    const Comp = render ? 'span' : BaseButton
-
-    const buttonContent = (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={!render ? ref : undefined}
-        {...(render ? {} : props)}
-      >
-        {children}
-      </Comp>
-    )
-
+  ({ className, variant, size, render, asChild, children, ...props }, ref) => {
+    // Handle render prop pattern (Coss UI style)
     if (render) {
       return React.cloneElement(render, {
         ...render.props,
@@ -83,10 +85,22 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ),
         ref,
         ...props,
+        children,
       })
     }
 
-    return buttonContent
+    // Use Slot for asChild pattern (proper prop/ref merging)
+    const Comp = asChild ? Slot : BaseButton
+
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </Comp>
+    )
   }
 )
 

@@ -10,7 +10,7 @@ import { MCPGatewayClientWithQueries } from '@/lib/mcp-client';
 import { formatPermissionMatrix } from '@/lib/rbac/permissions';
 import { AdminRole } from '@/types/admin';
 import { PermissionMatrix } from '@/components/permissions/PermissionMatrix';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/lib/ui';
 
 export const metadata = {
   title: 'Permission Matrix | Admin Dashboard',

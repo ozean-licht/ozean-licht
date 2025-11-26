@@ -1,8 +1,7 @@
 'use client';
 
 import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button, Input } from '@/lib/ui';
 import { DataTableViewOptions } from './data-table-view-options';
 import { DataTableToolbarProps } from '@/types/data-table';
 import { exportToCSV } from '@/lib/data-table/utils';

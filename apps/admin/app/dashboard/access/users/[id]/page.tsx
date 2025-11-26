@@ -8,7 +8,7 @@ import { Metadata } from 'next';
 import { requireAnyRole } from '@/lib/rbac/utils';
 import { MCPGatewayClientWithQueries } from '@/lib/mcp-client/queries';
 import { UserDetailCard } from './UserDetailCard';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/lib/ui';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';

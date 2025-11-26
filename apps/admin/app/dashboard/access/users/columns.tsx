@@ -3,8 +3,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { User, EntityType } from '@/types/user';
 import { EntityBadge } from '@/components/rbac/EntityBadge';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Button, Badge } from '@/lib/ui';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { MoreHorizontal, Eye, CheckCircle2, XCircle } from 'lucide-react';

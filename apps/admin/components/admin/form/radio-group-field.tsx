@@ -1,7 +1,6 @@
 'use client';
 
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem, Label } from '@/lib/ui';
 import { FormFieldWrapper } from './form-field-wrapper';
 import { RadioOption } from '@/types/admin-components';
 

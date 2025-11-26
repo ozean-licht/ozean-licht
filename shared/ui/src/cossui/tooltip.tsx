@@ -8,6 +8,7 @@
 
 import * as React from "react";
 import { Tooltip as TooltipPrimitive } from "@base-ui-components/react/tooltip";
+import { Slot } from "@radix-ui/react-slot";
 
 import { cn } from "../utils/cn";
 
@@ -23,20 +24,36 @@ const TooltipProvider = TooltipPrimitive.Provider;
 const Tooltip = TooltipPrimitive.Root;
 
 /**
+ * Tooltip Trigger Props - Extends Base UI with asChild support
+ */
+interface TooltipTriggerProps extends TooltipPrimitive.Trigger.Props {
+  /**
+   * When true, renders the child element as the trigger
+   * (shadcn compatibility)
+   */
+  asChild?: boolean;
+}
+
+/**
  * Tooltip Trigger - Element that shows the tooltip on hover
  * Supports asChild prop to render as a different element
  */
 const TooltipTrigger = React.forwardRef<
   HTMLButtonElement,
-  TooltipPrimitive.Trigger.Props
->(({ className, ...props }, ref) => {
+  TooltipTriggerProps
+>(({ className, asChild, children, ...props }, ref) => {
+  // Use Slot for asChild pattern (proper prop/ref merging)
+  const Comp = asChild ? Slot : TooltipPrimitive.Trigger;
+
   return (
-    <TooltipPrimitive.Trigger
+    <Comp
       ref={ref}
       data-slot="tooltip-trigger"
       className={cn("cursor-help", className)}
       {...props}
-    />
+    >
+      {children}
+    </Comp>
   );
 });
 TooltipTrigger.displayName = "TooltipTrigger";

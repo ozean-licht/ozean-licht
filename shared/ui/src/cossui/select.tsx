@@ -98,11 +98,23 @@ const SelectPositioner = BaseSelect.Positioner
 const SelectPopup = React.forwardRef<
   HTMLDivElement,
   React.ComponentPropsWithoutRef<typeof BaseSelect.Popup> & {
+    align?: React.ComponentPropsWithoutRef<typeof BaseSelect.Positioner>['align']
+    side?: React.ComponentPropsWithoutRef<typeof BaseSelect.Positioner>['side']
     sideOffset?: number
+    alignOffset?: number
+    collisionBoundary?: React.ComponentPropsWithoutRef<typeof BaseSelect.Positioner>['collisionBoundary']
+    collisionPadding?: React.ComponentPropsWithoutRef<typeof BaseSelect.Positioner>['collisionPadding']
   }
->(({ className, children, sideOffset = 4, ...props }, ref) => (
+>(({ className, children, align, side, sideOffset = 4, alignOffset, collisionBoundary, collisionPadding, ...props }, ref) => (
   <BaseSelect.Portal>
-    <BaseSelect.Positioner sideOffset={sideOffset}>
+    <BaseSelect.Positioner
+      align={align}
+      side={side}
+      sideOffset={sideOffset}
+      alignOffset={alignOffset}
+      collisionBoundary={collisionBoundary}
+      collisionPadding={collisionPadding}
+    >
       <BaseSelect.Popup
         ref={ref}
         className={cn(

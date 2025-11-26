@@ -1,6 +1,6 @@
 import { requireAuth } from '@/lib/auth-utils'
 import { RoleBadge } from '@/components/rbac/RoleBadge'
-import SpanBadge from '@/components/ui/span-badge'
+import { SpanBadge } from '@/lib/ui'
 import type { AdminRole } from '@/types/admin'
 import { ActivityChart, GrowthIndexCharts } from './DashboardCharts'
 import { TrendingUp, Users as UsersIcon, Activity, Shield, Crown } from 'lucide-react'

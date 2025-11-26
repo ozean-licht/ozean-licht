@@ -11,7 +11,7 @@ import { MCPGatewayClientWithQueries } from '@/lib/mcp-client/queries';
 import { UsersDataTable } from './UsersDataTable';
 import { UserFilters } from '@/types/user';
 import { Suspense } from 'react';
-import { DataTableSkeleton } from '@/components/ui/data-table-skeleton';
+import { DataTableSkeleton } from '@/components/admin/data-table-skeleton';
 
 export const metadata: Metadata = {
   title: 'Users | Admin Dashboard',

@@ -2,9 +2,7 @@
 
 import { UserDetail } from '@/types/user';
 import { EntityBadge } from '@/components/rbac/EntityBadge';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+import { Badge, Card, CardContent, CardHeader, CardTitle, CardDescription, Label } from '@/lib/ui';
 import { CheckCircle2, XCircle, Calendar, Mail, Key, Users } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 

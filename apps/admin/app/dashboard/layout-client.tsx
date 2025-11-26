@@ -2,12 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import {
-  LightRays,
-  type NavigationItem,
-  CossUIButton,
-  cn
-} from '@shared/ui'
+import { LightRays, Button, cn } from '@/lib/ui'
 import Link from 'next/link'
 import {
   LayoutDashboard,
@@ -159,7 +154,7 @@ export default function DashboardLayoutClient({
 
                 return (
                   <Link key={item.href} href={item.href}>
-                    <CossUIButton
+                    <Button
                       variant="ghost"
                       className={cn(
                         "w-full justify-start gap-3 h-auto py-3 px-3 text-left transition-all duration-300 rounded-xl",
@@ -194,7 +189,7 @@ export default function DashboardLayoutClient({
                           </span>
                         </div>
                       )}
-                    </CossUIButton>
+                    </Button>
                   </Link>
                 )
               })}
@@ -202,7 +197,7 @@ export default function DashboardLayoutClient({
 
             {/* Collapse Toggle */}
             <div className="p-2 border-t border-[#0E282E]">
-              <CossUIButton
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -216,7 +211,7 @@ export default function DashboardLayoutClient({
                 ) : (
                   <ChevronRight className="h-4 w-4" />
                 )}
-              </CossUIButton>
+              </Button>
             </div>
           </div>
 
@@ -227,13 +222,13 @@ export default function DashboardLayoutClient({
                 {/* Mobile Header */}
                 <div className="p-4 border-b border-[#0E282E] flex items-center justify-between">
                   <h1 className="text-xl font-decorative text-primary">Ozean Licht</h1>
-                  <CossUIButton
+                  <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <X className="h-5 w-5" />
-                  </CossUIButton>
+                  </Button>
                 </div>
 
                 {/* Mobile Navigation */}
@@ -244,7 +239,7 @@ export default function DashboardLayoutClient({
 
                     return (
                       <Link key={item.href} href={item.href} onClick={() => setIsMobileMenuOpen(false)}>
-                        <CossUIButton
+                        <Button
                           variant="ghost"
                           className={cn(
                             "w-full justify-start gap-3 h-auto py-3 px-3 text-left transition-all duration-300 rounded-xl",
@@ -266,7 +261,7 @@ export default function DashboardLayoutClient({
                             <span className="text-sm font-light truncate">{item.label}</span>
                             <span className="text-xs font-light truncate text-muted-foreground">{item.description}</span>
                           </div>
-                        </CossUIButton>
+                        </Button>
                       </Link>
                     )
                   })}
@@ -283,14 +278,14 @@ export default function DashboardLayoutClient({
             {/* Header */}
             <header className="bg-[#0A1A1A]/80 backdrop-blur-md border-b border-[#0E282E] px-4 py-3 flex items-center justify-between z-30">
               <div className="flex items-center gap-4">
-                <CossUIButton
+                <Button
                   variant="ghost"
                   size="sm"
                   className="md:hidden"
                   onClick={() => setIsMobileMenuOpen(true)}
                 >
                   <Menu className="h-5 w-5" />
-                </CossUIButton>
+                </Button>
                 <span className="text-sm text-[#C4C8D4]">{user.email}</span>
               </div>
             </header>

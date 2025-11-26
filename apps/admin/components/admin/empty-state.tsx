@@ -1,5 +1,4 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button, Card, CardContent } from '@/lib/ui';
 import { EmptyStateProps } from '@/types/admin-components';
 import { FileQuestion } from 'lucide-react';
 

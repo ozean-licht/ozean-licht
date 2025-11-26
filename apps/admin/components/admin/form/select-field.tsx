@@ -1,10 +1,4 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/lib/ui';
 import { FormFieldWrapper } from './form-field-wrapper';
 import { SelectOption } from '@/types/admin-components';
 

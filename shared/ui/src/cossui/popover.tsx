@@ -5,6 +5,7 @@
 
 import * as React from 'react'
 import { Popover } from '@base-ui-components/react/popover'
+import { Slot } from '@radix-ui/react-slot'
 import { cn } from '../utils/cn'
 
 /**
@@ -45,27 +46,46 @@ const PopoverBackdrop = React.forwardRef<
 PopoverBackdrop.displayName = 'PopoverBackdrop'
 
 /**
+ * Popover Trigger Props - Extends Base UI with asChild support
+ */
+interface PopoverTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof Popover.Trigger> {
+  /**
+   * When true, renders the child element as the trigger
+   * (shadcn compatibility)
+   */
+  asChild?: boolean
+}
+
+/**
  * Popover Trigger - Button/element that opens the popover
  */
-const PopoverTrigger = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentPropsWithoutRef<typeof Popover.Trigger>
->(({ className, children, ...props }, ref) => (
-  <Popover.Trigger
-    ref={ref}
-    className={cn(
+const PopoverTrigger = React.forwardRef<HTMLButtonElement, PopoverTriggerProps>(
+  ({ className, children, asChild, ...props }, ref) => {
+    // Use Slot for asChild pattern (proper prop/ref merging)
+    const Comp = asChild ? Slot : Popover.Trigger
+
+    // Extract common className string to avoid duplication
+    const triggerClassName = cn(
       'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2',
       'bg-card/70 text-primary border border-primary/30 backdrop-blur-12 font-sans font-medium',
       'hover:bg-primary/10 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/15',
       'transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
       'active:scale-95 disabled:pointer-events-none disabled:opacity-50',
       className
-    )}
-    {...props}
-  >
-    {children}
-  </Popover.Trigger>
-))
+    )
+
+    return (
+      <Comp
+        ref={ref}
+        className={triggerClassName}
+        {...props}
+      >
+        {children}
+      </Comp>
+    )
+  }
+)
 PopoverTrigger.displayName = 'PopoverTrigger'
 
 /**
@@ -77,11 +97,23 @@ const PopoverPopup = React.forwardRef<
   HTMLDivElement,
   React.ComponentPropsWithoutRef<typeof Popover.Popup> & {
     children?: React.ReactNode
+    align?: React.ComponentPropsWithoutRef<typeof Popover.Positioner>['align']
+    side?: React.ComponentPropsWithoutRef<typeof Popover.Positioner>['side']
     sideOffset?: number
+    alignOffset?: number
+    collisionBoundary?: React.ComponentPropsWithoutRef<typeof Popover.Positioner>['collisionBoundary']
+    collisionPadding?: React.ComponentPropsWithoutRef<typeof Popover.Positioner>['collisionPadding']
   }
->(({ className, children, sideOffset = 8, ...props }, ref) => (
+>(({ className, children, align, side, sideOffset = 8, alignOffset, collisionBoundary, collisionPadding, ...props }, ref) => (
   <Popover.Portal>
-    <Popover.Positioner sideOffset={sideOffset}>
+    <Popover.Positioner
+      align={align}
+      side={side}
+      sideOffset={sideOffset}
+      alignOffset={alignOffset}
+      collisionBoundary={collisionBoundary}
+      collisionPadding={collisionPadding}
+    >
       <Popover.Popup
         ref={ref}
         className={cn(

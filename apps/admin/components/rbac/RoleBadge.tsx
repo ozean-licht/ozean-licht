@@ -4,7 +4,7 @@
  * Displays an admin user's role with semantic colors and icons.
  */
 
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/lib/ui';
 import { AdminRole } from '@/types/admin';
 import { ROLE_CONFIG } from '@/lib/rbac/constants';
 import * as Icons from 'lucide-react';

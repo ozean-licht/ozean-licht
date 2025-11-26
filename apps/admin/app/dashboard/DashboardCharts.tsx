@@ -6,7 +6,7 @@ import {
   ChartTooltipContent,
   ChartLegend,
   ChartLegendContent
-} from '@shared/ui'
+} from '@/lib/ui'
 import {
   BarChart,
   Bar,

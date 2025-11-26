@@ -9,11 +9,9 @@
 
 import { useState, useMemo } from 'react';
 import { AdminUser, AdminPermission } from '@/types/admin';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Alert, AlertDescription } from '@/lib/ui';
 import { CategoryFilter } from './CategoryFilter';
 import { PermissionCheckbox, PermissionCheckboxValue } from './PermissionCheckbox';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, RefreshCw, Save } from 'lucide-react';
 import { ROLE_CONFIG } from '@/lib/rbac/constants';
 import { hasPermission } from '@/lib/rbac/permissions';

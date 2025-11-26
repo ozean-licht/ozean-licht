@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/lib/ui';
 
 interface ListSkeletonProps {
   /** Number of list items to display (default: 5) */

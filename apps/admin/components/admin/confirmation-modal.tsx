@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button } from '@/lib/ui';
 import { ConfirmationModalProps } from '@/types/admin-components';
 import { AlertTriangle, Info, AlertCircle } from 'lucide-react';
 import { useState } from 'react';

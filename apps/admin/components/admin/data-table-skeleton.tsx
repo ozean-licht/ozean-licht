@@ -1,12 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/lib/ui';
 
 interface DataTableSkeletonProps {
   /** Number of rows to display (default: 5) */

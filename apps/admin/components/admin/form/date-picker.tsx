@@ -1,12 +1,7 @@
 'use client';
 
 import { Calendar } from '@/components/ui/calendar';
-import { Button } from '@/components/ui/button';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Button, Popover, PopoverContent, PopoverTrigger } from '@/lib/ui';
 import { FormFieldWrapper } from './form-field-wrapper';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';

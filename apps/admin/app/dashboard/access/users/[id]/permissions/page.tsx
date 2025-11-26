@@ -9,8 +9,7 @@ import { notFound, redirect } from 'next/navigation';
 import { requireRole } from '@/lib/rbac/utils';
 import { MCPGatewayClientWithQueries } from '@/lib/mcp-client';
 import { PermissionEditorClient } from './permission-editor-client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, Badge } from '@/lib/ui';
 import { getRoleLabel } from '@/lib/rbac/constants';
 
 export const metadata = {

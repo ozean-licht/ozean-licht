@@ -8,13 +8,7 @@
 
 import { AdminRole } from '@/types/admin';
 import { ROLE_CONFIG } from '@/lib/rbac/constants';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/lib/ui';
 import * as Icons from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 

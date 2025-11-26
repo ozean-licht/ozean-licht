@@ -4,7 +4,7 @@
  * Visual indicator for permission state (inherited, granted, denied, wildcard)
  */
 
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/lib/ui';
 import { Check, X, Asterisk, Shield } from 'lucide-react';
 
 export type PermissionBadgeState = 'inherited' | 'granted' | 'denied' | 'wildcard';

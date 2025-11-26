@@ -1,4 +1,4 @@
-import { Label } from '@/components/ui/label';
+import { Label } from '@/lib/ui';
 import { cn } from '@/lib/utils';
 
 interface FormFieldWrapperProps {
