@@ -8,7 +8,7 @@ import { Link, Copy, Clock, Check } from 'lucide-react'
 import { Dialog, DialogPopup, DialogHeader, DialogTitle } from '../cossui/dialog'
 import { Button } from '../cossui/button'
 import { Input } from '../cossui/input'
-import { Select, SelectPopup, SelectItem, SelectTrigger } from '../cossui/select'
+import { Select, SelectPopup, SelectItem, SelectTrigger, SelectValue } from '../cossui/select'
 import { cn } from '../utils/cn'
 import type { StorageFile } from './types'
 
