@@ -61,7 +61,7 @@ export function FileUploadQueue({
         className
       )}
     >
-      <div className="glass-card-strong rounded-lg border border-primary/30 shadow-lg shadow-primary/10">
+      <div className="rounded-lg border border-primary/30 shadow-lg shadow-primary/10 bg-[#00111A]/95 backdrop-blur-xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#0E282E] px-4 py-3">
           <div className="flex items-center gap-2">
