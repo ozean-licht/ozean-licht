@@ -9,7 +9,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { Vortex } from './vortex'
 
 const meta = {
-  title: 'UI/Primitives/MagicUI/Vortex',
+  title: 'Tier 1: Primitives/MagicUI/Vortex',
   component: Vortex,
   parameters: {
     layout: 'fullscreen',
