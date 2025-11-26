@@ -30,7 +30,7 @@ import { StorageBreadcrumb } from './storage-breadcrumb'
  * Perfect for MinIO storage interface, file explorers, or cloud storage UIs.
  */
 const meta = {
-  title: 'Tier 2: Branded/Storage/StorageBreadcrumb',
+  title: 'Storage/StorageBreadcrumb',
   component: StorageBreadcrumb,
   parameters: {
     layout: 'centered',
