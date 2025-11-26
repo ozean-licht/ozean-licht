@@ -14,7 +14,7 @@ import {
 import { Label } from "./label";
 
 const meta: Meta = {
-  title: "CossUI/Select",
+  title: "Tier 1: Primitives/CossUI/Select",
   parameters: {
     layout: "centered",
     docs: {

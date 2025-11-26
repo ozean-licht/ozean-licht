@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Kbd } from "./kbd";
 
 const meta: Meta<typeof Kbd> = {
-  title: "CossUI/Kbd",
+  title: "Tier 1: Primitives/CossUI/Kbd",
   component: Kbd,
   parameters: {
     layout: "centered",
