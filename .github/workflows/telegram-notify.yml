@@ -155,15 +155,22 @@ jobs:
           # Cap at 100
           [[ $SCORE -gt 100 ]] && SCORE=100
 
-          # Determine score emoji
+          # Determine human-readable effort label
           if [[ $SCORE -ge 80 ]]; then
-            SCORE_EMOJI="🔥"
+            EFFORT_LABEL="Major Update"
+            EFFORT_EMOJI="🔥"
           elif [[ $SCORE -ge 60 ]]; then
-            SCORE_EMOJI="⭐"
+            EFFORT_LABEL="Solid Progress"
+            EFFORT_EMOJI="⭐"
           elif [[ $SCORE -ge 40 ]]; then
-            SCORE_EMOJI="✨"
+            EFFORT_LABEL="Steady Work"
+            EFFORT_EMOJI="✨"
+          elif [[ $SCORE -ge 20 ]]; then
+            EFFORT_LABEL="Quick Update"
+            EFFORT_EMOJI="📍"
           else
-            SCORE_EMOJI="📍"
+            EFFORT_LABEL="Small Tweak"
+            EFFORT_EMOJI="🔹"
           fi
 
           # Capitalize first letter of description
@@ -226,7 +233,7 @@ jobs:
           SHORT_SHA="${COMMIT_SHA:0:7}"
           NL=$'\n'
 
-          MESSAGE="${EMOJI} <b>${HEADLINE}</b>${SCOPE_BADGE}${NL}${NL}${DESC}${NL}${NL}${STATS_LINE}${NL}${SCORE_EMOJI} Innovation: <b>${SCORE}/100</b>${NL}${NL}📁 <b>Changed:</b>${NL}${FILE_LIST}${CONTEXT_SECTION}${NL}${NL}<a href=\"${REPO_URL}/commit/${COMMIT_SHA}\">${SHORT_SHA}</a>"
+          MESSAGE="${EMOJI} <b>${HEADLINE}</b>${SCOPE_BADGE}${NL}${NL}${DESC}${NL}${NL}${STATS_LINE}${NL}${EFFORT_EMOJI} ${EFFORT_LABEL}${NL}${NL}📁 <b>Changed:</b>${NL}${FILE_LIST}${CONTEXT_SECTION}${NL}${NL}<a href=\"${REPO_URL}/commit/${COMMIT_SHA}\">${SHORT_SHA}</a>"
 
           # Send to Telegram
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
