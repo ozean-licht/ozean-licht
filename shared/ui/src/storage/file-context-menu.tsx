@@ -14,13 +14,8 @@ import {
   Eye,
   FolderOpen,
 } from 'lucide-react'
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from '../ui/context-menu'
+import * as ContextMenuPrimitive from '@radix-ui/react-context-menu'
+import { cn } from '../utils/cn'
 import type { StorageFile, FileAction } from './types'
 
 export interface FileContextMenuProps {
@@ -36,6 +31,7 @@ export interface FileContextMenuProps {
   onOpenInBucket?: (file: StorageFile) => void
   customActions?: FileAction[]
   disabledActions?: string[]
+  className?: string
 }
 
 export function FileContextMenu({
@@ -51,9 +47,9 @@ export function FileContextMenu({
   onOpenInBucket,
   customActions = [],
   disabledActions = [],
+  className,
 }: FileContextMenuProps) {
   const isDisabled = (actionId: string) => disabledActions.includes(actionId)
-  const [open, setOpen] = React.useState(false)
 
   const defaultActions = [
     {
@@ -121,87 +117,90 @@ export function FileContextMenu({
     },
   ]
 
+  const visibleDefaultActions = defaultActions.filter((a) => a.show)
+  const visibleManagementActions = managementActions.filter((a) => a.show)
+  const visibleDestructiveActions = destructiveActions.filter((a) => a.show)
+
   return (
-    <ContextMenu open={open} onOpenChange={setOpen}>
-      <ContextMenuTrigger asChild>
+    <ContextMenuPrimitive.Root>
+      <ContextMenuPrimitive.Trigger className={className} asChild={false}>
         {children}
-      </ContextMenuTrigger>
-      <ContextMenuContent className="w-56 glass-card-strong border-primary/30">
-        {/* Default Actions */}
-        {defaultActions
-          .filter((action) => action.show)
-          .map((action) => (
-            <ContextMenuItem
+      </ContextMenuPrimitive.Trigger>
+      <ContextMenuPrimitive.Portal>
+        <ContextMenuPrimitive.Content
+          className="z-50 min-w-[12rem] overflow-hidden rounded-lg border border-primary/30 bg-[#00111A]/95 backdrop-blur-xl p-1 shadow-lg shadow-primary/10 animate-in fade-in-80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+        >
+          {/* Default Actions */}
+          {visibleDefaultActions.map((action) => (
+            <ContextMenuPrimitive.Item
               key={action.id}
               disabled={isDisabled(action.id)}
-              onClick={() => action.onClick?.(file)}
-              className="cursor-pointer focus:bg-primary/10 focus:text-primary"
+              onSelect={() => action.onClick?.(file)}
+              className="relative flex cursor-pointer select-none items-center rounded-md px-2 py-2 text-sm text-[#C4C8D4] outline-none transition-colors hover:bg-primary/10 hover:text-white focus:bg-primary/10 focus:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
             >
-              <action.icon className="mr-2 h-4 w-4 text-primary" />
+              <action.icon className="mr-3 h-4 w-4 text-primary" />
               <span>{action.label}</span>
-            </ContextMenuItem>
+            </ContextMenuPrimitive.Item>
           ))}
 
-        {/* Custom Actions */}
-        {customActions.length > 0 &&
-          defaultActions.some((a) => a.show) && (
-            <ContextMenuSeparator className="bg-[#0E282E]" />
+          {/* Custom Actions */}
+          {customActions.length > 0 && visibleDefaultActions.length > 0 && (
+            <ContextMenuPrimitive.Separator className="my-1 h-px bg-[#0E282E]" />
           )}
-        {customActions.map((action) => (
-          <ContextMenuItem
-            key={action.id}
-            disabled={action.disabled || isDisabled(action.id)}
-            onClick={() => action.onClick(file)}
-            className={action.variant === 'destructive'
-              ? 'cursor-pointer focus:bg-destructive/10 focus:text-destructive'
-              : 'cursor-pointer focus:bg-primary/10 focus:text-primary'
-            }
-          >
-            {action.icon && <action.icon className="mr-2 h-4 w-4" />}
-            <span>{action.label}</span>
-          </ContextMenuItem>
-        ))}
+          {customActions.map((action) => (
+            <ContextMenuPrimitive.Item
+              key={action.id}
+              disabled={action.disabled || isDisabled(action.id)}
+              onSelect={() => action.onClick(file)}
+              className={cn(
+                'relative flex cursor-pointer select-none items-center rounded-md px-2 py-2 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+                action.variant === 'destructive'
+                  ? 'text-destructive hover:bg-destructive/10 focus:bg-destructive/10'
+                  : 'text-[#C4C8D4] hover:bg-primary/10 hover:text-white focus:bg-primary/10 focus:text-white'
+              )}
+            >
+              {action.icon && <action.icon className="mr-3 h-4 w-4" />}
+              <span>{action.label}</span>
+            </ContextMenuPrimitive.Item>
+          ))}
 
-        {/* Management Actions */}
-        {managementActions.some((a) => a.show) && (
-          <>
-            <ContextMenuSeparator className="bg-[#0E282E]" />
-            {managementActions
-              .filter((action) => action.show)
-              .map((action) => (
-                <ContextMenuItem
+          {/* Management Actions */}
+          {visibleManagementActions.length > 0 && (
+            <>
+              <ContextMenuPrimitive.Separator className="my-1 h-px bg-[#0E282E]" />
+              {visibleManagementActions.map((action) => (
+                <ContextMenuPrimitive.Item
                   key={action.id}
                   disabled={isDisabled(action.id)}
-                  onClick={() => action.onClick?.(file)}
-                  className="cursor-pointer focus:bg-primary/10 focus:text-primary"
+                  onSelect={() => action.onClick?.(file)}
+                  className="relative flex cursor-pointer select-none items-center rounded-md px-2 py-2 text-sm text-[#C4C8D4] outline-none transition-colors hover:bg-primary/10 hover:text-white focus:bg-primary/10 focus:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                 >
-                  <action.icon className="mr-2 h-4 w-4 text-primary" />
+                  <action.icon className="mr-3 h-4 w-4 text-primary" />
                   <span>{action.label}</span>
-                </ContextMenuItem>
+                </ContextMenuPrimitive.Item>
               ))}
-          </>
-        )}
+            </>
+          )}
 
-        {/* Destructive Actions */}
-        {destructiveActions.some((a) => a.show) && (
-          <>
-            <ContextMenuSeparator className="bg-[#0E282E]" />
-            {destructiveActions
-              .filter((action) => action.show)
-              .map((action) => (
-                <ContextMenuItem
+          {/* Destructive Actions */}
+          {visibleDestructiveActions.length > 0 && (
+            <>
+              <ContextMenuPrimitive.Separator className="my-1 h-px bg-[#0E282E]" />
+              {visibleDestructiveActions.map((action) => (
+                <ContextMenuPrimitive.Item
                   key={action.id}
                   disabled={isDisabled(action.id)}
-                  onClick={() => action.onClick?.(file)}
-                  className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+                  onSelect={() => action.onClick?.(file)}
+                  className="relative flex cursor-pointer select-none items-center rounded-md px-2 py-2 text-sm text-destructive outline-none transition-colors hover:bg-destructive/10 focus:bg-destructive/10 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                 >
-                  <action.icon className="mr-2 h-4 w-4" />
+                  <action.icon className="mr-3 h-4 w-4" />
                   <span>{action.label}</span>
-                </ContextMenuItem>
+                </ContextMenuPrimitive.Item>
               ))}
-          </>
-        )}
-      </ContextMenuContent>
-    </ContextMenu>
+            </>
+          )}
+        </ContextMenuPrimitive.Content>
+      </ContextMenuPrimitive.Portal>
+    </ContextMenuPrimitive.Root>
   )
 }
