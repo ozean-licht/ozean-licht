@@ -22,6 +22,28 @@ export type { CreateFolderDialogProps } from './create-folder-dialog'
 export { FileBrowser, useFileSelection } from './file-browser'
 export type { FileBrowserProps } from './file-browser'
 
+// Phase 3 Components
+export { FilePreviewDialog } from './file-preview-dialog'
+export type { FilePreviewDialogProps } from './file-preview-dialog'
+
+export { StorageQuotaCard } from './storage-quota-card'
+export type { StorageQuotaCardProps, FileTypeBreakdown } from './storage-quota-card'
+
+export { StorageSearchBar } from './storage-search-bar'
+export type { StorageSearchBarProps } from './storage-search-bar'
+
+export { FileMetadataPanel } from './file-metadata-panel'
+export type { FileMetadataPanelProps } from './file-metadata-panel'
+
+export { BucketSelector } from './bucket-selector'
+export type { BucketSelectorProps, Bucket } from './bucket-selector'
+
+export { ShareDialog } from './share-dialog'
+export type { ShareDialogProps } from './share-dialog'
+
+export { StorageStatsWidget } from './storage-stats-widget'
+export type { StorageStatsWidgetProps, StorageStatsData } from './storage-stats-widget'
+
 // Types
 export type {
   StorageFile,
