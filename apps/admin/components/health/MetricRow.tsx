@@ -2,10 +2,13 @@
  * Metric Row Component
  *
  * Displays a single metric with label, value, and optional progress bar.
- * Used within health metric cards to show individual measurements.
+ * Uses @ozean-licht/shared-ui components with Ozean Licht design system.
  */
 
+'use client';
+
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 interface MetricRowProps {
   /** Metric label (e.g., "Active Connections") */
@@ -16,7 +19,7 @@ interface MetricRowProps {
   unit?: string;
   /** Optional progress percentage (0-100) for progress bar */
   progress?: number;
-  /** Whether to show warning state (red color) */
+  /** Whether to show warning state (red/amber color) */
   warning?: boolean;
 }
 
@@ -24,9 +27,9 @@ interface MetricRowProps {
  * MetricRow displays an individual metric with optional progress visualization
  *
  * Features:
- * - Label and value display
- * - Optional progress bar for percentage metrics
- * - Warning state changes color to red
+ * - Label and value display with Ozean Licht typography
+ * - Optional progress bar with glass morphism effect
+ * - Warning state changes color to amber/red
  * - Responsive layout
  *
  * @example
@@ -37,25 +40,36 @@ interface MetricRowProps {
  * ```
  */
 export default function MetricRow({ label, value, unit, progress, warning }: MetricRowProps) {
-  const valueColor = warning ? 'text-red-600' : 'text-gray-900';
-  const progressColor = warning ? 'bg-red-500' : 'bg-indigo-600';
+  const valueColor = warning ? 'text-warning' : 'text-white';
+  const progressBarColor = warning
+    ? 'bg-warning shadow-warning/30'
+    : 'bg-primary shadow-primary/30';
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5">
       {/* Label and value row */}
       <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-600">{label}</span>
-        <span className={`text-sm font-medium ${valueColor}`}>
+        <span className="text-sm font-sans font-light text-[#C4C8D4]">{label}</span>
+        <span className={cn('text-sm font-sans font-medium', valueColor)}>
           {value}
-          {unit && <span className="text-gray-500 ml-1">{unit}</span>}
+          {unit && <span className="text-[#C4C8D4]/70 ml-1">{unit}</span>}
         </span>
       </div>
 
-      {/* Optional progress bar */}
+      {/* Optional progress bar with Ozean Licht glass morphism */}
       {progress !== undefined && (
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div
+          className="relative h-2 w-full overflow-hidden rounded-full bg-card/70 backdrop-blur-8 border border-border"
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <div
-            className={`h-2 rounded-full ${progressColor} transition-all duration-300`}
+            className={cn(
+              'h-full transition-all duration-300 ease-in-out shadow-lg',
+              progressBarColor
+            )}
             style={{ width: `${Math.min(progress, 100)}%` }}
           />
         </div>

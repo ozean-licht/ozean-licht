@@ -2,11 +2,15 @@
  * Health Metric Card Component
  *
  * Reusable card component for displaying health metrics with status badges.
- * Used as a base wrapper for database, gateway, and server health cards.
+ * Uses @ozean-licht/shared-ui components with Ozean Licht design system.
  */
+
+'use client';
 
 import React from 'react';
 import { ServiceStatus, SystemStatus } from '@/types/health';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface HealthMetricCardProps {
   /** Card title (e.g., "Kids Ascension Database") */
@@ -20,10 +24,10 @@ interface HealthMetricCardProps {
 /**
  * HealthMetricCard displays a metric container with color-coded status badge
  *
- * Status badge colors:
- * - green: 'up' or 'healthy'
- * - yellow: 'degraded'
- * - red: 'down'
+ * Status badge variants (Ozean Licht design):
+ * - success: 'up' or 'healthy'
+ * - warning: 'degraded'
+ * - destructive: 'down'
  *
  * @example
  * ```tsx
@@ -33,14 +37,14 @@ interface HealthMetricCardProps {
  * ```
  */
 export default function HealthMetricCard({ title, status, children }: HealthMetricCardProps) {
-  // Determine badge color based on status
-  const getBadgeColor = () => {
+  // Determine badge variant based on status
+  const getBadgeVariant = (): 'success' | 'warning' | 'destructive' => {
     if (status === 'up' || status === 'healthy') {
-      return 'bg-green-100 text-green-800';
+      return 'success';
     } else if (status === 'degraded') {
-      return 'bg-yellow-100 text-yellow-800';
+      return 'warning';
     } else {
-      return 'bg-red-100 text-red-800';
+      return 'destructive';
     }
   };
 
@@ -50,19 +54,20 @@ export default function HealthMetricCard({ title, status, children }: HealthMetr
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      {/* Header with title and status badge */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        <span
-          className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getBadgeColor()}`}
-        >
-          {getStatusText()}
-        </span>
-      </div>
-
-      {/* Card content */}
-      <div className="space-y-3">{children}</div>
-    </div>
+    <Card className="bg-card/70 backdrop-blur-12">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg font-sans font-medium text-white">
+            {title}
+          </CardTitle>
+          <Badge variant={getBadgeVariant()}>
+            {getStatusText()}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">{children}</div>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,3 +1,9 @@
+/**
+ * Card Component - Ozean Licht Design System
+ *
+ * Glass morphism cards with deep ocean theme and turquoise accents.
+ */
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -9,7 +15,8 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-xl border bg-card text-card-foreground shadow",
+      "rounded-lg border border-border bg-card/70 backdrop-blur-sm text-card-foreground shadow-sm transition-all",
+      "hover:border-primary/20 hover:shadow-lg hover:shadow-primary/10",
       className
     )}
     {...props}
@@ -35,7 +42,7 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("font-semibold leading-none tracking-tight", className)}
+    className={cn("font-sans font-medium text-white leading-none tracking-tight", className)}
     {...props}
   />
 ))
@@ -47,7 +54,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("text-sm font-sans font-light text-[#C4C8D4]", className)}
     {...props}
   />
 ))
