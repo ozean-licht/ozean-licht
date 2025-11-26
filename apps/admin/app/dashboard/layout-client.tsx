@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { LightRays, Button, cn } from '@/lib/ui'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   LayoutDashboard,
   Users,
@@ -17,6 +18,13 @@ import {
   ChevronRight,
   Menu,
   X,
+  Heart,
+  Share2,
+  PenTool,
+  GraduationCap,
+  CreditCard,
+  HelpCircle,
+  TicketCheck,
 } from 'lucide-react'
 import { Breadcrumb } from '@/components/dashboard/Breadcrumb'
 import { BreadcrumbProvider } from '@/lib/contexts/BreadcrumbContext'
@@ -47,6 +55,29 @@ export default function DashboardLayoutClient({
   const pathname = usePathname()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [bgVariant, setBgVariant] = useState<'widespread' | 'default' | 'subtle'>('default')
+
+  // LightRays background variants
+  const bgVariants = {
+    widespread: {
+      lightSpread: 3,
+      rayLength: 2.5,
+      fadeDistance: 1.5,
+      opacity: 'opacity-30',
+    },
+    default: {
+      lightSpread: 2,
+      rayLength: 1.8,
+      fadeDistance: 1.2,
+      opacity: 'opacity-25',
+    },
+    subtle: {
+      lightSpread: 1,
+      rayLength: 1.2,
+      fadeDistance: 0.8,
+      opacity: 'opacity-15',
+    },
+  }
 
   // Define admin navigation items
   const adminNavigationItems = [
@@ -54,50 +85,77 @@ export default function DashboardLayoutClient({
       label: "Dashboard",
       href: "/dashboard",
       icon: LayoutDashboard,
-      description: "Übersicht & Statistik"
     },
     {
       label: "Users",
       href: "/dashboard/access/users",
       icon: Users,
-      description: "Benutzerverwaltung"
     },
     {
       label: "Permissions",
       href: "/dashboard/access/permissions",
       icon: Lock,
-      description: "Berechtigungen"
     },
     {
       label: "System Health",
       href: "/dashboard/system/health",
       icon: Activity,
-      description: "Systemstatus"
     },
     {
       label: "Projects",
       href: "/dashboard/tools/projects",
       icon: FolderKanban,
-      description: "Projektmanagement"
     },
     {
-      label: "Cloud Storage",
+      label: "Ozean Cloud",
       href: "/dashboard/tools/cloud",
       icon: Cloud,
-      description: "Ozean Cloud"
+    },
+    {
+      label: "Courses",
+      href: "/dashboard/courses",
+      icon: GraduationCap,
+    },
+    {
+      label: "Blog Writer",
+      href: "/dashboard/blog",
+      icon: PenTool,
+    },
+    {
+      label: "Social Media",
+      href: "/dashboard/social",
+      icon: Share2,
+    },
+    {
+      label: "Billing",
+      href: "/dashboard/billing",
+      icon: CreditCard,
+    },
+    {
+      label: "Support",
+      href: "/dashboard/support",
+      icon: Heart,
+    },
+    {
+      label: "Help Center",
+      href: "/dashboard/help",
+      icon: HelpCircle,
+    },
+    {
+      label: "App Tickets",
+      href: "/dashboard/tickets",
+      icon: TicketCheck,
     },
     {
       label: "Components",
       href: "/dashboard/tools/components",
       icon: Blocks,
-      description: "UI Komponenten"
     },
     {
       label: "Documentation",
       href: "/dashboard/tools/docs",
       icon: BookOpen,
-      description: "Dokumentation"
-    }
+    },
   ]
 
   // Set up global keyboard shortcuts
@@ -109,22 +167,22 @@ export default function DashboardLayoutClient({
   return (
     <BreadcrumbProvider>
       <div className="relative min-h-screen bg-[#00070F]">
-        {/* LightRays Background - Fullscreen Widespread Variant */}
+        {/* LightRays Background - Dynamic Variant */}
         <div className="fixed inset-0 z-0 pointer-events-none" style={{ width: '100vw', height: '100vh' }}>
           <LightRays
             raysOrigin="top-center"
             raysColor="#0ec2bc"
             raysSpeed={1}
-            lightSpread={3}
-            rayLength={2.5}
+            lightSpread={bgVariants[bgVariant].lightSpread}
+            rayLength={bgVariants[bgVariant].rayLength}
             pulsating={false}
-            fadeDistance={1.5}
+            fadeDistance={bgVariants[bgVariant].fadeDistance}
             saturation={1.0}
             followMouse={false}
             mouseInfluence={0}
             noiseAmount={0.0}
             distortion={0.0}
-            className="opacity-30"
+            className={bgVariants[bgVariant].opacity}
           />
         </div>
 
@@ -137,63 +195,109 @@ export default function DashboardLayoutClient({
           )}>
             {/* Logo */}
             <div className="p-4 border-b border-[#0E282E]">
-              {isSidebarOpen ? (
-                <h1 className="text-xl font-decorative text-primary">Ozean Licht</h1>
-              ) : (
-                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <span className="text-primary font-bold">OL</span>
-                </div>
-              )}
+              <Link href="/dashboard" className="block">
+                {isSidebarOpen ? (
+                  <Image
+                    src="/images/Ozean_Licht_Akadmie_Sidebar_1530px.webp"
+                    alt="Ozean Licht"
+                    width={220}
+                    height={60}
+                    className="w-full h-auto object-contain"
+                    priority
+                  />
+                ) : (
+                  <Image
+                    src="/images/masterkey-icon.png"
+                    alt="OL"
+                    width={40}
+                    height={40}
+                    className="w-10 h-10 object-contain"
+                  />
+                )}
+              </Link>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+            <nav className="flex-1 px-2 py-4 space-y-2 overflow-y-auto">
               {adminNavigationItems.map((item) => {
                 const Icon = item.icon
-                const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+                // Dashboard only active on exact match, others use startsWith
+                const isActive = item.href === '/dashboard'
+                  ? pathname === '/dashboard'
+                  : pathname === item.href || pathname.startsWith(item.href + '/')
 
                 return (
                   <Link key={item.href} href={item.href}>
                     <Button
                       variant="ghost"
                       className={cn(
-                        "w-full justify-start gap-3 h-auto py-3 px-3 text-left transition-all duration-300 rounded-xl",
-                        "hover:bg-gradient-to-r hover:from-[#0E282E] hover:to-[#0A1A1A] hover:text-primary",
+                        "w-full justify-start gap-3 h-9 px-3 text-left transition-all duration-300 rounded-lg",
+                        "hover:bg-[#0E282E] hover:text-primary",
                         isActive
-                          ? "bg-gradient-to-r from-primary/20 via-primary/15 to-primary/10 text-primary shadow-lg shadow-primary/20 border border-primary/30"
-                          : "border border-transparent",
+                          ? "bg-primary/15 text-primary border border-primary/30"
+                          : "border border-transparent text-white/70",
                         !isSidebarOpen && "justify-center"
                       )}
                     >
-                      <div className={cn(
-                        "p-2 rounded-lg transition-all duration-300",
-                        isActive
-                          ? "bg-primary/20 shadow-lg shadow-primary/20"
-                          : "bg-[#0E282E]/50"
-                      )}>
-                        <Icon className="h-4 w-4 flex-shrink-0" />
-                      </div>
+                      <Icon className={cn(
+                        "h-4 w-4 flex-shrink-0 transition-colors",
+                        isActive ? "text-primary" : "text-white/50"
+                      )} />
                       {isSidebarOpen && (
-                        <div className="flex flex-col items-start min-w-0 flex-1">
-                          <span className={cn(
-                            "text-sm font-light truncate transition-all duration-300",
-                            isActive && "font-normal"
-                          )}>
-                            {item.label}
-                          </span>
-                          <span className={cn(
-                            "text-xs font-light truncate transition-all duration-300",
-                            isActive ? "text-primary/70" : "text-muted-foreground"
-                          )}>
-                            {item.description}
-                          </span>
-                        </div>
+                        <span className={cn(
+                          "text-sm truncate",
+                          isActive ? "font-medium" : "font-light"
+                        )}>
+                          {item.label}
+                        </span>
                       )}
                     </Button>
                   </Link>
                 )
               })}
             </nav>
+
+            {/* Background Switcher - Only visible when expanded */}
+            {isSidebarOpen && (
+              <div className="p-3 border-t border-[#0E282E]">
+                <p className="text-xs text-white/40 mb-2 px-1">Background</p>
+                <div className="flex gap-1 rounded-xl bg-[#0A1A1A] p-1 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.4),inset_-1px_-1px_2px_rgba(14,194,188,0.05)]">
+                  <button
+                    onClick={() => setBgVariant('widespread')}
+                    className={cn(
+                      "flex-1 py-2 px-3 rounded-lg text-xs transition-all duration-300",
+                      bgVariant === 'widespread'
+                        ? "bg-[#0E282E] text-primary shadow-[2px_2px_4px_rgba(0,0,0,0.3),-1px_-1px_2px_rgba(14,194,188,0.1)]"
+                        : "text-white/40 hover:text-white/60"
+                    )}
+                  >
+                    Wide
+                  </button>
+                  <button
+                    onClick={() => setBgVariant('default')}
+                    className={cn(
+                      "flex-1 py-2 px-3 rounded-lg text-xs transition-all duration-300",
+                      bgVariant === 'default'
+                        ? "bg-[#0E282E] text-primary shadow-[2px_2px_4px_rgba(0,0,0,0.3),-1px_-1px_2px_rgba(14,194,188,0.1)]"
+                        : "text-white/40 hover:text-white/60"
+                    )}
+                  >
+                    Default
+                  </button>
+                  <button
+                    onClick={() => setBgVariant('subtle')}
+                    className={cn(
+                      "flex-1 py-2 px-3 rounded-lg text-xs transition-all duration-300",
+                      bgVariant === 'subtle'
+                        ? "bg-[#0E282E] text-primary shadow-[2px_2px_4px_rgba(0,0,0,0.3),-1px_-1px_2px_rgba(14,194,188,0.1)]"
+                        : "text-white/40 hover:text-white/60"
+                    )}
+                  >
+                    Subtle
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Collapse Toggle */}
             <div className="p-2 border-t border-[#0E282E]">
@@ -221,7 +325,15 @@ export default function DashboardLayoutClient({
               <div className="fixed left-0 top-0 bottom-0 w-64 bg-[#0A1A1A]/95 backdrop-blur-md border-r border-[#0E282E] flex flex-col" onClick={(e) => e.stopPropagation()}>
                 {/* Mobile Header */}
                 <div className="p-4 border-b border-[#0E282E] flex items-center justify-between">
-                  <h1 className="text-xl font-decorative text-primary">Ozean Licht</h1>
+                  <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Image
+                      src="/images/Ozean_Licht_Akadmie_Sidebar_1530px.webp"
+                      alt="Ozean Licht"
+                      width={160}
+                      height={40}
+                      className="h-8 w-auto"
+                    />
+                  </Link>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -232,35 +344,36 @@ export default function DashboardLayoutClient({
                 </div>
 
                 {/* Mobile Navigation */}
-                <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+                <nav className="flex-1 px-2 py-4 space-y-2 overflow-y-auto">
                   {adminNavigationItems.map((item) => {
                     const Icon = item.icon
-                    const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+                    // Dashboard only active on exact match, others use startsWith
+                    const isActive = item.href === '/dashboard'
+                      ? pathname === '/dashboard'
+                      : pathname === item.href || pathname.startsWith(item.href + '/')
 
                     return (
                       <Link key={item.href} href={item.href} onClick={() => setIsMobileMenuOpen(false)}>
                         <Button
                           variant="ghost"
                           className={cn(
-                            "w-full justify-start gap-3 h-auto py-3 px-3 text-left transition-all duration-300 rounded-xl",
-                            "hover:bg-gradient-to-r hover:from-[#0E282E] hover:to-[#0A1A1A] hover:text-primary",
+                            "w-full justify-start gap-3 h-9 px-3 text-left transition-all duration-300 rounded-lg",
+                            "hover:bg-[#0E282E] hover:text-primary",
                             isActive
-                              ? "bg-gradient-to-r from-primary/20 via-primary/15 to-primary/10 text-primary shadow-lg shadow-primary/20 border border-primary/30"
-                              : "border border-transparent"
+                              ? "bg-primary/15 text-primary border border-primary/30"
+                              : "border border-transparent text-white/70"
                           )}
                         >
-                          <div className={cn(
-                            "p-2 rounded-lg transition-all duration-300",
-                            isActive
-                              ? "bg-primary/20 shadow-lg shadow-primary/20"
-                              : "bg-[#0E282E]/50"
+                          <Icon className={cn(
+                            "h-4 w-4 flex-shrink-0 transition-colors",
+                            isActive ? "text-primary" : "text-white/50"
+                          )} />
+                          <span className={cn(
+                            "text-sm truncate",
+                            isActive ? "font-medium" : "font-light"
                           )}>
-                            <Icon className="h-4 w-4 flex-shrink-0" />
-                          </div>
-                          <div className="flex flex-col items-start min-w-0 flex-1">
-                            <span className="text-sm font-light truncate">{item.label}</span>
-                            <span className="text-xs font-light truncate text-muted-foreground">{item.description}</span>
-                          </div>
+                            {item.label}
+                          </span>
                         </Button>
                       </Link>
                     )

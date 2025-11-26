@@ -46,8 +46,8 @@ export function UsersDataTable({
     if (verifiedFilter !== 'all') params.set('verified', verifiedFilter);
     if (offset > 0) params.set('offset', offset.toString());
 
-    const newUrl = `/dashboard/users${params.toString() ? `?${params.toString()}` : ''}`;
-    router.push(newUrl);
+    const newUrl = `/dashboard/access/users${params.toString() ? `?${params.toString()}` : ''}`;
+    router.replace(newUrl);
   }, [debouncedSearch, entityFilter, verifiedFilter, offset, router]);
 
   // Clear all filters
@@ -55,7 +55,7 @@ export function UsersDataTable({
     setSearch('');
     setEntityFilter('all');
     setVerifiedFilter('all');
-    router.push('/dashboard/users');
+    router.replace('/dashboard/access/users');
   };
 
   const hasFilters = search || entityFilter !== 'all' || verifiedFilter !== 'all';
@@ -68,6 +68,8 @@ export function UsersDataTable({
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
+            id="users-search"
+            name="users-search"
             placeholder="Search by email or user ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -76,8 +78,8 @@ export function UsersDataTable({
         </div>
 
         {/* Entity Filter */}
-        <Select value={entityFilter} onValueChange={setEntityFilter}>
-          <SelectTrigger className="w-[180px]">
+        <Select value={entityFilter} onValueChange={setEntityFilter} name="entity-filter">
+          <SelectTrigger className="w-[180px]" id="entity-filter">
             <SelectValue placeholder="Platform" />
           </SelectTrigger>
           <SelectContent>
@@ -89,8 +91,8 @@ export function UsersDataTable({
         </Select>
 
         {/* Verified Filter */}
-        <Select value={verifiedFilter} onValueChange={setVerifiedFilter}>
-          <SelectTrigger className="w-[160px]">
+        <Select value={verifiedFilter} onValueChange={setVerifiedFilter} name="verified-filter">
+          <SelectTrigger className="w-[160px]" id="verified-filter">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -128,7 +130,7 @@ export function UsersDataTable({
           } else {
             params.delete('offset');
           }
-          router.push(`/dashboard/users?${params.toString()}`);
+          router.replace(`/dashboard/access/users?${params.toString()}`);
         }}
         enableSorting
         enableExport

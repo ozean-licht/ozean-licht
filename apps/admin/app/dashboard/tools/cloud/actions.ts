@@ -2,13 +2,14 @@
  * Storage Server Actions
  *
  * Server-side actions for Ozean Cloud storage operations.
- * All actions require authentication and communicate via MCP Gateway.
+ * All actions require authentication and use direct S3/MinIO connection.
  */
 
 'use server';
 
 import { requireAuth } from '@/lib/auth-utils';
-import { getStorageClient, MCPUploadFileResult } from '@/lib/mcp-client/storage';
+import { getS3StorageClient, S3UploadFileResult } from '@/lib/storage/s3-client';
+import { BUCKETS, BucketInfo } from './constants';
 import type {
   EntityScope,
   GetFileUrlResult,
@@ -101,7 +102,7 @@ export async function getStorageFiles(
 }> {
   await requireAuth();
 
-  const client = getStorageClient();
+  const client = getS3StorageClient();
   const result = await client.listFiles({
     bucket,
     prefix: prefix || '',
@@ -156,7 +157,7 @@ export async function getStorageFiles(
  */
 export async function uploadStorageFile(
   formData: FormData
-): Promise<MCPUploadFileResult> {
+): Promise<S3UploadFileResult> {
   const session = await requireAuth();
 
   const file = formData.get('file') as File;
@@ -168,10 +169,9 @@ export async function uploadStorageFile(
     throw new Error('File and bucket are required');
   }
 
-  // Convert file to base64
+  // Convert file to Buffer (no base64 overhead with direct S3)
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
-  const base64 = buffer.toString('base64');
 
   // Build file key with optional path prefix (sanitize path to prevent traversal)
   let fileKey: string;
@@ -183,11 +183,11 @@ export async function uploadStorageFile(
     fileKey = sanitizePath(file.name);
   }
 
-  const client = getStorageClient();
+  const client = getS3StorageClient();
   return client.uploadFile({
     bucket,
     fileKey,
-    fileBuffer: base64,
+    fileBuffer: buffer,
     contentType: file.type || 'application/octet-stream',
     metadata: {
       uploadedBy: session.user?.email || 'unknown',
@@ -212,7 +212,7 @@ export async function getStorageUrl(
 ): Promise<GetFileUrlResult> {
   await requireAuth();
 
-  const client = getStorageClient();
+  const client = getS3StorageClient();
   return client.getFileUrl({
     bucket,
     fileKey,
@@ -233,7 +233,7 @@ export async function deleteStorageFile(
 ): Promise<DeleteFileResult> {
   await requireAuth();
 
-  const client = getStorageClient();
+  const client = getS3StorageClient();
   return client.deleteFile({ bucket, fileKey });
 }
 
@@ -250,7 +250,7 @@ export async function deleteStorageFilesBulk(
 ): Promise<{ successful: string[]; failed: { fileKey: string; error: string }[] }> {
   await requireAuth();
 
-  const client = getStorageClient();
+  const client = getS3StorageClient();
   const successful: string[] = [];
   const failed: { fileKey: string; error: string }[] = [];
 
@@ -282,18 +282,18 @@ export async function deleteStorageFilesBulk(
 export async function createFolder(
   bucket: string,
   folderPath: string
-): Promise<MCPUploadFileResult> {
+): Promise<S3UploadFileResult> {
   const session = await requireAuth();
 
   // Sanitize and normalize path: prevent traversal, then add trailing slash
   const sanitizedPath = sanitizePath(folderPath);
   const normalizedPath = sanitizedPath + '/';
 
-  const client = getStorageClient();
+  const client = getS3StorageClient();
   return client.uploadFile({
     bucket,
     fileKey: normalizedPath,
-    fileBuffer: '', // Empty content for folder marker
+    fileBuffer: Buffer.from(''), // Empty content for folder marker
     contentType: 'application/x-directory',
     metadata: {
       uploadedBy: session.user?.email || 'unknown',
@@ -311,7 +311,7 @@ export async function createFolder(
 export async function getStorageHealth(): Promise<StorageHealthStatus> {
   await requireAuth();
 
-  const client = getStorageClient();
+  const client = getS3StorageClient();
   return client.checkHealth();
 }
 
@@ -327,7 +327,7 @@ export async function getStorageStats(bucket: string): Promise<{
 }> {
   await requireAuth();
 
-  const client = getStorageClient();
+  const client = getS3StorageClient();
 
   // List all files to calculate stats
   let totalFiles = 0;

@@ -132,10 +132,13 @@ export default function Sidebar({
     .filter((section): section is NavigationSection => section !== null);
 
   const isActiveRoute = (href: string) => {
+    // Dashboard should only match exactly /dashboard
     if (href === '/dashboard') {
       return pathname === '/dashboard';
     }
-    return pathname.startsWith(href);
+
+    // For other routes, match if pathname equals href or starts with href/
+    return pathname === href || pathname.startsWith(href + '/');
   };
 
   return (

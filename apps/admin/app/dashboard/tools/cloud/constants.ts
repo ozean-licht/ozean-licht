@@ -18,18 +18,12 @@ export interface BucketInfo {
 }
 
 /**
- * Available buckets in the system
+ * Available buckets in Ozean Cloud
  */
 export const BUCKETS: BucketInfo[] = [
   {
-    name: 'kids-ascension-staging',
-    displayName: 'Kids Ascension',
-    description: 'Content for Kids Ascension platform',
-    entityScope: 'kids_ascension',
-  },
-  {
     name: 'ozean-licht-assets',
-    displayName: 'Ozean Licht',
+    displayName: 'Ozean Licht Assets',
     description: 'Assets for Ozean Licht Akademie',
     entityScope: 'ozean_licht',
   },
@@ -44,4 +38,4 @@ export const BUCKETS: BucketInfo[] = [
 /**
  * Default bucket name
  */
-export const DEFAULT_BUCKET = BUCKETS[0]?.name ?? 'shared-assets';
+export const DEFAULT_BUCKET = 'ozean-licht-assets';

@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import type { BucketInfo } from '@/app/dashboard/tools/cloud/actions';
+import type { BucketInfo } from '@/app/dashboard/tools/cloud/constants';
 
 export type ViewMode = 'list' | 'grid';
 

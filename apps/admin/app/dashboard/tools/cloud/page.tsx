@@ -306,15 +306,15 @@ export default function OzeanCloudPage() {
   };
 
   // Process upload queue with concurrency control
-  const processUploadQueue = async (fileArray: File[]) => {
+  const processUploadQueue = async (fileArray: File[], uploadsList: UploadProgress[]) => {
     // Process files in batches of MAX_CONCURRENT_UPLOADS
     for (let i = 0; i < fileArray.length; i += MAX_CONCURRENT_UPLOADS) {
       const batch = fileArray.slice(i, i + MAX_CONCURRENT_UPLOADS);
 
-      // Get upload IDs for this batch
-      const batchUploads = uploads.filter((u) =>
-        batch.some((f) => u.filename === f.name && u.status === 'pending')
-      );
+      // Get upload entries for this batch from the passed list
+      const batchUploads = batch.map((file) =>
+        uploadsList.find((u) => u.filename === file.name && u.file === file)
+      ).filter(Boolean) as UploadProgress[];
 
       // Upload batch in parallel
       await Promise.allSettled(
@@ -386,8 +386,8 @@ export default function OzeanCloudPage() {
 
     setUploads((prev) => [...prev, ...newUploads]);
 
-    // Process queue with concurrency control
-    await processUploadQueue(fileArray);
+    // Process queue with concurrency control - pass uploads directly to avoid state timing issues
+    await processUploadQueue(fileArray, newUploads);
   };
 
   // Handle file input change

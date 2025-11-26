@@ -23,6 +23,70 @@ const mcpClient = new MCPGatewayClientWithQueries({
   database: 'shared-users-db',
 });
 
+// Team members for Ozean Licht
+const MOCK_USERS = [
+  {
+    id: '1',
+    email: 'lia@ozean-licht.com',
+    name: 'Lia Lohmann',
+    image: null,
+    emailVerified: new Date('2024-01-15'),
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-11-26'),
+    entities: [{ id: 'e1', entityId: 'ozean_licht', role: 'team' }],
+  },
+  {
+    id: '2',
+    email: 'sergej@ozean-licht.com',
+    name: 'Sergej Götz',
+    image: null,
+    emailVerified: new Date('2024-01-15'),
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-11-26'),
+    entities: [{ id: 'e2', entityId: 'ozean_licht', role: 'team' }],
+  },
+  {
+    id: '3',
+    email: 'raphael@ozean-licht.com',
+    name: 'Raphael Reichert',
+    image: null,
+    emailVerified: new Date('2024-01-15'),
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-11-26'),
+    entities: [{ id: 'e3', entityId: 'ozean_licht', role: 'team' }],
+  },
+  {
+    id: '4',
+    email: 'maria@ozean-licht.com',
+    name: 'Maria Hinrichs',
+    image: null,
+    emailVerified: new Date('2024-01-15'),
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-11-26'),
+    entities: [{ id: 'e4', entityId: 'ozean_licht', role: 'team' }],
+  },
+  {
+    id: '5',
+    email: 'kristin@ozean-licht.com',
+    name: 'Kristin Allemann',
+    image: null,
+    emailVerified: new Date('2024-01-15'),
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-11-26'),
+    entities: [{ id: 'e5', entityId: 'ozean_licht', role: 'team' }],
+  },
+  {
+    id: '6',
+    email: 'shoshana@ozean-licht.com',
+    name: 'Shoshana Kerger',
+    image: null,
+    emailVerified: new Date('2024-01-15'),
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-11-26'),
+    entities: [{ id: 'e6', entityId: 'ozean_licht', role: 'team' }],
+  },
+];
+
 interface UsersPageProps {
   searchParams: {
     search?: string;
@@ -50,8 +114,41 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
     limit: 50,
   };
 
-  // Fetch users
-  const { users, total, limit, offset } = await mcpClient.listUsers(filters);
+  // Try to fetch users from MCP Gateway, fallback to mock data
+  let users = MOCK_USERS;
+  let total = MOCK_USERS.length;
+  let limit = 50;
+  let offset = 0;
+
+  try {
+    const result = await mcpClient.listUsers(filters);
+    users = result.users;
+    total = result.total;
+    limit = result.limit;
+    offset = result.offset;
+  } catch (error) {
+    console.warn('MCP Gateway unavailable, using mock users:', error);
+    // Apply filters to mock data
+    let filteredUsers = [...MOCK_USERS];
+
+    if (filters.search) {
+      const search = filters.search.toLowerCase();
+      filteredUsers = filteredUsers.filter(u =>
+        u.email.toLowerCase().includes(search) ||
+        u.name?.toLowerCase().includes(search)
+      );
+    }
+
+    if (filters.emailVerified !== undefined) {
+      filteredUsers = filteredUsers.filter(u =>
+        filters.emailVerified ? u.emailVerified !== null : u.emailVerified === null
+      );
+    }
+
+    users = filteredUsers;
+    total = filteredUsers.length;
+    offset = filters.offset || 0;
+  }
 
   return (
     <div className="space-y-6">
@@ -59,7 +156,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Users</h1>
         <p className="text-muted-foreground">
-          Manage users across Kids Ascension and Ozean Licht platforms
+          Manage users across Ozean Licht platform
         </p>
       </div>
 

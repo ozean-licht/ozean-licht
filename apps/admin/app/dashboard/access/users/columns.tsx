@@ -92,13 +92,15 @@ export const columns: ColumnDef<User>[] = [
     header: 'Registered',
     cell: ({ row }) => {
       const date = row.original.createdAt;
+      // Use fixed format to avoid hydration mismatch between server/client locales
+      const formattedDate = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear()}`;
       return (
         <div className="flex flex-col">
           <span className="text-sm">
             {formatDistanceToNow(date, { addSuffix: true })}
           </span>
           <span className="text-xs text-muted-foreground">
-            {date.toLocaleDateString()}
+            {formattedDate}
           </span>
         </div>
       );
