@@ -27,11 +27,8 @@ export function UsersDataTable({
 
   // State for filters
   const [search, setSearch] = useState(searchParams.get('search') || '');
-  const [entityFilter, setEntityFilter] = useState(
-    searchParams.get('entity') || 'all'
-  );
-  const [verifiedFilter, setVerifiedFilter] = useState(
-    searchParams.get('verified') || 'all'
+  const [roleFilter, setRoleFilter] = useState(
+    searchParams.get('role') || 'all'
   );
 
   // Debounce search
@@ -42,23 +39,21 @@ export function UsersDataTable({
     const params = new URLSearchParams();
 
     if (debouncedSearch) params.set('search', debouncedSearch);
-    if (entityFilter !== 'all') params.set('entity', entityFilter);
-    if (verifiedFilter !== 'all') params.set('verified', verifiedFilter);
+    if (roleFilter !== 'all') params.set('role', roleFilter);
     if (offset > 0) params.set('offset', offset.toString());
 
     const newUrl = `/dashboard/access/users${params.toString() ? `?${params.toString()}` : ''}`;
     router.replace(newUrl);
-  }, [debouncedSearch, entityFilter, verifiedFilter, offset, router]);
+  }, [debouncedSearch, roleFilter, offset, router]);
 
   // Clear all filters
   const handleClearFilters = () => {
     setSearch('');
-    setEntityFilter('all');
-    setVerifiedFilter('all');
+    setRoleFilter('all');
     router.replace('/dashboard/access/users');
   };
 
-  const hasFilters = search || entityFilter !== 'all' || verifiedFilter !== 'all';
+  const hasFilters = search || roleFilter !== 'all';
 
   return (
     <div className="space-y-4">
@@ -77,28 +72,15 @@ export function UsersDataTable({
           />
         </div>
 
-        {/* Entity Filter */}
-        <Select value={entityFilter} onValueChange={setEntityFilter} name="entity-filter">
-          <SelectTrigger className="w-[180px]" id="entity-filter">
-            <SelectValue placeholder="Platform" />
+        {/* Role Filter */}
+        <Select value={roleFilter} onValueChange={setRoleFilter} name="role-filter">
+          <SelectTrigger className="w-[140px]" id="role-filter">
+            <SelectValue placeholder="Role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Platforms</SelectItem>
-            <SelectItem value="kids_ascension">Kids Ascension</SelectItem>
-            <SelectItem value="ozean_licht">Ozean Licht</SelectItem>
-            <SelectItem value="both">Both Platforms</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Verified Filter */}
-        <Select value={verifiedFilter} onValueChange={setVerifiedFilter} name="verified-filter">
-          <SelectTrigger className="w-[160px]" id="verified-filter">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="verified">Verified</SelectItem>
-            <SelectItem value="unverified">Unverified</SelectItem>
+            <SelectItem value="all">All Users</SelectItem>
+            <SelectItem value="team">Team</SelectItem>
+            <SelectItem value="member">Member</SelectItem>
           </SelectContent>
         </Select>
 
@@ -133,6 +115,7 @@ export function UsersDataTable({
           router.replace(`/dashboard/access/users?${params.toString()}`);
         }}
         enableSorting
+        enableGlobalFilter={false}
         enableExport
       />
 

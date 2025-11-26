@@ -26,21 +26,21 @@ const SelectTrigger = React.forwardRef<
   <BaseSelect.Trigger
     ref={ref}
     className={cn(
-      'flex h-10 w-full items-center justify-between gap-2 rounded-lg',
-      'bg-card/70 backdrop-blur-md border border-border px-3 py-2',
-      'text-sm font-sans font-light text-[#C4C8D4]',
+      'flex h-9 w-full items-center justify-between gap-2 rounded-md',
+      'bg-card/70 backdrop-blur-sm border border-primary/25 px-3 py-2',
+      'text-sm font-sans text-foreground',
       'transition-all duration-200',
       'hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+      'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary/40',
       'disabled:cursor-not-allowed disabled:opacity-50',
-      'data-[placeholder]:text-[#C4C8D4]/50',
+      'data-[placeholder]:text-muted-foreground',
       className
     )}
     {...props}
   >
     {children}
     <svg
-      className="h-4 w-4 opacity-50 transition-transform data-[state=open]:rotate-180"
+      className="h-4 w-4 text-primary transition-transform data-[state=open]:rotate-180"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -118,8 +118,8 @@ const SelectPopup = React.forwardRef<
       <BaseSelect.Popup
         ref={ref}
         className={cn(
-          'z-50 min-w-[8rem] overflow-hidden rounded-lg',
-          'bg-card/90 backdrop-blur-lg border border-primary/20',
+          'z-50 min-w-[8rem] overflow-hidden rounded-md',
+          'bg-card/95 backdrop-blur-xl border border-primary/25',
           'shadow-lg shadow-primary/10',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -148,12 +148,12 @@ const SelectItem = React.forwardRef<
   <BaseSelect.Item
     ref={ref}
     className={cn(
-      'relative flex w-full cursor-pointer select-none items-center rounded-md py-2 px-3',
-      'text-sm font-sans font-light text-[#C4C8D4]',
+      'relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 px-2',
+      'text-sm font-sans text-foreground',
       'outline-none transition-colors',
-      'hover:bg-primary/10 hover:text-primary',
-      'focus:bg-primary/10 focus:text-primary',
-      'data-[selected]:bg-primary/20 data-[selected]:text-primary data-[selected]:font-medium',
+      'hover:bg-primary/20 hover:text-white',
+      'focus:bg-primary/20 focus:text-white',
+      'data-[selected]:bg-primary/20 data-[selected]:text-white',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       disabled && 'pointer-events-none opacity-50',
       className
@@ -163,7 +163,7 @@ const SelectItem = React.forwardRef<
     <span className="flex-1">{children}</span>
     <span className="ml-2 flex h-4 w-4 items-center justify-center opacity-0 data-[selected]:opacity-100">
       <svg
-        className="h-4 w-4 fill-current"
+        className="h-4 w-4 fill-primary"
         viewBox="0 0 16 16"
         aria-hidden="true"
       >

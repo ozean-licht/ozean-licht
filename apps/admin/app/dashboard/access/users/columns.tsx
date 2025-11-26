@@ -6,7 +6,7 @@ import { EntityBadge } from '@/components/rbac/EntityBadge';
 import { Button, Badge } from '@/lib/ui';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
-import { MoreHorizontal, Eye, CheckCircle2, XCircle } from 'lucide-react';
+import { MoreHorizontal, Eye, CheckCircle2, XCircle, Users } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,15 +18,32 @@ import {
 
 export const columns: ColumnDef<User>[] = [
   {
+    accessorKey: 'name',
+    header: 'Name',
+    cell: ({ row }) => {
+      const name = row.original.name;
+      const entities = row.original.entities || [];
+      const isTeam = entities.some((e) => e.role === 'team');
+
+      return (
+        <div className="flex items-center gap-2">
+          <span className="font-medium">{name || 'Unknown'}</span>
+          {isTeam && (
+            <Badge variant="default" className="gap-1 bg-primary/20 text-primary border border-primary/30">
+              <Users className="h-3 w-3" />
+              TEAM
+            </Badge>
+          )}
+        </div>
+      );
+    },
+    enableSorting: true,
+  },
+  {
     accessorKey: 'email',
     header: 'Email',
     cell: ({ row }) => (
-      <div className="flex flex-col">
-        <span className="font-medium">{row.original.email}</span>
-        <span className="text-xs text-muted-foreground font-mono">
-          {row.original.id.substring(0, 8)}...
-        </span>
-      </div>
+      <span className="text-muted-foreground">{row.original.email}</span>
     ),
     enableSorting: true,
     enableColumnFilter: true,
