@@ -124,18 +124,19 @@ export function BulkActionsToolbar({
                 <Button
                   key={action.id}
                   variant={action.variant === 'destructive' ? 'destructive' : 'secondary'}
-                  size="sm"
+                  size="icon-sm"
                   onClick={() => handleAction(action.id, action.onClick)}
                   disabled={action.disabled || isActionLoading || !!actionLoading}
                   className={cn(
-                    'gap-2',
                     action.variant !== 'destructive' && 'glass-card hover:bg-primary/10'
                   )}
+                  aria-label={action.label}
+                  title={action.label}
                 >
-                  {Icon && <Icon className="h-4 w-4" />}
-                  <span className="hidden sm:inline">{action.label}</span>
-                  {isActionLoading && (
-                    <div className="ml-1 h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  {isActionLoading ? (
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : (
+                    Icon && <Icon className="h-4 w-4" />
                   )}
                 </Button>
               )
@@ -146,13 +147,14 @@ export function BulkActionsToolbar({
             {/* Clear Selection */}
             <Button
               variant="ghost"
-              size="sm"
+              size="icon-sm"
               onClick={onClearSelection}
               disabled={isLoading}
-              className="gap-2 text-[#C4C8D4] hover:text-white"
+              className="text-[#C4C8D4] hover:text-white"
+              aria-label="Clear selection"
+              title="Clear selection"
             >
               <X className="h-4 w-4" />
-              <span className="hidden sm:inline">Clear</span>
             </Button>
           </div>
         </div>
