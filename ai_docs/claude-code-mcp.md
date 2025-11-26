@@ -1,71 +1,61 @@
-# Claude Code MCP Documentation Summary
+# Claude Code MCP Integration Guide
 
-## Overview
-Claude Code integrates with the Model Context Protocol (MCP), an open-source standard enabling connections to hundreds of external tools and data sources. This allows Claude to access databases, APIs, and specialized services.
+Claude Code connects to external tools through the **Model Context Protocol (MCP)**, an open standard for AI-tool integration. This enables access to hundreds of services and databases.
 
-## Capabilities
-MCP-connected Claude Code can handle diverse tasks:
-- "Implement features from issue trackers like JIRA and create pull requests"
-- "Analyze monitoring data from services like Sentry"
-- "Query databases such as Postgres for specific information"
-- "Integrate design updates from Figma"
-- "Automate workflows including email drafts"
+## Key Capabilities
+
+With MCP servers, Claude Code can:
+- Implement features from issue trackers like JIRA and GitHub
+- Analyze monitoring data from services such as Sentry
+- Query databases including PostgreSQL
+- Integrate design tools like Figma
+- Automate workflows via Gmail and other services
 
 ## Installation Methods
 
-**Three transport options exist:**
+Three transport options are available:
 
-1. **HTTP Servers** (recommended for remote services)
-   - Syntax: `claude mcp add --transport http <name> <url>`
-   - Supports authentication headers
+**HTTP Servers** (recommended for remote services):
+```bash
+claude mcp add --transport http notion https://mcp.notion.com/mcp
+```
 
-2. **SSE Servers** (deprecated)
-   - Legacy Server-Sent Events transport
-   - Replaced by HTTP where possible
+**SSE Servers** (deprecated but still functional):
+```bash
+claude mcp add --transport sse asana https://mcp.asana.com/sse
+```
 
-3. **Stdio Servers** (local processes)
-   - Direct system access for custom scripts
-   - Uses `--` separator between Claude flags and server commands
-   - Windows requires `cmd /c` wrapper for npx commands
+**Stdio Servers** (local processes):
+```bash
+claude mcp add --transport stdio airtable -- npx -y airtable-mcp-server
+```
 
 ## Configuration Scopes
 
-Three scope levels control server accessibility:
-
-- **Local**: Personal, project-specific configurations (default)
-- **Project**: Team-shared via `.mcp.json` file in version control
-- **User**: Cross-project access on individual machine
-
-Precedence hierarchy: local > project > user
-
-## Key Features
-
-**Environment Variable Expansion** in `.mcp.json`:
-- `${VAR}` syntax supported
-- Allows machine-specific customization
-- Works in commands, arguments, URLs, and headers
-
-**Authentication**: OAuth 2.0 support via `/mcp` command within Claude Code
-
-**Resources**: Reference MCP-provided resources using `@server:protocol://resource/path` syntax
-
-**Prompts**: MCP servers expose slash commands accessible as `/mcp__servername__promptname`
+MCP servers operate at three levels:
+- **Local**: Personal, project-specific (default)
+- **Project**: Team-shared via `.mcp.json` file
+- **User**: Available across all projects
 
 ## Management Commands
 
-```
+```bash
 claude mcp list          # View all servers
-claude mcp get <name>    # Details for specific server
-claude mcp remove <name> # Delete server
+claude mcp get github    # Details for specific server
+claude mcp remove github # Delete a server
 /mcp                     # Check status within Claude Code
 ```
 
-## Output Management
+## Authentication
 
-- Warning threshold: 10,000 tokens
-- Default maximum: 25,000 tokens
-- Adjustable via `MAX_MCP_OUTPUT_TOKENS` environment variable
+OAuth 2.0 support enables secure connections. Use `/mcp` command within Claude Code to authenticate with services like Sentry or GitHub.
 
 ## Enterprise Features
 
-Administrators can deploy centralized MCP configurations at system-level paths with allowlists and denylists to control server access across organizations.
+Organizations can deploy centralized MCP configurations through `managed-mcp.json` and control server access via allowlists/denylists in `managed-settings.json`.
+
+## Advanced Features
+
+- **MCP Resources**: Reference data via `@server:protocol://path` syntax
+- **MCP Prompts**: Access server-provided commands as slash commands
+- **Output Limits**: Configure `MAX_MCP_OUTPUT_TOKENS` for large datasets

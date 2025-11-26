@@ -1,21 +1,46 @@
-# Claude Models Overview
+# Claude Models Overview - Documentation Summary
+
+## Recommended Starting Point
+
+Anthropic suggests beginning with **Claude Sonnet 4.5**, which "offers the best balance of intelligence, speed, and cost for most use cases, with exceptional performance in coding and agentic tasks."
 
 ## Current Model Lineup
 
-Anthropic offers three primary Claude models with distinct strengths:
+Four primary models are available across Anthropic API, AWS Bedrock, and Google Vertex AI:
 
-**Claude Sonnet 4.5** serves as the recommended starting point, balancing "intelligence, speed, and cost for most use cases" with exceptional coding capabilities. It features a 200K token context window (expandable to 1M tokens in beta) and 64K maximum output tokens.
+**Claude Sonnet 4.5** - Optimized for complex agents and coding tasks
+- Input: $3/MTok | Output: $15/MTok
+- Context: 200K tokens (1M beta available)
+- Max output: 64K tokens
+- Latency: Fast
 
-**Claude Haiku 4.5** prioritizes speed, delivering near-frontier performance at lower latency and cost ($1/input MTok, $5/output MTok). It maintains the same 200K context window as Sonnet.
+**Claude Haiku 4.5** - Fastest model with near-frontier capabilities
+- Input: $1/MTok | Output: $5/MTok
+- Context: 200K tokens
+- Max output: 64K tokens
+- Latency: Fastest
 
-**Claude Opus 4.1** specializes in complex reasoning tasks, though it operates at moderate latency with higher costs ($15/input, $75/output MTok) and a 32K maximum output limit.
+**Claude Opus 4.5** - Premium intelligence with practical performance balance
+- Input: $5/MTok | Output: $25/MTok
+- Context: 200K tokens
+- Max output: 64K tokens
+- Latency: Moderate
 
-## Key Specifications
+**Claude Opus 4.1** - Specialized for reasoning tasks
+- Input: $15/MTok | Output: $75/MTok
+- Context: 200K tokens
+- Max output: 32K tokens
+- Latency: Moderate
 
-All models support multimodal input (text and images), text output, multilingual capabilities, and extended thinking. They're accessible via Anthropic's API, AWS Bedrock, and Google Vertex AI.
+## Key Capabilities
 
-The models differ in knowledge cutoffs—Sonnet and Opus reflect January 2025 reliability, while Haiku extends to February 2025. All were trained on data through July 2025.
+All current models support:
+- Text and image input, text output
+- Multilingual functionality
+- Vision processing
+- Extended thinking
+- Priority tier access
 
 ## Migration Guidance
 
-The documentation emphasizes that users currently leveraging Claude 3 models should transition to Claude 4.5 versions to access "improved intelligence and enhanced capabilities."
+Users on Claude 3 models should "migrate to Claude 4.5 to take advantage of improved intelligence and enhanced capabilities."

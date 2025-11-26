@@ -1,41 +1,138 @@
-# Slash Commands in the SDK - Documentation Summary
+# Claude Agent SDK Slash Commands Documentation
 
 ## Overview
-
-Slash commands are special directives prefixed with `/` that control Claude Code sessions through the SDK. They enable actions like clearing conversation history, compacting messages, or accessing help.
+Slash commands are special instructions prefixed with `/` that control Claude Code sessions through the SDK. They enable actions like clearing conversation history, compacting messages, and accessing help features.
 
 ## Discovering Available Commands
 
-The SDK provides available slash commands via the system initialization message. Access them when a session starts by checking for `message.type === "system"` and `message.subtype === "init"`, then reading `message.slash_commands`.
+The SDK provides slash command information in system initialization messages. Access this when a session starts:
+
+**TypeScript Example:**
+```typescript
+import { query } from "@anthropic-ai/claude-agent-sdk";
+
+for await (const message of query({
+  prompt: "Hello Claude",
+  options: { maxTurns: 1 }
+})) {
+  if (message.type === "system" && message.subtype === "init") {
+    console.log("Available slash commands:", message.slash_commands);
+    // Example: ["/compact", "/clear", "/help"]
+  }
+}
+```
 
 ## Sending Commands
 
-Transmit slash commands by including them directly in your prompt string, treating them as regular text input to the query function.
+Include slash commands directly in prompt strings:
 
-## Built-in Commands
+```typescript
+for await (const message of query({
+  prompt: "/compact",
+  options: { maxTurns: 1 }
+})) {
+  if (message.type === "result") {
+    console.log("Command executed:", message.result);
+  }
+}
+```
 
-**`/compact`** - Reduces conversation history size by summarizing older messages while maintaining essential context. The system returns compaction metadata including pre-compaction token count and the trigger that initiated compaction.
+## Common Built-in Commands
 
-**`/clear`** - Starts a fresh conversation by clearing all previous interaction history and beginning a new session with a fresh session ID.
+### `/compact`
+Reduces conversation history size by summarizing older messages while preserving context. Returns metadata about tokens saved and compaction trigger.
 
-## Custom Slash Commands
+### `/clear`
+Clears all previous conversation history and starts a fresh session with a new session ID.
 
-Users can create filesystem-based custom commands stored in markdown files:
+## Creating Custom Slash Commands
 
-- **Project scope**: `.claude/commands/` directory
-- **Personal scope**: `~/.claude/commands/` directory
+### File Structure
+Store custom commands as markdown files in:
+- **Project scope:** `.claude/commands/`
+- **User scope:** `~/.claude/commands/`
 
-The filename (without `.md` extension) becomes the command name. Content defines command behavior, with optional YAML frontmatter for configuration including allowed tools, descriptions, and model specifications.
+### Basic Format
+Filename (without `.md`) becomes the command name. File content defines command behavior.
+
+**Example:** `.claude/commands/refactor.md`
+```
+Refactor the selected code to improve readability and maintainability.
+Focus on clean code principles and best practices.
+```
+
+Creates the `/refactor` command.
+
+### Advanced Configuration
+
+Commands support YAML frontmatter for options:
+
+```yaml
+---
+allowed-tools: Read, Grep, Glob, Bash
+description: Run security vulnerability scan
+model: claude-sonnet-4-5-20250929
+---
+
+Analyze codebase for security vulnerabilities...
+```
+
+### Dynamic Arguments
+
+Use placeholders for parameterized commands:
+
+```yaml
+---
+argument-hint: [issue-number] [priority]
+---
+
+Fix issue #$1 with priority $2.
+```
+
+Usage: `/fix-issue 123 high`
 
 ### Advanced Features
 
-Custom commands support:
+- **Bash execution:** Include output with `!`git status``
+- **File references:** Include content using `@filename`
+- **Namespacing:** Organize in subdirectories (affects descriptions only, not command names)
 
-- **Arguments**: Dynamic placeholders using `$1`, `$2` syntax with optional `argument-hint` configuration
-- **Bash execution**: Run commands with `!`backtick syntax to embed output
-- **File references**: Include file contents using `@filename` notation
-- **Namespacing**: Organize commands in subdirectories for better structure
+## Practical Examples
 
-## Practical Applications
+### Code Review Command
+```markdown
+---
+allowed-tools: Read, Grep, Glob, Bash(git diff:*)
+---
 
-Commands can automate tasks like code reviews, test execution, security scanning, and git operations by combining allowed tools (Read, Bash, Edit, Grep, Glob) with specific instructions.
+## Changed Files
+!`git diff --name-only HEAD~1`
+
+Review for code quality, security, performance, testing, and documentation.
+```
+
+### Test Runner Command
+```markdown
+---
+allowed-tools: Bash, Read, Edit
+argument-hint: [test-pattern]
+---
+
+Run tests matching pattern: $ARGUMENTS
+Detect framework and fix failing tests.
+```
+
+## Integration with SDK
+
+Custom commands automatically integrate into SDK sessions:
+
+```typescript
+for await (const message of query({
+  prompt: "/code-review",
+  options: { maxTurns: 3 }
+})) {
+  // Process review feedback
+}
+```
+
+Custom commands appear in the `slash_commands` list alongside built-in commands.

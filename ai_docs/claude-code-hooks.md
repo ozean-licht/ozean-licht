@@ -1,96 +1,128 @@
-# Claude Code Hooks: Complete Reference
+# Claude Code Hooks Reference - Comprehensive Overview
 
-## Overview
+## Core Concept
 
-Claude Code hooks are automation mechanisms configured in settings files that execute in response to specific events during Claude's operation. They enable custom workflows, validation, permission handling, and context management throughout sessions.
+Claude Code hooks enable automated responses to specific events during development sessions. They execute bash commands or LLM-based evaluations to control tool usage, validate inputs, and manage workflow automation.
 
 ## Configuration Structure
 
-Hooks are organized hierarchically across three settings levels:
-- `~/.claude/settings.json` (user-wide)
-- `.claude/settings.json` (project-level)
-- `.claude/settings.local.json` (local, uncommitted)
+Hooks are defined in settings files across three levels:
+- User settings: `~/.claude/settings.json`
+- Project settings: `.claude/settings.json`
+- Local settings: `.claude/settings.local.json`
 
-The basic format groups hooks by event type with matchers and execution rules:
+The basic structure organizes hooks by event names and matchers:
 
 ```
-Matchers define target patterns (exact strings, regex, or wildcards)
-Hooks specify execution type and parameters
+hooks → EventName → matcher → hook array (type + command/prompt)
 ```
 
-## Hook Types
+## Key Hook Types
 
-**Command Hooks** (`type: "command"`)
-Execute bash scripts with access to hook input via stdin and context through environment variables like `$CLAUDE_PROJECT_DIR`.
+**Matchers** (case-sensitive patterns for tool targeting):
+- Exact matches: `"Write"` matches only the Write tool
+- Regex patterns: `"Edit|Write"` or `"Notebook.*"`
+- Wildcards: `"*"` or `""` for all tools
 
-**Prompt-Based Hooks** (`type: "prompt"`)
-Send evaluation tasks to Claude Haiku for context-aware decisions. These work with `Stop`, `SubagentStop`, `UserPromptSubmit`, `PreToolUse`, and `PermissionRequest` events. The LLM responds with structured JSON containing approval/blocking decisions.
+**Hook Execution Types**:
+- `"command"`: Executes bash scripts
+- `"prompt"`: Uses Claude Haiku for intelligent LLM-based decisions
 
-## Event Categories
+## Available Events
 
-**Tool-Related Events:**
-- `PreToolUse` - Before tool execution, allows blocking or modification
-- `PostToolUse` - After successful tool completion
-- `PermissionRequest` - When permission dialogs appear
+| Event | Purpose | Supports Matchers |
+|-------|---------|-------------------|
+| **PreToolUse** | Before tool execution | Yes |
+| **PermissionRequest** | During permission dialogs | Yes |
+| **PostToolUse** | After successful tool completion | Yes |
+| **UserPromptSubmit** | When user submits prompts | No |
+| **Stop/SubagentStop** | When agents finish | No |
+| **Notification** | For system notifications | Yes |
+| **SessionStart/End** | Session lifecycle | Yes (startup/resume/clear) |
+| **PreCompact** | Before context compaction | Yes (manual/auto) |
 
-**Session Events:**
-- `SessionStart` - New or resumed sessions; can inject context and set persistent environment variables via `CLAUDE_ENV_FILE`
-- `SessionEnd` - Cleanup when sessions terminate
-- `UserPromptSubmit` - Validates user input before processing
-
-**Agent Control:**
-- `Stop` - Main agent completion
-- `SubagentStop` - Subagent task completion
-- `PreCompact` - Before context compaction
-
-**Other:**
-- `Notification` - System notifications with type-based filtering
-
-## Input/Output Specification
+## Input/Output Mechanisms
 
 ### Input Format
 Hooks receive JSON via stdin containing:
 - `session_id`, `transcript_path`, `cwd`
 - `permission_mode` (default/plan/acceptEdits/bypassPermissions)
-- Event-specific fields like `tool_name`, `tool_input`, `prompt`
+- Event-specific fields (tool_name, tool_input, etc.)
 
 ### Output Control
+Hooks communicate via:
+- **Exit code 0**: Success (JSON parsed for structured control)
+- **Exit code 2**: Blocking error (stderr shows reason to Claude)
+- **Other codes**: Non-blocking errors (displayed in verbose mode)
 
-**Exit Codes:**
-- `0` = Success (stdout shown in verbose mode, context for UserPromptSubmit/SessionStart)
-- `2` = Blocking error (stderr shown to Claude, prevents action)
-- Other = Non-blocking error (shown in verbose mode only)
+## Decision Control Examples
 
-**JSON Response Structure:**
+**PreToolUse decisions**:
+- `"allow"`: Bypass permission system
+- `"deny"`: Block tool execution
+- `"ask"`: Request user confirmation
+- `"updatedInput"`: Modify parameters before execution
+
+**UserPromptSubmit decisions**:
+- `"block"`: Prevent prompt processing
+- Plain stdout: Add context automatically
+
+**Stop/SubagentStop decisions**:
+- `"block"`: Force continuation with provided reasoning
+
+## Prompt-Based Hooks
+
+For sophisticated context-aware decisions, `type: "prompt"` sends input to Claude Haiku, which responds with structured JSON:
+
+```json
+{
+  "decision": "approve" | "block",
+  "reason": "explanation",
+  "continue": false,
+  "stopReason": "custom message"
+}
 ```
-decision: "approve"/"block"/"allow"/"deny"
-reason: explanation shown to Claude
-continue: false stops processing
-permissionDecision: for PreToolUse control
-additionalContext: injected into conversation
-```
+
+## Environment Variables
+
+- `CLAUDE_PROJECT_DIR`: Project root path
+- `CLAUDE_ENV_FILE`: SessionStart-only file for persisting environment variables
+- `CLAUDE_PLUGIN_ROOT`: Plugin directory path
+- `CLAUDE_CODE_REMOTE`: Indicates remote (web) vs local execution
 
 ## Advanced Features
 
-**Tool Input Modification:** PreToolUse hooks can alter parameters via `updatedInput` before execution.
+**Plugin Hooks**: Automatically merged from plugin `hooks/hooks.json`, using `${CLAUDE_PLUGIN_ROOT}` for file references.
 
-**MCP Tools:** Support pattern matching like `mcp__memory__.*` for Model Context Protocol tools.
+**MCP Tool Integration**: Target Model Context Protocol tools using pattern `"mcp__<server>__<tool>"` or `"mcp__.*__write.*"` for wildcards.
 
-**Plugin Hooks:** Plugins contribute hooks merged with user configuration, using `${CLAUDE_PLUGIN_ROOT}` environment variable.
+**Project-Specific Scripts**: Reference project scripts via `"$CLAUDE_PROJECT_DIR"/.claude/hooks/script.sh"`.
 
-**Parallelization:** Matching hooks execute simultaneously; identical commands deduplicate automatically.
+## Execution Characteristics
 
-## Security Model
+- **Timeout**: 60 seconds default (configurable per command)
+- **Parallelization**: Matching hooks run simultaneously
+- **Deduplication**: Identical commands execute once
+- **Input delivery**: JSON passed to stdin
+- **Output visibility**: Varies by event type and verbose mode
 
-Hooks capture a snapshot at startup, preventing mid-session modifications from affecting current sessions. Best practices include validating inputs, quoting variables properly, checking for path traversal attempts, and avoiding sensitive file access.
+## Security Considerations
 
-**Default timeout is 60 seconds per hook** (configurable individually).
+Hooks execute arbitrary commands with user account permissions. Critical safeguards include:
 
-## Practical Applications
+- Validate and sanitize all inputs
+- Use quoted shell variables: `"$VAR"`
+- Block path traversal attempts
+- Employ absolute paths
+- Avoid sensitive files (.env, .git, credentials)
 
-- **Automatic formatting** post-tool execution
-- **Permission automation** for known-safe operations
-- **Prompt validation** blocking sensitive input
-- **Context injection** loading project state at startup
-- **Environment setup** persisting configuration across commands
-- **Notifications** for permission requests and idle states
+Configuration changes are captured at startup and require explicit review via `/hooks` menu before runtime application.
+
+## Debugging Workflow
+
+Access hook diagnostics through:
+- `/hooks` command: View registered hooks
+- `claude --debug`: Detailed execution logs
+- Manual script testing before integration
+- Permission verification for executables
+- Verbose mode (ctrl+o) for progress visibility

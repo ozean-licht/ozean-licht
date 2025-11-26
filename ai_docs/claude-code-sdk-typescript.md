@@ -1,4 +1,4 @@
-# Claude Agent SDK TypeScript Reference
+# TypeScript Agent SDK Reference - Complete Documentation
 
 ## Installation
 
@@ -8,64 +8,67 @@ npm install @anthropic-ai/claude-agent-sdk
 
 ## Core Functions
 
-### `query()`
-The main entry point for interacting with Claude Code. Returns an async generator that streams messages.
+**`query()`** - Primary function for interacting with Claude Code. Takes a prompt (string or async iterable) and optional configuration, returning an async generator that streams messages.
 
-**Parameters:**
-- `prompt`: String or async iterable for streaming mode
-- `options`: Configuration object (see Options)
+**`tool()`** - Creates type-safe MCP tool definitions using Zod schemas for input validation and async handlers.
 
-**Returns:** `Query` object extending `AsyncGenerator<SDKMessage, void>`
-
-### `tool()`
-Creates type-safe MCP tool definitions using Zod schemas for input validation and handler functions.
-
-### `createSdkMcpServer()`
-Instantiates an MCP server running in the same process as your application.
+**`createSdkMcpServer()`** - Establishes an in-process MCP server with tools, name, and optional version.
 
 ## Key Configuration Options
 
-The `Options` object supports:
+The `Options` interface supports extensive customization:
 
-- **Model selection**: `model` (defaults from CLI)
-- **Tool management**: `allowedTools`, `disallowedTools`
-- **Permission control**: `permissionMode` ('default' | 'acceptEdits' | 'bypassPermissions' | 'plan')
-- **Session handling**: `resume`, `continue`, `forkSession`
-- **MCP servers**: `mcpServers` configuration
-- **System prompt**: Custom or preset prompts
-- **Output formatting**: Structured output schemas
-- **Settings sources**: Load from `'user'`, `'project'`, or `'local'` filesystem locations
+- **Model selection**: `model`, `fallbackModel` for resilience
+- **Tool management**: `allowedTools`, `disallowedTools`, custom `canUseTool` permission functions
+- **Execution context**: `cwd`, `env`, `executable` (bun/deno/node)
+- **MCP integration**: `mcpServers` configuration for external tool providers
+- **Session handling**: `resume` for continuation, `forkSession` for branching
+- **Permission modes**: 'default', 'acceptEdits', 'bypassPermissions', 'plan'
+- **System prompts**: String custom prompts or preset Claude Code configuration
+- **Output formatting**: `outputFormat` for structured JSON schema results
+- **Hooks**: Event-based callbacks for lifecycle monitoring
 
 ## Message Types
 
-The SDK returns various message types:
+The SDK returns a discriminated union `SDKMessage` encompassing:
 
-- `SDKAssistantMessage`: Claude's responses
-- `SDKUserMessage`: User input
-- `SDKResultMessage`: Final results with usage and cost data
-- `SDKSystemMessage`: System initialization info
-- `SDKPartialAssistantMessage`: Streaming events (with `includePartialMessages`)
-
-## Permission Modes
-
-- **default**: Standard permission behavior
-- **acceptEdits**: Auto-accept file modifications
-- **bypassPermissions**: Skip all permission checks
-- **plan**: Planning mode without execution
+- `SDKAssistantMessage` - Claude's responses with tool use tracking
+- `SDKUserMessage` - User inputs with UUID tracking
+- `SDKResultMessage` - Final execution results with metrics (tokens, cost, duration)
+- `SDKSystemMessage` - Initialization data (tools, models, permissions)
+- `SDKPartialAssistantMessage` - Streaming events (when enabled)
 
 ## Built-in Tools
 
-The SDK provides access to: Task delegation, Bash execution, file operations (Read/Write/Edit), Glob pattern matching, Grep searching, Jupyter notebook editing, web fetching, web searching, and todo list management.
+**File Operations**: Read, Write, Edit, NotebookEdit
+**Search**: Grep (ripgrep-based), Glob, WebSearch
+**Execution**: Bash (with background support), Task (delegated agents)
+**Utilities**: TodoWrite, WebFetch, MCP resource access
 
-## Hooks System
+## Permissions & Security
 
-Subscribe to lifecycle events via the `hooks` option with callbacks for: PreToolUse, PostToolUse, Notification, UserPromptSubmit, SessionStart, SessionEnd, Stop, SubagentStop, and PreCompact events.
+Control tool access through:
 
-## Settings Management
+- **`permissionMode`** - Global behavior (plan mode prevents execution)
+- **`CanUseTool` callback** - Custom logic receiving tool name, input, and abort signals
+- **`PermissionResult`** - Allow/deny with optional input modification
+- **Settings sources** - Load from `~/.claude/settings.json`, `.claude/settings.json`, or `.claude/settings.local.json`
 
-Control configuration loading via `settingSources`:
-- Omit entirely for SDK-only applications (default)
-- Include `'project'` to load CLAUDE.md files
-- Combine `'user'`, `'project'`, `'local'` as needed
+## Subagents & Advanced Features
 
-Precedence: Local > Project > User settings.
+**Programmatic agents**: Define via `agents` option with description, tools, prompt, and model
+**Structured outputs**: "Enforce consistent response formats via JSON schema"
+**Cost tracking**: `SDKResultMessage` includes `total_cost_usd` and token breakdowns
+**Hooks**: PreToolUse, PostToolUse, SessionStart/End, PreCompact for monitoring
+
+## MCP Server Configuration
+
+Support for multiple transport types:
+- **stdio**: Direct process execution with args/env
+- **sse**: Server-sent events over HTTP
+- **http**: Native HTTP protocol
+- **sdk**: In-process instances via `createSdkMcpServer()`
+
+## Settings & Defaults
+
+When `settingSources` is omitted, no filesystem settings load (SDK isolation). Include specific sources ('user', 'project', 'local') to enable CLAUDE.md project instructions and team configurations.

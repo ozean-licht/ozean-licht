@@ -1,31 +1,50 @@
-# Claude Models Overview
+# Claude Models Overview - Complete Documentation
 
-## Current Models
+## Recommended Model
 
-**Claude Sonnet 4.5** is recommended as the best starting point, offering "the best balance of intelligence, speed, and cost for most use cases."
+**Claude Sonnet 4.5** is recommended as the starting point, offering "the best balance of intelligence, speed, and cost for most use cases, with exceptional performance in coding and agentic tasks."
 
-The three latest models are:
+## Current Model Lineup
 
-1. **Claude Sonnet 4.5** (claude-sonnet-4-5-20250929)
-   - Described as the smartest model for complex agents and coding
-   - Context: 200K tokens (1M tokens beta support)
-   - Max output: 64K tokens
-   - Pricing: $3/input MTok, $15/output MTok
-   - Latency: Fast
+### Claude Sonnet 4.5
+- **API ID**: claude-sonnet-4-5-20250929
+- **Description**: Smartest model for complex agents and coding
+- **Pricing**: $3/input MTok, $15/output MTok
+- **Context**: 200K tokens / 1M tokens (beta)
+- **Max Output**: 64K tokens
+- **Knowledge Cutoff**: January 2025 (reliable); July 2025 (training data)
+- **Latency**: Fast
+- **Features**: Extended thinking, Priority Tier support
 
-2. **Claude Haiku 4.5** (claude-haiku-4-5-20251001)
-   - Fastest model with near-frontier intelligence
-   - Context: 200K tokens
-   - Max output: 64K tokens
-   - Pricing: $1/input MTok, $5/output MTok
-   - Latency: Fastest
+### Claude Haiku 4.5
+- **API ID**: claude-haiku-4-5-20251001
+- **Description**: Fastest model with near-frontier intelligence
+- **Pricing**: $1/input MTok, $5/output MTok
+- **Context**: 200K tokens
+- **Max Output**: 64K tokens
+- **Knowledge Cutoff**: January 2025 (reliable); July 2025 (training data)
+- **Latency**: Fastest
+- **Features**: Extended thinking, Priority Tier support
 
-3. **Claude Opus 4.1** (claude-opus-4-1-20250805)
-   - Exceptional for specialized reasoning tasks
-   - Context: 200K tokens
-   - Max output: 32K tokens
-   - Pricing: $15/input MTok, $75/output MTok
-   - Latency: Moderate
+### Claude Opus 4.5
+- **API ID**: claude-opus-4-5-20251101
+- **Description**: Premium model combining maximum intelligence with practical performance
+- **Pricing**: $5/input MTok, $25/output MTok
+- **Context**: 200K tokens
+- **Max Output**: 64K tokens
+- **Knowledge Cutoff**: March 2025 (reliable); August 2025 (training data)
+- **Latency**: Moderate
+- **Features**: Extended thinking, Priority Tier support
+
+### Claude Opus 4.1
+- **API ID**: claude-opus-4-1-20250805
+- **Description**: Exceptional model for specialized reasoning tasks
+- **Pricing**: $15/input MTok, $75/output MTok
+- **Context**: 200K tokens
+- **Max Output**: 32K tokens
+- **Knowledge Cutoff**: January 2025 (reliable); March 2025 (training data)
+- **Latency**: Moderate
+- **Features**: Extended thinking, Priority Tier support
 
 ## Key Capabilities
 
@@ -35,8 +54,14 @@ All current models support:
 - Multilingual capabilities
 - Vision processing
 - Extended thinking
-- Priority tier access
+- Prompt caching
+- Batch processing
 
-## Knowledge Cutoffs
+## Platform Availability
 
-Models have different knowledge reliability dates—Sonnet 4.5 is "most extensive and reliable through January 2025" despite training on data through July 2025.
+Models accessible through:
+- Anthropic API
+- AWS Bedrock
+- Google Vertex AI
+
+The documentation emphasizes using specific versioned model IDs in production rather than aliases for consistent behavior.

@@ -1,48 +1,36 @@
-# Writing Effective Tools for AI Agents
+# Writing Effective Tools for AI Agents — Anthropic Engineering Blog
 
 ## Overview
+Published September 11, 2025, this article explains how to design high-quality tools for LLM agents using the Model Context Protocol (MCP). The core insight is that "tools are a new kind of software which reflects a contract between deterministic systems and non-deterministic agents."
 
-Anthropic's guide on building high-quality tools for LLM agents emphasizes evaluation-driven development and collaboration with AI systems like Claude Code to optimize tool performance.
+## Key Process: Three Steps
 
-## Key Development Process
+**1. Building Prototypes**
+Start with quick tool prototypes using Claude Code. Provide documentation for relevant APIs and SDKs. Test locally via MCP servers or Desktop extensions using commands like `claude mcp add <name> <command>`.
 
-### Three-Stage Approach
+**2. Running Evaluations**
+Create realistic evaluation tasks requiring multiple tool calls. Pair prompts with verifiable outcomes. Run evaluations programmatically using simple agentic loops. Collect metrics: accuracy, runtime, token consumption, and error rates.
 
-**1. Prototyping**
-Stand up quick tool implementations using Claude Code with proper documentation (like `llms.txt` files). Connect tools via local MCP servers or Desktop extensions for testing.
+**3. Collaborating with Claude**
+Let Claude analyze evaluation transcripts and improve your tools automatically, ensuring consistency across implementations.
 
-**2. Evaluation**
-Generate realistic evaluation tasks and run agents programmatically through simple loops. Collect metrics beyond accuracy—track token usage, tool call counts, and error patterns.
+## Five Core Principles
 
-**3. Optimization**
-"Simply concatenate the transcripts from your evaluation agents and paste them into Claude Code" to identify and fix issues systematically.
+**Choosing the Right Tools**
+Implement fewer, thoughtful tools targeting high-impact workflows rather than simply wrapping all API endpoints. Tools should consolidate functionality—for example, a `schedule_event` tool instead of separate `list_users`, `list_events`, and `create_event` tools.
 
-## Core Principles for Tool Design
+**Namespacing Tools**
+Group related tools with consistent prefixes (e.g., `asana_projects_search`, `asana_users_search`) to help agents select appropriate tools and reduce context consumption.
 
-### Choosing the Right Tools
+**Returning Meaningful Context**
+Prioritize human-readable fields (`name`, `image_url`) over technical identifiers (`uuid`, `mime_type`). Use `response_format` enum parameters allowing agents to request "concise" or "detailed" responses depending on needs.
 
-More tools don't guarantee better outcomes. Avoid merely wrapping existing APIs; instead, consolidate functionality into high-impact tools matching actual workflows. For example, implement `schedule_event` rather than separate `list_users`, `list_events`, and `create_event` tools.
+**Token Efficiency**
+Implement pagination, filtering, and truncation with sensible defaults. Claude Code restricts responses to 25,000 tokens by default. Provide helpful error messages guiding agents toward more efficient strategies rather than cryptic error codes.
 
-### Namespacing
+**Prompt-Engineering Descriptions**
+Write clear tool descriptions as if explaining to a new teammate. Unambiguously name parameters (use `user_id` not `user`). Small refinements dramatically improve performance—Claude Sonnet achieved state-of-the-art on SWE-bench Verified after precise tool description updates.
 
-Group related tools with consistent prefixes (e.g., `asana_projects_search`, `asana_users_search`) to reduce agent confusion when accessing hundreds of tools.
+## Real-World Results
 
-### Meaningful Context
-
-Return high-signal information prioritizing semantic relevance. Use natural language identifiers instead of technical ones (prefer `name` over `uuid`). Implement optional `response_format` parameters allowing agents to request "concise" versus "detailed" responses.
-
-### Token Efficiency
-
-Implement pagination, filtering, and truncation with sensible defaults. Provide actionable error messages steering agents toward better strategies rather than opaque error codes.
-
-### Prompt Engineering
-
-Craft clear, unambiguous tool descriptions. Refinements to specifications yielded dramatic improvements in Claude's task completion rates.
-
-## Results
-
-Internal testing showed Claude-optimized tools significantly outperformed manually-written implementations across Slack and Asana integrations.
-
----
-
-**Source:** https://www.anthropic.com/engineering/writing-tools-for-agents
+Internal testing showed Claude-optimized Slack and Asana MCP servers significantly outperformed human-written versions on held-out test sets, demonstrating the effectiveness of systematic evaluation and iterative improvement.
