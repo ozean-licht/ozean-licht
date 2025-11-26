@@ -107,6 +107,12 @@ export const ROUTE_ROLES: Record<string, AdminRole[]> = {
   '/dashboard/analytics': ['super_admin', 'ol_admin', 'ol_editor'],
   '/dashboard/settings': ['super_admin', 'ol_admin'],
   '/dashboard/audit': ['super_admin'],
+  // Tools section - accessible to all roles
+  '/dashboard/tools': ['super_admin', 'ol_admin', 'ol_editor', 'support'],
+  '/dashboard/tools/projects': ['super_admin', 'ol_admin', 'ol_editor', 'support'],
+  '/dashboard/tools/cloud': ['super_admin', 'ol_admin'],
+  '/dashboard/tools/components': ['super_admin', 'ol_admin', 'ol_editor'],
+  '/dashboard/tools/docs': ['super_admin', 'ol_admin', 'ol_editor', 'support'],
 };
 
 /**
