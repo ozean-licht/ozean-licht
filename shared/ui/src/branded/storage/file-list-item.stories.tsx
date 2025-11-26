@@ -3,6 +3,7 @@
  */
 
 import type { Meta, StoryObj } from '@storybook/react'
+import type { ComponentType } from 'react'
 import { FileListItem } from './file-list-item'
 import { fn } from '@storybook/test'
 
@@ -52,7 +53,6 @@ const meta = {
         <table className="w-full glass-card rounded-lg overflow-hidden">
           <thead>
             <tr className="border-b border-[#0E282E]">
-              <th className="text-left p-3 text-sm font-normal text-[#C4C8D4]"></th>
               <th className="text-left p-3 text-sm font-normal text-[#C4C8D4]">Name</th>
               <th className="text-left p-3 text-sm font-normal text-[#C4C8D4]">Size</th>
               <th className="text-left p-3 text-sm font-normal text-[#C4C8D4] hidden md:table-cell">
@@ -91,6 +91,28 @@ export const Default: Story = {
   },
 }
 
+// Custom decorator for stories with checkbox
+const withCheckboxDecorator = (Story: ComponentType) => (
+  <div className="w-full max-w-4xl">
+    <table className="w-full glass-card rounded-lg overflow-hidden">
+      <thead>
+        <tr className="border-b border-[#0E282E]">
+          <th className="text-left p-3 text-sm font-normal text-[#C4C8D4] w-12"></th>
+          <th className="text-left p-3 text-sm font-normal text-[#C4C8D4]">Name</th>
+          <th className="text-left p-3 text-sm font-normal text-[#C4C8D4]">Size</th>
+          <th className="text-left p-3 text-sm font-normal text-[#C4C8D4] hidden md:table-cell">
+            Modified
+          </th>
+          <th className="text-right p-3 text-sm font-normal text-[#C4C8D4]">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <Story />
+      </tbody>
+    </table>
+  </div>
+)
+
 /**
  * Selected file with checkbox
  */
@@ -109,6 +131,7 @@ export const Selected: Story = {
     onAction: fn(),
     onClick: fn(),
   },
+  decorators: [withCheckboxDecorator],
 }
 
 /**
@@ -128,6 +151,7 @@ export const Folder: Story = {
     onAction: fn(),
     onClick: fn(),
   },
+  decorators: [withCheckboxDecorator],
 }
 
 /**
@@ -147,6 +171,7 @@ export const WithActions: Story = {
     onAction: fn(),
     onClick: fn(),
   },
+  decorators: [withCheckboxDecorator],
   parameters: {
     docs: {
       description: {
