@@ -198,8 +198,8 @@ export function StorageSearchBar({
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <Button
-              variant="ghost"
-              className="relative glass-card border-primary/30 hover:bg-primary/10 text-primary"
+              variant="outline"
+              className="relative border-primary/30 bg-card/70 backdrop-blur-xl hover:bg-primary/10 hover:border-primary/50 text-primary"
             >
               <Filter className="h-4 w-4 mr-2" />
               Filters
