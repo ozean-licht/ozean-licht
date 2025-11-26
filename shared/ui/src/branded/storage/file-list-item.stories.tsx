@@ -46,52 +46,33 @@ const meta = {
       description: 'Callback when the row is clicked',
     },
   },
-  // Wrap in a table to provide proper context
-  decorators: [
-    (Story) => (
-      <div className="w-full max-w-4xl">
-        <table className="w-full glass-card rounded-lg overflow-hidden">
-          <thead>
-            <tr className="border-b border-[#0E282E]">
-              <th className="text-left p-3 text-sm font-normal text-[#C4C8D4]">Name</th>
-              <th className="text-left p-3 text-sm font-normal text-[#C4C8D4]">Size</th>
-              <th className="text-left p-3 text-sm font-normal text-[#C4C8D4] hidden md:table-cell">
-                Modified
-              </th>
-              <th className="text-right p-3 text-sm font-normal text-[#C4C8D4]">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <Story />
-          </tbody>
-        </table>
-      </div>
-    ),
-  ],
 } satisfies Meta<typeof FileListItem>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/**
- * Default file item
- */
-export const Default: Story = {
-  args: {
-    file: {
-      id: '1',
-      name: 'vacation-photo.jpg',
-      size: 2500000,
-      modified: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-      mimeType: 'image/jpeg',
-    },
-    onSelect: fn(),
-    onAction: fn(),
-    onClick: fn(),
-  },
-}
+// Decorator for stories without checkbox (4 columns)
+const withTableDecorator = (Story: ComponentType) => (
+  <div className="w-full max-w-4xl">
+    <table className="w-full glass-card rounded-lg overflow-hidden">
+      <thead>
+        <tr className="border-b border-[#0E282E]">
+          <th className="text-left p-3 text-sm font-normal text-[#C4C8D4]">Name</th>
+          <th className="text-left p-3 text-sm font-normal text-[#C4C8D4]">Size</th>
+          <th className="text-left p-3 text-sm font-normal text-[#C4C8D4] hidden md:table-cell">
+            Modified
+          </th>
+          <th className="text-right p-3 text-sm font-normal text-[#C4C8D4]">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <Story />
+      </tbody>
+    </table>
+  </div>
+)
 
-// Custom decorator for stories with checkbox
+// Decorator for stories with checkbox (5 columns)
 const withCheckboxDecorator = (Story: ComponentType) => (
   <div className="w-full max-w-4xl">
     <table className="w-full glass-card rounded-lg overflow-hidden">
@@ -112,6 +93,25 @@ const withCheckboxDecorator = (Story: ComponentType) => (
     </table>
   </div>
 )
+
+/**
+ * Default file item (no checkbox)
+ */
+export const Default: Story = {
+  args: {
+    file: {
+      id: '1',
+      name: 'vacation-photo.jpg',
+      size: 2500000,
+      modified: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+      mimeType: 'image/jpeg',
+    },
+    onSelect: fn(),
+    onAction: fn(),
+    onClick: fn(),
+  },
+  decorators: [withTableDecorator],
+}
 
 /**
  * Selected file with checkbox
