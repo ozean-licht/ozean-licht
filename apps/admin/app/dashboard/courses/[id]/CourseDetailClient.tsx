@@ -14,6 +14,7 @@ import {
 import { ArrowLeft, Plus, BookOpen, Clock, Video, HelpCircle } from 'lucide-react';
 import CourseDetailHeader from '@/components/courses/CourseDetailHeader';
 import ModuleList from '@/components/courses/ModuleList';
+import ModuleEditorModal from '@/components/courses/ModuleEditorModal';
 
 interface CourseDetailClientProps {
   course: Course;
@@ -26,9 +27,8 @@ export default function CourseDetailClient({
   initialModules,
   error,
 }: CourseDetailClientProps) {
-  // Note: setModules will be used in Phase 3 for CRUD mutations
-const [modules, _setModules] = useState<ModuleWithLessons[]>(initialModules);
-void _setModules; // Will be used in Phase 3
+  const [modules, setModules] = useState<ModuleWithLessons[]>(initialModules);
+  const [addModuleOpen, setAddModuleOpen] = useState(false);
 
   // Calculate totals
   const totalLessons = modules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
@@ -137,14 +137,29 @@ void _setModules; // Will be used in Phase 3
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold">Course Content</h2>
-          <CossUIButton disabled title="Coming in Phase 3">
+          <CossUIButton onClick={() => setAddModuleOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Module
           </CossUIButton>
         </div>
 
-        <ModuleList modules={modules} />
+        <ModuleList
+          courseId={course.id}
+          modules={modules}
+          onModulesChange={setModules}
+        />
       </div>
+
+      {/* Add Module Modal (for header button) */}
+      <ModuleEditorModal
+        courseId={course.id}
+        module={null}
+        open={addModuleOpen}
+        onOpenChange={setAddModuleOpen}
+        onSave={(savedModule) => {
+          setModules([...modules, { ...savedModule, lessons: [] }]);
+        }}
+      />
     </div>
   );
 }

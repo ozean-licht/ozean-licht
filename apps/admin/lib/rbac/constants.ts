@@ -61,6 +61,39 @@ export const ROLE_CONFIG: Record<AdminRole, {
       '/dashboard/health',
     ],
   },
+  ol_content: {
+    label: 'Content Manager',
+    description: 'Can create and manage courses, modules, and lessons',
+    color: 'outline',
+    icon: 'BookOpen',
+    defaultPermissions: [
+      'courses.read', 'courses.write',
+      'content.read', 'content.write',
+      'members.read',
+    ],
+    allowedRoutes: [
+      '/dashboard',
+      '/dashboard/content',
+      '/dashboard/platforms',
+      '/dashboard/platforms/courses',
+    ],
+  },
+  ol_commerce: {
+    label: 'Commerce Manager',
+    description: 'Can manage payments and commerce settings',
+    color: 'outline',
+    icon: 'ShoppingCart',
+    defaultPermissions: [
+      'payments.read', 'payments.write',
+      'members.read',
+      'analytics.read',
+    ],
+    allowedRoutes: [
+      '/dashboard',
+      '/dashboard/commerce',
+      '/dashboard/members',
+    ],
+  },
   support: {
     label: 'Support',
     description: 'Read-only access for customer support',
@@ -117,8 +150,8 @@ export const ROUTE_ROLES: Record<string, AdminRole[]> = {
   '/dashboard/tools/components': ['super_admin', 'ol_admin', 'ol_editor'],
   '/dashboard/tools/docs': ['super_admin', 'ol_admin', 'ol_editor', 'support'],
   // Platforms section - course management
-  '/dashboard/platforms': ['super_admin', 'ol_admin', 'ol_editor'],
-  '/dashboard/platforms/courses': ['super_admin', 'ol_admin', 'ol_editor'],
+  '/dashboard/platforms': ['super_admin', 'ol_admin', 'ol_editor', 'ol_content'],
+  '/dashboard/platforms/courses': ['super_admin', 'ol_admin', 'ol_editor', 'ol_content'],
 };
 
 /**
