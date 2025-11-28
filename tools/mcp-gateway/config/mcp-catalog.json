@@ -1,7 +1,64 @@
 {
-  "version": "1.0.0",
-  "updated": "2025-11-07",
+  "version": "1.1.0",
+  "updated": "2025-11-28",
   "services": {
+    "airtable": {
+      "name": "Airtable MCP",
+      "description": "Integration with Airtable databases for data migration and management",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "list-bases",
+        "list-tables",
+        "get-table-schema",
+        "read-records",
+        "get-record",
+        "create-record",
+        "create-records",
+        "update-record",
+        "update-records",
+        "delete-record",
+        "delete-records",
+        "health"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-airtable list-tables",
+          "description": "List all tables in the configured Airtable base",
+          "example": "/mcp-airtable list-tables"
+        },
+        {
+          "command": "/mcp-airtable get-table-schema [tableName]",
+          "description": "Get detailed schema for a specific table",
+          "example": "/mcp-airtable get-table-schema Videos"
+        },
+        {
+          "command": "/mcp-airtable read-records [tableName] --filter=\"[formula]\"",
+          "description": "Read records from a table with optional filtering",
+          "example": "/mcp-airtable read-records Courses --filter=\"{Status}='Published'\""
+        },
+        {
+          "command": "/mcp-airtable create-record [tableName] {fields}",
+          "description": "Create a new record in a table",
+          "example": "/mcp-airtable create-record Videos {\"Title\": \"New Video\", \"Status\": \"Draft\"}"
+        },
+        {
+          "command": "/mcp-airtable health",
+          "description": "Check Airtable service health",
+          "example": "/mcp-airtable health"
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 300,
+        "costPerCall": 0.0009,
+        "complexity": "medium"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 120,
+        "burstLimit": 30
+      }
+    },
     "postgres": {
       "name": "PostgreSQL MCP",
       "description": "Database operations for kids-ascension and ozean-licht databases",
@@ -473,11 +530,11 @@
     }
   },
   "aggregates": {
-    "totalServices": 12,
-    "serverSideServices": 9,
+    "totalServices": 13,
+    "serverSideServices": 10,
     "localServices": 3,
-    "averageTokenCost": 420,
-    "averageCostPerCall": 0.00126
+    "averageTokenCost": 400,
+    "averageCostPerCall": 0.0012
   },
   "metadata": {
     "lastUpdated": "2025-11-07T15:00:00Z",

@@ -6,6 +6,10 @@ export * from './admin';
 export * from './database';
 export * from './mcp';
 export * from './health';
+export * from './content';
+export * from './commerce';
+export * from './projects';
+export * from './calendar';
 // Re-export storage types, but rename EntityScope to avoid conflict with admin.ts
 export type {
   EntityScope as StorageEntityScope,

@@ -84,6 +84,10 @@ const envSchema = z.object({
   // Context7 - Documentation service (optional API key for higher rate limits)
   CONTEXT7_API_KEY: z.string().optional(),
 
+  // Airtable - Database integration
+  AIRTABLE_API_KEY: z.string().optional(),
+  AIRTABLE_BASE_ID: z.string().optional(),
+
   // Security
   JWT_SECRET: z.string().min(32),
   JWT_EXPIRES_IN: z.string().default('24h'),

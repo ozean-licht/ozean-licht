@@ -47,6 +47,7 @@ function registerLocalServices(registry: MCPRegistry): void {
  */
 async function initializeServerServices(registry: MCPRegistry): Promise<void> {
   const services = [
+    { name: 'airtable', initializer: initializeAirtable },
     { name: 'postgres', initializer: initializePostgreSQL },
     { name: 'mem0', initializer: initializeMem0 },
     { name: 'cloudflare', initializer: initializeCloudflare },
@@ -80,6 +81,25 @@ async function initializeServerServices(registry: MCPRegistry): Promise<void> {
       }
     }
   }
+}
+
+/**
+ * Airtable MCP Initializer
+ */
+async function initializeAirtable(registry: MCPRegistry): Promise<void> {
+  const { AirtableHandler } = await import('./handlers/airtable');
+
+  const handler = new AirtableHandler();
+
+  const serviceConfig = mcpCatalog.services.airtable;
+  registry.registerService({
+    name: 'airtable',
+    version: serviceConfig.version,
+    description: serviceConfig.description,
+    location: 'server',
+    capabilities: serviceConfig.capabilities,
+    status: 'active',
+  }, handler);
 }
 
 /**
