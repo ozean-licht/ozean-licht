@@ -15,6 +15,8 @@
     "test:integration": "jest tests/integration",
     "test:e2e": "jest tests/e2e",
     "test:ci": "jest --ci --coverage --maxWorkers=2",
+    "migrate:courses": "tsx scripts/migrate-courses.ts",
+    "migrate:courses:dry": "tsx scripts/migrate-courses.ts --dry-run --verbose",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "type-check": "tsc --noEmit",
