@@ -25,6 +25,7 @@ import {
   CreditCard,
   HelpCircle,
   TicketCheck,
+  Video,
 } from 'lucide-react'
 import { Breadcrumb } from '@/components/dashboard/Breadcrumb'
 import { BreadcrumbProvider } from '@/lib/contexts/BreadcrumbContext'
@@ -115,6 +116,11 @@ export default function DashboardLayoutClient({
       label: "Courses",
       href: "/dashboard/courses",
       icon: GraduationCap,
+    },
+    {
+      label: "Videos",
+      href: "/dashboard/content/videos",
+      icon: Video,
     },
     {
       label: "Blog Writer",

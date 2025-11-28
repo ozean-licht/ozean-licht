@@ -65,29 +65,6 @@ function getStatusConfig(status: Video['status']): { variant: 'default' | 'secon
   }
 }
 
-/**
- * Get badge config for entity scope
- */
-function getEntityScopeConfig(entityScope?: Video['entityScope']): { label: string; className: string } {
-  switch (entityScope) {
-    case 'ozean_licht':
-      return {
-        label: 'Ozean Licht',
-        className: 'bg-blue-500/20 text-blue-700 border-blue-500/30 dark:text-blue-400'
-      };
-    case 'kids_ascension':
-      return {
-        label: 'Kids Ascension',
-        className: 'bg-purple-500/20 text-purple-700 border-purple-500/30 dark:text-purple-400'
-      };
-    default:
-      return {
-        label: '—',
-        className: 'bg-gray-500/20 text-gray-700 border-gray-500/30 dark:text-gray-400'
-      };
-  }
-}
-
 export const columns: ColumnDef<Video>[] = [
   {
     accessorKey: 'title',
@@ -162,25 +139,6 @@ export const columns: ColumnDef<Video>[] = [
       );
     },
     enableSorting: true,
-  },
-  {
-    accessorKey: 'entityScope',
-    header: 'Platform',
-    cell: ({ row }) => {
-      const entityScope = row.original.entityScope;
-      const config = getEntityScopeConfig(entityScope);
-
-      return (
-        <Badge variant="outline" className={config.className}>
-          {config.label}
-        </Badge>
-      );
-    },
-    enableSorting: true,
-    filterFn: (row, _id, value) => {
-      if (value === 'all') return true;
-      return row.original.entityScope === value;
-    },
   },
   {
     accessorKey: 'createdAt',

@@ -4,7 +4,7 @@
 
 **Target Database:** `ozean-licht-db` (NOT shared-users-db!)
 
-**MCP Gateway:** `http://localhost:8100` (or container network)
+**MCP Gateway:** `http://127.0.0.1:8100` (use IPv4, NOT localhost - IPv6 has issues)
 
 **Migration Script:** `tools/mcp-gateway/scripts/migrate-courses.ts`
 
@@ -50,28 +50,28 @@ MCP Gateway:
 
 ### 1. Health Check
 ```bash
-curl -s -X POST http://localhost:8100/mcp/rpc \
+curl -s -X POST http://127.0.0.1:8100/mcp/rpc \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"mcp.execute","params":{"service":"airtable","operation":"health"},"id":"1"}'
 ```
 
 ### 2. List All Tables
 ```bash
-curl -s -X POST http://localhost:8100/mcp/rpc \
+curl -s -X POST http://127.0.0.1:8100/mcp/rpc \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"mcp.execute","params":{"service":"airtable","operation":"list-tables"},"id":"1"}' | jq '.result.data.tables'
 ```
 
 ### 3. Get Table Schema
 ```bash
-curl -s -X POST http://localhost:8100/mcp/rpc \
+curl -s -X POST http://127.0.0.1:8100/mcp/rpc \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"mcp.execute","params":{"service":"airtable","operation":"get-table-schema","args":{"tableName":"courses"}},"id":"1"}' | jq '.result.data.table.fields'
 ```
 
 ### 4. Read Records (with pagination)
 ```bash
-curl -s -X POST http://localhost:8100/mcp/rpc \
+curl -s -X POST http://127.0.0.1:8100/mcp/rpc \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"mcp.execute","params":{"service":"airtable","operation":"read-records","args":{"tableName":"courses"},"options":{"limit":10}},"id":"1"}'
 ```
@@ -97,7 +97,7 @@ curl -s -X POST http://localhost:8100/mcp/rpc \
 ## How to Run Migration Scripts
 
 ### Prerequisites
-1. MCP Gateway must be running (check: `curl http://localhost:8100/health`)
+1. MCP Gateway must be running (check: `curl http://127.0.0.1:8100/health`)
 2. PostgreSQL tables must exist (run migrations first)
 3. Environment variables set (or run from MCP Gateway container)
 
@@ -255,45 +255,44 @@ this.pool = new Pool({
 - [x] Admin dashboard connected via direct PostgreSQL
 - [x] Verified data integrity
 
-#### 2. videos
-- [x] Schema exists (`010_create_content_tables.sql`)
-- [ ] Create migration script (`migrate-videos.ts`)
-- [ ] Test with 3 records
-- [ ] Migrate all records
-- [ ] Verify in database
+#### 2. videos - COMPLETE
+- [x] Schema created (`021_create_videos_standalone.sql`)
+- [x] Migration script created (`migrate-videos.ts`)
+- [x] **MIGRATED: 100 records to ozean-licht-db** (2025-11-28)
+- [x] Verified data integrity
 
 #### 3. course_modules
-- [x] Schema exists as `modules` (`010_create_content_tables.sql`)
+- [ ] **Create standalone schema** (modules table without FK to users)
 - [ ] Create migration script (`migrate-modules.ts`)
 - [ ] Link to courses via `airtable_id` mapping
 - [ ] Test with 3 records
 - [ ] Migrate all records
 
 #### 4. module_contents
-- [x] Schema exists as `lessons` (`010_create_content_tables.sql`)
+- [ ] **Create standalone schema** (lessons table without FK to users)
 - [ ] Create migration script (`migrate-lessons.ts`)
 - [ ] Link to modules and courses
 - [ ] Test with 3 records
 - [ ] Migrate all records
 
 #### 5. user_progress
-- [x] Schema exists as `lesson_progress` (`010_create_content_tables.sql`)
+- [ ] **Create standalone schema** (lesson_progress table)
 - [ ] Create migration script
 - [ ] Link to users (need user migration first)
 - [ ] Test and migrate
 
 #### 6. shorts
-- [ ] Create schema (similar to videos)
+- [ ] **Create schema** (similar to videos)
 - [ ] Create migration script
 - [ ] Test and migrate
 
 #### 7. posts
-- [ ] Create schema
+- [ ] **Create schema**
 - [ ] Create migration script
 - [ ] Test and migrate
 
 #### 8. blogs
-- [ ] Create schema
+- [ ] **Create schema**
 - [ ] Create migration script
 - [ ] Test and migrate
 
@@ -302,21 +301,21 @@ this.pool = new Pool({
 ### Phase 2: Commerce Tables (Priority: HIGH)
 
 #### 9. ablefy_orders
-- [x] Schema exists as `orders` (`011_create_commerce_tables.sql`)
+- [ ] **Create standalone schema** (orders table)
 - [ ] Create migration script (`migrate-orders.ts`)
 - [ ] Map Ablefy fields to order schema
 - [ ] Test with 3 records
 - [ ] Migrate all records
 
 #### 10. ablefy_transactions
-- [x] Schema exists as `transactions` (`011_create_commerce_tables.sql`)
+- [ ] **Create standalone schema** (transactions table)
 - [ ] Create migration script (`migrate-transactions.ts`)
 - [ ] Handle 56 fields (use metadata JSONB for extras)
 - [ ] Test with 3 records
 - [ ] Migrate all records
 
 #### 11. abos (Subscriptions)
-- [ ] Create schema (subscriptions table)
+- [ ] **Create schema** (subscriptions table)
 - [ ] Create migration script
 - [ ] Test and migrate
 
@@ -325,13 +324,13 @@ this.pool = new Pool({
 ### Phase 3: User Tables (Priority: HIGH)
 
 #### 12. members
-- [ ] Map to existing `users` table or create `members` table
+- [ ] **Create schema** (members table or extend users)
 - [ ] Create migration script
 - [ ] Handle email deduplication
 - [ ] Test and migrate
 
 #### 13. team
-- [ ] Create schema or use existing `users` with role
+- [ ] **Create schema** (team table or extend users with role)
 - [ ] Create migration script
 - [ ] Test and migrate
 
@@ -340,24 +339,24 @@ this.pool = new Pool({
 ### Phase 4: Project Tables (Priority: HIGH)
 
 #### 14. projects
-- [x] Schema exists (`012_create_project_tables.sql`)
+- [ ] **Create standalone schema** (projects table)
 - [ ] Create migration script (`migrate-projects.ts`)
 - [ ] Test with 3 records
 - [ ] Migrate all records
 
 #### 15. tasks
-- [x] Schema exists (`012_create_project_tables.sql`)
+- [ ] **Create standalone schema** (tasks table)
 - [ ] Create migration script (`migrate-tasks.ts`)
 - [ ] Link to projects
 - [ ] Test and migrate
 
 #### 16. milestones
-- [ ] Add to project schema or create separate table
+- [ ] **Create schema** (milestones table)
 - [ ] Create migration script
 - [ ] Test and migrate
 
 #### 17. process_templates
-- [x] Schema exists (`012_create_project_tables.sql`)
+- [ ] **Create standalone schema** (process_templates table)
 - [ ] Create migration script
 - [ ] Test and migrate
 
@@ -366,7 +365,7 @@ this.pool = new Pool({
 ### Phase 5: Calendar Tables (Priority: HIGH)
 
 #### 18. events
-- [x] Schema exists (`013_create_calendar_tables.sql`)
+- [ ] **Create standalone schema** (events table)
 - [ ] Create migration script (`migrate-events.ts`)
 - [ ] Test with 3 records
 - [ ] Migrate all records
@@ -594,18 +593,18 @@ main().catch(console.error);
 ### Check Record Counts
 ```bash
 # Airtable count
-curl -s -X POST http://localhost:8100/mcp/rpc \
+curl -s -X POST http://127.0.0.1:8100/mcp/rpc \
   -d '{"jsonrpc":"2.0","method":"mcp.execute","params":{"service":"airtable","operation":"read-records","args":{"tableName":"courses"},"options":{"limit":1}},"id":"1"}' | jq '.result.data.recordCount'
 
 # PostgreSQL count (ozean-licht-db)
-curl -s -X POST http://localhost:8100/mcp/rpc \
+curl -s -X POST http://127.0.0.1:8100/mcp/rpc \
   -d '{"jsonrpc":"2.0","method":"mcp.execute","params":{"service":"postgres","database":"ozean-licht-db","operation":"query","args":["SELECT COUNT(*) FROM courses"]},"id":"1"}' | jq '.result.data.rows[0].count'
 ```
 
 ### Verify Data
 ```bash
 # Sample courses
-curl -s -X POST http://localhost:8100/mcp/rpc \
+curl -s -X POST http://127.0.0.1:8100/mcp/rpc \
   -d '{"jsonrpc":"2.0","method":"mcp.execute","params":{"service":"postgres","database":"ozean-licht-db","operation":"query","args":["SELECT title, slug, status, price_cents FROM courses LIMIT 5"]},"id":"1"}' | jq '.result.data.rows'
 ```
 
@@ -630,11 +629,15 @@ External port: `localhost:32771` (maps to container :5432)
 2. UPSERT allows re-running migrations safely
 3. Original data preserved in `metadata` JSONB column
 
-### Next Session: Mass Migration
-1. Create migration scripts for videos, modules, lessons
-2. Execute in order: courses (done) -> modules -> lessons -> videos
+### Next Session: Continue Migration
+1. Create standalone schema and migration for `course_modules` (modules table)
+2. Create standalone schema and migration for `module_contents` (lessons table)
 3. Then commerce tables: orders, transactions
 4. Then users: members, team
+
+**Important:** Each table needs TWO steps:
+1. Create standalone SQL schema (no FK constraints to `users` table)
+2. Create and run migration script
 
 ---
 
@@ -644,7 +647,7 @@ External port: `localhost:32771` (maps to container :5432)
 
 | Phase | Tables | Status |
 |-------|--------|--------|
-| Content (Core) | courses, videos, modules, lessons | **1/4 migrated (courses DONE)** |
+| Content (Core) | courses, videos, modules, lessons | **2/4 migrated (courses + videos DONE)** |
 | Content (Extended) | shorts, posts, blogs, light_segments | Not started |
 | Commerce | orders, transactions, abos | Not started |
 | Users | members, team | Not started |
@@ -654,10 +657,15 @@ External port: `localhost:32771` (maps to container :5432)
 | Organization | departments, announcements | Not started |
 | Low Priority | 6 tables | Not started |
 
-**Total Progress:** 1/33 tables (3%) - courses migrated to ozean-licht-db
+**Total Progress:** 2/33 tables (6%) - courses (64) + videos (100) migrated to ozean-licht-db
+
+### Tables Created in ozean-licht-db
+- [x] `courses` - 64 records (020_create_courses_standalone.sql)
+- [x] `videos` - 100 records (021_create_videos_standalone.sql)
 
 ### Admin Dashboard Integration
 - [x] Direct PostgreSQL connection (no MCP dependency)
 - [x] Environment variables configured
-- [x] Courses page fetches from ozean-licht-db
-- [ ] Videos, modules, lessons pages (need migration first)
+- [x] Courses page fetches from ozean-licht-db (64 records)
+- [x] Videos page fetches from ozean-licht-db (100 records)
+- [ ] Modules, lessons pages (need migration first)
