@@ -16,6 +16,11 @@ import {
   BookOpen,
   PenLine,
   GraduationCap,
+  Video,
+  ShoppingCart,
+  CreditCard,
+  Package,
+  Calendar,
 } from 'lucide-react';
 import { NavigationSection, UserEntity, EntityScope } from '@/types/navigation';
 import { canAccessRoute } from '@/lib/rbac/constants';
@@ -89,9 +94,44 @@ export default function Sidebar({
       title: 'Content',
       items: [
         {
+          label: 'Videos',
+          href: '/dashboard/content/videos',
+          icon: Video,
+        },
+        {
           label: 'Blog',
           href: '/dashboard/content/blog',
           icon: PenLine,
+        },
+      ],
+    },
+    {
+      title: 'Commerce',
+      items: [
+        {
+          label: 'Orders',
+          href: '/dashboard/commerce/orders',
+          icon: ShoppingCart,
+        },
+        {
+          label: 'Transactions',
+          href: '/dashboard/commerce/transactions',
+          icon: CreditCard,
+        },
+        {
+          label: 'Products',
+          href: '/dashboard/commerce/products',
+          icon: Package,
+        },
+      ],
+    },
+    {
+      title: 'Calendar',
+      items: [
+        {
+          label: 'Events',
+          href: '/dashboard/calendar/events',
+          icon: Calendar,
         },
       ],
     },
