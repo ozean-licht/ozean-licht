@@ -89,25 +89,25 @@ export default function BlogWriter({ user }: BlogWriterProps) {
           {/* Editor Card */}
           <Card>
             {/* Toolbar */}
-            <div className="px-6 py-3 border-b border-primary/20 flex items-center gap-1">
-              <button className="p-2 rounded hover:bg-primary/10 text-[#C4C8D4] hover:text-primary transition-colors">
+            <div className="px-6 py-3 border-b border-primary/20 flex items-center gap-1" role="toolbar" aria-label="Text formatting">
+              <button className="p-2 rounded hover:bg-primary/10 text-[#C4C8D4] hover:text-primary transition-colors" aria-label="Bold">
                 <Bold className="w-4 h-4" />
               </button>
-              <button className="p-2 rounded hover:bg-primary/10 text-[#C4C8D4] hover:text-primary transition-colors">
+              <button className="p-2 rounded hover:bg-primary/10 text-[#C4C8D4] hover:text-primary transition-colors" aria-label="Italic">
                 <Italic className="w-4 h-4" />
               </button>
-              <div className="w-px h-5 bg-primary/20 mx-1" />
-              <button className="p-2 rounded hover:bg-primary/10 text-[#C4C8D4] hover:text-primary transition-colors">
+              <div className="w-px h-5 bg-primary/20 mx-1" aria-hidden="true" />
+              <button className="p-2 rounded hover:bg-primary/10 text-[#C4C8D4] hover:text-primary transition-colors" aria-label="Bullet list">
                 <List className="w-4 h-4" />
               </button>
-              <button className="p-2 rounded hover:bg-primary/10 text-[#C4C8D4] hover:text-primary transition-colors">
+              <button className="p-2 rounded hover:bg-primary/10 text-[#C4C8D4] hover:text-primary transition-colors" aria-label="Quote">
                 <Quote className="w-4 h-4" />
               </button>
-              <div className="w-px h-5 bg-primary/20 mx-1" />
-              <button className="p-2 rounded hover:bg-primary/10 text-[#C4C8D4] hover:text-primary transition-colors">
+              <div className="w-px h-5 bg-primary/20 mx-1" aria-hidden="true" />
+              <button className="p-2 rounded hover:bg-primary/10 text-[#C4C8D4] hover:text-primary transition-colors" aria-label="Insert link">
                 <Link className="w-4 h-4" />
               </button>
-              <button className="p-2 rounded hover:bg-primary/10 text-[#C4C8D4] hover:text-primary transition-colors">
+              <button className="p-2 rounded hover:bg-primary/10 text-[#C4C8D4] hover:text-primary transition-colors" aria-label="Insert image">
                 <Image className="w-4 h-4" />
               </button>
             </div>
@@ -117,6 +117,7 @@ export default function BlogWriter({ user }: BlogWriterProps) {
                 placeholder="Start writing your post..."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
+                aria-label="Blog post content"
                 className="w-full min-h-[400px] bg-transparent border-none focus:outline-none focus:ring-0 text-white placeholder:text-white/30 resize-none font-sans text-base leading-relaxed"
               />
             </CardContent>

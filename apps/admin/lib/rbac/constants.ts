@@ -104,6 +104,7 @@ export const ROUTE_ROLES: Record<string, AdminRole[]> = {
   '/dashboard/access/permissions': ['super_admin', 'ol_admin'],
   '/dashboard/system': ['super_admin', 'ol_admin', 'support'],
   '/dashboard/content': ['super_admin', 'ol_admin', 'ol_editor'],
+  '/dashboard/content/blog': ['super_admin', 'ol_admin', 'ol_editor'],
   '/dashboard/members': ['super_admin', 'ol_admin', 'ol_editor'],
   '/dashboard/analytics': ['super_admin', 'ol_admin', 'ol_editor'],
   '/dashboard/settings': ['super_admin', 'ol_admin'],
