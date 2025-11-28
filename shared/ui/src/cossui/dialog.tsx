@@ -63,7 +63,7 @@ const DialogPopup = React.forwardRef<
       ref={ref}
       className={cn(
         'fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%]',
-        'bg-card/90 backdrop-blur-16 border border-primary/20 rounded-lg shadow-lg shadow-primary/10',
+        'bg-[#00111A]/[0.72] backdrop-blur-xl border border-primary/20 rounded-lg shadow-lg shadow-primary/10',
         'p-6 duration-200',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
