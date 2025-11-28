@@ -262,19 +262,17 @@ this.pool = new Pool({
 - [x] Fixed pagination bug (was using maxRecords instead of pageSize)
 - [x] Verified data integrity
 
-#### 3. course_modules
-- [ ] **Create standalone schema** (modules table without FK to users)
-- [ ] Create migration script (`migrate-modules.ts`)
-- [ ] Link to courses via `airtable_id` mapping
-- [ ] Test with 3 records
-- [ ] Migrate all records
+#### 3. course_modules - NEEDS ARCHITECTURE
+- [x] **EMPTY in Airtable** - Courses were in Ablefy (formerly Elopage)
+- [ ] **NEW: Design course builder system** for team to rebuild 64 courses
+- [ ] Design schema for modules (sections within a course)
+- Note: Not a migration - building new CMS functionality
 
-#### 4. module_contents
-- [ ] **Create standalone schema** (lessons table without FK to users)
-- [ ] Create migration script (`migrate-lessons.ts`)
-- [ ] Link to modules and courses
-- [ ] Test with 3 records
-- [ ] Migrate all records
+#### 4. module_contents - NEEDS ARCHITECTURE
+- [x] **EMPTY in Airtable**
+- [ ] Design schema for lessons/content within modules
+- [ ] Content types: video, text, quiz, download, etc.
+- Note: Part of course builder system design
 
 #### 5. user_progress
 - [ ] **Create standalone schema** (lesson_progress table)
@@ -315,10 +313,10 @@ this.pool = new Pool({
 - [ ] Test with 3 records
 - [ ] Migrate all records
 
-#### 11. abos (Subscriptions)
-- [ ] **Create schema** (subscriptions table)
-- [ ] Create migration script
-- [ ] Test and migrate
+#### 11. abos - LOW PRIORITY
+- [ ] **NOT user subscriptions** - Ozean Licht has no subscription model yet
+- [ ] Used for in-house tool subscriptions (Zendesk, Airtable, etc.)
+- [ ] Move to Phase 8 (Low Priority)
 
 ---
 
@@ -668,5 +666,5 @@ External port: `localhost:32771` (maps to container :5432)
 - [x] Direct PostgreSQL connection (no MCP dependency)
 - [x] Environment variables configured
 - [x] Courses page fetches from ozean-licht-db (64 records)
-- [x] Videos page fetches from ozean-licht-db (100 records)
+- [x] Videos page fetches from ozean-licht-db (571 records)
 - [ ] Modules, lessons pages (need migration first)
