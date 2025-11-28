@@ -83,11 +83,11 @@ export default function Sidebar({
       ],
     },
     {
-      title: 'Platforms',
+      title: 'Education',
       items: [
         {
           label: 'Courses',
-          href: '/dashboard/platforms/courses',
+          href: '/dashboard/courses',
           icon: GraduationCap,
         },
       ],

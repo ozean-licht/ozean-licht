@@ -6,7 +6,7 @@
 
 'use client';
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/lib/ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CATEGORY_METADATA } from '@/lib/rbac/permission-categories';
 
 interface CategoryFilterProps {

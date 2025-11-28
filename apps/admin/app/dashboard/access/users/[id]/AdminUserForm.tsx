@@ -6,7 +6,8 @@ import { AdminUser } from '@/types/admin';
 import { RoleSelect } from '@/components/rbac/RoleSelect';
 import { RoleBadge } from '@/components/rbac/RoleBadge';
 import { EntityBadge } from '@/components/rbac/EntityBadge';
-import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/lib/ui';
+import { Button, Label } from '@/lib/ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/lib/hooks/useToast';
 
 interface AdminUserFormProps {

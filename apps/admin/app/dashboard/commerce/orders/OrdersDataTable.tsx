@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { DataTable } from '@/components/data-table/data-table';
 import { columns } from './columns';
 import { Order } from '@/types/commerce';
-import { Input, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/lib/ui';
+import { Input, Button } from '@/lib/ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, X } from 'lucide-react';
 import { useDebounce } from '@/lib/hooks/use-debounce';
 

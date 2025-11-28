@@ -258,7 +258,8 @@ this.pool = new Pool({
 #### 2. videos - COMPLETE
 - [x] Schema created (`021_create_videos_standalone.sql`)
 - [x] Migration script created (`migrate-videos.ts`)
-- [x] **MIGRATED: 100 records to ozean-licht-db** (2025-11-28)
+- [x] **MIGRATED: 571 records to ozean-licht-db** (2025-11-28)
+- [x] Fixed pagination bug (was using maxRecords instead of pageSize)
 - [x] Verified data integrity
 
 #### 3. course_modules
@@ -657,11 +658,11 @@ External port: `localhost:32771` (maps to container :5432)
 | Organization | departments, announcements | Not started |
 | Low Priority | 6 tables | Not started |
 
-**Total Progress:** 2/33 tables (6%) - courses (64) + videos (100) migrated to ozean-licht-db
+**Total Progress:** 2/33 tables (6%) - courses (64) + videos (571) migrated to ozean-licht-db
 
 ### Tables Created in ozean-licht-db
 - [x] `courses` - 64 records (020_create_courses_standalone.sql)
-- [x] `videos` - 100 records (021_create_videos_standalone.sql)
+- [x] `videos` - 571 records (021_create_videos_standalone.sql)
 
 ### Admin Dashboard Integration
 - [x] Direct PostgreSQL connection (no MCP dependency)

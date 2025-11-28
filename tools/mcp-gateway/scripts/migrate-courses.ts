@@ -152,8 +152,11 @@ class AirtableClient {
 
     do {
       const params: Record<string, any> = {
-        maxRecords: limit ? Math.min(100, limit - allRecords.length) : 100,
+        pageSize: 100, // Use pageSize for pagination, not maxRecords which caps total
       };
+      if (limit) {
+        params.maxRecords = limit - allRecords.length;
+      }
       if (offset) params.offset = offset;
 
       const response = await this.client.get<AirtableListResponse>(

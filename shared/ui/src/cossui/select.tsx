@@ -114,11 +114,12 @@ const SelectPopup = React.forwardRef<
       alignOffset={alignOffset}
       collisionBoundary={collisionBoundary}
       collisionPadding={collisionPadding}
+      className="z-[9999]"
     >
       <BaseSelect.Popup
         ref={ref}
         className={cn(
-          'z-50 min-w-[8rem] overflow-hidden rounded-md',
+          'min-w-[var(--anchor-width)] overflow-hidden rounded-md',
           'bg-card/95 backdrop-blur-xl border border-primary/25',
           'shadow-lg shadow-primary/10',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
@@ -130,7 +131,9 @@ const SelectPopup = React.forwardRef<
         )}
         {...props}
       >
-        <div className="p-1">{children}</div>
+        <BaseSelect.List className="p-1">
+          {children}
+        </BaseSelect.List>
       </BaseSelect.Popup>
     </BaseSelect.Positioner>
   </BaseSelect.Portal>
@@ -160,8 +163,8 @@ const SelectItem = React.forwardRef<
     )}
     {...props}
   >
-    <span className="flex-1">{children}</span>
-    <span className="ml-2 flex h-4 w-4 items-center justify-center opacity-0 data-[selected]:opacity-100">
+    <BaseSelect.ItemText className="flex-1">{children}</BaseSelect.ItemText>
+    <BaseSelect.ItemIndicator className="ml-2 flex h-4 w-4 items-center justify-center">
       <svg
         className="h-4 w-4 fill-primary"
         viewBox="0 0 16 16"
@@ -173,7 +176,7 @@ const SelectItem = React.forwardRef<
           d="M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z"
         />
       </svg>
-    </span>
+    </BaseSelect.ItemIndicator>
   </BaseSelect.Item>
 ))
 SelectItem.displayName = 'SelectItem'

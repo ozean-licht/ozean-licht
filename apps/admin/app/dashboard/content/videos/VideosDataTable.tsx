@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { DataTable } from '@/components/data-table/data-table';
 import { columns } from './columns';
 import { Video } from '@/types/content';
-import { Input, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/lib/ui';
+import { Input, Button } from '@/lib/ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, X, Plus } from 'lucide-react';
 import { useDebounce } from '@/lib/hooks/use-debounce';
 
@@ -30,9 +31,6 @@ export function VideosDataTable({
   const [statusFilter, setStatusFilter] = useState(
     searchParams.get('status') || 'all'
   );
-  const [entityScopeFilter, setEntityScopeFilter] = useState(
-    searchParams.get('entityScope') || 'all'
-  );
 
   // Debounce search
   const debouncedSearch = useDebounce(search, 300);
@@ -43,22 +41,20 @@ export function VideosDataTable({
 
     if (debouncedSearch) params.set('search', debouncedSearch);
     if (statusFilter !== 'all') params.set('status', statusFilter);
-    if (entityScopeFilter !== 'all') params.set('entityScope', entityScopeFilter);
     if (offset > 0) params.set('offset', offset.toString());
 
     const newUrl = `/dashboard/content/videos${params.toString() ? `?${params.toString()}` : ''}`;
     router.replace(newUrl);
-  }, [debouncedSearch, statusFilter, entityScopeFilter, offset, router]);
+  }, [debouncedSearch, statusFilter, offset, router]);
 
   // Clear all filters
   const handleClearFilters = () => {
     setSearch('');
     setStatusFilter('all');
-    setEntityScopeFilter('all');
     router.replace('/dashboard/content/videos');
   };
 
-  const hasFilters = search || statusFilter !== 'all' || entityScopeFilter !== 'all';
+  const hasFilters = search || statusFilter !== 'all';
 
   return (
     <div className="space-y-4">
@@ -87,18 +83,6 @@ export function VideosDataTable({
             <SelectItem value="published">Published</SelectItem>
             <SelectItem value="draft">Draft</SelectItem>
             <SelectItem value="archived">Archived</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Entity Scope Filter */}
-        <Select value={entityScopeFilter} onValueChange={setEntityScopeFilter} name="entity-scope-filter">
-          <SelectTrigger className="w-[160px]" id="entity-scope-filter">
-            <SelectValue placeholder="Entity Scope" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Entities</SelectItem>
-            <SelectItem value="ozean_licht">Ozean Licht</SelectItem>
-            <SelectItem value="kids_ascension">Kids Ascension</SelectItem>
           </SelectContent>
         </Select>
 

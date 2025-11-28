@@ -47,7 +47,7 @@ export default async function VideosPage({ searchParams }: VideosPageProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Videos</h1>
+          <h1 className="text-4xl font-decorative text-white text-glow-subtle">Videos</h1>
           <p className="text-muted-foreground">
             Manage video content for Ozean Licht platform ({total} videos)
           </p>
