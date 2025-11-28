@@ -21,6 +21,8 @@ import {
   CreditCard,
   Package,
   Calendar,
+  ListTodo,
+  FileText,
 } from 'lucide-react';
 import { NavigationSection, UserEntity, EntityScope } from '@/types/navigation';
 import { canAccessRoute } from '@/lib/rbac/constants';
@@ -152,6 +154,16 @@ export default function Sidebar({
           label: 'Project Management',
           href: '/dashboard/tools/projects',
           icon: FolderKanban,
+        },
+        {
+          label: 'Tasks',
+          href: '/dashboard/tools/tasks',
+          icon: ListTodo,
+        },
+        {
+          label: 'Templates',
+          href: '/dashboard/tools/templates',
+          icon: FileText,
         },
         {
           label: 'Ozean Cloud',

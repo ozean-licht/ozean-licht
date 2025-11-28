@@ -50,7 +50,7 @@ const MOCK_VIDEOS: Video[] = [
     title: 'Chakra Healing Series - Part 1',
     description: 'Understanding the root chakra and grounding techniques',
     videoUrl: 'https://example.com/video3.mp4',
-    thumbnailUrl: null,
+    thumbnailUrl: undefined,
     durationSeconds: 3600,
     status: 'draft',
     entityScope: 'ozean_licht',

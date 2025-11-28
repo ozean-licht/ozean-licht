@@ -190,10 +190,14 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   await requireAnyRole(['super_admin', 'ol_admin', 'ol_content']);
 
   // Parse search params into filters
+  // Treat 'all' as undefined (no filter)
+  const eventTypeParam = searchParams.eventType;
+  const statusParam = searchParams.status;
+
   const filters = {
     search: searchParams.search,
-    eventType: searchParams.eventType as EventType | undefined,
-    status: searchParams.status as EventStatus | undefined,
+    eventType: eventTypeParam && eventTypeParam !== 'all' ? eventTypeParam as EventType : undefined,
+    status: statusParam && statusParam !== 'all' ? statusParam as EventStatus : undefined,
     offset: searchParams.offset ? parseInt(searchParams.offset, 10) : 0,
     limit: 50,
   };
@@ -211,11 +215,11 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
     );
   }
 
-  if (filters.eventType && filters.eventType !== 'all') {
+  if (filters.eventType) {
     filteredEvents = filteredEvents.filter((e) => e.eventType === filters.eventType);
   }
 
-  if (filters.status && filters.status !== 'all') {
+  if (filters.status) {
     filteredEvents = filteredEvents.filter((e) => e.status === filters.status);
   }
 

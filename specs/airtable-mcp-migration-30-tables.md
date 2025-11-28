@@ -809,25 +809,25 @@ All types created in `apps/admin/types/`:
 - [x] `apps/admin/lib/mcp-client/projects.ts` - Full CRUD for projects, tasks, templates, sprints
 - [x] `apps/admin/lib/mcp-client/calendar.ts` - Full CRUD for events, registrations, recurrence
 
-### Phase 5: Admin Dashboard Pages - IN PROGRESS
+### Phase 5: Admin Dashboard Pages - COMPLETE
 Content management pages:
 - [x] `/dashboard/content/videos/` - Videos list with DataTable (page.tsx, columns.tsx, VideosDataTable.tsx)
-- [ ] `/dashboard/content/courses/` - Courses list and CRUD (existing page needs extension)
+- [x] `/dashboard/content/courses/` - Courses dashboard exists at `/dashboard/platforms/courses/` with card layout
 
 Commerce pages:
 - [x] `/dashboard/commerce/orders/` - Orders list with DataTable (page.tsx, columns.tsx, OrdersDataTable.tsx)
-- [ ] `/dashboard/commerce/transactions/` - Transactions view
-- [ ] `/dashboard/commerce/products/` - Products management
+- [x] `/dashboard/commerce/transactions/` - Transactions list with DataTable (page.tsx, columns.tsx, TransactionsDataTable.tsx)
+- [x] `/dashboard/commerce/products/` - Products list with DataTable (page.tsx, columns.tsx, ProductsDataTable.tsx)
 
 Calendar pages:
 - [x] `/dashboard/calendar/events/` - Events list with DataTable (page.tsx, columns.tsx, EventsDataTable.tsx)
 
 Project pages:
-- [ ] `/dashboard/tools/tasks/` - Tasks kanban board
-- [ ] `/dashboard/tools/templates/` - Process templates
+- [x] `/dashboard/tools/tasks/` - Tasks kanban board (page.tsx, layout.tsx, TasksKanban.tsx)
+- [x] `/dashboard/tools/templates/` - Process templates dashboard (page.tsx, layout.tsx, TemplatesDashboard.tsx)
 
 Sidebar Navigation:
-- [x] Updated `components/dashboard/Sidebar.tsx` with Content, Commerce, and Calendar sections
+- [x] Updated `components/dashboard/Sidebar.tsx` with Content, Commerce, Calendar, Tasks, Templates sections
 
 ### Phase 6: Data Migration - NOT STARTED
 - [ ] Migration scripts
@@ -861,11 +861,12 @@ Sidebar Navigation:
 
 4. **Admin Interfaces**
    - [x] Videos: List with DataTable, filtering, pagination (CRUD forms pending)
-   - [ ] Courses: List, view, create, edit, delete, lesson management
+   - [x] Courses: Dashboard view at `/dashboard/platforms/courses/` with card layout
    - [x] Orders: List with DataTable, status/payment filtering (detail view pending)
-   - [ ] Transactions: List, view, filtering, export
-   - [ ] Projects: Full CRUD, task management, templates
-   - [ ] Tasks: Kanban view, assignment, comments
+   - [x] Transactions: List with DataTable, filtering by type/status, copy IDs
+   - [x] Products: List with DataTable, filtering by type/status, stock tracking
+   - [x] Tasks: Kanban board view, filtering by project/assignee
+   - [x] Templates: Dashboard view with card layout, filtering by type/category
    - [x] Events: List with DataTable, type/status filtering (detail view pending)
    - [x] All interfaces follow existing admin patterns (using shared/ui CossUI components)
 

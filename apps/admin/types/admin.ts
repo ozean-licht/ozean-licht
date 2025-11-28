@@ -7,7 +7,13 @@
  * Admin user role types
  * Note: This admin dashboard is exclusively for Ozean Licht platform
  */
-export type AdminRole = 'super_admin' | 'ol_admin' | 'ol_editor' | 'support';
+export type AdminRole =
+  | 'super_admin'
+  | 'ol_admin'
+  | 'ol_editor'
+  | 'ol_content'
+  | 'ol_commerce'
+  | 'support';
 
 /**
  * Entity scope types
