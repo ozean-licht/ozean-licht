@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { DataTable } from '@/components/data-table/data-table';
 import { columns } from './columns';
-import { Course, CourseStatus, CourseLevel } from '@/types/content';
+import { Course } from '@/types/content';
 import {
   Input,
   Button,
@@ -28,7 +28,7 @@ interface CoursesDataTableProps {
 export default function CoursesDataTable({
   courses,
   total,
-  limit,
+  limit: _limit,
   offset,
   onViewChange,
 }: CoursesDataTableProps) {

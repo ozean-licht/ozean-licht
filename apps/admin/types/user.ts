@@ -25,7 +25,9 @@ export interface UserEntity {
 export interface User {
   id: string;
   email: string;
-  emailVerified: boolean;
+  name?: string | null; // Optional display name
+  image?: string | null; // Optional profile image
+  emailVerified: Date | null; // Date verified or null if not verified
   createdAt: Date;
   updatedAt: Date;
   entities: UserEntity[]; // Associated entities

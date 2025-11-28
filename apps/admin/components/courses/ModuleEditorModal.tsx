@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Module, CreateModuleInput, UpdateModuleInput, ModuleStatus } from '@/types/content';
+import { toast } from 'sonner';
+import { Module, ModuleStatus } from '@/types/content';
 import {
   CossUIDialog,
   CossUIDialogTrigger,
@@ -22,6 +23,12 @@ import {
   CossUILabel,
   CossUISpinner,
 } from '@shared/ui';
+import {
+  createModuleSchema,
+  updateModuleSchema,
+  extractZodErrors,
+} from '@/lib/validations/course-builder';
+import { z } from 'zod';
 
 interface ModuleEditorModalProps {
   /** Course ID for creating new modules */
@@ -42,6 +49,7 @@ interface FormErrors {
   title?: string;
   description?: string;
   status?: string;
+  courseId?: string;
 }
 
 export default function ModuleEditorModal({
@@ -77,22 +85,23 @@ export default function ModuleEditorModal({
     }
   }, [open, module]);
 
-  // Validate form
+  // Validate form using Zod
   const validate = (): boolean => {
-    const newErrors: FormErrors = {};
+    try {
+      const schema = isEditing ? updateModuleSchema : createModuleSchema;
+      const data = isEditing
+        ? { title, description: description || undefined, status }
+        : { courseId, title, description: description || undefined, status };
 
-    if (!title.trim()) {
-      newErrors.title = 'Title is required';
-    } else if (title.length > 200) {
-      newErrors.title = 'Title must be 200 characters or less';
+      schema.parse(data);
+      setErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setErrors(extractZodErrors(error));
+      }
+      return false;
     }
-
-    if (description.length > 2000) {
-      newErrors.description = 'Description must be 2000 characters or less';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   // Handle form submission
@@ -110,7 +119,7 @@ export default function ModuleEditorModal({
 
       const method = isEditing ? 'PATCH' : 'POST';
 
-      const body: CreateModuleInput | UpdateModuleInput = isEditing
+      const body = isEditing
         ? { title, description: description || undefined, status }
         : { courseId, title, description: description || undefined, status };
 
@@ -128,10 +137,22 @@ export default function ModuleEditorModal({
       const savedModule = await response.json();
       onSave(savedModule);
       onOpenChange(false);
+
+      // Show success toast
+      toast.success(isEditing ? 'Module updated' : 'Module created', {
+        description: `"${savedModule.title}" has been ${isEditing ? 'updated' : 'created'} successfully.`,
+      });
     } catch (error) {
       console.error('Failed to save module:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+      // Show error toast
+      toast.error(`Failed to ${isEditing ? 'update' : 'create'} module`, {
+        description: errorMessage,
+      });
+
       setErrors({
-        title: error instanceof Error ? error.message : 'An error occurred',
+        title: errorMessage,
       });
     } finally {
       setIsSubmitting(false);

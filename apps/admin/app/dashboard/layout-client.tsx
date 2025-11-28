@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { LightRays, Button, cn } from '@/lib/ui'
 import Link from 'next/link'
@@ -31,7 +31,7 @@ import { Breadcrumb } from '@/components/dashboard/Breadcrumb'
 import { BreadcrumbProvider } from '@/lib/contexts/BreadcrumbContext'
 import { useKeyboardShortcuts } from '@/lib/navigation/keyboard-shortcuts'
 import { EntityScope, UserEntity } from '@/types/navigation'
-import type { AdminRole } from '@/types/admin'
+// AdminRole type available from @/types/admin if needed
 
 interface DashboardLayoutClientProps {
   children: React.ReactNode
@@ -48,9 +48,9 @@ interface DashboardLayoutClientProps {
 export default function DashboardLayoutClient({
   children,
   user,
-  userEntityScope,
-  currentEntity,
-  availableEntities,
+  userEntityScope: _userEntityScope,
+  currentEntity: _currentEntity,
+  availableEntities: _availableEntities,
 }: DashboardLayoutClientProps) {
   const router = useRouter()
   const pathname = usePathname()

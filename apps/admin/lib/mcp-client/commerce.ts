@@ -20,8 +20,7 @@ import {
   CouponListResult,
   CreateProductInput,
   UpdateProductInput,
-  CreateOrderInput,
-  CreateOrderItemInput,
+  // CreateOrderInput and CreateOrderItemInput available if needed
   UpdateOrderInput,
   CreateTransactionInput,
   CreateCouponInput,

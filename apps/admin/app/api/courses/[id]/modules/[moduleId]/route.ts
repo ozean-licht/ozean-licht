@@ -29,12 +29,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const { moduleId } = await params;
 
     // Fetch module
-    const module = await getModuleById(moduleId);
-    if (!module) {
+    const courseModule = await getModuleById(moduleId);
+    if (!courseModule) {
       return NextResponse.json({ error: 'Module not found' }, { status: 404 });
     }
 
-    return NextResponse.json(module);
+    return NextResponse.json(courseModule);
   } catch (error) {
     console.error('Failed to get module:', error);
     return NextResponse.json(

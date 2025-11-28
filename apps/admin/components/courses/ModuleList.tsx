@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Module, ModuleWithLessons, Lesson } from '@/types/content';
 import {
   DndContext,
@@ -285,6 +286,9 @@ export default function ModuleList({
         console.error('Failed to reorder modules:', error);
         // Revert to captured original state
         onModulesChange(originalModules);
+        toast.error('Failed to reorder modules', {
+          description: 'The order has been reverted. Please try again.',
+        });
       }
     }
   };
@@ -318,6 +322,8 @@ export default function ModuleList({
 
   // Handle delete module
   const handleDeleteModule = async (module: Module) => {
+    const moduleTitle = module.title;
+
     try {
       const response = await fetch(`/api/courses/${courseId}/modules/${module.id}`, {
         method: 'DELETE',
@@ -328,8 +334,15 @@ export default function ModuleList({
       }
 
       onModulesChange(modules.filter((m) => m.id !== module.id));
+
+      toast.success('Module deleted', {
+        description: `"${moduleTitle}" and all its lessons have been deleted.`,
+      });
     } catch (error) {
       console.error('Failed to delete module:', error);
+      toast.error('Failed to delete module', {
+        description: 'Please try again.',
+      });
     }
   };
 
@@ -377,6 +390,8 @@ export default function ModuleList({
 
   // Handle delete lesson
   const handleDeleteLesson = async (lesson: Lesson, moduleId: string) => {
+    const lessonTitle = lesson.title;
+
     try {
       const response = await fetch(`/api/lessons/${lesson.id}`, {
         method: 'DELETE',
@@ -393,8 +408,15 @@ export default function ModuleList({
             : m
         )
       );
+
+      toast.success('Lesson deleted', {
+        description: `"${lessonTitle}" has been deleted.`,
+      });
     } catch (error) {
       console.error('Failed to delete lesson:', error);
+      toast.error('Failed to delete lesson', {
+        description: 'Please try again.',
+      });
     }
   };
 
@@ -402,11 +424,11 @@ export default function ModuleList({
   const handleLessonsReorder = async (moduleId: string, lessonIds: string[]) => {
     // Capture original state before optimistic update
     const originalModules = modules;
-    const module = modules.find((m) => m.id === moduleId);
-    if (!module) return;
+    const targetModule = modules.find((m) => m.id === moduleId);
+    if (!targetModule) return;
 
     const reorderedLessons = lessonIds
-      .map((id) => module.lessons.find((l) => l.id === id))
+      .map((id) => targetModule.lessons.find((l) => l.id === id))
       .filter((l): l is Lesson => l !== undefined);
 
     onModulesChange(
@@ -430,6 +452,9 @@ export default function ModuleList({
       console.error('Failed to reorder lessons:', error);
       // Revert to captured original state
       onModulesChange(originalModules);
+      toast.error('Failed to reorder lessons', {
+        description: 'The order has been reverted. Please try again.',
+      });
     }
   };
 

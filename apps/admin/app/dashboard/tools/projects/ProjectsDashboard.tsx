@@ -11,7 +11,7 @@
  */
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+// Card components available from @/components/ui/card if needed
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -138,7 +138,7 @@ const recentActivity = [
   { id: '5', action: 'Milestone reached', project: 'Shared UI Library', user: 'Team', time: '3 hours ago' },
 ];
 
-export default function ProjectsDashboard({ user }: ProjectsDashboardProps) {
+export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [projectFilter, setProjectFilter] = useState<'all' | 'active' | 'recurring' | 'completed'>('all');
   const [mainTab, setMainTab] = useState<'projects' | 'templates'>('projects');

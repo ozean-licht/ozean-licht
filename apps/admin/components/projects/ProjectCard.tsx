@@ -110,7 +110,7 @@ const getRecurrenceLabel = (pattern: RecurrencePattern): string => {
 /**
  * Get progress bar color based on progress percentage
  */
-const getProgressColor = (progress: number): string => {
+const _getProgressColor = (progress: number): string => {
   if (progress >= 80) return 'bg-green-500';
   if (progress >= 50) return 'bg-primary';
   if (progress >= 25) return 'bg-yellow-500';

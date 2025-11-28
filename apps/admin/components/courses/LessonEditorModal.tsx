@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import {
   Lesson,
-  CreateLessonInput,
-  UpdateLessonInput,
   LessonContentType,
   LessonStatus,
   Video,
@@ -36,6 +35,11 @@ import {
 } from '@shared/ui';
 import { Video as VideoIcon, FileText, File, HelpCircle } from 'lucide-react';
 import VideoPicker from './VideoPicker';
+import {
+  lessonFormSchema,
+  extractZodErrors,
+} from '@/lib/validations/course-builder';
+import { z } from 'zod';
 
 interface LessonEditorModalProps {
   /** Course ID (for API routing) */
@@ -141,30 +145,32 @@ export default function LessonEditorModal({
     }
   }, [contentType, selectedVideo]);
 
-  // Validate form
+  // Validate form using Zod
   const validate = (): boolean => {
-    const newErrors: FormErrors = {};
+    try {
+      const data = {
+        moduleId,
+        title,
+        description: description || undefined,
+        contentType,
+        videoId: contentType === 'video' ? videoId : undefined,
+        contentText: contentType === 'text' ? contentText : undefined,
+        contentUrl: contentType === 'pdf' ? contentUrl : undefined,
+        durationSeconds,
+        isRequired,
+        isPreview,
+        status,
+      };
 
-    if (!title.trim()) {
-      newErrors.title = 'Title is required';
-    } else if (title.length > 200) {
-      newErrors.title = 'Title must be 200 characters or less';
+      lessonFormSchema.parse(data);
+      setErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setErrors(extractZodErrors(error));
+      }
+      return false;
     }
-
-    if (contentType === 'video' && !videoId) {
-      newErrors.videoId = 'Please select a video';
-    }
-
-    if (contentType === 'text' && !contentText.trim()) {
-      newErrors.contentText = 'Content is required for text lessons';
-    }
-
-    if (contentType === 'pdf' && !contentUrl.trim()) {
-      newErrors.contentUrl = 'PDF URL is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   // Handle video selection
@@ -188,7 +194,7 @@ export default function LessonEditorModal({
 
       const method = isEditing ? 'PATCH' : 'POST';
 
-      const body: CreateLessonInput | UpdateLessonInput = {
+      const body = {
         ...(isEditing ? {} : { moduleId }),
         title,
         description: description || undefined,
@@ -216,10 +222,22 @@ export default function LessonEditorModal({
       const savedLesson = await response.json();
       onSave(savedLesson);
       onOpenChange(false);
+
+      // Show success toast
+      toast.success(isEditing ? 'Lesson updated' : 'Lesson created', {
+        description: `"${savedLesson.title}" has been ${isEditing ? 'updated' : 'created'} successfully.`,
+      });
     } catch (error) {
       console.error('Failed to save lesson:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+      // Show error toast
+      toast.error(`Failed to ${isEditing ? 'update' : 'create'} lesson`, {
+        description: errorMessage,
+      });
+
       setErrors({
-        title: error instanceof Error ? error.message : 'An error occurred',
+        title: errorMessage,
       });
     } finally {
       setIsSubmitting(false);

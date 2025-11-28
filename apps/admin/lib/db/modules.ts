@@ -199,15 +199,15 @@ export async function reorderModules(courseId: string, moduleIds: string[]): Pro
  */
 export async function getModuleWithLessons(id: string): Promise<ModuleWithLessons | null> {
   // Get the module first
-  const module = await getModuleById(id);
-  if (!module) return null;
+  const courseModule = await getModuleById(id);
+  if (!courseModule) return null;
 
   // Import lessons query (avoiding circular dependency)
   const { listLessonsByModule } = await import('./lessons');
   const { lessons } = await listLessonsByModule(id);
 
   return {
-    ...module,
+    ...courseModule,
     lessons,
   };
 }
@@ -313,7 +313,7 @@ export async function getModulesWithLessonsByCourse(courseId: string): Promise<M
 
     // Add lesson if exists
     if (row.lesson_id) {
-      const module = modulesMap.get(row.module_id)!;
+      const parentModule = modulesMap.get(row.module_id)!;
 
       const lesson: Lesson = {
         id: row.lesson_id,
@@ -349,15 +349,15 @@ export async function getModulesWithLessonsByCourse(courseId: string): Promise<M
         };
       }
 
-      module.lessons.push(lesson);
+      parentModule.lessons.push(lesson);
     }
   }
 
   // Calculate stats for each module
-  const modulesWithStats = Array.from(modulesMap.values()).map(module => ({
-    ...module,
-    lessonCount: module.lessons.length,
-    totalDurationSeconds: module.lessons.reduce(
+  const modulesWithStats = Array.from(modulesMap.values()).map(mod => ({
+    ...mod,
+    lessonCount: mod.lessons.length,
+    totalDurationSeconds: mod.lessons.reduce(
       (sum, lesson) => sum + (lesson.durationSeconds || 0),
       0
     ),

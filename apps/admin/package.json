@@ -13,7 +13,11 @@
     "test:unit": "jest --testPathPattern=tests/unit",
     "test:integration": "jest --testPathPattern=tests/integration",
     "test:e2e": "playwright test",
-    "seed:test-admin": "ts-node scripts/seed-test-admin.ts"
+    "seed:test-admin": "ts-node scripts/seed-test-admin.ts",
+    "clean": "rm -rf .next",
+    "clean:force": "sudo rm -rf .next",
+    "dev:clean": "npm run clean:force && next dev -p ${FRONTEND_PORT:-9200}",
+    "build:clean": "npm run clean:force && next build"
   },
   "dependencies": {
     "@auth/core": "^0.18.6",

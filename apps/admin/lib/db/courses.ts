@@ -5,7 +5,7 @@
  * No MCP Gateway dependency.
  */
 
-import { query, execute } from './index';
+import { query } from './index';
 import { Course } from '@/types/content';
 
 // Database row type (snake_case)

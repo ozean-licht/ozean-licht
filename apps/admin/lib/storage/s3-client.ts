@@ -424,7 +424,7 @@ export class S3StorageClient {
    */
   private isValidFileKey(fileKey: string): boolean {
     // Allow alphanumeric, hyphens, underscores, slashes, and dots
-    const regex = /^[a-zA-Z0-9\-_/\.]+$/;
+    const regex = /^[a-zA-Z0-9\-_/.]+$/;
     return regex.test(fileKey);
   }
 }

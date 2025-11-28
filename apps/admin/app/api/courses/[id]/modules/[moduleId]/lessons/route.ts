@@ -32,8 +32,8 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const { moduleId } = await params;
 
     // Verify module exists
-    const module = await getModuleById(moduleId);
-    if (!module) {
+    const parentModule = await getModuleById(moduleId);
+    if (!parentModule) {
       return NextResponse.json({ error: 'Module not found' }, { status: 404 });
     }
 
@@ -70,8 +70,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { moduleId } = await params;
 
     // Verify module exists
-    const module = await getModuleById(moduleId);
-    if (!module) {
+    const parentModule = await getModuleById(moduleId);
+    if (!parentModule) {
       return NextResponse.json({ error: 'Module not found' }, { status: 404 });
     }
 

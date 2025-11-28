@@ -101,7 +101,8 @@ export const columns: ColumnDef<User>[] = [
     enableSorting: true,
     filterFn: (row, _id, value) => {
       if (value === 'all') return true;
-      return row.original.emailVerified === (value === 'verified');
+      const isVerified = row.original.emailVerified !== null;
+      return isVerified === (value === 'verified');
     },
   },
   {

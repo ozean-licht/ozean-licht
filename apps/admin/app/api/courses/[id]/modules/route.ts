@@ -99,14 +99,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Create module
-    const module = await createModule({
+    const createdModule = await createModule({
       courseId,
       title: title.trim(),
       description: description?.trim() || undefined,
       status: status || 'draft',
     });
 
-    return NextResponse.json(module, { status: 201 });
+    return NextResponse.json(createdModule, { status: 201 });
   } catch (error) {
     console.error('Failed to create module:', error);
     return NextResponse.json(
