@@ -1,6 +1,6 @@
 # Ozean Licht Ecosystem
 
-Monorepo: Ozean Licht Akademie (spiritual e-learning) + Kids Ascension (children's education)
+Megarepo: Ozean Licht Akademie (spiritual e-learning) + Kids Ascension (children's education)
 Stack: Next.js 14 | TypeScript | MCP Gateway | Tailwind | PostgreSQL
 
 ## Cache Hierarchy (Where To Look)
@@ -17,7 +17,7 @@ Stack: Next.js 14 | TypeScript | MCP Gateway | Tailwind | PostgreSQL
 
 1. **Database**: MCP Gateway only (`localhost:8100`), never direct connections
 2. **Components**: `@ozean-licht/shared-ui` first, local `components/ui/` second
-3. **Auth**: NextAuth (admin), Supabase (ozean-licht, kids-ascension)
+3. **Auth**: NextAuth (admin only)
 4. **Commits**: Conventional commits, no `--force`, no `--amend` without checking authorship
 
 ## Agentic Layer

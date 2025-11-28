@@ -1,6 +1,7 @@
 ---
 description: Creates a concise engineering implementation plan based on user requirements and saves it to specs directory
 argument-hint: [user prompt]
+model: claude-opus-4-5-20251101
 ---
 
 # Quick Plan

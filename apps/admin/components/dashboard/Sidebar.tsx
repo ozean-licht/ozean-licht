@@ -14,6 +14,8 @@ import {
   Cloud,
   Blocks,
   BookOpen,
+  PenLine,
+  GraduationCap,
 } from 'lucide-react';
 import { NavigationSection, UserEntity, EntityScope } from '@/types/navigation';
 import { canAccessRoute } from '@/lib/rbac/constants';
@@ -70,6 +72,26 @@ export default function Sidebar({
           label: 'Permissions',
           href: '/dashboard/access/permissions',
           icon: Lock,
+        },
+      ],
+    },
+    {
+      title: 'Platforms',
+      items: [
+        {
+          label: 'Courses',
+          href: '/dashboard/platforms/courses',
+          icon: GraduationCap,
+        },
+      ],
+    },
+    {
+      title: 'Content',
+      items: [
+        {
+          label: 'Blog',
+          href: '/dashboard/content/blog',
+          icon: PenLine,
         },
       ],
     },

@@ -55,7 +55,8 @@ export const ROLE_CONFIG: Record<AdminRole, {
     allowedRoutes: [
       '/dashboard',
       '/dashboard/content',
-      '/dashboard/courses',
+      '/dashboard/platforms',
+      '/dashboard/platforms/courses',
       '/dashboard/members',
       '/dashboard/health',
     ],
@@ -113,6 +114,9 @@ export const ROUTE_ROLES: Record<string, AdminRole[]> = {
   '/dashboard/tools/cloud': ['super_admin', 'ol_admin'],
   '/dashboard/tools/components': ['super_admin', 'ol_admin', 'ol_editor'],
   '/dashboard/tools/docs': ['super_admin', 'ol_admin', 'ol_editor', 'support'],
+  // Platforms section - course management
+  '/dashboard/platforms': ['super_admin', 'ol_admin', 'ol_editor'],
+  '/dashboard/platforms/courses': ['super_admin', 'ol_admin', 'ol_editor'],
 };
 
 /**
