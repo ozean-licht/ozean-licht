@@ -18,14 +18,12 @@ import {
   CossUITabsTab,
   CossUITabsPanel,
   CossUISpinner,
+  CossUISelect,
+  CossUISelectTrigger,
+  CossUISelectValue,
+  CossUISelectPopup,
+  CossUISelectItem,
 } from '@shared/ui';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
 import { Save } from 'lucide-react';
 import { safeValidateCourseEditor, extractZodErrors } from '@/lib/validations/course-builder';
 import ImageUploader from './ImageUploader';
@@ -277,39 +275,39 @@ export default function CourseEditorModal({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <CossUILabel htmlFor="status">Status</CossUILabel>
-                <Select
+                <CossUISelect
                   value={formData.status}
-                  onValueChange={(value) => handleChange('status', value)}
+                  onValueChange={(value: string) => handleChange('status', value)}
                   disabled={loading}
                 >
-                  <SelectTrigger id="status">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="published">Published</SelectItem>
-                    <SelectItem value="archived">Archived</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <CossUISelectTrigger id="status" className="w-full">
+                    <CossUISelectValue />
+                  </CossUISelectTrigger>
+                  <CossUISelectPopup>
+                    <CossUISelectItem value="draft">Draft</CossUISelectItem>
+                    <CossUISelectItem value="published">Published</CossUISelectItem>
+                    <CossUISelectItem value="archived">Archived</CossUISelectItem>
+                  </CossUISelectPopup>
+                </CossUISelect>
               </div>
 
               <div className="space-y-2">
                 <CossUILabel htmlFor="level">Level</CossUILabel>
-                <Select
+                <CossUISelect
                   value={formData.level || 'none'}
-                  onValueChange={(value) => handleChange('level', value === 'none' ? '' : value)}
+                  onValueChange={(value: string) => handleChange('level', value === 'none' ? '' : value)}
                   disabled={loading}
                 >
-                  <SelectTrigger id="level">
-                    <SelectValue placeholder="Select level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="beginner">Beginner</SelectItem>
-                    <SelectItem value="intermediate">Intermediate</SelectItem>
-                    <SelectItem value="advanced">Advanced</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <CossUISelectTrigger id="level" className="w-full">
+                    <CossUISelectValue placeholder="Select level" />
+                  </CossUISelectTrigger>
+                  <CossUISelectPopup>
+                    <CossUISelectItem value="none">None</CossUISelectItem>
+                    <CossUISelectItem value="beginner">Beginner</CossUISelectItem>
+                    <CossUISelectItem value="intermediate">Intermediate</CossUISelectItem>
+                    <CossUISelectItem value="advanced">Advanced</CossUISelectItem>
+                  </CossUISelectPopup>
+                </CossUISelect>
               </div>
             </div>
 
@@ -334,20 +332,20 @@ export default function CourseEditorModal({
 
               <div className="space-y-2">
                 <CossUILabel htmlFor="currency">Currency</CossUILabel>
-                <Select
+                <CossUISelect
                   value={formData.currency}
-                  onValueChange={(value) => handleChange('currency', value)}
+                  onValueChange={(value: string) => handleChange('currency', value)}
                   disabled={loading}
                 >
-                  <SelectTrigger id="currency">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="EUR">EUR</SelectItem>
-                    <SelectItem value="USD">USD</SelectItem>
-                    <SelectItem value="CHF">CHF</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <CossUISelectTrigger id="currency" className="w-full">
+                    <CossUISelectValue />
+                  </CossUISelectTrigger>
+                  <CossUISelectPopup>
+                    <CossUISelectItem value="EUR">EUR</CossUISelectItem>
+                    <CossUISelectItem value="USD">USD</CossUISelectItem>
+                    <CossUISelectItem value="CHF">CHF</CossUISelectItem>
+                  </CossUISelectPopup>
+                </CossUISelect>
               </div>
             </div>
           </CossUITabsPanel>
@@ -421,20 +419,20 @@ export default function CourseEditorModal({
 
             <div className="space-y-2">
               <CossUILabel htmlFor="entityScope">Platform</CossUILabel>
-              <Select
+              <CossUISelect
                 value={formData.entityScope || 'none'}
-                onValueChange={(value) => handleChange('entityScope', value === 'none' ? '' : value)}
+                onValueChange={(value: string) => handleChange('entityScope', value === 'none' ? '' : value)}
                 disabled={loading}
               >
-                <SelectTrigger id="entityScope">
-                  <SelectValue placeholder="Select platform" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  <SelectItem value="ozean_licht">Ozean Licht</SelectItem>
-                  <SelectItem value="kids_ascension">Kids Ascension</SelectItem>
-                </SelectContent>
-              </Select>
+                <CossUISelectTrigger id="entityScope" className="w-full">
+                  <CossUISelectValue placeholder="Select platform" />
+                </CossUISelectTrigger>
+                <CossUISelectPopup>
+                  <CossUISelectItem value="none">None</CossUISelectItem>
+                  <CossUISelectItem value="ozean_licht">Ozean Licht</CossUISelectItem>
+                  <CossUISelectItem value="kids_ascension">Kids Ascension</CossUISelectItem>
+                </CossUISelectPopup>
+              </CossUISelect>
             </div>
 
             <div className="space-y-2">

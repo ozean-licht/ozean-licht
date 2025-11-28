@@ -16,6 +16,17 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
+        protocol: 'http',
+        hostname: '138.201.139.25',
+        port: '9000',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'minio.ozean-licht.dev',
+        pathname: '/**',
+      },
+      {
         protocol: 'https',
         hostname: '*.airtableusercontent.com',
       },

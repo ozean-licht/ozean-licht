@@ -149,24 +149,31 @@ DialogDescription.displayName = 'DialogDescription'
 
 /**
  * Dialog Close - Close button for the dialog
+ *
+ * Usage:
+ * - Without children: renders default styled close button
+ * - With children: wraps children with close functionality (children should be a button)
  */
 const DialogClose = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & { render?: React.ReactElement }
 >(({ className, render, children, ...props }, ref) => {
-  if (render) {
+  // If render prop or children provided, use them as the rendered element
+  if (render || children) {
+    const element = render || (children as React.ReactElement)
     return (
-      <Dialog.Close>
-        {React.cloneElement(render, {
-          ...render.props,
+      <Dialog.Close
+        render={React.cloneElement(element, {
+          ...element.props,
           ...props,
           ref,
-          children: children || render.props.children,
+          className: cn(element.props?.className, className),
         })}
-      </Dialog.Close>
+      />
     )
   }
 
+  // Default close button
   return (
     <Dialog.Close
       render={
@@ -175,7 +182,7 @@ const DialogClose = React.forwardRef<
           className={cn(
             'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2',
             'h-8 text-sm',
-            'bg-card/70 text-primary border border-primary/30 backdrop-blur-12 font-sans font-medium',
+            'bg-card/70 text-primary border border-primary/30 backdrop-blur-sm font-sans font-medium',
             'hover:bg-primary/10 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/15',
             'transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
             'active:scale-95 disabled:pointer-events-none disabled:opacity-50',
@@ -183,7 +190,7 @@ const DialogClose = React.forwardRef<
           )}
           {...props}
         >
-          {children || 'Close'}
+          Close
         </button>
       }
     />

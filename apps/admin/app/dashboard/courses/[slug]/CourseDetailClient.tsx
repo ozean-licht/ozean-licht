@@ -5,13 +5,12 @@ import Link from 'next/link';
 import { Course, ModuleWithLessons } from '@/types/content';
 import {
   CossUIButton,
-  CossUICard,
-  CossUICardPanel,
+  CossUIBadge,
   CossUIAlert,
   CossUIAlertTitle,
   CossUIAlertDescription,
 } from '@shared/ui';
-import { ArrowLeft, Plus, BookOpen, Clock, Video, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Plus, BookOpen, Clock, Video, Eye, Edit } from 'lucide-react';
 import CourseDetailHeader from '@/components/courses/CourseDetailHeader';
 import ModuleList from '@/components/courses/ModuleList';
 import ModuleEditorModal from '@/components/courses/ModuleEditorModal';
@@ -68,78 +67,63 @@ export default function CourseDetailClient({
 
   return (
     <div className="space-y-6">
-      {/* Back Link */}
-      <Link href="/dashboard/courses" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors">
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Courses
-      </Link>
+      {/* Top Bar - Back link and action buttons */}
+      <div className="flex items-center justify-between">
+        <Link href="/dashboard/courses" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Courses
+        </Link>
+        <div className="flex items-center gap-2">
+          <CossUIButton
+            variant="outline"
+            size="sm"
+            onClick={() => window.open(`/courses/${course.slug}`, '_blank')}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            Preview
+          </CossUIButton>
+          <CossUIButton
+            variant="outline"
+            size="sm"
+            onClick={() => setEditCourseOpen(true)}
+          >
+            <Edit className="h-4 w-4 mr-2" />
+            Edit
+          </CossUIButton>
+        </div>
+      </div>
 
       {/* Course Header */}
-      <CourseDetailHeader course={course} onEdit={() => setEditCourseOpen(true)} />
+      <CourseDetailHeader course={course} />
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <CossUICard className="bg-card/50">
-          <CossUICardPanel className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <BookOpen className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-2xl font-semibold">{modules.length}</p>
-                <p className="text-sm text-muted-foreground">Modules</p>
-              </div>
-            </div>
-          </CossUICardPanel>
-        </CossUICard>
-
-        <CossUICard className="bg-card/50">
-          <CossUICardPanel className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10">
-                <Video className="h-5 w-5 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-semibold">{totalLessons}</p>
-                <p className="text-sm text-muted-foreground">Lessons</p>
-              </div>
-            </div>
-          </CossUICardPanel>
-        </CossUICard>
-
-        <CossUICard className="bg-card/50">
-          <CossUICardPanel className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-500/10">
-                <Clock className="h-5 w-5 text-green-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-semibold">{formatDuration(totalDuration)}</p>
-                <p className="text-sm text-muted-foreground">Duration</p>
-              </div>
-            </div>
-          </CossUICardPanel>
-        </CossUICard>
-
-        <CossUICard className="bg-card/50">
-          <CossUICardPanel className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-yellow-500/10">
-                <HelpCircle className="h-5 w-5 text-yellow-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-semibold capitalize">{course.status}</p>
-                <p className="text-sm text-muted-foreground">Status</p>
-              </div>
-            </div>
-          </CossUICardPanel>
-        </CossUICard>
+      {/* Stats Row - Compact badges, centered */}
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <CossUIBadge variant="outline" className="gap-1.5 py-1 px-2.5 capitalize">
+          {course.status}
+        </CossUIBadge>
+        {course.category && (
+          <CossUIBadge variant="outline" className="gap-1.5 py-1 px-2.5">
+            {course.category}
+          </CossUIBadge>
+        )}
+        <CossUIBadge variant="outline" className="gap-1.5 py-1 px-2.5">
+          <BookOpen className="h-3.5 w-3.5" />
+          <span>{modules.length} Modules</span>
+        </CossUIBadge>
+        <CossUIBadge variant="outline" className="gap-1.5 py-1 px-2.5">
+          <Video className="h-3.5 w-3.5" />
+          <span>{totalLessons} Lessons</span>
+        </CossUIBadge>
+        <CossUIBadge variant="outline" className="gap-1.5 py-1 px-2.5">
+          <Clock className="h-3.5 w-3.5" />
+          <span>{formatDuration(totalDuration)}</span>
+        </CossUIBadge>
       </div>
 
       {/* Modules Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">Course Content</h2>
+          <h2 className="text-2xl font-decorative text-white">Course Content</h2>
           <CossUIButton onClick={() => setAddModuleOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Module

@@ -228,13 +228,13 @@ export const columns: ColumnDef<Course>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem asChild>
-              <Link href={`/dashboard/courses/${course.id}`}>
+              <Link href={`/dashboard/courses/${course.slug}`}>
                 <Layers className="mr-2 h-4 w-4" />
                 Manage Content
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/dashboard/courses/${course.id}`}>
+              <Link href={`/dashboard/courses/${course.slug}`}>
                 <Eye className="mr-2 h-4 w-4" />
                 View Details
               </Link>
