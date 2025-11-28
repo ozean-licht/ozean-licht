@@ -43,6 +43,10 @@ services:
       GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY}
       GITHUB_INSTALLATION_ID: ${GITHUB_INSTALLATION_ID}
 
+      # Airtable (READ-only for migration)
+      AIRTABLE_API_KEY: ${AIRTABLE_API_KEY}
+      AIRTABLE_BASE_ID: ${AIRTABLE_BASE_ID}
+
       # MinIO Storage
       # Use container name if on same network, or localhost if MinIO is exposed on host
       MINIO_ENDPOINT: ${MINIO_ENDPOINT:-host.docker.internal}
