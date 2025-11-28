@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * ScrollArea Component - Ozean Licht Edition
  * Based on Radix UI ScrollArea with Ozean Licht design system

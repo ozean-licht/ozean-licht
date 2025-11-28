@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Share Dialog Component
  * File sharing with presigned URL generation

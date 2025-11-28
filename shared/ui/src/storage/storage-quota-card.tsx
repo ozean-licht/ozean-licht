@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Storage Quota Card Component
  * Usage visualization with breakdown by file type

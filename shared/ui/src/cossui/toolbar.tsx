@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Toolbar Component - Ozean Licht Edition
  * Based on Coss UI (Base UI) with Ozean Licht design system

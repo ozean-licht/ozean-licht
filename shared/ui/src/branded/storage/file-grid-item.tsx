@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * File Grid Item Component
  *

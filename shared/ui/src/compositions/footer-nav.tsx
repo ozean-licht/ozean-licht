@@ -1,3 +1,5 @@
+'use client';
+
 export function FooterNav() {
   return (
     <div className="bg-[#001212]/60 backdrop-blur-sm border border-[#0E282E] rounded-2xl p-8">

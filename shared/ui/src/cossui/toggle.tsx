@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Toggle & ToggleGroup Components - Ozean Licht Edition
  * Based on Coss UI (@coss/toggle) with Ozean Licht design system

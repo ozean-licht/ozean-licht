@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Avatar Component - Ozean Licht Edition
  * Based on Radix UI Avatar with Ozean Licht design system

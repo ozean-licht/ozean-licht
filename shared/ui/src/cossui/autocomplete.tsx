@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Autocomplete Component - Ozean Licht Edition
  * Based on Base UI Combobox with Ozean Licht design system

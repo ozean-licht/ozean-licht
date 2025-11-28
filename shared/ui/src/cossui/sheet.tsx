@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Sheet (Drawer) Component - Ozean Licht Edition
  * Based on Coss UI (Base UI Dialog) with Ozean Licht design system

@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * File Type Icon Component
  *

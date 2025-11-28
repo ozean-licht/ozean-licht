@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * File Context Menu Component
  * Right-click context menu for file operations

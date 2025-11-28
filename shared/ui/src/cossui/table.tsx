@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Table Component - Ozean Licht Edition
  * Based on Coss UI with glass morphism and Ozean Licht design system

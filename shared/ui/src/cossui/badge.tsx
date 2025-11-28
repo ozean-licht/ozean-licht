@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Badge Component - Ozean Licht Edition
  * Based on Coss UI with Ozean Licht design system

@@ -1,3 +1,5 @@
+'use client';
+
 import { SpanDesign } from "../branded/span-design"
 import { InfoCard } from "../branded/info-card"
 

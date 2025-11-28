@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * File Preview Dialog Component
  * Inline file previews for images, videos, PDFs with navigation

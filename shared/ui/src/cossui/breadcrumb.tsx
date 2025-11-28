@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Breadcrumb Component - Ozean Licht Edition
  * Based on Coss UI with Ozean Licht design system styling

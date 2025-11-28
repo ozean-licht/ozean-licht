@@ -1,3 +1,5 @@
+'use client';
+
 import { FooterNav } from "./footer-nav"
 import { LegalNav } from "./legal-nav"
 

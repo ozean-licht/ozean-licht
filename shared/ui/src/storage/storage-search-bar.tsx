@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Storage Search Bar Component
  * Advanced search and filtering for files

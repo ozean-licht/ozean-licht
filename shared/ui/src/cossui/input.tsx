@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Input Component - Ozean Licht Edition
  * Based on Coss UI with size variants and Ozean Licht styling

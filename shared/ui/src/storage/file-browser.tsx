@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * File Browser Component
  * Main orchestrator component that composes all storage components

@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Separator Component - Ozean Licht Edition
  * Based on Coss UI with Ozean Licht styling

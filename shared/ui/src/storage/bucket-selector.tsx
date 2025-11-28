@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Bucket Selector Component
  * Bucket/folder picker for storage navigation

@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * View Mode Toggle Component
  *

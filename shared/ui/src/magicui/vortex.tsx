@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef } from "react";
 import { createNoise3D } from "simplex-noise";
 import { motion } from "motion/react";

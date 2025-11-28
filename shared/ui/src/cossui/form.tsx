@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Form Components - Ozean Licht Edition
  * Based on react-hook-form with Ozean Licht design system

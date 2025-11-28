@@ -1,3 +1,5 @@
+'use client';
+
 import Link from "next/link"
 import SpanBadge from "./span-badge"
 import PrimaryButton from "./primary-button"

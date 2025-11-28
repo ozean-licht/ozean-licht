@@ -1,3 +1,5 @@
+'use client';
+
 import { SpanBadge } from "./span-badge"
 import Link from "next/link"
 

@@ -1,3 +1,5 @@
+'use client';
+
 interface TestimonialCardProps {
   name: string
   location: string

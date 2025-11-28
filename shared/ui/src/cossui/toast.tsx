@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Toast Component - Ozean Licht Edition
  * Based on Radix UI Toast with Ozean Licht design system

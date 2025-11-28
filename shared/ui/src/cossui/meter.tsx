@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Meter Component - Ozean Licht Edition
  * Based on Base UI Meter with Ozean Licht styling

@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Empty Storage State Component
  *

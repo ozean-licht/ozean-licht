@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * File Upload Queue Component
  * Upload progress tracking with individual file progress bars

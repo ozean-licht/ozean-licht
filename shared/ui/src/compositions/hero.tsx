@@ -1,3 +1,5 @@
+'use client';
+
 import { Badge } from "../branded/badge"
 import { PrimaryButton } from "../branded/primary-button"
 

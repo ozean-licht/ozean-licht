@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Group Component - Ozean Licht Edition
  * Generic grouping component for related elements

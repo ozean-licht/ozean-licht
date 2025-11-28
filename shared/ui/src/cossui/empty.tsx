@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Empty Component - Ozean Licht Edition
  * Based on Coss UI patterns with Ozean Licht design system

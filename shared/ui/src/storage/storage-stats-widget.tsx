@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Storage Stats Widget Component
  * Dashboard widget for storage statistics and trends

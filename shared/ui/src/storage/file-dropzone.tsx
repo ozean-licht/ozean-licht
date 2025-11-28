@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * File Dropzone Component
  * Drag & drop file upload zone with visual feedback

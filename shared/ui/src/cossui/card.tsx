@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Card Component - Ozean Licht Edition
  * Based on Coss UI with glass morphism and Ozean Licht styling

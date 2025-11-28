@@ -1,3 +1,5 @@
+'use client';
+
 export function LegalNav() {
   return (
     <div className="border-t border-[#0E282E] pt-6 mt-8">

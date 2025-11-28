@@ -1,10 +1,13 @@
+'use client';
+
 import type { ReactNode } from "react"
 import { CossUIButton as Button } from "../cossui"
 
 // Import design elements from shared assets
-import TopLightImage from "@/shared/assets/design-elements/TopLight.png"
-import CardFocusImage from "@/shared/assets/design-elements/CardFocus.png"
-import CardMovingStrokeImage from "@/shared/assets/design-elements/CardMovingStroke.png"
+// Using relative path since @/ alias doesn't resolve in consumer apps
+import TopLightImage from "../../../assets/design-elements/TopLight.png"
+import CardFocusImage from "../../../assets/design-elements/CardFocus.png"
+import CardMovingStrokeImage from "../../../assets/design-elements/CardMovingStroke.png"
 
 interface InfoCardProps {
   heading: string

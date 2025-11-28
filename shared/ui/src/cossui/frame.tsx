@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Frame Component - Ozean Licht Edition
  * Container component for embedding content with support for aspect ratios and variants

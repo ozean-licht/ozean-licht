@@ -1,3 +1,5 @@
+'use client';
+
 import { Star, Heart, Lightbulb, Wand2, Moon, MessageCircle, Users, Sparkle } from "lucide-react"
 
 interface SpanBadgeProps {

@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Bulk Actions Toolbar Component
  * Multi-select operations toolbar with action buttons

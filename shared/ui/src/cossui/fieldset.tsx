@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Fieldset Component - Ozean Licht Edition
  * Form fieldset grouping with legend, description, and helper text

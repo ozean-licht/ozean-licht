@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Textarea Component - Ozean Licht Edition
  * Based on Coss UI with Ozean Licht styling

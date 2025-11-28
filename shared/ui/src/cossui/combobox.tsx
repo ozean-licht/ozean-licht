@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Combobox Component - Ozean Licht Edition
  * Based on Base UI with Ozean Licht design system

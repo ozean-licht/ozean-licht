@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Switch Component - Ozean Licht Edition
  * Based on Coss UI (@coss/switch) with Ozean Licht design system

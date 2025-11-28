@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * File Metadata Panel Component
  * Details sidebar for file information

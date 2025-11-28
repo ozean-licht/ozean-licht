@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Preview Card Component - Ozean Licht Edition
  * Based on Base UI Popover with hover triggers

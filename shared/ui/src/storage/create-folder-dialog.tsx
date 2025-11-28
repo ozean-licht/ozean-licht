@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Create Folder Dialog Component
  * Modal dialog for creating new folders

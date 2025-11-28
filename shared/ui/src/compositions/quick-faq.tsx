@@ -1,3 +1,5 @@
+'use client';
+
 import { SpanDesign } from "./span-design"
 import { FaqItem } from "./faq-item"
 

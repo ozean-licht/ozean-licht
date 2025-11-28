@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Tooltip Component - Ozean Licht Edition
  * Based on Coss UI (@coss/tooltip) with Ozean Licht design system
