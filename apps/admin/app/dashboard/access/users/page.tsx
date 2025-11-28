@@ -9,7 +9,7 @@ import { Metadata } from 'next';
 import { requireAnyRole } from '@/lib/rbac/utils';
 import { MCPGatewayClientWithQueries } from '@/lib/mcp-client/queries';
 import { UsersDataTable } from './UsersDataTable';
-import { UserFilters } from '@/types/user';
+import { User, UserFilters } from '@/types/user';
 import { Suspense } from 'react';
 import { DataTableSkeleton } from '@/components/admin/data-table-skeleton';
 
@@ -24,7 +24,7 @@ const mcpClient = new MCPGatewayClientWithQueries({
 });
 
 // Team members for Ozean Licht
-const MOCK_USERS = [
+const MOCK_USERS: User[] = [
   {
     id: '1',
     email: 'lia@ozean-licht.com',
