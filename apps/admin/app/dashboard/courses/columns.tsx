@@ -6,7 +6,7 @@ import { formatPrice } from '@/types/commerce';
 import { Button, Badge } from '@/lib/ui';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
-import { MoreHorizontal, Eye, Edit, Trash2, BookOpen, Users } from 'lucide-react';
+import { MoreHorizontal, Eye, Edit, Trash2, BookOpen, Users, Layers } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -229,15 +229,21 @@ export const columns: ColumnDef<Course>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem asChild>
               <Link href={`/dashboard/courses/${course.id}`}>
+                <Layers className="mr-2 h-4 w-4" />
+                Manage Content
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href={`/dashboard/courses/${course.id}`}>
                 <Eye className="mr-2 h-4 w-4" />
                 View Details
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/dashboard/courses/${course.id}/edit`}>
+            <DropdownMenuItem asChild disabled>
+              <span>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Course
-              </Link>
+              </span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive">

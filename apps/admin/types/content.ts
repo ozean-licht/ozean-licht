@@ -79,6 +79,11 @@ export interface Course {
 }
 
 /**
+ * Module status
+ */
+export type ModuleStatus = 'draft' | 'published';
+
+/**
  * Module entity (grouping within courses)
  */
 export interface Module {
@@ -87,12 +92,35 @@ export interface Module {
   courseId: string;
   title: string;
   description?: string;
-  orderIndex: number;
+  sortOrder: number;
+  status: ModuleStatus;
   createdAt: string;
   updatedAt: string;
   // Computed/joined fields
   lessonCount?: number;
+  totalDurationSeconds?: number;
+  lessons?: Lesson[];
+  // Legacy field for mcp-client compatibility
+  /** @deprecated Use sortOrder instead */
+  orderIndex?: number;
 }
+
+/**
+ * Module with nested lessons
+ */
+export interface ModuleWithLessons extends Module {
+  lessons: Lesson[];
+}
+
+/**
+ * Lesson content type
+ */
+export type LessonContentType = 'video' | 'text' | 'pdf' | 'quiz';
+
+/**
+ * Lesson status
+ */
+export type LessonStatus = 'draft' | 'published';
 
 /**
  * Lesson entity
@@ -100,20 +128,36 @@ export interface Module {
 export interface Lesson {
   id: string;
   airtableId?: string;
-  courseId: string;
-  moduleId?: string;
+  moduleId: string;
   title: string;
   description?: string;
-  content?: string;
+  contentType: LessonContentType;
+  // Content fields (based on content_type)
   videoId?: string;
-  orderIndex: number;
+  contentText?: string;  // For text type (markdown)
+  contentUrl?: string;   // For pdf type (URL to PDF)
+  quizData?: Record<string, unknown>;  // For quiz type (future)
+  // Metadata
+  sortOrder: number;
   durationSeconds?: number;
-  isFreePreview: boolean;
-  lessonType: LessonType;
+  isRequired: boolean;
+  isPreview: boolean;
+  status: LessonStatus;
   createdAt: string;
   updatedAt: string;
   // Computed/joined fields
   video?: Video;
+  // Legacy fields for mcp-client compatibility
+  /** @deprecated Use moduleId from parent module instead */
+  courseId?: string;
+  /** @deprecated Use contentText instead */
+  content?: string;
+  /** @deprecated Use sortOrder instead */
+  orderIndex?: number;
+  /** @deprecated Use isPreview instead */
+  isFreePreview?: boolean;
+  /** @deprecated Use contentType instead */
+  lessonType?: LessonType;
 }
 
 /**
@@ -215,27 +259,51 @@ export interface UpdateCourseInput {
 }
 
 export interface CreateLessonInput {
-  courseId: string;
-  moduleId?: string;
+  moduleId: string;
   title: string;
   description?: string;
-  content?: string;
+  contentType: LessonContentType;
   videoId?: string;
-  orderIndex: number;
+  contentText?: string;
+  contentUrl?: string;
   durationSeconds?: number;
+  isRequired?: boolean;
+  isPreview?: boolean;
+  status?: LessonStatus;
+  // Legacy fields for mcp-client compatibility
+  /** @deprecated Use moduleId + contentText instead */
+  courseId?: string;
+  /** @deprecated Use contentText instead */
+  content?: string;
+  /** @deprecated Use sortOrder in Lesson instead */
+  orderIndex?: number;
+  /** @deprecated Use isPreview instead */
   isFreePreview?: boolean;
+  /** @deprecated Use contentType instead */
   lessonType?: LessonType;
 }
 
 export interface UpdateLessonInput {
-  moduleId?: string;
   title?: string;
   description?: string;
-  content?: string;
+  contentType?: LessonContentType;
   videoId?: string;
-  orderIndex?: number;
+  contentText?: string;
+  contentUrl?: string;
   durationSeconds?: number;
+  isRequired?: boolean;
+  isPreview?: boolean;
+  status?: LessonStatus;
+  // Legacy fields for mcp-client compatibility
+  /** @deprecated Use moduleId on create only */
+  moduleId?: string;
+  /** @deprecated Use contentText instead */
+  content?: string;
+  /** @deprecated Use reorderLessons instead */
+  orderIndex?: number;
+  /** @deprecated Use isPreview instead */
   isFreePreview?: boolean;
+  /** @deprecated Use contentType instead */
   lessonType?: LessonType;
 }
 
@@ -243,12 +311,18 @@ export interface CreateModuleInput {
   courseId: string;
   title: string;
   description?: string;
-  orderIndex: number;
+  status?: ModuleStatus;
+  // Legacy field for mcp-client compatibility
+  /** @deprecated Use sortOrder in Module instead */
+  orderIndex?: number;
 }
 
 export interface UpdateModuleInput {
   title?: string;
   description?: string;
+  status?: ModuleStatus;
+  // Legacy field for mcp-client compatibility
+  /** @deprecated Use reorderModules instead */
   orderIndex?: number;
 }
 
@@ -323,4 +397,13 @@ export interface VideoStats {
   publishedVideos: number;
   draftVideos: number;
   totalDurationMinutes: number;
+}
+
+// === Course with Structure ===
+
+/**
+ * Course with nested modules and lessons for course builder
+ */
+export interface CourseWithStructure extends Course {
+  modules: ModuleWithLessons[];
 }
