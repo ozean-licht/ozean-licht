@@ -281,6 +281,41 @@ export const reorderLessonsSchema = z.object({
   lessonIds: z.array(z.string().uuid('Invalid lesson ID')).min(1, 'At least one lesson ID is required'),
 });
 
+// === Course Schemas ===
+
+export const courseStatusSchema = z.enum(['draft', 'published', 'archived']);
+export const courseLevelSchema = z.enum(['beginner', 'intermediate', 'advanced']);
+export const currencySchema = z.enum(['EUR', 'USD', 'CHF']);
+export const entityScopeSchema = z.enum(['ozean_licht', 'kids_ascension']);
+
+/**
+ * Schema for updating an existing course
+ */
+export const courseUpdateSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters').max(200).optional(),
+  slug: z.string().min(3).max(100).regex(/^[a-z0-9-]+$/, 'Slug must be URL-safe (lowercase letters, numbers, hyphens only)').optional(),
+  description: z.string().max(10000).optional().nullable(),
+  shortDescription: z.string().max(500).optional().nullable(),
+  thumbnailUrl: z.string().url('Must be a valid URL').optional().nullable(),
+  coverImageUrl: z.string().url('Must be a valid URL').optional().nullable(),
+  priceCents: z.number().int().min(0, 'Price cannot be negative').optional(),
+  currency: currencySchema.optional(),
+  status: courseStatusSchema.optional(),
+  level: courseLevelSchema.optional().nullable(),
+  category: z.string().max(100).optional().nullable(),
+  durationMinutes: z.number().int().min(0).optional().nullable(),
+  entityScope: entityScopeSchema.optional().nullable(),
+  instructorId: z.string().uuid().optional().nullable(),
+  metadata: z.record(z.unknown()).optional().nullable(),
+});
+
+/**
+ * Schema for the course editor form (requires title)
+ */
+export const courseEditorSchema = courseUpdateSchema.extend({
+  title: z.string().min(3, 'Title must be at least 3 characters').max(200, 'Title must be 200 characters or less'),
+});
+
 // === Type Exports ===
 
 export type CreateModuleInput = z.infer<typeof createModuleSchema>;
@@ -293,6 +328,8 @@ export type ReorderLessonsInput = z.infer<typeof reorderLessonsSchema>;
 export type ModuleStatus = z.infer<typeof moduleStatusSchema>;
 export type LessonStatus = z.infer<typeof lessonStatusSchema>;
 export type LessonContentType = z.infer<typeof lessonContentTypeSchema>;
+export type CourseUpdateInput = z.infer<typeof courseUpdateSchema>;
+export type CourseEditorInput = z.infer<typeof courseEditorSchema>;
 
 // === Validation Helpers ===
 
@@ -359,4 +396,19 @@ export function extractZodErrors(error: z.ZodError): Record<string, string> {
     }
   }
   return errors;
+}
+
+/**
+ * Validate and parse course update input
+ */
+export function validateCourseUpdate(data: unknown) {
+  return courseUpdateSchema.parse(data);
+}
+
+export function safeValidateCourseUpdate(data: unknown) {
+  return courseUpdateSchema.safeParse(data);
+}
+
+export function safeValidateCourseEditor(data: unknown) {
+  return courseEditorSchema.safeParse(data);
 }

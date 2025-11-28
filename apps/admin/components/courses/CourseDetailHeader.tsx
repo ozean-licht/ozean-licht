@@ -12,9 +12,10 @@ import Image from 'next/image';
 
 interface CourseDetailHeaderProps {
   course: Course;
+  onEdit?: () => void;
 }
 
-export default function CourseDetailHeader({ course }: CourseDetailHeaderProps) {
+export default function CourseDetailHeader({ course, onEdit }: CourseDetailHeaderProps) {
   const statusVariant = {
     draft: 'secondary',
     published: 'default',
@@ -78,7 +79,12 @@ export default function CourseDetailHeader({ course }: CourseDetailHeaderProps) 
               </div>
 
               <div className="flex items-center gap-2 flex-shrink-0">
-                <CossUIButton variant="outline" size="sm" disabled title="Coming in Phase 3">
+                <CossUIButton
+                  variant="outline"
+                  size="sm"
+                  onClick={onEdit}
+                  disabled={!onEdit}
+                >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit
                 </CossUIButton>

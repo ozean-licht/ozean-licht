@@ -15,6 +15,7 @@ import { ArrowLeft, Plus, BookOpen, Clock, Video, HelpCircle } from 'lucide-reac
 import CourseDetailHeader from '@/components/courses/CourseDetailHeader';
 import ModuleList from '@/components/courses/ModuleList';
 import ModuleEditorModal from '@/components/courses/ModuleEditorModal';
+import CourseEditorModal from '@/components/courses/CourseEditorModal';
 
 interface CourseDetailClientProps {
   course: Course;
@@ -23,12 +24,14 @@ interface CourseDetailClientProps {
 }
 
 export default function CourseDetailClient({
-  course,
+  course: initialCourse,
   initialModules,
   error,
 }: CourseDetailClientProps) {
+  const [course, setCourse] = useState<Course>(initialCourse);
   const [modules, setModules] = useState<ModuleWithLessons[]>(initialModules);
   const [addModuleOpen, setAddModuleOpen] = useState(false);
+  const [editCourseOpen, setEditCourseOpen] = useState(false);
 
   // Calculate totals
   const totalLessons = modules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
@@ -72,7 +75,7 @@ export default function CourseDetailClient({
       </Link>
 
       {/* Course Header */}
-      <CourseDetailHeader course={course} />
+      <CourseDetailHeader course={course} onEdit={() => setEditCourseOpen(true)} />
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -158,6 +161,16 @@ export default function CourseDetailClient({
         onOpenChange={setAddModuleOpen}
         onSave={(savedModule) => {
           setModules([...modules, { ...savedModule, lessons: [] }]);
+        }}
+      />
+
+      {/* Course Editor Modal */}
+      <CourseEditorModal
+        course={course}
+        open={editCourseOpen}
+        onOpenChange={setEditCourseOpen}
+        onSave={(updatedCourse) => {
+          setCourse(updatedCourse);
         }}
       />
     </div>

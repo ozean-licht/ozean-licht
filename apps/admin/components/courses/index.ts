@@ -12,6 +12,10 @@ export { default as LessonList } from './LessonList';
 // Editor Modals
 export { default as ModuleEditorModal } from './ModuleEditorModal';
 export { default as LessonEditorModal } from './LessonEditorModal';
+export { default as CourseEditorModal } from './CourseEditorModal';
 
 // Pickers
 export { default as VideoPicker } from './VideoPicker';
+
+// Uploaders
+export { default as ImageUploader } from './ImageUploader';

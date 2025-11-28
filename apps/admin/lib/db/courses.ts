@@ -226,3 +226,143 @@ export async function getCourseStats() {
     archived: parseInt(rows[0]?.archived || '0', 10),
   };
 }
+
+/**
+ * Update course input type
+ */
+export interface UpdateCourseInput {
+  title?: string;
+  slug?: string;
+  description?: string | null;
+  shortDescription?: string | null;
+  thumbnailUrl?: string | null;
+  coverImageUrl?: string | null;
+  priceCents?: number;
+  currency?: string;
+  status?: 'draft' | 'published' | 'archived';
+  level?: 'beginner' | 'intermediate' | 'advanced' | null;
+  category?: string | null;
+  durationMinutes?: number | null;
+  entityScope?: 'ozean_licht' | 'kids_ascension' | null;
+  instructorId?: string | null;
+  metadata?: Record<string, unknown> | null;
+}
+
+/**
+ * Update a course by ID
+ * Only updates fields that are provided in the input
+ */
+export async function updateCourse(id: string, input: UpdateCourseInput): Promise<Course | null> {
+  const setClauses: string[] = [];
+  const params: unknown[] = [];
+  let paramIndex = 1;
+
+  // Build dynamic SET clause for each provided field
+  const fieldMappings: Array<{ key: keyof UpdateCourseInput; column: string }> = [
+    { key: 'title', column: 'title' },
+    { key: 'slug', column: 'slug' },
+    { key: 'description', column: 'description' },
+    { key: 'shortDescription', column: 'short_description' },
+    { key: 'thumbnailUrl', column: 'thumbnail_url' },
+    { key: 'coverImageUrl', column: 'cover_image_url' },
+    { key: 'priceCents', column: 'price_cents' },
+    { key: 'currency', column: 'currency' },
+    { key: 'status', column: 'status' },
+    { key: 'level', column: 'level' },
+    { key: 'category', column: 'category' },
+    { key: 'durationMinutes', column: 'duration_minutes' },
+    { key: 'entityScope', column: 'entity_scope' },
+    { key: 'instructorId', column: 'instructor_id' },
+    { key: 'metadata', column: 'metadata' },
+  ];
+
+  for (const { key, column } of fieldMappings) {
+    if (input[key] !== undefined) {
+      setClauses.push(`${column} = $${paramIndex++}`);
+      params.push(input[key]);
+    }
+  }
+
+  if (setClauses.length === 0) {
+    // No fields to update, return current course
+    return getCourseById(id);
+  }
+
+  // Always update updated_at
+  setClauses.push('updated_at = NOW()');
+
+  // Handle publishedAt for status changes
+  if (input.status === 'published') {
+    setClauses.push('published_at = COALESCE(published_at, NOW())');
+  }
+
+  params.push(id);
+  const sql = `
+    UPDATE courses
+    SET ${setClauses.join(', ')}
+    WHERE id = $${paramIndex}
+    RETURNING
+      id, airtable_id, title, slug, description, short_description,
+      thumbnail_url, cover_image_url, price_cents, currency,
+      status, level, category, duration_minutes, entity_scope,
+      instructor_id, created_at, updated_at, published_at, metadata
+  `;
+
+  const rows = await query<CourseRow>(sql, params);
+  return rows.length > 0 ? mapCourse(rows[0]) : null;
+}
+
+/**
+ * Create a new course
+ */
+export async function createCourse(input: {
+  title: string;
+  slug: string;
+  description?: string;
+  shortDescription?: string;
+  thumbnailUrl?: string;
+  coverImageUrl?: string;
+  priceCents?: number;
+  currency?: string;
+  status?: 'draft' | 'published' | 'archived';
+  level?: 'beginner' | 'intermediate' | 'advanced';
+  category?: string;
+  entityScope?: 'ozean_licht' | 'kids_ascension';
+  instructorId?: string;
+  metadata?: Record<string, unknown>;
+}): Promise<Course> {
+  const sql = `
+    INSERT INTO courses (
+      title, slug, description, short_description,
+      thumbnail_url, cover_image_url, price_cents, currency,
+      status, level, category, entity_scope, instructor_id, metadata
+    ) VALUES (
+      $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+    )
+    RETURNING
+      id, airtable_id, title, slug, description, short_description,
+      thumbnail_url, cover_image_url, price_cents, currency,
+      status, level, category, duration_minutes, entity_scope,
+      instructor_id, created_at, updated_at, published_at, metadata
+  `;
+
+  const params = [
+    input.title,
+    input.slug,
+    input.description || null,
+    input.shortDescription || null,
+    input.thumbnailUrl || null,
+    input.coverImageUrl || null,
+    input.priceCents ?? 0,
+    input.currency || 'EUR',
+    input.status || 'draft',
+    input.level || null,
+    input.category || null,
+    input.entityScope || null,
+    input.instructorId || null,
+    input.metadata || null,
+  ];
+
+  const rows = await query<CourseRow>(sql, params);
+  return mapCourse(rows[0]);
+}
