@@ -1,76 +1,74 @@
 /**
  * Direct PostgreSQL Database Client
  *
- * Provides direct database access for the admin dashboard.
- * Connects directly to ozean-licht-db on Coolify.
- * No dependency on MCP Gateway for reads.
+ * Provides database access via direct PostgreSQL connection for the admin dashboard.
+ * Uses the `pg` package with connection pooling for efficient query execution.
  *
- * Environment Variables (in order of preference):
- *   - OZEAN_LICHT_DB_URL: Full connection string
- *   - Individual vars: POSTGRES_OL_HOST, POSTGRES_OL_PORT, etc.
+ * IMPORTANT: This is the correct pattern for application database access.
+ * MCP Gateway is meant for AI agent tool access, NOT for application infrastructure.
+ *
+ * Environment Variables:
+ *   - DATABASE_URL: Full connection string (preferred)
+ *   - Or individual vars: POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DATABASE, POSTGRES_USER, POSTGRES_PASSWORD
  */
 
-import { Pool, PoolClient, QueryResult } from 'pg';
-
-// Global pool instance (singleton pattern for Next.js)
-let pool: Pool | null = null;
+import { Pool, PoolConfig, QueryResult as PgQueryResult } from 'pg';
 
 /**
- * Build connection config from environment
+ * Result type for query operations
  */
-function getConnectionConfig() {
-  // Option 1: Full connection string
-  const connectionString = process.env.OZEAN_LICHT_DB_URL;
-  if (connectionString) {
-    return { connectionString };
-  }
+export interface QueryResult {
+  rowCount: number | null;
+  rows: any[];
+}
 
-  // Option 2: Individual environment variables
-  const host = process.env.POSTGRES_OL_HOST;
-  const port = process.env.POSTGRES_OL_PORT;
-  const database = process.env.POSTGRES_OL_DATABASE || 'ozean-licht-db';
-  const user = process.env.POSTGRES_OL_USER || 'postgres';
-  const password = process.env.POSTGRES_OL_PASSWORD;
+// Parse DATABASE_URL or construct from individual env vars
+const getDatabaseConfig = (): PoolConfig => {
+  // First check for ozean-licht specific DATABASE_URL
+  const databaseUrl = process.env.OZEAN_LICHT_DATABASE_URL || process.env.DATABASE_URL;
 
-  if (host && password) {
+  if (databaseUrl) {
     return {
-      host,
-      port: parseInt(port || '5432', 10),
-      database,
-      user,
-      password,
+      connectionString: databaseUrl,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
     };
   }
 
-  // Option 3: Fallback to DATABASE_URL (legacy)
-  if (process.env.DATABASE_URL) {
-    console.warn('Using DATABASE_URL fallback. Set OZEAN_LICHT_DB_URL for ozean-licht-db.');
-    return { connectionString: process.env.DATABASE_URL };
-  }
+  // Fallback to individual env vars for ozean-licht-db
+  return {
+    host: process.env.POSTGRES_HOST || 'localhost',
+    port: parseInt(process.env.POSTGRES_PORT || '32771'),
+    database: process.env.POSTGRES_DATABASE || 'ozean-licht-db',
+    user: process.env.POSTGRES_USER || 'postgres',
+    password: process.env.POSTGRES_PASSWORD,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
+  };
+};
 
-  throw new Error(
-    'Database connection not configured. Set OZEAN_LICHT_DB_URL or POSTGRES_OL_* variables.'
-  );
-}
+// Create a singleton connection pool
+let pool: Pool | null = null;
 
 /**
- * Get or create the database pool
+ * Get or create the database connection pool
  */
 function getPool(): Pool {
   if (!pool) {
-    const config = getConnectionConfig();
-
-    pool = new Pool({
-      ...config,
-      max: 10, // Maximum connections in pool
-      idleTimeoutMillis: 30000, // Close idle connections after 30s
-      connectionTimeoutMillis: 10000, // Fail fast if can't connect in 10s
-    });
+    const config = getDatabaseConfig();
+    pool = new Pool(config);
 
     // Handle pool errors
     pool.on('error', (err) => {
-      console.error('Unexpected database pool error:', err);
+      console.error('[DB Pool] Unexpected database error:', err);
     });
+
+    // Log pool creation in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[DB Pool] PostgreSQL connection pool created for ozean-licht-db');
+    }
   }
 
   return pool;
@@ -78,78 +76,87 @@ function getPool(): Pool {
 
 /**
  * Execute a query and return rows
+ *
+ * @param sql - SQL query string with $1, $2, etc. placeholders
+ * @param params - Query parameters
+ * @returns Array of rows matching the query
+ *
+ * @example
+ * const users = await query<User>('SELECT * FROM users WHERE status = $1', ['active']);
  */
 export async function query<T = Record<string, unknown>>(
   sql: string,
   params?: unknown[]
 ): Promise<T[]> {
-  const pool = getPool();
-  const result = await pool.query(sql, params);
-  return result.rows as T[];
+  const dbPool = getPool();
+
+  try {
+    const result: PgQueryResult = await dbPool.query(sql, params);
+    return result.rows as T[];
+  } catch (error: any) {
+    // Log error with context
+    console.error('[DB Query] Error executing query:', {
+      sql: sql.substring(0, 200),
+      error: error.message,
+    });
+    throw error;
+  }
 }
 
 /**
- * Execute a query and return full result (includes rowCount, etc.)
+ * Execute a query and return full result (includes rowCount)
+ *
+ * @param sql - SQL query string with $1, $2, etc. placeholders
+ * @param params - Query parameters
+ * @returns QueryResult with rowCount and rows
+ *
+ * @example
+ * const result = await execute('DELETE FROM tasks WHERE id = $1', [taskId]);
+ * console.log(`Deleted ${result.rowCount} rows`);
  */
 export async function execute(
   sql: string,
   params?: unknown[]
 ): Promise<QueryResult> {
-  const pool = getPool();
-  return pool.query(sql, params);
-}
-
-/**
- * Get a client from the pool for transactions
- */
-export async function getClient(): Promise<PoolClient> {
-  const pool = getPool();
-  return pool.connect();
-}
-
-/**
- * Execute multiple queries in a transaction
- */
-export async function transaction<T>(
-  callback: (client: PoolClient) => Promise<T>
-): Promise<T> {
-  const client = await getClient();
+  const dbPool = getPool();
 
   try {
-    await client.query('BEGIN');
-    const result = await callback(client);
-    await client.query('COMMIT');
-    return result;
-  } catch (error) {
-    await client.query('ROLLBACK');
+    const result: PgQueryResult = await dbPool.query(sql, params);
+    return {
+      rowCount: result.rowCount,
+      rows: result.rows,
+    };
+  } catch (error: any) {
+    // Log error with context
+    console.error('[DB Execute] Error executing query:', {
+      sql: sql.substring(0, 200),
+      error: error.message,
+    });
     throw error;
-  } finally {
-    client.release();
   }
 }
 
 /**
  * Check database connectivity
+ *
+ * @returns true if database is reachable, false otherwise
  */
 export async function healthCheck(): Promise<boolean> {
   try {
-    const pool = getPool();
-    const result = await pool.query('SELECT 1');
-    return result.rows.length > 0;
+    const rows = await query<{ ok: number }>('SELECT 1 as ok');
+    return rows[0]?.ok === 1;
   } catch {
     return false;
   }
 }
 
 /**
- * Close the pool (for graceful shutdown)
+ * Close the connection pool (for graceful shutdown)
  */
 export async function closePool(): Promise<void> {
   if (pool) {
     await pool.end();
     pool = null;
+    console.log('[DB Pool] Connection pool closed');
   }
 }
-
-// Export types for convenience
-export type { PoolClient, QueryResult };

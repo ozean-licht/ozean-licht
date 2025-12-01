@@ -2,11 +2,11 @@
  * Direct PostgreSQL Connection Pool for Authentication
  *
  * This module provides a direct database connection specifically for
- * authentication operations, bypassing the MCP Gateway for performance.
+ * authentication operations (shared-users-db).
  *
- * Architecture Decision:
- * - Auth operations use direct DB connection (fast, critical path)
- * - Dashboard operations use MCP Gateway (flexibility, AI agent support)
+ * Note: All application database access should use direct PostgreSQL connections.
+ * MCP Gateway is for AI agent tool access, not application infrastructure.
+ * See lib/db/index.ts for the main application database pool (ozean-licht-db).
  */
 
 import { Pool, PoolConfig } from 'pg';

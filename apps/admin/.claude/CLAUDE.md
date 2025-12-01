@@ -128,36 +128,30 @@ export function UserForm({ initialData }) {
 - Event handlers (onClick, onChange)
 - Browser APIs (localStorage, window)
 
-### 3. MCP Gateway Database Operations
+### 3. Direct PostgreSQL Database Operations
 
-**ALWAYS use MCP Gateway client** - never direct database access:
+**ALWAYS use direct PostgreSQL connections** for application database access:
 
 ```typescript
-import { MCPGatewayClientWithQueries } from '@/lib/mcp-client'
-
-// Initialize with target database
-const client = new MCPGatewayClientWithQueries({
-  baseUrl: process.env.MCP_GATEWAY_URL || 'http://localhost:8100',
-  database: 'ozean-licht-db', // or 'shared-users-db' for auth operations
-})
+// For projects, tasks, templates - use lib/db modules
+import { getAllProjects, getProjectById } from '@/lib/db/projects'
+import { getAllTasks, updateTask } from '@/lib/db/tasks'
 
 // Query operations
-const users = await client.listAdminUsers()
-const user = await client.getAdminUserById(userId)
+const { projects, total } = await getAllProjects({ status: 'active', limit: 50 })
+const task = await getTaskById(taskId)
 
 // Mutations
-await client.updateAdminUser(userId, { adminRole: 'ol_admin' })
-await client.deleteAdminUser(userId)
+await updateTask(taskId, { status: 'done', is_done: true })
 
-// Audit logging
-await client.createAuditLog({
-  adminUserId: session.user.adminUserId,
-  action: 'user.update',
-  entityType: 'admin_users',
-  entityId: userId,
-  metadata: { oldRole, newRole },
-})
+// For auth operations - use lib/db/auth-pool
+import { getAuthPool } from '@/lib/db/auth-pool'
+const pool = getAuthPool()
+const result = await pool.query('SELECT * FROM admin_users WHERE id = $1', [userId])
 ```
+
+**IMPORTANT**: MCP Gateway is for AI agent tool access, NOT for application database queries.
+The `lib/mcp-client/` module exists for AI agent compatibility but should not be used by application code.
 
 ### 4. RBAC Enforcement
 
@@ -307,11 +301,21 @@ export function MyForm() {
 
 ### Task: Add Database Query
 
-1. **Open MCP client queries** (`lib/mcp-client/queries.ts`)
-2. **Add new method** to `MCPGatewayClientWithQueries` class
-3. **Implement query** using `this.query()` or `this.execute()`
-4. **Add TypeScript types** for request/response
-5. **Write unit test** in `tests/unit/mcp-client/`
+1. **Open or create db module** (`lib/db/[entity].ts`)
+2. **Add query function** using `query()` or `execute()` from `lib/db/index.ts`
+3. **Add TypeScript types** for parameters and return values
+4. **Write unit test** in `tests/unit/db/`
+
+Example:
+```typescript
+// lib/db/myentity.ts
+import { query, execute } from './index'
+
+export async function getMyEntity(id: string): Promise<MyEntity | null> {
+  const rows = await query<MyEntity>('SELECT * FROM my_entity WHERE id = $1', [id])
+  return rows[0] || null
+}
+```
 
 ### Task: Add API Endpoint
 
@@ -319,7 +323,7 @@ export function MyForm() {
 2. **Export HTTP method** function (GET, POST, PATCH, DELETE)
 3. **Check auth** with `await auth()`
 4. **Validate input** with Zod schema
-5. **Call MCP client** for database operations
+5. **Call db functions** from `lib/db/` for database operations
 6. **Return JSON** response
 
 ### Task: Implement RBAC
@@ -345,7 +349,7 @@ Before committing code, verify:
 - [ ] All API routes check `await auth()` for session
 - [ ] Sensitive operations (delete, role change) restricted to super_admin or ol_admin
 - [ ] User inputs validated with Zod schemas
-- [ ] SQL queries parameterized (via MCP client - automatic)
+- [ ] SQL queries parameterized (using $1, $2 placeholders)
 - [ ] Audit logs created for admin actions
 - [ ] No credentials or secrets in code
 - [ ] No console.log() with sensitive data
@@ -388,14 +392,16 @@ describe('Users API', () => {
 
 ## Troubleshooting
 
-### MCP Gateway Connection Failed
+### Database Connection Failed
 ```bash
-# Start MCP Gateway
-cd tools/mcp-gateway
-npm run dev
+# Check PostgreSQL is running
+docker ps | grep postgres
 
-# Check health
-curl http://localhost:8100/health
+# Test connection
+psql -h localhost -p 32771 -U postgres -d ozean-licht-db -c "SELECT 1"
+
+# Check environment variables
+cat apps/admin/.env.local | grep POSTGRES
 ```
 
 ### Authentication Not Working
@@ -426,7 +432,7 @@ npm run build
 - `middleware.ts` - Route protection
 - `lib/auth/config.ts` - NextAuth configuration
 - `lib/auth-utils.ts` - Auth helper functions
-- `lib/mcp-client/` - Database operations
+- `lib/db/` - Database operations (direct PostgreSQL)
 - `components/dashboard/Sidebar.tsx` - Navigation
 - `types/admin.ts` - Admin-specific types
 

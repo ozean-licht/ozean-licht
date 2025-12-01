@@ -15,10 +15,11 @@ Stack: Next.js 14 | TypeScript | MCP Gateway | Tailwind | PostgreSQL
 
 ## Invariants (Always True)
 
-1. **Database**: MCP Gateway only (`localhost:8100`), never direct connections
-2. **Components**: `@ozean-licht/shared-ui` first, local `components/ui/` second
-3. **Auth**: NextAuth (admin only)
-4. **Commits**: Conventional commits, no `--force`, no `--amend` without checking authorship
+1. **Database**: Direct PostgreSQL connections for application code (`pg` package with connection pooling)
+2. **MCP Gateway**: For AI agent tool access ONLY, not for application database queries
+3. **Components**: `@ozean-licht/shared-ui` first, local `components/ui/` second
+4. **Auth**: NextAuth (admin only)
+5. **Commits**: Conventional commits, no `--force`, no `--amend` without checking authorship
 
 ## Agentic Layer
 
@@ -76,9 +77,12 @@ tools/
 └── monitoring/     → Health checks
 ```
 
-## MCP Gateway Services
+## MCP Gateway Services (For AI Agents Only)
 
 Port `8100` | Endpoint pattern: `/mcp/<service>/<operation>`
+
+**IMPORTANT**: MCP Gateway is for AI agent tool access, NOT for application database queries.
+Applications should use direct PostgreSQL connections via `lib/db/index.ts`.
 
 Services: `postgres`, `minio`, `github`, `telegram`, `mem0`
 
