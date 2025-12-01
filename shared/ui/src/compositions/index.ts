@@ -1,6 +1,6 @@
 // Tier 3: Compositions
 // Complex sections combining multiple components (hero, footers, CTAs, previews)
-// Note: Removed Supabase-dependent components (course-preview, blog-preview, header)
+// Note: Components use NextAuth for auth and MinIO S3 for storage
 
 export { Hero } from './hero'
 export { CourseListWithFilter } from './course-list-with-filter'

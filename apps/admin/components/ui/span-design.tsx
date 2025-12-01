@@ -12,7 +12,7 @@ export default function SpanDesign({ children, className = "" }: SpanDesignProps
       {/* Left decorative element */}
       <div className="flex-shrink-0">
         <img
-          src="https://suwevnhwtmcazjugfmps.supabase.co/storage/v1/object/public/assets/SpanAccent.png"
+          src="/images/span-accent.png"
           alt="Decorative accent"
           className="w-[41px] h-[17px] object-cover"
         />
@@ -29,7 +29,7 @@ export default function SpanDesign({ children, className = "" }: SpanDesignProps
       {/* Right decorative element (mirrored) */}
       <div className="flex-shrink-0">
         <img
-          src="https://suwevnhwtmcazjugfmps.supabase.co/storage/v1/object/public/assets/SpanAccent.png"
+          src="/images/span-accent.png"
           alt="Decorative accent"
           className="w-[41px] h-[17px] object-cover scale-x-[-1]"
         />

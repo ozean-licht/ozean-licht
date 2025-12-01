@@ -14,7 +14,7 @@ export default function AboutPage() {
           <div className="flex justify-center mb-10">
             <div className="p-2.5 bg-[#001212] border border-[#0E282E] rounded-xl">
               <img
-                src="https://suwevnhwtmcazjugfmps.supabase.co/storage/v1/object/public/assets/Lia%20Lohmann%20Beach%20Image%20Pray%20Gradient.png"
+                src="/images/lia-lohmann-beach.png"
                 alt="Lia Lohmann am Strand"
                 className="w-full max-w-[640px] h-auto rounded-xl shadow-2xl"
               />

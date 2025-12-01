@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,42 +33,39 @@ export function RegisterForm() {
         throw new Error("Bitte akzeptieren Sie die Datenschutzerklärung.")
       }
 
-      // Verwende Supabase Auth für echte Registrierung
-      const { createBrowserSupabaseClient } = await import("@/lib/supabase")
-      const supabase = createBrowserSupabaseClient()
+      if (password.length < 12) {
+        throw new Error("Das Passwort muss mindestens 12 Zeichen lang sein.")
+      }
 
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            newsletter_accepted: newsletterAccepted,
-          },
-        },
+      // Call registration API
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName,
+          email,
+          password,
+          newsletterAccepted,
+        }),
       })
 
-      if (error) {
-        throw error
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Registrierung fehlgeschlagen')
       }
 
-      if (data.user) {
-        // Erfolgreiche Registrierung - zeige Bestätigungsnachricht
-        setError("") // Clear any previous errors
-        // Die Bestätigungs-E-Mail wurde automatisch gesendet
-        alert("Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mail für die Bestätigung.")
-        // Redirect zur Login-Seite
-        window.location.href = "/login"
-      }
+      // Success - redirect to login
+      alert("Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mail für die Bestätigung.")
+      window.location.href = "/login"
+
     } catch (err) {
-      console.error("Registration error:", err)
-      if (err.message?.includes("User already registered")) {
-        setError("Diese E-Mail-Adresse ist bereits registriert. Bitte melden Sie sich an.")
-      } else if (err.message?.includes("Password should be at least")) {
-        setError("Das Passwort muss mindestens 6 Zeichen lang sein.")
-      } else {
-        setError(err instanceof Error ? err.message : "Ein Fehler ist aufgetreten.")
+      // Only log in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Registration error:", err)
       }
+      // Use generic error message or the one from server
+      setError(err instanceof Error ? err.message : "Ein Fehler ist aufgetreten.")
     } finally {
       setIsLoading(false)
     }
@@ -80,7 +76,7 @@ export function RegisterForm() {
       <CardHeader className="space-y-4 text-center">
         <div className="flex justify-center">
           <img
-            src="https://suwevnhwtmcazjugfmps.supabase.co/storage/v1/object/public/assets/Akadmie%20Komprimiert.png"
+            src="/images/ozean-licht-logo.webp"
             alt="Ozean Licht Logo"
             className="h-20 w-auto"
           />

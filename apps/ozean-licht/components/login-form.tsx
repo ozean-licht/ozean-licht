@@ -1,8 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
+import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -15,37 +15,6 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [resetEmailSent, setResetEmailSent] = useState(false)
-
-  const handlePasswordReset = async () => {
-    if (!email) {
-      setError("Bitte geben Sie Ihre E-Mail-Adresse ein, bevor Sie das Passwort zurücksetzen.")
-      return
-    }
-
-    setError("")
-    setIsLoading(true)
-
-    try {
-      const { createBrowserSupabaseClient } = await import("@/lib/supabase")
-      const supabase = createBrowserSupabaseClient()
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?type=password_reset`,
-      })
-
-      if (error) {
-        throw error
-      }
-
-      setResetEmailSent(true)
-    } catch (err) {
-      console.error("Password reset error:", err)
-      setError(err instanceof Error ? err.message : "Ein Fehler ist aufgetreten.")
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,32 +26,57 @@ export function LoginForm() {
         throw new Error("Bitte füllen Sie alle Felder aus.")
       }
 
-      // Verwende Supabase Auth für echte Anmeldung
-      const { createBrowserSupabaseClient } = await import("@/lib/supabase")
-      const supabase = createBrowserSupabaseClient()
-
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Use NextAuth signIn
+      const result = await signIn("credentials", {
         email,
         password,
+        redirect: false,
       })
 
-      if (error) {
-        throw error
+      if (result?.error) {
+        throw new Error("Ungültige Anmeldedaten. Bitte überprüfen Sie E-Mail und Passwort.")
       }
 
-      if (data.user) {
-        // Erfolgreiche Anmeldung - Redirect zur Dashboard-Seite
+      if (result?.ok) {
+        // Successful login - redirect to dashboard
         window.location.href = "/dashboard"
       }
     } catch (err) {
-      console.error("Login error:", err)
-      if (err.message?.includes("Invalid login credentials")) {
-        setError("Ungültige Anmeldedaten. Bitte überprüfen Sie E-Mail und Passwort.")
-      } else {
-        setError(err instanceof Error ? err.message : "Ein Fehler ist aufgetreten.")
+      // Only log in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Login error:", err)
       }
+      setError(err instanceof Error ? err.message : "Ein Fehler ist aufgetreten.")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handlePasswordReset = async () => {
+    if (!email) {
+      setError("Bitte geben Sie Ihre E-Mail-Adresse ein, bevor Sie das Passwort zurücksetzen.")
+      return
+    }
+
+    try {
+      const response = await fetch('/api/auth/password-reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        alert(result.message || "Passwort-Reset-Anweisungen wurden gesendet.")
+      } else {
+        setError(result.error || "Ein Fehler ist aufgetreten.")
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Password reset error:", err)
+      }
+      setError("Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.")
     }
   }
 
@@ -91,7 +85,7 @@ export function LoginForm() {
       <CardHeader className="space-y-4 text-center">
         <div className="flex justify-center">
           <img
-            src="https://suwevnhwtmcazjugfmps.supabase.co/storage/v1/object/public/assets/Akadmie%20Komprimiert.png"
+            src="/images/ozean-licht-logo.webp"
             alt="Ozean Licht Logo"
             className="h-20 w-auto"
           />
@@ -158,14 +152,6 @@ export function LoginForm() {
             {isLoading ? "Wird angemeldet..." : "Anmelden"}
           </Button>
         </form>
-
-        {resetEmailSent && (
-          <Alert className="border-green-500 bg-green-500/10">
-            <AlertDescription className="text-green-400">
-              Eine E-Mail zum Zurücksetzen Ihres Passworts wurde gesendet. Bitte überprüfen Sie Ihr Postfach.
-            </AlertDescription>
-          </Alert>
-        )}
 
         <div className="text-center">
           <Button

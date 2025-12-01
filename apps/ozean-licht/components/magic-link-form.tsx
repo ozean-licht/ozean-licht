@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,17 +9,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Mail } from "lucide-react"
 
 export function MagicLinkForm() {
-  console.log('🔥 MagicLinkForm component rendered!')
-
   const [email, setEmail] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log('🎯 Magic Link Form submitted!')
-    console.log('📧 Email:', email)
-
     e.preventDefault()
     setError("")
     setSuccess(false)
@@ -28,39 +22,28 @@ export function MagicLinkForm() {
 
     try {
       if (!email) {
-        console.log('❌ No email provided')
         throw new Error("Bitte gib deine E-Mail-Adresse ein.")
       }
 
-      console.log('📡 Making API call to /api/auth/magic-link...')
-
+      // Call magic link API
       const response = await fetch('/api/auth/magic-link', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       })
 
-      console.log('📨 Response status:', response.status)
-      console.log('📨 Response headers:', Object.fromEntries(response.headers.entries()))
-
       const result = await response.json()
-      console.log('📨 Response data:', result)
 
       if (!response.ok) {
-        throw new Error(result.error || `HTTP ${response.status}`)
+        throw new Error(result.error || 'Magic Link konnte nicht gesendet werden')
       }
 
-      if (result.error) {
-        throw new Error(result.error)
-      }
-
-      console.log('✅ Magic link sent successfully!')
       setSuccess(true)
-
     } catch (err) {
-      console.error('💥 Error in handleSubmit:', err)
+      // Only log in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Magic link error:', err)
+      }
       setError(err instanceof Error ? err.message : "Ein Fehler ist aufgetreten.")
     } finally {
       setIsLoading(false)
@@ -72,7 +55,7 @@ export function MagicLinkForm() {
       <CardHeader className="space-y-4 text-center">
         <div className="flex justify-center">
           <img
-            src="https://suwevnhwtmcazjugfmps.supabase.co/storage/v1/object/public/assets/Akadmie%20Komprimiert.png"
+            src="/images/ozean-licht-logo.webp"
             alt="Ozean Licht Logo"
             className="h-20 w-auto"
           />

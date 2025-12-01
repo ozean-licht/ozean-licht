@@ -8,7 +8,7 @@
 
 ## Summary
 
-Successfully migrated the InfoCard component from using Supabase S3 storage URLs to local design element assets imported from `@/shared/assets/design-elements/`.
+Successfully migrated the InfoCard component from using external S3 storage URLs to local design element assets imported from `@/shared/assets/design-elements/`.
 
 ---
 

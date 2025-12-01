@@ -38,19 +38,20 @@ export function PasswordResetForm({ onSuccess }: PasswordResetFormProps) {
         throw new Error("Die Passwörter stimmen nicht überein.")
       }
 
-      // Verwende Supabase Auth für Passwort-Update
-      const { createBrowserSupabaseClient } = await import("@/lib/supabase")
-      const supabase = createBrowserSupabaseClient()
-
-      const { error } = await supabase.auth.updateUser({
-        password: password
+      // Call password reset API
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
       })
 
-      if (error) {
-        throw error
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Passwort-Reset fehlgeschlagen')
       }
 
-      // Erfolgreich - Callback aufrufen
+      // Success callback
       onSuccess()
     } catch (err) {
       console.error("Password reset error:", err)
@@ -65,7 +66,7 @@ export function PasswordResetForm({ onSuccess }: PasswordResetFormProps) {
       <CardHeader className="space-y-4 text-center">
         <div className="flex justify-center">
           <img
-            src="https://suwevnhwtmcazjugfmps.supabase.co/storage/v1/object/public/assets/Akadmie%20Komprimiert.png"
+            src="/images/ozean-licht-logo.webp"
             alt="Ozean Licht Logo"
             className="h-20 w-auto"
           />
@@ -151,5 +152,3 @@ export function PasswordResetForm({ onSuccess }: PasswordResetFormProps) {
     </Card>
   )
 }
-
-

@@ -88,7 +88,7 @@ function ReliableImage({ src, alt, className }: { src: string; alt: string; clas
 }
 
 export function CourseCardModern({ course }: CourseCardModernProps) {
-  // Verwende direkte Supabase URLs
+  // Verwende direkte MinIO S3 URLs
   const imageUrl = course.thumbnail_url_desktop ||
                    course.thumbnail_url_mobile ||
                    createFallbackImage(course.title)

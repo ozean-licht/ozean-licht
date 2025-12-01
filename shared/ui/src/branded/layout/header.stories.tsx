@@ -460,7 +460,7 @@ export const DesignSystemShowcase: Story = {
             </li>
             <li className="flex gap-3">
               <span className="text-primary">+</span>
-              Automatic user detection from Supabase auth state
+              Automatic user detection from NextAuth session
             </li>
             <li className="flex gap-3">
               <span className="text-primary">+</span>
@@ -492,8 +492,7 @@ export const DesignSystemShowcase: Story = {
 export const Playground: Story = {
   args: {
     user: null,
-    logoUrl:
-      'https://suwevnhwtmcazjugfmps.supabase.co/storage/v1/object/public/assets/LogoOzeanLichtKomprimiert.png',
+    logoUrl: '/images/logo-ozean-licht.png',
     appName: 'Ozean Licht',
     navigationItems: [
       { label: 'Home', href: '/' },

@@ -36,7 +36,7 @@ const mockCourseData: UserCourseProgress = {
     slug: 'sirianische-lichtkodierungen',
     title: 'Sirianische Lichtkodierungen',
     description: 'Entdecke die heilenden Frequenzen der Sirianischen Lichtkodierungen und aktiviere dein göttliches Potential.',
-    thumbnail_url_desktop: 'https://suwevnhwtmcazjugfmps.supabase.co/storage/v1/object/public/assets/sirian-gateway-event-thumbnail.webp',
+    thumbnail_url_desktop: '/images/courses/sirian-gateway-thumbnail.webp',
     modules: [
       {
         id: 'module-1',
@@ -408,7 +408,7 @@ export default function CourseLearnPage() {
                       url={currentContent.content_url || 'https://youtu.be/Yurty-cB3mo'}
                       title={currentContent.title}
                       onTimeUpdate={(time) => {
-                        // TODO: Progress tracking in Supabase
+                        // TODO: Progress tracking via MCP Gateway
                         console.log('Video progress:', time)
                       }}
                       onEnded={() => {

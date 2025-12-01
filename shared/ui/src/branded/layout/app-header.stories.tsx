@@ -178,8 +178,7 @@ export const NoSidebarToggle: Story = {
  */
 export const CustomBranding: Story = {
   args: {
-    logoUrl:
-      'https://suwevnhwtmcazjugfmps.supabase.co/storage/v1/object/public/assets/LogoOzeanLichtKomprimiert.png',
+    logoUrl: '/images/logo-ozean-licht.png',
     appName: 'Kids Ascension Academy',
     breadcrumbs: [
       { label: 'Courses', href: '/courses' },
@@ -598,8 +597,7 @@ export const Playground: Story = {
       created_at: new Date().toISOString(),
     },
     onSignOut: () => console.log('Signed out'),
-    logoUrl:
-      'https://suwevnhwtmcazjugfmps.supabase.co/storage/v1/object/public/assets/LogoOzeanLichtKomprimiert.png',
+    logoUrl: '/images/logo-ozean-licht.png',
     appName: 'Ozean Licht Academy',
   },
 }

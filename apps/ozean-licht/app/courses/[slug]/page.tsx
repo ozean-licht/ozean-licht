@@ -3,14 +3,11 @@ import { Footer } from "@/components/footer"
 import { SpanDesign } from "@/components/span-design"
 import { PrimaryButton } from "@/components/primary-button"
 import { CtaButton } from "@/components/cta-button"
-import { getCourseFromEdge } from "@/lib/supabase"
+import { getCourseBySlug } from "@/lib/api/courses"
 import { notFound } from "next/navigation"
 import Image from "next/image"
-import { Badge } from "@/components/badge"
 import { SpanBadge } from "@/components/span-badge"
 import { CTA1 } from "@/components/cta-1"
-// Temporarily disable framer-motion to avoid export issues
-// import { motion } from "framer-motion"
 import type { Metadata } from "next"
 
 interface Course {
@@ -34,7 +31,7 @@ interface CoursePageProps {
 
 export async function generateMetadata({ params }: CoursePageProps): Promise<Metadata> {
   const { slug } = await params
-  const course = await getCourse(slug)
+  const course = await getCourseBySlug(slug)
 
   if (!course) {
     return {
@@ -68,27 +65,9 @@ export async function generateMetadata({ params }: CoursePageProps): Promise<Met
   }
 }
 
-async function getCourse(slug: string): Promise<Course | null> {
-  try {
-    console.log(`🚀 Calling Edge Function for course: ${slug}`)
-    const course = await getCourseFromEdge(slug)
-
-    if (!course) {
-      console.log(`⚠️ Course not found: ${slug}`)
-      return null
-    }
-
-    console.log(`✅ Received course from Edge Function: ${course.title}`)
-    return course
-  } catch (error) {
-    console.error('💥 Error in getCourse:', error)
-    return null
-  }
-}
-
 export default async function CoursePage({ params }: CoursePageProps) {
   const { slug } = await params
-  const course = await getCourse(slug)
+  const course = await getCourseBySlug(slug)
 
   if (!course) {
     notFound()

@@ -2,7 +2,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { SpanDesign } from "@/components/span-design"
 import { CourseListWithFilter } from "@/components/course-list-with-filter"
-import { getCoursesFromEdge, getCoursesFromAirtable } from "@/lib/supabase"
+import { getCourses } from "@/lib/api/courses"
 
 interface Course {
   slug: string
@@ -19,21 +19,26 @@ interface Course {
   updated_at: string
 }
 
-async function getCourses(): Promise<Course[]> {
+async function loadCourses(): Promise<Course[]> {
   try {
-    // Lade Kurse direkt aus Supabase (kein Airtable Fallback)
-    console.log('🚀 Loading courses from Supabase...')
-    const courses = await getCoursesFromEdge(50)
-    console.log(`✅ Loaded ${courses.length} courses from Supabase`)
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[CoursesPage] Loading courses...')
+    }
+    const courses = await getCourses(50)
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`[CoursesPage] Loaded ${courses.length} courses`)
+    }
     return courses
-  } catch (error) {
-    console.error('💥 Failed to load courses from Supabase:', error.message)
+  } catch (error: any) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('[CoursesPage] Failed to load courses:', error.message)
+    }
     return []
   }
 }
 
 export default async function CoursesPage() {
-  const courses = await getCourses()
+  const courses = await loadCourses()
 
   // Ensure we have an array
   const safeCourses = Array.isArray(courses) ? courses : []

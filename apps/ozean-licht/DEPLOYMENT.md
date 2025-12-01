@@ -34,9 +34,11 @@
    NEXT_PUBLIC_APP_URL=https://ozean-licht.dev
    FRONTEND_PORT=3000
 
-   # NextAuth (not used in demo, but required for build)
+   # NextAuth - Authentication Configuration
    NEXTAUTH_URL=https://ozean-licht.dev
-   NEXTAUTH_SECRET=demo-secret-change-for-production
+   # Generate a secure secret with: openssl rand -base64 32
+   # IMPORTANT: Never use a weak or demo secret in production!
+   NEXTAUTH_SECRET=<GENERATE_WITH_openssl_rand_-base64_32>
 
    # MCP Gateway (not used in demo)
    MCP_GATEWAY_URL=http://localhost:8100
@@ -114,7 +116,8 @@ npm start
 - [x] All pages render correctly
 - [x] OLD directory deleted (344MB cleaned)
 - [x] Mock data created (courses, testimonials, blogs)
-- [x] Auth stubbed (no Supabase dependencies)
+- [x] Auth: NextAuth with MCP Gateway PostgreSQL
+- [x] Storage: MinIO S3 (replaces Supabase Storage)
 - [x] Design preserved from OLD (100%)
 
 ### Coolify Configuration
@@ -143,8 +146,8 @@ npm start
 
 ### Build Fails in Coolify
 
-**Error:** `Cannot find module '@/lib/supabase'`
-- **Fix:** This shouldn't happen - we created mock. Check if all files committed.
+**Error:** `Cannot find module '@/lib/api/courses'`
+- **Fix:** Ensure lib/api/courses.ts exists. Check if all files committed.
 
 **Error:** `pnpm not found`
 - **Fix:** Change build command to use `npm` instead of `pnpm`
@@ -213,9 +216,9 @@ This is a **demonstration-only deployment** with the following limitations:
 To make this production-ready, implement:
 
 ### Phase 1: Backend Integration (4-6 weeks)
-1. Replace mock Supabase with real database (PostgreSQL via MCP Gateway)
-2. Implement NextAuth v5 authentication
-3. Connect course data to database
+1. Connect to PostgreSQL via MCP Gateway (infrastructure ready)
+2. NextAuth v5 authentication (implemented)
+3. Connect course data to database via MCP Gateway
 4. Set up user enrollment and progress tracking
 
 ### Phase 2: Features (6-8 weeks)

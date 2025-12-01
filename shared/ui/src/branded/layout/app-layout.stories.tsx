@@ -530,7 +530,7 @@ export const WithCustomHeaderProps: Story = {
     showSidebarToggle: true,
     headerProps: {
       appName: 'Akademie',
-      logoUrl: 'https://suwevnhwtmcazjugfmps.supabase.co/storage/v1/object/public/assets/LogoOzeanLichtKomprimiert.png',
+      logoUrl: '/images/logo-ozean-licht.png',
     },
     breadcrumbs: [
       { label: 'Akademie', href: '/' },

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createBrowserSupabaseClient } from '@/lib/supabase'
+import { useSession, signOut } from 'next-auth/react'
 import { AppLayout } from "@/components/app-layout"
 import { SpanDesign } from "@/components/span-design"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,32 +11,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   BookOpen,
   Play,
-  CheckCircle,
-  Star,
   Sparkles,
-  Heart,
-  Moon,
-  TrendingUp,
   Calendar,
   ArrowRight,
   Globe,
   Shield,
   Receipt,
-  FileText
+  FileText,
+  LogOut
 } from 'lucide-react'
 import Link from 'next/link'
-
-interface UserData {
-  id: string
-  email: string
-  created_at: string
-  user_metadata: {
-    full_name?: string
-    first_name?: string
-    last_name?: string
-    avatar_url?: string
-  }
-}
 
 interface UserStats {
   totalCourses: number
@@ -68,7 +52,7 @@ interface Order {
 }
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<UserData | null>(null)
+  const { data: session, status } = useSession()
   const [stats, setStats] = useState<UserStats | null>(null)
   const [recentCourses, setRecentCourses] = useState<Course[]>([])
   const [recentOrders, setRecentOrders] = useState<Order[]>([])
@@ -76,101 +60,62 @@ export default function DashboardPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const supabase = createBrowserSupabaseClient()
-        
-        // Get user from Supabase Auth
-        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
-        
-        if (authError || !authUser) {
-          console.error('Auth error:', authError)
-          router.push('/login')
-          return
-        }
-
-        setUser(authUser as UserData)
-
-        // Fetch user's courses
-        const { data: orders, error: ordersError } = await supabase
-          .from('orders')
-          .select(`
-            id,
-            course_id,
-            order_date,
-            courses (
-              id,
-              title,
-              subtitle,
-              slug,
-              thumbnail_url_desktop
-            )
-          `)
-          .eq('user_id', authUser.id)
-          .in('status', ['paid', 'Erfolgreich', 'partial'])
-          .not('course_id', 'is', null)
-          .order('order_date', { ascending: false })
-          .limit(3)
-
-        if (!ordersError && orders) {
-          const courses = orders
-            .filter(order => order.courses)
-            .map(order => ({
-              ...order.courses,
-              purchase_date: order.order_date,
-              last_viewed: order.order_date // TODO: Track actual view date
-            }))
-          setRecentCourses(courses as Course[])
-        }
-
-        // Fetch recent orders (last 3) for Belege section
-        const { data: allOrders, error: allOrdersError } = await supabase
-          .from('orders')
-          .select(`
-            id,
-            order_date,
-            status,
-            total_amount,
-            source,
-            ablefy_order_number,
-            courses (
-              title
-            )
-          `)
-          .eq('user_id', authUser.id)
-          .order('order_date', { ascending: false })
-          .limit(3)
-
-        if (!allOrdersError && allOrders) {
-          setRecentOrders(allOrders as Order[])
-        }
-
-        // Calculate stats
-        const { count: totalCourses } = await supabase
-          .from('orders')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', authUser.id)
-          .in('status', ['paid', 'Erfolgreich', 'partial'])
-          .not('course_id', 'is', null)
-
-        setStats({
-          totalCourses: totalCourses || 0,
-          completedCourses: 0, // TODO: Implement completion tracking
-          totalHours: 0, // TODO: Implement time tracking
-          currentStreak: 0 // TODO: Implement streak tracking
-        })
-
-      } catch (error) {
-        console.error('Error fetching user data:', error)
-      } finally {
-        setLoading(false)
-      }
+    if (status === 'unauthenticated') {
+      router.push('/login')
+      return
     }
 
-    fetchUserData()
-  }, [router])
+    if (status === 'authenticated' && session?.user) {
+      // Load user data from API
+      loadUserData()
+    }
+  }, [status, session, router])
 
-  if (loading) {
+  const loadUserData = async () => {
+    try {
+      // TODO: Fetch from MCP Gateway
+      // For now, use mock data
+      setStats({
+        totalCourses: 3,
+        completedCourses: 1,
+        totalHours: 12,
+        currentStreak: 5
+      })
+
+      setRecentCourses([
+        {
+          id: '1',
+          title: 'LCQ Basis Kurs',
+          subtitle: 'Grundlagen der Light Code Quantum Transformation',
+          slug: 'lcq-basis',
+          thumbnail_url_desktop: '/images/course-placeholder.jpg',
+          purchase_date: '2025-01-01',
+          last_viewed: '2025-01-15'
+        }
+      ])
+
+      setRecentOrders([
+        {
+          id: '1',
+          order_date: '2025-01-01',
+          status: 'paid',
+          total_amount: 497,
+          source: 'website',
+          courses: { title: 'LCQ Basis Kurs' }
+        }
+      ])
+    } catch (error) {
+      console.error('Error loading user data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/' })
+  }
+
+  if (status === 'loading' || loading) {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
@@ -183,16 +128,15 @@ export default function DashboardPage() {
     )
   }
 
-  if (!user) {
+  if (!session?.user) {
     return null
   }
 
-  // Extract name and member number
-  const firstName = user.user_metadata?.first_name || user.email.split('@')[0]
-  const lastName = user.user_metadata?.last_name || ''
-  const fullName = user.user_metadata?.full_name || `${firstName} ${lastName}`.trim()
-  const memberNumber = user.id.slice(-8).toUpperCase()
-  const joinDate = new Date(user.created_at)
+  const user = session.user
+  const firstName = user.name?.split(' ')[0] || user.email?.split('@')[0] || 'User'
+  const lastName = user.name?.split(' ').slice(1).join(' ') || ''
+  const memberNumber = user.id?.slice(-8).toUpperCase() || 'DEMO1234'
+  const joinDate = new Date()
 
   return (
     <AppLayout breadcrumbs={[{ label: 'Dashboard' }]}>
@@ -218,8 +162,8 @@ export default function DashboardPage() {
               {/* Avatar */}
               <Avatar className="w-16 h-16 border-2 border-primary/20">
                 <AvatarImage
-                  src="https://api.dicebear.com/7.x/initials/svg?seed=User&backgroundColor=1a2a3a"
-                  alt="User"
+                  src={user.image || `https://api.dicebear.com/7.x/initials/svg?seed=${firstName}&backgroundColor=1a2a3a`}
+                  alt={user.name || 'User'}
                 />
                 <AvatarFallback className="bg-primary/20 text-primary text-base">
                   {firstName.charAt(0)}{lastName.charAt(0)}
@@ -234,7 +178,7 @@ export default function DashboardPage() {
                     <span className="text-muted-foreground font-light">Mitgliedsnummer:</span>
                     <span className="font-mono font-normal text-primary">{memberNumber}</span>
                   </div>
-                  
+
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-[#0E282E] border border-primary/10 rounded-lg">
                     <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                     <span className="text-muted-foreground font-light">Mitglied seit:</span>
@@ -253,11 +197,9 @@ export default function DashboardPage() {
                     Bibliothek
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="sm" className="gap-2 font-normal">
-                  <Link href="/courses">
-                    <Sparkles className="h-4 w-4" />
-                    Portal
-                  </Link>
+                <Button variant="outline" size="sm" className="gap-2 font-normal" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4" />
+                  Abmelden
                 </Button>
               </div>
             </div>
@@ -320,7 +262,7 @@ export default function DashboardPage() {
                     </Button>
                   </div>
                 ) : (
-                  recentCourses.map((course, index) => (
+                  recentCourses.map((course) => (
                     <Link key={course.id} href={`/courses/${course.slug}/learn`}>
                       <Card className="glass-subtle glass-hover group cursor-pointer">
                         <CardContent className="p-3">
@@ -382,7 +324,7 @@ export default function DashboardPage() {
                     <span>Bibliothek</span>
                   </Link>
                 </Button>
-                
+
                 <Button asChild variant="outline" className="w-full justify-start gap-3 font-light" size="sm">
                   <Link href="/courses">
                     <Sparkles className="h-4 w-4 text-primary" />
@@ -441,17 +383,17 @@ export default function DashboardPage() {
                               </p>
                             )}
                             <p className="text-xs text-muted-foreground font-light">
-                              {new Date(order.order_date).toLocaleDateString('de-DE', { 
-                                day: '2-digit', 
-                                month: 'short', 
-                                year: 'numeric' 
+                              {new Date(order.order_date).toLocaleDateString('de-DE', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
                               })}
                             </p>
                           </div>
                           <div className="text-right">
                             <div className={`px-2 py-1 rounded text-xs font-medium ${
-                              order.status === 'paid' || order.status === 'Erfolgreich' 
-                                ? 'bg-green-500/10 text-green-500' 
+                              order.status === 'paid' || order.status === 'Erfolgreich'
+                                ? 'bg-green-500/10 text-green-500'
                                 : 'bg-yellow-500/10 text-yellow-500'
                             }`}>
                               {order.status}
@@ -471,33 +413,6 @@ export default function DashboardPage() {
             </Card>
           </div>
         </div>
-
-        {/* Recommendation Section */}
-        <Card className="glass-card glass-hover">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-primary/10 rounded-xl">
-                  <Moon className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-cinzel-decorative font-normal text-foreground mb-1">
-                    Bereit für mehr?
-                  </h3>
-                  <p className="text-sm text-muted-foreground font-light">
-                    Entdecke neue galaktische Weisheiten
-                  </p>
-                </div>
-              </div>
-              <Button size="sm" asChild className="gap-2 font-normal">
-                <Link href="/courses">
-                  <Sparkles className="h-4 w-4" />
-                  Neue Kurse entdecken
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </AppLayout>
   )
