@@ -42,7 +42,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { TaskList, ActivityLog, type TaskItem, type ActivityItem } from '@/components/projects';
+import { TaskList, ActivityLog, type TaskItem, type ActivityItem, ProjectEditModal } from '@/components/projects';
 import type { DBProject } from '@/lib/db/projects';
 import type { DBComment } from '@/lib/db/comments';
 
@@ -107,10 +107,12 @@ export default function ProjectDetailClient({
   user,
 }: ProjectDetailClientProps) {
   const router = useRouter();
+  const [projectData, setProjectData] = useState(project);
   const [taskList, setTaskList] = useState<TaskItem[]>(tasks);
   const [isUpdating, setIsUpdating] = useState(false);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   // Calculate task stats
   const totalTasks = taskList.length;
@@ -189,6 +191,36 @@ export default function ProjectDetailClient({
     router.push(`/dashboard/tools/tasks/${taskId}`);
   };
 
+  // Refresh project after edit
+  const handleEditSuccess = async () => {
+    try {
+      const response = await fetch(`/api/projects/${projectData.id}`);
+      if (response.ok) {
+        const updatedProject = await response.json();
+        setProjectData(updatedProject);
+        // Also refresh activities
+        const activitiesRes = await fetch(`/api/projects/${projectData.id}/activities?limit=20`);
+        if (activitiesRes.ok) {
+          const activitiesData = await activitiesRes.json();
+          setActivities(activitiesData.activities || []);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh project:', error);
+    }
+  };
+
+  // Transform project for modal (map DB fields to form fields)
+  const projectForModal = {
+    id: projectData.id,
+    name: projectData.title,
+    description: projectData.description,
+    status: projectData.status,
+    workflowId: (projectData as DBProject & { workflow_id?: string }).workflow_id,
+    startDate: projectData.start_date,
+    dueDate: projectData.target_date,
+  };
+
   return (
     <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       {/* Back button and breadcrumb */}
@@ -212,33 +244,37 @@ export default function ProjectDetailClient({
               <FolderKanban className="w-6 h-6 text-primary" />
             </div>
             {/* Project code badge */}
-            {(project as DBProject & { project_code?: string }).project_code && (
+            {(projectData as DBProject & { project_code?: string }).project_code && (
               <Badge variant="outline" className="border-primary/50 text-primary font-mono text-xs">
-                {(project as DBProject & { project_code?: string }).project_code}
+                {(projectData as DBProject & { project_code?: string }).project_code}
               </Badge>
             )}
-            <Badge className={`border ${statusColors[project.status] || statusColors.planning}`}>
-              {project.status.replace('_', ' ')}
+            <Badge className={`border ${statusColors[projectData.status] || statusColors.planning}`}>
+              {projectData.status.replace('_', ' ')}
             </Badge>
-            {project.interval_type && (
+            {projectData.interval_type && (
               <Badge variant="outline" className="border-primary/30 text-primary">
-                {project.interval_type}
+                {projectData.interval_type}
               </Badge>
             )}
           </div>
           <h1 className="text-3xl font-decorative text-white mb-2">
-            {project.title}
+            {projectData.title}
           </h1>
-          {project.description && (
+          {projectData.description && (
             <p className="text-[#C4C8D4] max-w-2xl">
-              {project.description}
+              {projectData.description}
             </p>
           )}
         </div>
 
         {/* Quick actions */}
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="border-primary/30 text-primary">
+          <Button
+            variant="outline"
+            className="border-primary/30 text-primary"
+            onClick={() => setEditModalOpen(true)}
+          >
             <Edit className="w-4 h-4 mr-2" />
             Edit
           </Button>
@@ -271,10 +307,10 @@ export default function ProjectDetailClient({
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-[#C4C8D4]">Progress</span>
               <span className="text-lg font-medium text-white">
-                {Math.round(project.progress_percent || 0)}%
+                {Math.round(projectData.progress_percent || 0)}%
               </span>
             </div>
-            <Progress value={project.progress_percent || 0} className="h-2" />
+            <Progress value={projectData.progress_percent || 0} className="h-2" />
           </CardContent>
         </Card>
 
@@ -305,7 +341,7 @@ export default function ProjectDetailClient({
               <div>
                 <p className="text-sm text-[#C4C8D4]">Start Date</p>
                 <p className="text-lg font-medium text-white">
-                  {formatDate(project.start_date)}
+                  {formatDate(projectData.start_date)}
                 </p>
               </div>
             </div>
@@ -322,7 +358,7 @@ export default function ProjectDetailClient({
               <div>
                 <p className="text-sm text-[#C4C8D4]">Target Date</p>
                 <p className="text-lg font-medium text-white">
-                  {formatDate(project.target_date)}
+                  {formatDate(projectData.target_date)}
                 </p>
               </div>
             </div>
@@ -348,7 +384,7 @@ export default function ProjectDetailClient({
               <Button
                 size="sm"
                 className="bg-primary text-white hover:bg-primary/90"
-                onClick={() => router.push(`/dashboard/tools/tasks/new?projectId=${project.id}`)}
+                onClick={() => router.push(`/dashboard/tools/tasks/new?projectId=${projectData.id}`)}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Task
@@ -382,6 +418,7 @@ export default function ProjectDetailClient({
                 isLoading={activitiesLoading}
                 showTaskRef={true}
                 emptyMessage="No activity recorded yet"
+                title=""
               />
             </CardContent>
           </Card>
@@ -392,13 +429,13 @@ export default function ProjectDetailClient({
               <CardTitle className="text-lg text-white">Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {project.project_type && (
+              {projectData.project_type && (
                 <div>
                   <p className="text-xs text-[#C4C8D4] uppercase mb-1">Type</p>
-                  <p className="text-sm text-white">{project.project_type}</p>
+                  <p className="text-sm text-white">{projectData.project_type}</p>
                 </div>
               )}
-              {project.used_template && (
+              {projectData.used_template && (
                 <div>
                   <p className="text-xs text-[#C4C8D4] uppercase mb-1">Template</p>
                   <Badge variant="outline" className="border-primary/30 text-primary">
@@ -408,11 +445,11 @@ export default function ProjectDetailClient({
               )}
               <div>
                 <p className="text-xs text-[#C4C8D4] uppercase mb-1">Created</p>
-                <p className="text-sm text-white">{formatDate(project.created_at)}</p>
+                <p className="text-sm text-white">{formatDate(projectData.created_at)}</p>
               </div>
               <div>
                 <p className="text-xs text-[#C4C8D4] uppercase mb-1">Last Updated</p>
-                <p className="text-sm text-white">{formatDate(project.updated_at)}</p>
+                <p className="text-sm text-white">{formatDate(projectData.updated_at)}</p>
               </div>
             </CardContent>
           </Card>
@@ -464,6 +501,14 @@ export default function ProjectDetailClient({
           </Card>
         </div>
       </div>
+
+      {/* Edit Project Modal */}
+      <ProjectEditModal
+        project={projectForModal}
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        onSuccess={handleEditSuccess}
+      />
     </div>
   );
 }

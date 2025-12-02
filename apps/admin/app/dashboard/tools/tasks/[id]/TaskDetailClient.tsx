@@ -54,10 +54,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { PriorityDot, derivePriority, ActivityLog, type ActivityItem } from '@/components/projects';
+import { PriorityDot, derivePriority, ActivityLog, type ActivityItem, TaskEditModal } from '@/components/projects';
 import type { DBTask } from '@/lib/db/tasks';
 import type { DBComment } from '@/lib/db/comments';
 import { cn } from '@/lib/utils';
+import { User } from 'lucide-react';
 
 interface TaskDetailClientProps {
   task: DBTask;
@@ -145,6 +146,7 @@ export default function TaskDetailClient({
   const [isSaving, setIsSaving] = useState(false);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const priority = derivePriority(task.target_date, task.is_done, task.status);
   const taskOverdue = isOverdue(task.target_date, task.is_done);
@@ -223,6 +225,37 @@ export default function TaskDetailClient({
   const handleStatusChange = (newStatus: string) => {
     const isDone = ['done', 'completed'].includes(newStatus);
     updateTask({ status: newStatus as DBTask['status'], is_done: isDone });
+  };
+
+  // Refresh task after edit
+  const handleEditSuccess = async () => {
+    try {
+      const response = await fetch(`/api/tasks/${task.id}`);
+      if (response.ok) {
+        const updatedTask = await response.json();
+        setTask(updatedTask);
+        setEditedDescription(updatedTask.description || '');
+        // Also refresh activities
+        const activitiesRes = await fetch(`/api/tasks/${task.id}/activities?limit=20`);
+        if (activitiesRes.ok) {
+          const activitiesData = await activitiesRes.json();
+          setActivities(activitiesData.activities || []);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh task:', error);
+    }
+  };
+
+  // Transform task for modal (map DB fields to form fields)
+  const taskForModal = {
+    id: task.id,
+    title: task.name,
+    description: task.description,
+    status: task.status,
+    priority: 'medium', // Priority not stored in DB, default to medium
+    assigneeId: task.assignee_ids?.[0] || null, // Use first assignee from array
+    dueDate: task.target_date,
   };
 
   return (
@@ -334,7 +367,10 @@ export default function TaskDetailClient({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-card border-primary/20">
-              <DropdownMenuItem className="text-[#C4C8D4] focus:text-white">
+              <DropdownMenuItem
+                className="text-[#C4C8D4] focus:text-white cursor-pointer"
+                onClick={() => setEditModalOpen(true)}
+              >
                 <Edit className="w-4 h-4 mr-2" />
                 Edit Task
               </DropdownMenuItem>
@@ -422,6 +458,7 @@ export default function TaskDetailClient({
                 initialCount={5}
                 isLoading={activitiesLoading}
                 emptyMessage="No activity recorded yet"
+                title=""
               />
             </CardContent>
           </Card>
@@ -519,6 +556,40 @@ export default function TaskDetailClient({
             </CardContent>
           </Card>
 
+          {/* Assigned To */}
+          <Card className="bg-card/70 border-primary/20">
+            <CardHeader>
+              <CardTitle className="text-lg text-white">Assigned To</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  'w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium',
+                  task.assignee_ids?.length ? 'bg-primary/20 text-primary' : 'bg-[#00111A] text-[#C4C8D4]'
+                )}>
+                  {task.assignee_ids?.length ? (
+                    task.assignee_ids.length > 1 ? (
+                      <span className="text-xs">{task.assignee_ids.length}</span>
+                    ) : (
+                      <User className="w-4 h-4" />
+                    )
+                  ) : (
+                    <User className="w-4 h-4" />
+                  )}
+                </div>
+                <div>
+                  {task.assignee_ids?.length ? (
+                    <p className="text-sm text-white">
+                      {task.assignee_ids.length === 1 ? '1 assignee' : `${task.assignee_ids.length} assignees`}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-[#C4C8D4] italic">Unassigned</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Dates */}
           <Card className="bg-card/70 border-primary/20">
             <CardHeader>
@@ -582,6 +653,14 @@ export default function TaskDetailClient({
           </Card>
         </div>
       </div>
+
+      {/* Edit Task Modal */}
+      <TaskEditModal
+        task={taskForModal}
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        onSuccess={handleEditSuccess}
+      />
     </div>
   );
 }

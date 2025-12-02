@@ -62,3 +62,7 @@ export { default as PublishScheduler } from './PublishScheduler';
 // Phase 5 Polish Components
 export { default as ActivityLog } from './ActivityLog';
 export type { ActivityItem } from './ActivityLog';
+
+// Phase 7 Edit Modals
+export { default as TaskEditModal } from './TaskEditModal';
+export { default as ProjectEditModal } from './ProjectEditModal';

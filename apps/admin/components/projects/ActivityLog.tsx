@@ -312,10 +312,12 @@ export default function ActivityLog({
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-medium text-white">{title}</h3>
-        </div>
+        {title && (
+          <div className="flex items-center gap-2">
+            <Activity className="w-4 h-4 text-primary" />
+            <h3 className="text-sm font-medium text-white">{title}</h3>
+          </div>
+        )}
         <ActivitySkeleton />
       </div>
     );
@@ -324,10 +326,12 @@ export default function ActivityLog({
   if (activities.length === 0) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-medium text-white">{title}</h3>
-        </div>
+        {title && (
+          <div className="flex items-center gap-2">
+            <Activity className="w-4 h-4 text-primary" />
+            <h3 className="text-sm font-medium text-white">{title}</h3>
+          </div>
+        )}
         <div className="text-center py-6">
           <Activity className="w-10 h-10 text-primary/20 mx-auto mb-2" />
           <p className="text-sm text-[#C4C8D4]/60">{emptyMessage}</p>
@@ -338,16 +342,18 @@ export default function ActivityLog({
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-medium text-white">{title}</h3>
-          <Badge variant="secondary" className="text-xs">
-            {activities.length}
-          </Badge>
+      {/* Header - only show if title is provided */}
+      {title && (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Activity className="w-4 h-4 text-primary" />
+            <h3 className="text-sm font-medium text-white">{title}</h3>
+            <Badge variant="secondary" className="text-xs">
+              {activities.length}
+            </Badge>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Activity list */}
       <div className="space-y-0">

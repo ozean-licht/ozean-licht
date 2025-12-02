@@ -88,6 +88,7 @@ export async function PATCH(
       'target_date',
       'project_type',
       'interval_type',
+      'workflow_id',
     ];
     const updates: Record<string, unknown> = {};
 
