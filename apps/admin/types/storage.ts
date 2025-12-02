@@ -67,6 +67,7 @@ export interface FileInfo {
   etag: string;
   contentType?: string;
   presignedUrl?: string;
+  isFolder?: boolean;
 }
 
 /**

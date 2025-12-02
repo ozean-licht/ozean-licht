@@ -70,7 +70,7 @@ export function StoragePageHeader({
             <Cloud className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-2xl font-decorative text-gray-900 dark:text-white drop-shadow-[0_0_12px_rgba(59,130,246,0.4)]">
               Ozean Cloud
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">

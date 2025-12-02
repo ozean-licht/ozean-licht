@@ -22,15 +22,9 @@ export interface BucketInfo {
  */
 export const BUCKETS: BucketInfo[] = [
   {
-    name: 'ozean-licht-assets',
-    displayName: 'Ozean Licht Assets',
-    description: 'Assets for Ozean Licht Akademie',
-    entityScope: 'ozean_licht',
-  },
-  {
-    name: 'shared-assets',
-    displayName: 'Shared Assets',
-    description: 'Shared files across platforms',
+    name: 'ol-cloud',
+    displayName: 'Ozean Cloud',
+    description: 'Cloud storage for all Ozean Licht content',
     entityScope: 'shared',
   },
 ];
@@ -38,4 +32,4 @@ export const BUCKETS: BucketInfo[] = [
 /**
  * Default bucket name
  */
-export const DEFAULT_BUCKET = 'ozean-licht-assets';
+export const DEFAULT_BUCKET = 'ol-cloud';

@@ -1,8 +1,8 @@
 /**
- * Direct MinIO/S3 Client
+ * S3-Compatible Storage Client
  *
- * Uses AWS S3 SDK to connect directly to MinIO server,
- * bypassing the MCP Gateway for better performance and reliability.
+ * Uses AWS S3 SDK to connect to Hetzner Object Storage (S3-compatible).
+ * Supports direct file operations bypassing MCP Gateway for performance.
  */
 
 import {
@@ -11,6 +11,7 @@ import {
   GetObjectCommand,
   DeleteObjectCommand,
   ListObjectsV2Command,
+  ListBucketsCommand,
   HeadObjectCommand,
   HeadBucketCommand,
   CreateBucketCommand,
@@ -226,31 +227,52 @@ export class S3StorageClient {
 
   /**
    * List files in a bucket with optional prefix filtering
+   * Uses Delimiter to show folder hierarchy instead of flat listing
    */
   async listFiles(params: ListFilesInput): Promise<ListFilesResult> {
-    const { bucket, prefix = '', limit = 100, marker } = params;
+    const { bucket, prefix = '', limit = 1000, marker } = params;
+
+    // Ensure prefix ends with / if it's a folder path (but not for root)
+    const normalizedPrefix = prefix && !prefix.endsWith('/') ? prefix + '/' : prefix;
 
     const command = new ListObjectsV2Command({
       Bucket: bucket,
-      Prefix: prefix,
+      Prefix: normalizedPrefix,
       MaxKeys: limit,
       ContinuationToken: marker || undefined,
+      Delimiter: '/', // This enables folder-style listing
     });
 
     const response = await this.client.send(command);
 
-    const files: FileInfo[] = (response.Contents || []).map((obj) => ({
-      key: obj.Key || '',
-      size: obj.Size || 0,
-      lastModified: obj.LastModified || new Date(),
-      etag: obj.ETag?.replace(/"/g, '') || '',
+    // Convert CommonPrefixes (folders) to FileInfo objects
+    const folders: FileInfo[] = (response.CommonPrefixes || []).map((prefix) => ({
+      key: prefix.Prefix || '',
+      size: 0,
+      lastModified: new Date(),
+      etag: '',
+      isFolder: true,
     }));
 
+    // Convert Contents (files) to FileInfo objects
+    const files: FileInfo[] = (response.Contents || [])
+      .filter((obj) => obj.Key !== normalizedPrefix) // Exclude the folder marker itself
+      .map((obj) => ({
+        key: obj.Key || '',
+        size: obj.Size || 0,
+        lastModified: obj.LastModified || new Date(),
+        etag: obj.ETag?.replace(/"/g, '') || '',
+        isFolder: false,
+      }));
+
+    // Combine folders first, then files
+    const allItems = [...folders, ...files];
+
     return {
-      files,
+      files: allItems,
       nextMarker: response.NextContinuationToken || null,
       truncated: response.IsTruncated || false,
-      count: files.length,
+      count: allItems.length,
     };
   }
 
@@ -324,51 +346,28 @@ export class S3StorageClient {
   }
 
   /**
-   * Check MinIO service health
+   * Check storage service health
    */
   async checkHealth(): Promise<StorageHealthStatus> {
     const startTime = Date.now();
 
     try {
-      // Test connection by listing buckets (HeadBucket on a known bucket)
-      // We'll try to head any bucket to verify connectivity
-      const command = new ListObjectsV2Command({
-        Bucket: 'shared-assets', // Use a known bucket
-        MaxKeys: 1,
-      });
-
+      // Test connection by listing buckets (doesn't require specific bucket)
+      const command = new ListBucketsCommand({});
       await this.client.send(command);
       const latency = Date.now() - startTime;
 
       return {
         healthy: true,
-        service: 'minio-direct',
+        service: 'hetzner-object-storage',
         latency,
         timestamp: new Date().toISOString(),
       };
     } catch (error: unknown) {
-      // Even if bucket doesn't exist, connection might be fine
-      // Check if it's a bucket error vs connection error
       if (error instanceof Error) {
-        const isConnectionError =
-          error.message.includes('ECONNREFUSED') ||
-          error.message.includes('ENOTFOUND') ||
-          error.message.includes('NetworkingError');
-
-        if (!isConnectionError) {
-          // Bucket doesn't exist but connection is fine
-          const latency = Date.now() - startTime;
-          return {
-            healthy: true,
-            service: 'minio-direct',
-            latency,
-            timestamp: new Date().toISOString(),
-          };
-        }
-
         return {
           healthy: false,
-          service: 'minio-direct',
+          service: 'hetzner-object-storage',
           error: error.message,
           timestamp: new Date().toISOString(),
         };
@@ -376,7 +375,7 @@ export class S3StorageClient {
 
       return {
         healthy: false,
-        service: 'minio-direct',
+        service: 'hetzner-object-storage',
         error: 'Unknown error',
         timestamp: new Date().toISOString(),
       };
@@ -423,8 +422,8 @@ export class S3StorageClient {
    * Validate file key format
    */
   private isValidFileKey(fileKey: string): boolean {
-    // Allow alphanumeric, hyphens, underscores, slashes, and dots
-    const regex = /^[a-zA-Z0-9\-_/.]+$/;
+    // Allow alphanumeric, hyphens, underscores, slashes, dots, spaces, and common characters
+    const regex = /^[a-zA-Z0-9\-_/. ()äöüÄÖÜß@&+:]+$/;
     return regex.test(fileKey);
   }
 }

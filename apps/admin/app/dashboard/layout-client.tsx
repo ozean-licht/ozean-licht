@@ -196,7 +196,7 @@ export default function DashboardLayoutClient({
         <div className="relative z-10 flex h-screen overflow-hidden">
           {/* Sidebar - Desktop */}
           <div className={cn(
-            "hidden md:flex fixed left-0 top-0 bottom-0 bg-[#0A1A1A]/80 backdrop-blur-md border-r border-[#0E282E] flex-col transition-all duration-300 z-40",
+            "hidden md:flex fixed left-0 top-0 bottom-0 bg-[#00111A] backdrop-blur-md border-r border-[#0E282E] flex-col transition-all duration-300 z-40",
             isSidebarOpen ? "w-64" : "w-16"
           )}>
             {/* Logo */}
@@ -328,7 +328,7 @@ export default function DashboardLayoutClient({
           {/* Mobile Sidebar Overlay */}
           {isMobileMenuOpen && (
             <div className="md:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setIsMobileMenuOpen(false)}>
-              <div className="fixed left-0 top-0 bottom-0 w-64 bg-[#0A1A1A]/95 backdrop-blur-md border-r border-[#0E282E] flex flex-col" onClick={(e) => e.stopPropagation()}>
+              <div className="fixed left-0 top-0 bottom-0 w-64 bg-[#00111A] backdrop-blur-md border-r border-[#0E282E] flex flex-col" onClick={(e) => e.stopPropagation()}>
                 {/* Mobile Header */}
                 <div className="p-4 border-b border-[#0E282E] flex items-center justify-between">
                   <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
@@ -395,7 +395,7 @@ export default function DashboardLayoutClient({
             isSidebarOpen ? "md:ml-64" : "md:ml-16"
           )}>
             {/* Header */}
-            <header className="bg-[#0A1A1A]/80 backdrop-blur-md border-b border-[#0E282E] px-4 py-3 flex items-center justify-between z-30">
+            <header className="bg-[#00111A] backdrop-blur-md border-b border-[#0E282E] px-4 py-3 flex items-center justify-between z-30">
               <div className="flex items-center gap-4">
                 <Button
                   variant="ghost"

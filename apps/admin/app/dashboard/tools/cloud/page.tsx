@@ -108,7 +108,7 @@ function getFileTypeInfo(mimeType: string): { color: string; bgColor: string } {
   } else if (mimeType === 'application/x-directory') {
     return { color: 'text-blue-600', bgColor: 'bg-blue-100 dark:bg-blue-900/30' };
   }
-  return { color: 'text-gray-600', bgColor: 'bg-gray-100 dark:bg-gray-800' };
+  return { color: 'text-white/60', bgColor: 'bg-white/10 dark:bg-[#0E282E]' };
 }
 
 /**
@@ -128,7 +128,7 @@ export default function OzeanCloudPage() {
   const [files, setFiles] = useState<StorageFileUI[]>([]);
   const [buckets] = useState<BucketInfo[]>(BUCKETS);
   const [currentBucket, setCurrentBucket] = useState(DEFAULT_BUCKET);
-  const [currentPath, setCurrentPath] = useState('');
+  const [currentPath, setCurrentPath] = useState('gdrive-backup');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
@@ -149,6 +149,13 @@ export default function OzeanCloudPage() {
   const [fileToDelete, setFileToDelete] = useState<StorageFileUI | null>(null);
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    file: StorageFileUI;
+  } | null>(null);
 
   // Operation loading states
   const [isDeleting, setIsDeleting] = useState(false);
@@ -231,7 +238,7 @@ export default function OzeanCloudPage() {
   // Handle bucket change
   const handleBucketChange = (bucket: string) => {
     setCurrentBucket(bucket);
-    setCurrentPath('');
+    setCurrentPath('gdrive-backup');
     clearSelection();
     setFocusedFileIndex(-1);
   };
@@ -252,15 +259,38 @@ export default function OzeanCloudPage() {
     setFocusedFileIndex(-1);
   };
 
-  // Build breadcrumb items
+  // Handle context menu
+  const handleContextMenu = (e: React.MouseEvent, file: StorageFileUI) => {
+    e.preventDefault();
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      file,
+    });
+  };
+
+  // Close context menu when clicking elsewhere
+  useEffect(() => {
+    if (!contextMenu) return;
+
+    const handleClick = () => setContextMenu(null);
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [contextMenu]);
+
+  // Build breadcrumb items (gdrive-backup is the root, hidden from breadcrumbs)
   const breadcrumbItems = React.useMemo(() => {
-    const items = [{ label: 'Home', path: '' }];
-    if (currentPath) {
-      const segments = currentPath.split('/').filter(Boolean);
-      segments.forEach((segment, index) => {
-        const path = segments.slice(0, index + 1).join('/');
-        items.push({ label: segment, path });
-      });
+    const items = [{ label: 'Home', path: 'gdrive-backup' }];
+    if (currentPath && currentPath !== 'gdrive-backup') {
+      // Remove gdrive-backup prefix from path for display
+      const displayPath = currentPath.replace(/^gdrive-backup\/?/, '');
+      if (displayPath) {
+        const segments = displayPath.split('/').filter(Boolean);
+        segments.forEach((segment, index) => {
+          const path = 'gdrive-backup/' + segments.slice(0, index + 1).join('/');
+          items.push({ label: segment, path });
+        });
+      }
     }
     return items;
   }, [currentPath]);
@@ -715,11 +745,11 @@ export default function OzeanCloudPage() {
       {/* Drop Zone Overlay */}
       {isDragging && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="p-8 rounded-xl bg-white dark:bg-gray-800 shadow-2xl border-2 border-dashed border-primary">
+          <div className="p-8 rounded-xl bg-white dark:bg-[#00111A] shadow-2xl border-2 border-dashed border-primary">
             <div className="text-center">
               <Upload className="h-12 w-12 text-primary mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Drop files to upload</h3>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-white/50">
                 Files will be uploaded to {currentPath || 'root'}
               </p>
             </div>
@@ -733,14 +763,14 @@ export default function OzeanCloudPage() {
           {uploads.map((upload) => (
             <div
               key={upload.id}
-              className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50"
+              className="flex items-center gap-3 p-3 rounded-lg bg-white/5 dark:bg-[#0E282E]/50"
             >
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{upload.filename}</p>
                 {upload.error && (
-                  <p className="text-xs text-red-600 truncate mt-0.5">{upload.error}</p>
+                  <p className="text-xs text-red-400 truncate mt-0.5">{upload.error}</p>
                 )}
-                <div className="h-1.5 mt-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-1.5 mt-1 bg-[#0E282E] rounded-full overflow-hidden">
                   <div
                     className={cn(
                       'h-full rounded-full transition-all duration-300',
@@ -754,10 +784,10 @@ export default function OzeanCloudPage() {
                 <span
                   className={cn(
                     'text-xs font-medium',
-                    upload.status === 'completed' && 'text-green-600',
-                    upload.status === 'error' && 'text-red-600',
+                    upload.status === 'completed' && 'text-green-400',
+                    upload.status === 'error' && 'text-red-400',
                     upload.status === 'uploading' && 'text-primary',
-                    (upload.status === 'pending' || upload.status === 'queued') && 'text-gray-500'
+                    (upload.status === 'pending' || upload.status === 'queued') && 'text-white/50'
                   )}
                 >
                   {upload.status === 'completed' && 'Done'}
@@ -770,11 +800,18 @@ export default function OzeanCloudPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleRetryUpload(upload.id)}
-                    className="h-6 px-2 text-xs"
+                    className="h-6 px-2 text-xs text-primary hover:text-primary/80"
                   >
                     Retry
                   </Button>
                 )}
+                <button
+                  onClick={() => setUploads((prev) => prev.filter((u) => u.id !== upload.id))}
+                  className="p-1 text-white/40 hover:text-white/70 transition-colors"
+                  aria-label="Dismiss"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </div>
             </div>
           ))}
@@ -785,15 +822,15 @@ export default function OzeanCloudPage() {
       {isLoading && files.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="mt-4 text-sm text-gray-500">Loading files...</p>
+          <p className="mt-4 text-sm text-white/50">Loading files...</p>
         </div>
       ) : filteredFiles.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <FolderOpen className="h-12 w-12 text-gray-400 mb-4" />
+          <FolderOpen className="h-12 w-12 text-white/40 mb-4" />
           <h3 className="text-lg font-semibold mb-2">
             {searchQuery ? 'No files found' : 'This folder is empty'}
           </h3>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-white/50 mb-4">
             {searchQuery
               ? 'Try adjusting your search query'
               : 'Upload files or create a new folder to get started'}
@@ -812,7 +849,7 @@ export default function OzeanCloudPage() {
         /* List View */
         <div className="border rounded-lg overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-800/50">
+            <thead className="bg-gray-50 dark:bg-[#00111A]">
               <tr>
                 <th className="w-12 p-3">
                   <Checkbox
@@ -829,11 +866,11 @@ export default function OzeanCloudPage() {
                     }}
                   />
                 </th>
-                <th className="text-left p-3 text-sm font-medium text-gray-500">Name</th>
-                <th className="text-left p-3 text-sm font-medium text-gray-500 hidden md:table-cell">
+                <th className="text-left p-3 text-sm font-medium text-white/60">Name</th>
+                <th className="text-left p-3 text-sm font-medium text-white/60 hidden md:table-cell">
                   Size
                 </th>
-                <th className="text-left p-3 text-sm font-medium text-gray-500 hidden lg:table-cell">
+                <th className="text-left p-3 text-sm font-medium text-white/60 hidden lg:table-cell">
                   Modified
                 </th>
                 <th className="w-32 p-3"></th>
@@ -847,10 +884,11 @@ export default function OzeanCloudPage() {
                   <tr
                     key={file.id}
                     className={cn(
-                      'border-t hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors',
+                      'group border-t border-[#0E282E]/30 hover:bg-[#0E282E]/30 transition-colors',
                       selectedFiles.has(file.id) && 'bg-primary/5',
                       isFocused && 'ring-2 ring-primary ring-inset'
                     )}
+                    onContextMenu={(e) => handleContextMenu(e, file)}
                   >
                     <td className="p-3">
                       {!file.isFolder && (
@@ -866,23 +904,23 @@ export default function OzeanCloudPage() {
                         onDoubleClick={() => !file.isFolder && handleDownload(file)}
                         className={cn(
                           'flex items-center gap-3 text-left',
-                          file.isFolder && 'cursor-pointer hover:underline'
+                          file.isFolder && 'cursor-pointer'
                         )}
                       >
-                        <div className={cn('p-2 rounded', typeInfo.bgColor)}>
-                          {file.isFolder ? (
-                            <FolderOpen className={cn('h-5 w-5', typeInfo.color)} />
-                          ) : (
+                        {file.isFolder ? (
+                          <FolderOpen className="h-5 w-5 text-primary" />
+                        ) : (
+                          <div className={cn('p-2 rounded', typeInfo.bgColor)}>
                             <span className={cn('h-5 w-5 block', typeInfo.color)}>📄</span>
-                          )}
-                        </div>
+                          </div>
+                        )}
                         <span className="truncate max-w-xs">{file.name}</span>
                       </button>
                     </td>
-                    <td className="p-3 text-sm text-gray-500 hidden md:table-cell">
+                    <td className="p-3 text-sm text-white/50 hidden md:table-cell">
                       {file.isFolder ? '—' : formatBytes(file.size)}
                     </td>
-                    <td className="p-3 text-sm text-gray-500 hidden lg:table-cell">
+                    <td className="p-3 text-sm text-white/50 hidden lg:table-cell">
                       {formatDate(new Date(file.uploadedAt))}
                     </td>
                     <td className="p-3">
@@ -892,7 +930,7 @@ export default function OzeanCloudPage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDownload(file)}
-                            className="h-8 w-8"
+                            className="h-8 w-8 text-white/50 hover:text-white/80"
                           >
                             <Download className="h-4 w-4" />
                           </Button>
@@ -901,7 +939,7 @@ export default function OzeanCloudPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDeleteClick(file)}
-                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -963,7 +1001,7 @@ export default function OzeanCloudPage() {
 
                 {/* File Size */}
                 {!file.isFolder && (
-                  <p className="text-xs text-gray-500 text-center mt-1">
+                  <p className="text-xs text-white/50 text-center mt-1">
                     {formatBytes(file.size)}
                   </p>
                 )}
@@ -978,7 +1016,7 @@ export default function OzeanCloudPage() {
                         e.stopPropagation();
                         handleDownload(file);
                       }}
-                      className="h-7 w-7 bg-white/80 dark:bg-gray-800/80"
+                      className="h-7 w-7 bg-[#00111A]/80"
                     >
                       <Download className="h-3 w-3" />
                     </Button>
@@ -990,7 +1028,7 @@ export default function OzeanCloudPage() {
                       e.stopPropagation();
                       handleDeleteClick(file);
                     }}
-                    className="h-7 w-7 bg-white/80 dark:bg-gray-800/80 text-red-600"
+                    className="h-7 w-7 bg-[#00111A]/80 text-red-500"
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
@@ -1072,6 +1110,49 @@ export default function OzeanCloudPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <div
+          className="fixed z-50 min-w-[160px] bg-[#00111A] border border-[#0E282E] rounded-lg shadow-xl py-1"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+        >
+          {contextMenu.file.isFolder ? (
+            <button
+              onClick={() => {
+                handleFolderClick(contextMenu.file);
+                setContextMenu(null);
+              }}
+              className="w-full px-4 py-2 text-left text-sm text-white/80 hover:bg-[#0E282E] hover:text-primary flex items-center gap-2 transition-colors"
+            >
+              <FolderOpen className="h-4 w-4" />
+              Open Folder
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                handleDownload(contextMenu.file);
+                setContextMenu(null);
+              }}
+              className="w-full px-4 py-2 text-left text-sm text-white/80 hover:bg-[#0E282E] hover:text-primary flex items-center gap-2 transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              Download
+            </button>
+          )}
+          <div className="border-t border-[#0E282E] my-1" />
+          <button
+            onClick={() => {
+              handleDeleteClick(contextMenu.file);
+              setContextMenu(null);
+            }}
+            className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-900/20 hover:text-red-300 flex items-center gap-2 transition-colors"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 }

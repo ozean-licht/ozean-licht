@@ -106,24 +106,25 @@ export async function getStorageFiles(
   const result = await client.listFiles({
     bucket,
     prefix: prefix || '',
-    limit: limit || 100,
+    limit: limit || 1000,
   });
 
   // Transform to UI-friendly format
-  const files: StorageFileUI[] = result.files.map((file: { key: string; size: number; lastModified: Date; etag: string }) => {
-    // Extract filename from key
-    const pathParts = file.key.split('/');
-    const name = pathParts[pathParts.length - 1] || file.key;
+  const files: StorageFileUI[] = result.files.map((file: { key: string; size: number; lastModified: Date; etag: string; isFolder?: boolean }) => {
+    // Extract filename from key (handle folder paths ending with /)
+    const cleanKey = file.key.replace(/\/$/, '');
+    const pathParts = cleanKey.split('/');
+    const name = pathParts[pathParts.length - 1] || cleanKey;
 
-    // Detect if it's a folder (ends with / or has no extension and size is 0)
-    const isFolder = file.key.endsWith('/') || (file.size === 0 && !name.includes('.'));
+    // Use isFolder from API response, or detect from key pattern
+    const isFolder = file.isFolder ?? (file.key.endsWith('/') || (file.size === 0 && !name.includes('.')));
 
     // Guess MIME type from extension
-    const mimeType = getMimeType(name);
+    const mimeType = isFolder ? 'application/x-directory' : getMimeType(name);
 
     return {
       id: file.key, // Use key as ID
-      name: isFolder ? name.replace(/\/$/, '') : name,
+      name,
       path: file.key,
       size: file.size,
       mimeType,
