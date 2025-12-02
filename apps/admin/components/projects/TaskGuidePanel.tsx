@@ -141,7 +141,7 @@ function renderMarkdownSafe(content: string): React.ReactNode {
     }
 
     // List items
-    if (line.match(/^[\-\*] /)) {
+    if (line.match(/^[-*] /)) {
       currentList.push(line.substring(2));
       continue;
     }

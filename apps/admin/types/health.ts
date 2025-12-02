@@ -37,16 +37,17 @@ export interface DatabaseMetrics {
 
 /**
  * Container for all PostgreSQL database health data
+ * Note: shared_users_db has been consolidated into ozean-licht-db
  */
 export interface PostgresHealthData {
   /** Overall status (up only if all databases are up) */
   overallStatus: ServiceStatus;
   /** Health metrics for Kids Ascension database */
   kidsAscension: DatabaseMetrics;
-  /** Health metrics for Ozean Licht database */
+  /** Health metrics for Ozean Licht database (includes auth/users) */
   ozeanLicht: DatabaseMetrics;
-  /** Health metrics for shared users database */
-  sharedUsers: DatabaseMetrics;
+  /** @deprecated Consolidated into ozean-licht-db - kept for backwards compatibility */
+  sharedUsers?: DatabaseMetrics;
 }
 
 /**

@@ -19,7 +19,7 @@ async function seedTestAdmin() {
   try {
     const client = new MCPGatewayClientWithQueries({
       baseUrl: process.env.MCP_GATEWAY_URL || 'http://localhost:8100',
-      database: (process.env.DATABASE_NAME || 'shared-users-db') as 'shared-users-db'
+      database: (process.env.DATABASE_NAME || 'ozean-licht-db') as 'ozean-licht-db'
     })
 
     // Check if user already exists

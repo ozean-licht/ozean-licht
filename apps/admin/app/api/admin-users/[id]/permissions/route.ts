@@ -41,7 +41,7 @@ export async function PATCH(
     }
 
     // Fetch current user and target user
-    const client = new MCPGatewayClientWithQueries({ database: 'shared-users-db' });
+    const client = new MCPGatewayClientWithQueries({ database: 'ozean-licht-db' });
     const currentAdminUser = await client.getAdminUserByUserId(session.user.id);
     const targetAdminUser = await client.getAdminUserById(params.id);
 

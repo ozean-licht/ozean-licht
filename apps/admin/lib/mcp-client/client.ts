@@ -52,9 +52,9 @@ export const DEFAULT_CONFIG: Omit<ResolvedMCPClientConfig, 'database'> = {
 
 /**
  * Valid database names
+ * Note: shared-users-db has been consolidated into ozean-licht-db
  */
 const VALID_DATABASES: MCPDatabase[] = [
-  'shared-users-db',
   'kids-ascension-db',
   'ozean-licht-db',
 ];

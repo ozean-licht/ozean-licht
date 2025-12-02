@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check permission via MCP Gateway
-    const client = new MCPGatewayClientWithQueries({ database: 'shared-users-db' });
+    const client = new MCPGatewayClientWithQueries({ database: 'ozean-licht-db' });
     const hasPermission = await client.checkPermission(adminUserId, permissionKey);
 
     // Get user details to determine source

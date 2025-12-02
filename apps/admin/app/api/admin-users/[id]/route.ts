@@ -12,7 +12,7 @@ import { z } from 'zod';
 
 const mcpClient = new MCPGatewayClientWithQueries({
   baseUrl: process.env.MCP_GATEWAY_URL || 'http://localhost:8100',
-  database: 'shared-users-db',
+  database: 'ozean-licht-db',
 });
 
 const updateAdminUserSchema = z.object({

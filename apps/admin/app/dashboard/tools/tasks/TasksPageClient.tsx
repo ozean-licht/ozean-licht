@@ -34,6 +34,8 @@ import {
   FolderKanban,
   Plus,
   X,
+  LayoutGrid,
+  List,
 } from 'lucide-react';
 import { TaskList, type TaskItem } from '@/components/projects';
 import type { DBProject } from '@/lib/db/projects';
@@ -181,10 +183,32 @@ export default function TasksPageClient({
             )}
           </p>
         </div>
-        <Button className="bg-primary text-white hover:bg-primary/90">
-          <Plus className="w-4 h-4 mr-2" />
-          New Task
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* View Toggle */}
+          <div className="flex border border-primary/20 rounded-lg overflow-hidden">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-none bg-primary/10 text-primary border-r border-primary/20"
+              aria-label="List view (current)"
+            >
+              <List className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-none text-[#C4C8D4] hover:text-primary"
+              onClick={() => router.push('/dashboard/tools/tasks/kanban')}
+              aria-label="Kanban view"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </Button>
+          </div>
+          <Button className="bg-primary text-white hover:bg-primary/90">
+            <Plus className="w-4 h-4 mr-2" />
+            New Task
+          </Button>
+        </div>
       </div>
 
       {/* Stats cards */}

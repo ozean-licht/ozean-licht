@@ -5,8 +5,9 @@
 
 /**
  * Supported database names in MCP Gateway
+ * Note: shared-users-db has been consolidated into ozean-licht-db
  */
-export type MCPDatabase = 'shared-users-db' | 'kids-ascension-db' | 'ozean-licht-db';
+export type MCPDatabase = 'kids-ascension-db' | 'ozean-licht-db';
 
 /**
  * MCP Gateway JSON-RPC request

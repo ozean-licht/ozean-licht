@@ -36,8 +36,7 @@ const getDatabaseConfig = (): PoolConfig => {
 
   if (!databaseUrl) {
     throw new Error(
-      'Missing database configuration. Set OZEAN_LICHT_DB_URL environment variable. ' +
-      'Note: DATABASE_URL is for auth (shared-users-db), not content.'
+      'Missing database configuration. Set OZEAN_LICHT_DB_URL environment variable.'
     );
   }
 

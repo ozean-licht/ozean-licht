@@ -27,7 +27,7 @@ export async function GET() {
     }
 
     // Fetch all permissions from database
-    const client = new MCPGatewayClientWithQueries({ database: 'shared-users-db' });
+    const client = new MCPGatewayClientWithQueries({ database: 'ozean-licht-db' });
     const permissions = await client.listAdminPermissions();
 
     // Define roles to include in matrix

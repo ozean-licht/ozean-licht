@@ -19,7 +19,7 @@ import { SystemHealth, SystemStatus } from '@/types/health';
  * Get complete system health metrics
  *
  * Fetches health data from all sources in parallel:
- * - PostgreSQL databases (kids_ascension_db, ozean_licht_db, shared_users_db)
+ * - PostgreSQL databases (kids_ascension_db, ozean_licht_db)
  * - MCP Gateway service
  * - Server resources (CPU, memory, disk)
  *
@@ -106,15 +106,7 @@ export async function getSystemHealth(): Promise<SystemHealth> {
                 avgQueryTime: 0,
                 lastChecked: new Date(),
               },
-              sharedUsers: {
-                name: 'shared_users_db',
-                displayName: 'Shared Users',
-                status: 'down',
-                activeConnections: 0,
-                maxConnections: 100,
-                avgQueryTime: 0,
-                lastChecked: new Date(),
-              },
+              // sharedUsers removed - consolidated into ozean-licht-db
             },
       mcpGateway:
         mcpGateway.status === 'fulfilled'

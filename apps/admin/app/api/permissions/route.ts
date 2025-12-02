@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category') || undefined;
 
     // Fetch permissions from database via MCP Gateway
-    const client = new MCPGatewayClientWithQueries({ database: 'shared-users-db' });
+    const client = new MCPGatewayClientWithQueries({ database: 'ozean-licht-db' });
     const permissions = await client.listAdminPermissions(category);
 
     // Filter by entity scope if provided

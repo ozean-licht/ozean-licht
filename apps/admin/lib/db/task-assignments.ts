@@ -102,14 +102,15 @@ export async function getTaskAssignments(
     SELECT
       ta.id, ta.task_id, ta.user_id, ta.role_id,
       ta.is_primary, ta.assigned_by, ta.assigned_at, ta.completed_at, ta.notes,
-      u.name as user_name,
+      u.email as user_name,
       u.email as user_email,
       pr.name as role_name,
       pr.color as role_color,
       pr.icon as role_icon,
       t.name as task_name
     FROM task_assignments ta
-    LEFT JOIN admin_users u ON u.id = ta.user_id
+    LEFT JOIN admin_users au ON au.id = ta.user_id
+    LEFT JOIN users u ON u.id = au.user_id
     LEFT JOIN project_roles pr ON pr.id = ta.role_id
     LEFT JOIN tasks t ON t.id = ta.task_id
     ${whereClause}
@@ -142,14 +143,15 @@ export async function getTaskAssignmentById(id: string): Promise<DBTaskAssignmen
     SELECT
       ta.id, ta.task_id, ta.user_id, ta.role_id,
       ta.is_primary, ta.assigned_by, ta.assigned_at, ta.completed_at, ta.notes,
-      u.name as user_name,
+      u.email as user_name,
       u.email as user_email,
       pr.name as role_name,
       pr.color as role_color,
       pr.icon as role_icon,
       t.name as task_name
     FROM task_assignments ta
-    LEFT JOIN admin_users u ON u.id = ta.user_id
+    LEFT JOIN admin_users au ON au.id = ta.user_id
+    LEFT JOIN users u ON u.id = au.user_id
     LEFT JOIN project_roles pr ON pr.id = ta.role_id
     LEFT JOIN tasks t ON t.id = ta.task_id
     WHERE ta.id = $1

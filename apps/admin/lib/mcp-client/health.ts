@@ -116,7 +116,7 @@ export async function checkDatabaseConnection(client: MCPGatewayClient): Promise
 
 /**
  * Check health of a single database
- * @param databaseName Database identifier (kids-ascension-db, ozean-licht-db, shared-users-db)
+ * @param databaseName Database identifier (kids-ascension-db, ozean-licht-db)
  * @param displayName Human-readable name for display
  * @param baseUrl MCP Gateway base URL
  * @returns Database health metrics
@@ -187,16 +187,15 @@ async function checkSingleDatabase(
 export async function checkPostgresHealth(
   baseUrl: string = 'http://localhost:8100'
 ): Promise<PostgresHealthData> {
-  // Check all three databases in parallel
-  const [kidsAscension, ozeanLicht, sharedUsers] = await Promise.all([
+  // Check active databases in parallel (shared-users-db consolidated into ozean-licht-db)
+  const [kidsAscension, ozeanLicht] = await Promise.all([
     checkSingleDatabase('kids-ascension-db', 'Kids Ascension', baseUrl),
     checkSingleDatabase('ozean-licht-db', 'Ozean Licht', baseUrl),
-    checkSingleDatabase('shared-users-db', 'Shared Users', baseUrl),
   ]);
 
-  // Overall status is up only if all databases are up
+  // Overall status is up only if all active databases are up
   const overallStatus =
-    kidsAscension.status === 'up' && ozeanLicht.status === 'up' && sharedUsers.status === 'up'
+    kidsAscension.status === 'up' && ozeanLicht.status === 'up'
       ? 'up'
       : 'down';
 
@@ -204,7 +203,7 @@ export async function checkPostgresHealth(
     overallStatus,
     kidsAscension,
     ozeanLicht,
-    sharedUsers,
+    // sharedUsers removed - consolidated into ozean-licht-db
   };
 }
 
