@@ -2,6 +2,7 @@
  * Storage Page Header Component
  *
  * Displays page title, storage statistics, and quick action buttons.
+ * Uses shared formatFileSize from @ozean-licht/shared-ui for consistency.
  */
 
 'use client';
@@ -9,6 +10,7 @@
 import React from 'react';
 import { Cloud, Upload, FolderPlus, RefreshCw, HardDrive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { formatFileSize } from '@shared/ui';
 import { cn } from '@/lib/utils';
 
 export interface StoragePageHeaderProps {
@@ -30,21 +32,6 @@ export interface StoragePageHeaderProps {
   currentBucket?: string;
   /** Additional CSS classes */
   className?: string;
-}
-
-/**
- * Format bytes to human-readable string
- */
-function formatBytes(bytes: number, decimals = 2): string {
-  if (bytes === 0) return '0 Bytes';
-
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
 /**
@@ -136,7 +123,7 @@ export function StoragePageHeader({
 
         <div>
           <span>
-            <strong className="text-gray-900 dark:text-white">{formatBytes(totalSize)}</strong>{' '}
+            <strong className="text-gray-900 dark:text-white">{formatFileSize(totalSize, { binary: false })}</strong>{' '}
             total
           </span>
         </div>

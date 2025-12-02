@@ -2,12 +2,13 @@
  * Storage Toolbar Component
  *
  * Search, filters, view mode toggle, and bucket selector for the storage page.
+ * Uses shared ViewModeToggle from @ozean-licht/shared-ui for consistency.
  */
 
 'use client';
 
 import React from 'react';
-import { Search, X, LayoutList, LayoutGrid } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -17,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ViewModeToggle } from '@shared/ui';
 import { cn } from '@/lib/utils';
 import type { BucketInfo } from '@/app/dashboard/tools/cloud/constants';
 
@@ -126,39 +128,11 @@ export function StorageToolbar({
       </Select>
 
       {/* View Mode Toggle */}
-      <div className="flex items-center border rounded-lg overflow-hidden">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => onViewModeChange('list')}
-          disabled={disabled}
-          className={cn(
-            'rounded-none h-9 w-9',
-            viewMode === 'list'
-              ? 'bg-primary text-white hover:bg-primary/90 hover:text-white'
-              : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-          )}
-          aria-label="List view"
-        >
-          <LayoutList className="h-4 w-4" />
-        </Button>
-        <div className="w-px h-6 bg-border" />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => onViewModeChange('grid')}
-          disabled={disabled}
-          className={cn(
-            'rounded-none h-9 w-9',
-            viewMode === 'grid'
-              ? 'bg-primary text-white hover:bg-primary/90 hover:text-white'
-              : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-          )}
-          aria-label="Grid view"
-        >
-          <LayoutGrid className="h-4 w-4" />
-        </Button>
-      </div>
+      <ViewModeToggle
+        value={viewMode}
+        onChange={onViewModeChange}
+        storageKey="ozean-cloud-view-mode"
+      />
     </div>
   );
 }

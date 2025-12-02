@@ -4,20 +4,9 @@
  * Main cloud storage interface with file browser, upload, and management features.
  * Integrates with MinIO backend via MCP Gateway.
  *
- * ARCHITECTURAL DECISION: Custom Component Implementation
- * --------------------------------------------------------
- * This page uses custom-built storage components instead of @ozean-licht/shared-ui
- * storage components as originally specified. This decision was made because:
- *
- * 1. The admin app has established its own component conventions and patterns
- * 2. Shared-ui storage components have different prop interfaces requiring significant
- *    adaptation work that would not provide clear benefits
- * 3. The custom implementation provides tighter integration with admin-specific
- *    features like authentication, error handling, and state management
- * 4. This approach maintains consistency with other admin dashboard pages
- *
- * This deviation from the spec has been documented and accepted. Future refactoring
- * to align with shared-ui is possible if the component APIs converge.
+ * Uses shared @ozean-licht/shared-ui storage components for consistency
+ * with the design system. Custom implementations only where necessary
+ * for admin-specific features like authentication and state management.
  */
 
 'use client';
@@ -26,6 +15,15 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Upload, Trash2, Download, FolderOpen, AlertCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+
+// Shared storage components from @shared/ui
+import {
+  FileTypeIcon,
+  StorageBreadcrumb,
+  EmptyStorageState,
+  BulkActionsToolbar,
+  formatFileSize,
+} from '@shared/ui';
 import {
   Dialog,
   DialogContent,
@@ -61,18 +59,6 @@ const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const MAX_CONCURRENT_UPLOADS = 3;
 
 /**
- * Format bytes to human-readable string
- */
-function formatBytes(bytes: number, decimals = 2): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-}
-
-/**
  * Format date to relative or absolute string
  */
 function formatDate(date: Date): string {
@@ -89,26 +75,6 @@ function formatDate(date: Date): string {
   } else {
     return date.toLocaleDateString();
   }
-}
-
-/**
- * Get file type icon/color based on MIME type
- */
-function getFileTypeInfo(mimeType: string): { color: string; bgColor: string } {
-  if (mimeType.startsWith('image/')) {
-    return { color: 'text-green-600', bgColor: 'bg-green-100 dark:bg-green-900/30' };
-  } else if (mimeType.startsWith('video/')) {
-    return { color: 'text-purple-600', bgColor: 'bg-purple-100 dark:bg-purple-900/30' };
-  } else if (mimeType.startsWith('audio/')) {
-    return { color: 'text-orange-600', bgColor: 'bg-orange-100 dark:bg-orange-900/30' };
-  } else if (mimeType === 'application/pdf') {
-    return { color: 'text-red-600', bgColor: 'bg-red-100 dark:bg-red-900/30' };
-  } else if (mimeType.includes('zip') || mimeType.includes('archive')) {
-    return { color: 'text-yellow-600', bgColor: 'bg-yellow-100 dark:bg-yellow-900/30' };
-  } else if (mimeType === 'application/x-directory') {
-    return { color: 'text-blue-600', bgColor: 'bg-blue-100 dark:bg-blue-900/30' };
-  }
-  return { color: 'text-white/60', bgColor: 'bg-white/10 dark:bg-[#0E282E]' };
 }
 
 /**
@@ -213,6 +179,20 @@ export default function OzeanCloudPage() {
     return files.filter((file) => file.name.toLowerCase().includes(query));
   }, [files, searchQuery]);
 
+  // Convert selected file IDs to file objects for BulkActionsToolbar
+  const selectedFilesArray = React.useMemo(() => {
+    return files.filter((f) => selectedFiles.has(f.id)).map((f) => ({
+      id: f.id,
+      name: f.name,
+      size: f.size,
+      mimeType: f.mimeType,
+      isFolder: f.isFolder,
+      path: f.path,
+      uploadedAt: new Date(f.uploadedAt),
+      bucket: currentBucket,
+    }));
+  }, [files, selectedFiles, currentBucket]);
+
   // Handle file selection
   const toggleFileSelection = (fileId: string) => {
     setSelectedFiles((prev) => {
@@ -278,22 +258,17 @@ export default function OzeanCloudPage() {
     return () => document.removeEventListener('click', handleClick);
   }, [contextMenu]);
 
-  // Build breadcrumb items (gdrive-backup is the root, hidden from breadcrumbs)
-  const breadcrumbItems = React.useMemo(() => {
-    const items = [{ label: 'Home', path: 'gdrive-backup' }];
-    if (currentPath && currentPath !== 'gdrive-backup') {
-      // Remove gdrive-backup prefix from path for display
-      const displayPath = currentPath.replace(/^gdrive-backup\/?/, '');
-      if (displayPath) {
-        const segments = displayPath.split('/').filter(Boolean);
-        segments.forEach((segment, index) => {
-          const path = 'gdrive-backup/' + segments.slice(0, index + 1).join('/');
-          items.push({ label: segment, path });
-        });
-      }
-    }
-    return items;
+  // Build display path for breadcrumb (remove gdrive-backup prefix)
+  const displayPath = React.useMemo(() => {
+    if (!currentPath || currentPath === 'gdrive-backup') return '';
+    return currentPath.replace(/^gdrive-backup\/?/, '');
   }, [currentPath]);
+
+  // Handle breadcrumb navigation (convert display path back to full path)
+  const handleBreadcrumbClick = (path: string) => {
+    const fullPath = path ? `gdrive-backup/${path}` : 'gdrive-backup';
+    handleBreadcrumbNavigate(fullPath);
+  };
 
   // Upload a single file
   const uploadSingleFile = async (file: File, uploadId: string) => {
@@ -400,7 +375,7 @@ export default function OzeanCloudPage() {
     if (oversizedFiles.length > 0) {
       const fileNames = oversizedFiles.map((f) => f.name).join(', ');
       setError(
-        `File(s) too large: ${fileNames}. Maximum file size is ${formatBytes(MAX_FILE_SIZE)}.`
+        `File(s) too large: ${fileNames}. Maximum file size is ${formatFileSize(MAX_FILE_SIZE, { binary: false })}.`
       );
       return;
     }
@@ -686,47 +661,22 @@ export default function OzeanCloudPage() {
       />
 
       {/* Breadcrumb Navigation */}
-      <nav className="flex items-center space-x-1 text-sm">
-        {breadcrumbItems.map((item, index) => (
-          <React.Fragment key={item.path}>
-            {index > 0 && <span className="text-gray-400 mx-1">/</span>}
-            <button
-              onClick={() => handleBreadcrumbNavigate(item.path)}
-              className={cn(
-                'hover:underline',
-                index === breadcrumbItems.length - 1
-                  ? 'text-gray-900 dark:text-white font-medium'
-                  : 'text-primary'
-              )}
-            >
-              {item.label}
-            </button>
-          </React.Fragment>
-        ))}
-      </nav>
+      <StorageBreadcrumb
+        path={displayPath}
+        onNavigate={handleBreadcrumbClick}
+        homeLabel="Home"
+        maxSegments={5}
+      />
 
       {/* Bulk Actions Bar */}
-      {selectedFiles.size > 0 && (
-        <div className="flex items-center gap-4 p-3 rounded-lg bg-primary/10 border border-primary/20">
-          <span className="text-sm font-medium">
-            {selectedFiles.size} file{selectedFiles.size !== 1 ? 's' : ''} selected
-          </span>
-          <div className="flex-1" />
-          <Button variant="ghost" size="sm" onClick={clearSelection}>
-            Clear
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={handleBulkDelete}
-            disabled={isBulkDeleting}
-            className="gap-2"
-          >
-            <Trash2 className="h-4 w-4" />
-            {isBulkDeleting ? 'Deleting...' : 'Delete Selected'}
-          </Button>
-        </div>
-      )}
+      <BulkActionsToolbar
+        selectedFiles={selectedFilesArray}
+        onDeleteSelected={handleBulkDelete}
+        onClearSelection={clearSelection}
+        onSelectAll={selectAllFiles}
+        totalFiles={filteredFiles.filter((f) => !f.isFolder).length}
+        isLoading={isBulkDeleting}
+      />
 
       {/* Error Message */}
       {error && (
@@ -825,26 +775,18 @@ export default function OzeanCloudPage() {
           <p className="mt-4 text-sm text-white/50">Loading files...</p>
         </div>
       ) : filteredFiles.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <FolderOpen className="h-12 w-12 text-white/40 mb-4" />
-          <h3 className="text-lg font-semibold mb-2">
-            {searchQuery ? 'No files found' : 'This folder is empty'}
-          </h3>
-          <p className="text-sm text-white/50 mb-4">
-            {searchQuery
-              ? 'Try adjusting your search query'
-              : 'Upload files or create a new folder to get started'}
-          </p>
-          {!searchQuery && (
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              className="gap-2"
-            >
-              <Upload className="h-4 w-4" />
-              Upload Files
-            </Button>
-          )}
-        </div>
+        <EmptyStorageState
+          variant={searchQuery ? 'search' : 'folder'}
+          primaryAction={!searchQuery ? {
+            label: 'Upload Files',
+            onClick: () => fileInputRef.current?.click(),
+            icon: <Upload className="h-4 w-4" />,
+          } : undefined}
+          secondaryAction={searchQuery ? {
+            label: 'Clear search',
+            onClick: () => setSearchQuery(''),
+          } : undefined}
+        />
       ) : viewMode === 'list' ? (
         /* List View */
         <div className="border rounded-lg overflow-hidden">
@@ -878,7 +820,6 @@ export default function OzeanCloudPage() {
             </thead>
             <tbody>
               {filteredFiles.map((file, index) => {
-                const typeInfo = getFileTypeInfo(file.mimeType);
                 const isFocused = index === focusedFileIndex;
                 return (
                   <tr
@@ -907,18 +848,17 @@ export default function OzeanCloudPage() {
                           file.isFolder && 'cursor-pointer'
                         )}
                       >
-                        {file.isFolder ? (
-                          <FolderOpen className="h-5 w-5 text-primary" />
-                        ) : (
-                          <div className={cn('p-2 rounded', typeInfo.bgColor)}>
-                            <span className={cn('h-5 w-5 block', typeInfo.color)}>📄</span>
-                          </div>
-                        )}
+                        <FileTypeIcon
+                          filename={file.name}
+                          mimeType={file.mimeType}
+                          isFolder={file.isFolder}
+                          size="md"
+                        />
                         <span className="truncate max-w-xs">{file.name}</span>
                       </button>
                     </td>
                     <td className="p-3 text-sm text-white/50 hidden md:table-cell">
-                      {file.isFolder ? '—' : formatBytes(file.size)}
+                      {file.isFolder ? '—' : formatFileSize(file.size, { binary: false })}
                     </td>
                     <td className="p-3 text-sm text-white/50 hidden lg:table-cell">
                       {formatDate(new Date(file.uploadedAt))}
@@ -955,7 +895,6 @@ export default function OzeanCloudPage() {
         /* Grid View */
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {filteredFiles.map((file) => {
-            const typeInfo = getFileTypeInfo(file.mimeType);
             return (
               <div
                 key={file.id}
@@ -985,12 +924,13 @@ export default function OzeanCloudPage() {
 
                 {/* File Icon */}
                 <div className="flex justify-center mb-3">
-                  <div className={cn('p-4 rounded-lg', typeInfo.bgColor)}>
-                    {file.isFolder ? (
-                      <FolderOpen className={cn('h-8 w-8', typeInfo.color)} />
-                    ) : (
-                      <span className={cn('text-3xl')}>📄</span>
-                    )}
+                  <div className="p-4 rounded-lg bg-[#0E282E]/50">
+                    <FileTypeIcon
+                      filename={file.name}
+                      mimeType={file.mimeType}
+                      isFolder={file.isFolder}
+                      size="2xl"
+                    />
                   </div>
                 </div>
 
@@ -1002,7 +942,7 @@ export default function OzeanCloudPage() {
                 {/* File Size */}
                 {!file.isFolder && (
                   <p className="text-xs text-white/50 text-center mt-1">
-                    {formatBytes(file.size)}
+                    {formatFileSize(file.size, { binary: false })}
                   </p>
                 )}
 
