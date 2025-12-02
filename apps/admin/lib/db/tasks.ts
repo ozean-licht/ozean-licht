@@ -46,6 +46,9 @@ export interface DBTask {
   completed_by_email: string | null;
   // Phase 8: Subtasks
   parent_task_id: string | null;
+  // Phase 10: Sprints
+  sprint_id: string | null;
+  story_points: number | null;
   // Joined fields
   project_title?: string;
   // Computed subtask fields (from getTaskById with subtasks)
@@ -243,6 +246,7 @@ export async function getAllTasks(filters: TaskFilters = {}): Promise<TaskListRe
       t.task_code,
       t.completed_by_id, t.completed_by_name, t.completed_by_email,
       t.parent_task_id,
+      t.story_points, t.sprint_id,
       p.title as project_title,
       (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id) as subtask_count,
       (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id AND st.is_done = true) as completed_subtask_count
@@ -282,6 +286,7 @@ export async function getTaskById(id: string): Promise<DBTask | null> {
       t.task_code,
       t.completed_by_id, t.completed_by_name, t.completed_by_email,
       t.parent_task_id,
+      t.story_points, t.sprint_id,
       p.title as project_title,
       (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id) as subtask_count,
       (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id AND st.is_done = true) as completed_subtask_count
@@ -394,7 +399,7 @@ export async function getSubtasks(parentTaskId: string): Promise<DBTask[]> {
  */
 export async function updateTask(
   id: string,
-  data: Partial<Pick<DBTask, 'name' | 'description' | 'status' | 'is_done' | 'target_date' | 'start_date' | 'assignee_ids'>>
+  data: Partial<Pick<DBTask, 'name' | 'description' | 'status' | 'is_done' | 'target_date' | 'start_date' | 'assignee_ids' | 'story_points' | 'sprint_id'>>
 ): Promise<DBTask | null> {
   const setClauses: string[] = [];
   const params: unknown[] = [];
@@ -409,6 +414,8 @@ export async function updateTask(
     { key: 'target_date', column: 'target_date' },
     { key: 'start_date', column: 'start_date' },
     { key: 'assignee_ids', column: 'assignee_ids' },
+    { key: 'story_points', column: 'story_points' },
+    { key: 'sprint_id', column: 'sprint_id' },
   ];
 
   for (const { key, column } of fieldMappings) {
@@ -469,13 +476,16 @@ export async function createTask(data: {
   start_date?: string;
   task_order?: number;
   parent_task_id?: string;
+  story_points?: number;
+  sprint_id?: string;
 }): Promise<DBTask> {
   const sql = `
     INSERT INTO tasks (
       name, description, project_id, status,
-      target_date, start_date, task_order, parent_task_id
+      target_date, start_date, task_order, parent_task_id,
+      story_points, sprint_id
     ) VALUES (
-      $1, $2, $3, $4, $5, $6, $7, $8
+      $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
     )
     RETURNING
       id, airtable_id, airtable_auto_number,
@@ -492,7 +502,8 @@ export async function createTask(data: {
       metadata,
       task_code,
       completed_by_id, completed_by_name, completed_by_email,
-      parent_task_id
+      parent_task_id,
+      story_points, sprint_id
   `;
 
   const params = [
@@ -504,6 +515,8 @@ export async function createTask(data: {
     data.start_date || null,
     data.task_order ?? 0,
     data.parent_task_id || null,
+    data.story_points ?? null,
+    data.sprint_id || null,
   ];
 
   const rows = await query<DBTask>(sql, params);

@@ -21,9 +21,10 @@ import {
 } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Loader2 } from 'lucide-react';
+import { CalendarIcon, Loader2, Zap } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
+import SprintSelector from './SprintSelector';
 
 interface Task {
   id: string;
@@ -33,6 +34,8 @@ interface Task {
   priority: string;
   assigneeId?: string | null;
   dueDate?: string | null;
+  sprintId?: string | null;
+  storyPoints?: number | null;
 }
 
 interface TaskFormData {
@@ -42,6 +45,8 @@ interface TaskFormData {
   priority: string;
   assigneeId: string;
   dueDate: string;
+  sprintId: string;
+  storyPoints: string;
 }
 
 interface AdminUser {
@@ -52,6 +57,7 @@ interface AdminUser {
 
 interface TaskFormProps {
   task?: Task;
+  projectId?: string;
   onSubmit: (data: TaskFormData) => Promise<void>;
   onCancel?: () => void;
 }
@@ -75,6 +81,7 @@ const PRIORITY_OPTIONS = [
 
 export default function TaskForm({
   task,
+  projectId,
   onSubmit,
   onCancel,
 }: TaskFormProps) {
@@ -85,6 +92,8 @@ export default function TaskForm({
     priority: task?.priority || 'medium',
     assigneeId: task?.assigneeId || '',
     dueDate: task?.dueDate || '',
+    sprintId: task?.sprintId || '',
+    storyPoints: task?.storyPoints?.toString() || '',
   });
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -271,6 +280,36 @@ export default function TaskForm({
           </PopoverContent>
         </Popover>
       </div>
+
+      {/* Sprint and Story Points (Phase 10) */}
+      {projectId && (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label className="text-white flex items-center gap-1">
+              <Zap className="w-4 h-4 text-primary" />
+              Sprint
+            </Label>
+            <SprintSelector
+              projectId={projectId}
+              value={formData.sprintId || null}
+              onChange={(value) => handleChange('sprintId', value || '')}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white">Story Points</Label>
+            <Input
+              type="number"
+              min="0"
+              max="100"
+              value={formData.storyPoints}
+              onChange={(e) => handleChange('storyPoints', e.target.value)}
+              placeholder="0"
+              className="bg-card/50 border-primary/20"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex justify-end gap-2 pt-4 border-t border-primary/10">

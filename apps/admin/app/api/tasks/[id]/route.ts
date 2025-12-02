@@ -64,8 +64,19 @@ export async function PATCH(
 
     const body = await request.json();
 
+    // Validate story_points if provided
+    if (body.story_points !== undefined) {
+      const points = Number(body.story_points);
+      if (!Number.isFinite(points) || points < 0 || points > 100) {
+        return NextResponse.json(
+          { error: 'Story points must be between 0 and 100' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Only allow specific fields
-    const allowedFields = ['name', 'description', 'status', 'is_done', 'start_date', 'target_date', 'assignee_ids'];
+    const allowedFields = ['name', 'description', 'status', 'is_done', 'start_date', 'target_date', 'assignee_ids', 'story_points', 'sprint_id'];
     const updates: Record<string, unknown> = {};
 
     for (const field of allowedFields) {

@@ -37,13 +37,16 @@
 
 | Location | Files | Purpose |
 |----------|-------|---------|
-| `components/projects/` | 8 components | ProjectCard, TaskList, Comments, Widgets |
+| `components/projects/` | 12 components | ProjectCard, TaskList, Comments, Sprints, Time, Widgets |
 | `lib/db/projects.ts` | CRUD | `getAllProjects()`, `createProject()`, `updateProject()` |
 | `lib/db/tasks.ts` | CRUD | `getAllTasks()`, `updateTask()`, `getTasksByProject()` |
+| `lib/db/sprints.ts` | CRUD | `getAllSprints()`, `createSprint()`, `startSprint()`, `completeSprint()` |
 | `lib/db/comments.ts` | CRUD | `getComments()`, `createComment()` |
 | `lib/db/templates.ts` | Templates | `getAllTemplates()`, `applyTemplate()` |
 | `types/projects.ts` | Types | Project, Task, Template, Sprint, Comment types |
 | `app/api/projects/` | API | CRUD endpoints for projects |
+| `app/api/projects/[id]/sprints/` | API | Sprint CRUD for project |
+| `app/api/sprints/` | API | Single sprint operations |
 | `app/api/tasks/` | API | CRUD endpoints for tasks |
 | `../tasks/` | Kanban | Task kanban board with filters |
 | `../templates/` | Templates | Process template management |
@@ -62,6 +65,7 @@
 - Header: Title, status badge, progress bar
 - Stats cards: Progress, Tasks completed, Start/Target dates
 - TaskList: Project tasks with update/navigate
+- Sprint sidebar: Active sprint stats, sprint manager (create/edit/delete)
 - Comments sidebar: Comment thread with add form
 - Details panel: Type, template, timestamps
 
@@ -91,6 +95,9 @@
 | `/api/tasks` | GET, POST | List/create tasks |
 | `/api/tasks/[id]` | GET, PATCH, DELETE | Task CRUD |
 | `/api/tasks/[id]/comments` | GET, POST | Task comments |
+| `/api/projects/[id]/sprints` | GET, POST | List/create sprints for project |
+| `/api/sprints/[id]` | GET, PATCH, DELETE | Sprint CRUD |
+| `/api/sprints/[id]/tasks` | GET, POST | Sprint tasks, move tasks to sprint |
 | `/api/templates` | GET | List process templates |
 
 ## Data Flow
@@ -118,18 +125,19 @@ ProjectDetailClient.tsx (client)
 ## Missing for MVP
 
 - [ ] Drag-and-drop task reordering
-- [ ] Task creation modal
-- [ ] Project edit modal
-- [ ] Assignee management (user picker)
-- [ ] Due date calendar picker
-- [ ] Activity log with real events
-- [ ] Subtasks support
-- [ ] Time tracking entries
-- [ ] Sprint management
 - [ ] Labels/tags editing
 - [ ] File attachments
+- [ ] @mentions in comments
 - [ ] Notifications on changes
+
+## Completed MVP Phases
+
+- [x] Phase 5-6: Polish (activity log, completion tracking)
+- [x] Phase 7: Edit modals (project & task edit)
+- [x] Phase 8: Subtasks support
+- [x] Phase 9: Time tracking entries
+- [x] Phase 10: Sprint management
 
 ---
 
-*Mapped: 2025-12-02 | Files: 8 | API: 7 endpoints | Components: 8*
+*Mapped: 2025-12-02 | Files: 12 | API: 10 endpoints | Components: 12*

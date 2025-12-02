@@ -84,6 +84,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate story_points if provided
+    if (body.story_points !== undefined) {
+      const points = Number(body.story_points);
+      if (!Number.isFinite(points) || points < 0 || points > 100) {
+        return NextResponse.json(
+          { error: 'Story points must be between 0 and 100' },
+          { status: 400 }
+        );
+      }
+    }
+
     const task = await createTask({
       name: body.name,
       description: body.description,
@@ -93,6 +104,8 @@ export async function POST(request: NextRequest) {
       target_date: body.target_date,
       task_order: body.task_order,
       parent_task_id: body.parent_task_id,
+      story_points: body.story_points,
+      sprint_id: body.sprint_id,
     });
 
     return NextResponse.json({ task }, { status: 201 });

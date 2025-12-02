@@ -75,3 +75,9 @@ export { default as SubtaskProgress } from './SubtaskProgress';
 export { default as TimeEntryForm } from './TimeEntryForm';
 export { default as TimeEntryList } from './TimeEntryList';
 export { default as TaskTimeDisplay } from './TaskTimeDisplay';
+
+// Phase 10 Sprints
+export { default as SprintSelector } from './SprintSelector';
+export { default as SprintBoard } from './SprintBoard';
+export { default as SprintManager } from './SprintManager';
+export { default as SprintStatsWidget } from './SprintStatsWidget';

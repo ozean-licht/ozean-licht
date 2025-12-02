@@ -42,9 +42,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { TaskList, ActivityLog, type TaskItem, type ActivityItem, ProjectEditModal } from '@/components/projects';
+import { TaskList, ActivityLog, type TaskItem, type ActivityItem, ProjectEditModal, SprintManager, SprintStatsWidget } from '@/components/projects';
 import type { DBProject } from '@/lib/db/projects';
 import type { DBComment } from '@/lib/db/comments';
+import type { DBSprint } from '@/lib/db/sprints';
 
 interface ProjectDetailClientProps {
   project: DBProject;
@@ -113,6 +114,8 @@ export default function ProjectDetailClient({
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [sprints, setSprints] = useState<DBSprint[]>([]);
+  const [activeSprint, setActiveSprint] = useState<DBSprint | null>(null);
 
   // Calculate task stats
   const totalTasks = taskList.length;
@@ -125,7 +128,7 @@ export default function ProjectDetailClient({
   // Find current task (first incomplete task)
   const currentTaskId = useMemo(() => findCurrentTask(taskList), [taskList]);
 
-  // Fetch activities on mount
+  // Fetch activities and sprints on mount
   useEffect(() => {
     async function fetchActivities() {
       try {
@@ -142,7 +145,23 @@ export default function ProjectDetailClient({
       }
     }
 
+    async function fetchSprints() {
+      try {
+        const response = await fetch(`/api/projects/${project.id}/sprints`);
+        if (response.ok) {
+          const data = await response.json();
+          setSprints(data.sprints || []);
+          // Find active sprint
+          const active = data.sprints?.find((s: DBSprint) => s.status === 'active');
+          setActiveSprint(active || null);
+        }
+      } catch (error) {
+        console.error('Failed to fetch sprints:', error);
+      }
+    }
+
     fetchActivities();
+    fetchSprints();
   }, [project.id]);
 
   // Handle task update
@@ -208,6 +227,31 @@ export default function ProjectDetailClient({
     } catch (error) {
       console.error('Failed to refresh project:', error);
     }
+  };
+
+  // Sprint handlers
+  const handleSprintCreated = (sprint: DBSprint) => {
+    setSprints(prev => [sprint, ...prev]);
+  };
+
+  const handleSprintUpdated = (sprint: DBSprint) => {
+    setSprints(prev => prev.map(s => s.id === sprint.id ? sprint : s));
+    if (sprint.status === 'active') {
+      setActiveSprint(sprint);
+    } else if (activeSprint?.id === sprint.id) {
+      setActiveSprint(null);
+    }
+  };
+
+  const handleSprintDeleted = (sprintId: string) => {
+    setSprints(prev => prev.filter(s => s.id !== sprintId));
+    if (activeSprint?.id === sprintId) {
+      setActiveSprint(null);
+    }
+  };
+
+  const handleSprintSelected = (sprintId: string) => {
+    router.push(`/dashboard/tools/tasks/kanban?sprintId=${sprintId}`);
   };
 
   // Transform project for modal (map DB fields to form fields)
@@ -404,8 +448,23 @@ export default function ProjectDetailClient({
           </Card>
         </div>
 
-        {/* Sidebar - activity, comments, and metadata */}
+        {/* Sidebar - sprints, activity, comments, and metadata */}
         <div className="space-y-6">
+          {/* Active Sprint Stats (if exists) */}
+          {activeSprint && (
+            <SprintStatsWidget sprint={activeSprint} />
+          )}
+
+          {/* Sprint Manager */}
+          <SprintManager
+            projectId={projectData.id}
+            sprints={sprints}
+            onSprintCreated={handleSprintCreated}
+            onSprintUpdated={handleSprintUpdated}
+            onSprintDeleted={handleSprintDeleted}
+            onSprintSelected={handleSprintSelected}
+          />
+
           {/* Activity Log */}
           <Card className="bg-card/70 border-primary/20">
             <CardHeader className="pb-2">
