@@ -54,6 +54,8 @@ export interface DBTask {
   // Computed subtask fields (from getTaskById with subtasks)
   subtask_count?: number;
   completed_subtask_count?: number;
+  // Phase 11: Attachments
+  attachment_count?: number;
 }
 
 // Task activity type
@@ -228,7 +230,7 @@ export async function getAllTasks(filters: TaskFilters = {}): Promise<TaskListRe
   const total = parseInt(countResult[0]?.count || '0', 10);
 
   // Data query with LEFT JOIN to projects for project_title
-  // Includes subtask count subquery for Phase 8
+  // Includes subtask count subquery for Phase 8 and attachment count for Phase 11
   const dataSql = `
     SELECT
       t.id, t.airtable_id, t.airtable_auto_number,
@@ -249,7 +251,8 @@ export async function getAllTasks(filters: TaskFilters = {}): Promise<TaskListRe
       t.story_points, t.sprint_id,
       p.title as project_title,
       (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id) as subtask_count,
-      (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id AND st.is_done = true) as completed_subtask_count
+      (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id AND st.is_done = true) as completed_subtask_count,
+      (SELECT COUNT(*) FROM task_attachments ta WHERE ta.task_id = t.id) as attachment_count
     FROM tasks t
     LEFT JOIN projects p ON t.project_id = p.id
     ${whereClause}
@@ -289,7 +292,8 @@ export async function getTaskById(id: string): Promise<DBTask | null> {
       t.story_points, t.sprint_id,
       p.title as project_title,
       (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id) as subtask_count,
-      (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id AND st.is_done = true) as completed_subtask_count
+      (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id AND st.is_done = true) as completed_subtask_count,
+      (SELECT COUNT(*) FROM task_attachments ta WHERE ta.task_id = t.id) as attachment_count
     FROM tasks t
     LEFT JOIN projects p ON t.project_id = p.id
     WHERE t.id = $1
@@ -353,7 +357,8 @@ export async function getTasksByProjectId(projectId: string): Promise<DBTask[]> 
       t.parent_task_id,
       p.title as project_title,
       (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id) as subtask_count,
-      (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id AND st.is_done = true) as completed_subtask_count
+      (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id AND st.is_done = true) as completed_subtask_count,
+      (SELECT COUNT(*) FROM task_attachments ta WHERE ta.task_id = t.id) as attachment_count
     FROM tasks t
     LEFT JOIN projects p ON t.project_id = p.id
     WHERE t.project_id = $1

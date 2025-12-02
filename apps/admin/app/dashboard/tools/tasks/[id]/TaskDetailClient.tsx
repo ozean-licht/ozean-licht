@@ -13,9 +13,11 @@
  * - Activity log
  * - Status toggle (todo -> in_progress -> done)
  * - Comments section
+ * - Attachments section
  * - Quick actions
  *
  * Phase 5: Added task_code display, improved completion UX, activity log
+ * Phase 11: Added file attachments
  */
 
 import React, { useState, useEffect } from 'react';
@@ -46,6 +48,7 @@ import {
   X,
   ExternalLink,
   Plus,
+  Paperclip,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -54,12 +57,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { PriorityDot, derivePriority, ActivityLog, type ActivityItem, TaskEditModal, SubtaskList, TimeEntryForm, TimeEntryList, TaskTimeDisplay } from '@/components/projects';
-import type { DBTimeEntry } from '@/lib/db/time-entries';
-import type { DBTask } from '@/lib/db/tasks';
-import type { DBComment } from '@/lib/db/comments';
+import {
+  PriorityDot,
+  derivePriority,
+  ActivityLog,
+  type ActivityItem,
+  TaskEditModal,
+  SubtaskList,
+  TimeEntryForm,
+  TimeEntryList,
+  TaskTimeDisplay,
+  AttachmentUploader,
+  AttachmentList,
+  AttachmentPreview,
+} from '@/components/projects';
+import type { DBTimeEntry } from '@/lib/types';
+import type { DBTask } from '@/lib/types';
+import type { DBComment } from '@/lib/types';
+import type { DBAttachment } from '@/lib/attachment-utils';
 import { cn } from '@/lib/utils';
 import { User } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface TimeStats {
   totalMinutes: number;
@@ -83,6 +101,7 @@ interface TaskDetailClientProps {
   initialSubtasks?: DBTask[];
   initialTimeEntries?: DBTimeEntry[];
   initialTimeStats?: TimeStats;
+  initialAttachments?: DBAttachment[];
 }
 
 // Status options
@@ -155,8 +174,10 @@ export default function TaskDetailClient({
   initialSubtasks = [],
   initialTimeEntries = [],
   initialTimeStats,
+  initialAttachments = [],
 }: TaskDetailClientProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [task, setTask] = useState(initialTask);
   const [isEditing, setIsEditing] = useState(false);
   const [editedDescription, setEditedDescription] = useState(task.description || '');
@@ -171,6 +192,11 @@ export default function TaskDetailClient({
   const [timeEntries, setTimeEntries] = useState<DBTimeEntry[]>(initialTimeEntries);
   const [timeStats, setTimeStats] = useState<TimeStats | undefined>(initialTimeStats);
   const [timeEntriesLoading, setTimeEntriesLoading] = useState(!initialTimeEntries.length);
+  // Phase 11: Attachments state
+  const [attachments, setAttachments] = useState<DBAttachment[]>(initialAttachments);
+  const [attachmentsLoading, setAttachmentsLoading] = useState(!initialAttachments.length);
+  const [previewAttachment, setPreviewAttachment] = useState<DBAttachment | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const priority = derivePriority(task.target_date, task.is_done, task.status);
   const taskOverdue = isOverdue(task.target_date, task.is_done);
@@ -217,6 +243,31 @@ export default function TaskDetailClient({
 
     fetchTimeEntries();
   }, [task.id, initialTimeEntries.length]);
+
+  // Phase 11: Fetch attachments on mount (if not passed as props)
+  useEffect(() => {
+    if (initialAttachments.length > 0) {
+      setAttachmentsLoading(false);
+      return;
+    }
+
+    async function fetchAttachments() {
+      try {
+        setAttachmentsLoading(true);
+        const response = await fetch(`/api/tasks/${task.id}/attachments`);
+        if (response.ok) {
+          const data = await response.json();
+          setAttachments(data.attachments || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch attachments:', error);
+      } finally {
+        setAttachmentsLoading(false);
+      }
+    }
+
+    fetchAttachments();
+  }, [task.id, initialAttachments.length]);
 
   // Update task
   const updateTask = async (updates: Partial<DBTask>) => {
@@ -361,6 +412,49 @@ export default function TaskDetailClient({
     } catch (error) {
       console.error('Failed to delete time entry:', error);
     }
+  };
+
+  // Phase 11: Attachment handlers
+  const handleAttachmentUpload = (attachment: DBAttachment) => {
+    setAttachments(prev => [attachment, ...prev]);
+    toast({
+      title: 'File uploaded',
+      description: `${attachment.file_name} has been attached.`,
+    });
+  };
+
+  const handleAttachmentError = (error: string) => {
+    toast({
+      title: 'Upload failed',
+      description: error,
+      variant: 'destructive',
+    });
+  };
+
+  const handleDeleteAttachment = async (attachmentId: string) => {
+    try {
+      const response = await fetch(`/api/tasks/${task.id}/attachments/${attachmentId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete attachment');
+      setAttachments(prev => prev.filter(a => a.id !== attachmentId));
+      toast({
+        title: 'Attachment deleted',
+        description: 'The file has been removed.',
+      });
+    } catch (error) {
+      console.error('Failed to delete attachment:', error);
+      toast({
+        title: 'Delete failed',
+        description: 'Could not delete the attachment.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handlePreviewAttachment = (attachment: DBAttachment) => {
+    setPreviewAttachment(attachment);
+    setPreviewOpen(true);
   };
 
   // Transform task for modal (map DB fields to form fields)
@@ -623,6 +717,39 @@ export default function TaskDetailClient({
             </CardContent>
           </Card>
 
+          {/* Attachments - Phase 11 */}
+          <Card className="bg-card/70 border-primary/20">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg text-white flex items-center gap-2">
+                  <Paperclip className="w-5 h-5 text-primary" />
+                  Attachments
+                  {attachments.length > 0 && (
+                    <Badge variant="secondary">{attachments.length}</Badge>
+                  )}
+                </CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Compact uploader */}
+              <AttachmentUploader
+                taskId={task.id}
+                onUpload={handleAttachmentUpload}
+                onError={handleAttachmentError}
+                compact
+              />
+
+              {/* Attachment list */}
+              <AttachmentList
+                attachments={attachments}
+                onDelete={handleDeleteAttachment}
+                onPreview={handlePreviewAttachment}
+                isLoading={attachmentsLoading}
+                emptyMessage="No attachments yet. Upload files using the button above."
+              />
+            </CardContent>
+          </Card>
+
           {/* Activity Log */}
           <Card className="bg-card/70 border-primary/20">
             <CardHeader className="pb-2">
@@ -836,6 +963,13 @@ export default function TaskDetailClient({
         open={editModalOpen}
         onOpenChange={setEditModalOpen}
         onSuccess={handleEditSuccess}
+      />
+
+      {/* Attachment Preview Dialog - Phase 11 */}
+      <AttachmentPreview
+        attachment={previewAttachment}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
       />
     </div>
   );

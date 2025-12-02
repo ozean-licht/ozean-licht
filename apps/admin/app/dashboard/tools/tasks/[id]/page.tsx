@@ -3,6 +3,7 @@
  *
  * Server component that fetches task data and renders the client component.
  * Phase 8: Now includes parent task and subtasks.
+ * Phase 11: Now includes attachments.
  */
 
 import { Suspense } from 'react';
@@ -10,6 +11,7 @@ import { notFound } from 'next/navigation';
 import { auth } from '@/lib/auth/config';
 import { getTaskById, getSubtasks } from '@/lib/db/tasks';
 import { getCommentsByEntity, getCommentCount } from '@/lib/db/comments';
+import { getAttachmentsByTaskId } from '@/lib/db/attachments';
 import TaskDetailClient from './TaskDetailClient';
 
 interface PageProps {
@@ -32,12 +34,13 @@ export default async function TaskDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // Fetch parent task if this is a subtask, and subtasks if this is a parent
-  const [comments, commentCount, parentTask, subtasks] = await Promise.all([
+  // Fetch parent task if this is a subtask, subtasks, and attachments
+  const [comments, commentCount, parentTask, subtasks, attachments] = await Promise.all([
     getCommentsByEntity('task', id),
     getCommentCount('task', id),
     task.parent_task_id ? getTaskById(task.parent_task_id) : Promise.resolve(null),
     getSubtasks(id),
+    getAttachmentsByTaskId(id),
   ]);
 
   return (
@@ -54,6 +57,7 @@ export default async function TaskDetailPage({ params }: PageProps) {
         }}
         parentTask={parentTask}
         initialSubtasks={subtasks}
+        initialAttachments={attachments}
       />
     </Suspense>
   );

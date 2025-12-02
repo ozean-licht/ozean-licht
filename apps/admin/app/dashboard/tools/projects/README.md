@@ -95,6 +95,8 @@
 | `/api/tasks` | GET, POST | List/create tasks |
 | `/api/tasks/[id]` | GET, PATCH, DELETE | Task CRUD |
 | `/api/tasks/[id]/comments` | GET, POST | Task comments |
+| `/api/tasks/[id]/attachments` | GET, POST | List/upload task attachments |
+| `/api/tasks/[id]/attachments/[attachmentId]` | GET, DELETE | Attachment details/delete |
 | `/api/projects/[id]/sprints` | GET, POST | List/create sprints for project |
 | `/api/sprints/[id]` | GET, PATCH, DELETE | Sprint CRUD |
 | `/api/sprints/[id]/tasks` | GET, POST | Sprint tasks, move tasks to sprint |
@@ -126,7 +128,7 @@ ProjectDetailClient.tsx (client)
 
 - [ ] Drag-and-drop task reordering
 - [ ] Labels/tags editing
-- [ ] File attachments
+- [x] File attachments (Phase 11)
 - [ ] @mentions in comments
 - [ ] Notifications on changes
 
@@ -137,6 +139,7 @@ ProjectDetailClient.tsx (client)
 - [x] Phase 8: Subtasks support
 - [x] Phase 9: Time tracking entries
 - [x] Phase 10: Sprint management
+- [x] Phase 11: File attachments
 
 ---
 

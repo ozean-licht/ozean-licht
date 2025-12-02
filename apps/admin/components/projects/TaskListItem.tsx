@@ -29,6 +29,7 @@ import {
   Calendar,
   ExternalLink,
   CheckCircle2,
+  Paperclip,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PriorityDot, { derivePriority } from './PriorityDot';
@@ -50,6 +51,8 @@ export interface TaskItem {
   finished_at?: string | null;
   completed_by_name?: string | null;
   completed_by_email?: string | null;
+  // Phase 11: Attachments
+  attachment_count?: number;
 }
 
 interface TaskListItemProps {
@@ -243,13 +246,21 @@ export default function TaskListItem({
             </button>
           </CollapsibleTrigger>
 
-          {/* Right side: project badge, date, status */}
+          {/* Right side: project badge, attachment count, date, status */}
           <div className="flex items-center gap-3 flex-shrink-0">
             {/* Project badge */}
             {showProject && task.project_title && (
               <Badge variant="outline" className="text-xs border-primary/30 text-primary max-w-[120px] truncate">
                 {task.project_title}
               </Badge>
+            )}
+
+            {/* Attachment count badge */}
+            {task.attachment_count !== undefined && task.attachment_count > 0 && (
+              <div className="flex items-center gap-1 text-xs text-[#C4C8D4]">
+                <Paperclip className="w-3 h-3" />
+                <span>{task.attachment_count}</span>
+              </div>
             )}
 
             {/* Due date */}

@@ -81,3 +81,8 @@ export { default as SprintSelector } from './SprintSelector';
 export { default as SprintBoard } from './SprintBoard';
 export { default as SprintManager } from './SprintManager';
 export { default as SprintStatsWidget } from './SprintStatsWidget';
+
+// Phase 11 Attachments
+export { default as AttachmentUploader } from './AttachmentUploader';
+export { default as AttachmentList } from './AttachmentList';
+export { default as AttachmentPreview } from './AttachmentPreview';
