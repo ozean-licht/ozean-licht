@@ -20,6 +20,12 @@
  * - TaskGuidePanel: Collapsible SOP/instructions panel
  * - TaskForm: Task creation/edit form
  * - ProjectForm: Project creation/edit form
+ *
+ * Phase 4 Approvals & Publishing Components:
+ * - CategoryPicker: Hierarchical category tree selector
+ * - LabelManager: Entity label management with add/remove
+ * - ApprovalGate: Approval status display and decision UI
+ * - PublishScheduler: Multi-platform publish scheduling
  */
 
 // Existing components
@@ -46,3 +52,9 @@ export { default as ChecklistEditor } from './ChecklistEditor';
 export { default as TaskGuidePanel } from './TaskGuidePanel';
 export { default as TaskForm } from './TaskForm';
 export { default as ProjectForm } from './ProjectForm';
+
+// Phase 4 Approvals & Publishing Components
+export { default as CategoryPicker } from './CategoryPicker';
+export { default as LabelManager } from './LabelManager';
+export { default as ApprovalGate } from './ApprovalGate';
+export { default as PublishScheduler } from './PublishScheduler';
