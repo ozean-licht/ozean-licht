@@ -70,3 +70,8 @@ export { default as ProjectEditModal } from './ProjectEditModal';
 // Phase 8 Subtasks
 export { default as SubtaskList } from './SubtaskList';
 export { default as SubtaskProgress } from './SubtaskProgress';
+
+// Phase 9 Time Tracking
+export { default as TimeEntryForm } from './TimeEntryForm';
+export { default as TimeEntryList } from './TimeEntryList';
+export { default as TaskTimeDisplay } from './TaskTimeDisplay';

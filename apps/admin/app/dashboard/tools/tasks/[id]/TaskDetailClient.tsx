@@ -54,11 +54,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { PriorityDot, derivePriority, ActivityLog, type ActivityItem, TaskEditModal, SubtaskList } from '@/components/projects';
+import { PriorityDot, derivePriority, ActivityLog, type ActivityItem, TaskEditModal, SubtaskList, TimeEntryForm, TimeEntryList, TaskTimeDisplay } from '@/components/projects';
+import type { DBTimeEntry } from '@/lib/db/time-entries';
 import type { DBTask } from '@/lib/db/tasks';
 import type { DBComment } from '@/lib/db/comments';
 import { cn } from '@/lib/utils';
 import { User } from 'lucide-react';
+
+interface TimeStats {
+  totalMinutes: number;
+  billableMinutes: number;
+  entryCount: number;
+  estimatedHours: number | null;
+  actualHours: number;
+}
 
 interface TaskDetailClientProps {
   task: DBTask;
@@ -72,6 +81,8 @@ interface TaskDetailClientProps {
   };
   parentTask?: DBTask | null;
   initialSubtasks?: DBTask[];
+  initialTimeEntries?: DBTimeEntry[];
+  initialTimeStats?: TimeStats;
 }
 
 // Status options
@@ -142,6 +153,8 @@ export default function TaskDetailClient({
   user,
   parentTask,
   initialSubtasks = [],
+  initialTimeEntries = [],
+  initialTimeStats,
 }: TaskDetailClientProps) {
   const router = useRouter();
   const [task, setTask] = useState(initialTask);
@@ -154,6 +167,10 @@ export default function TaskDetailClient({
   const [subtasks, setSubtasks] = useState<DBTask[]>(initialSubtasks);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [subtasksLoading, _setSubtasksLoading] = useState(false);
+  // Phase 9: Time tracking state
+  const [timeEntries, setTimeEntries] = useState<DBTimeEntry[]>(initialTimeEntries);
+  const [timeStats, setTimeStats] = useState<TimeStats | undefined>(initialTimeStats);
+  const [timeEntriesLoading, setTimeEntriesLoading] = useState(!initialTimeEntries.length);
 
   const priority = derivePriority(task.target_date, task.is_done, task.status);
   const taskOverdue = isOverdue(task.target_date, task.is_done);
@@ -177,6 +194,29 @@ export default function TaskDetailClient({
 
     fetchActivities();
   }, [task.id]);
+
+  // Fetch time entries on mount (if not passed as props)
+  useEffect(() => {
+    if (initialTimeEntries.length > 0) return; // Already have data from props
+
+    async function fetchTimeEntries() {
+      try {
+        setTimeEntriesLoading(true);
+        const response = await fetch(`/api/tasks/${task.id}/time-entries`);
+        if (response.ok) {
+          const data = await response.json();
+          setTimeEntries(data.entries || []);
+          setTimeStats(data.stats);
+        }
+      } catch (error) {
+        console.error('Failed to fetch time entries:', error);
+      } finally {
+        setTimeEntriesLoading(false);
+      }
+    }
+
+    fetchTimeEntries();
+  }, [task.id, initialTimeEntries.length]);
 
   // Update task
   const updateTask = async (updates: Partial<DBTask>) => {
@@ -288,6 +328,38 @@ export default function TaskDetailClient({
       setSubtasks(prev => [...prev, newTask]);
     } catch (error) {
       console.error('Failed to add subtask:', error);
+    }
+  };
+
+  // Phase 9: Time entry handlers
+  const handleAddTimeEntry = async (data: { duration_minutes: number; description?: string; work_date: string; is_billable: boolean }) => {
+    try {
+      const response = await fetch(`/api/tasks/${task.id}/time-entries`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to log time');
+      const result = await response.json();
+      setTimeEntries(prev => [result.entry, ...prev]);
+      setTimeStats(result.stats);
+    } catch (error) {
+      console.error('Failed to add time entry:', error);
+      throw error;
+    }
+  };
+
+  const handleDeleteTimeEntry = async (entryId: string) => {
+    try {
+      const response = await fetch(`/api/tasks/${task.id}/time-entries/${entryId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete time entry');
+      const result = await response.json();
+      setTimeEntries(prev => prev.filter(e => e.id !== entryId));
+      setTimeStats(result.stats);
+    } catch (error) {
+      console.error('Failed to delete time entry:', error);
     }
   };
 
@@ -514,6 +586,42 @@ export default function TaskDetailClient({
               isLoading={subtasksLoading}
             />
           )}
+
+          {/* Time Tracking - Phase 9 */}
+          <Card className="bg-card/70 border-primary/20">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg text-white flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-primary" />
+                  Time Tracking
+                </CardTitle>
+                {timeStats && (
+                  <TaskTimeDisplay
+                    estimatedHours={timeStats.estimatedHours}
+                    actualHours={timeStats.actualHours}
+                    showProgress={false}
+                    size="sm"
+                  />
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Compact time entry form */}
+              <TimeEntryForm
+                taskId={task.id}
+                onSubmit={handleAddTimeEntry}
+                compact
+              />
+
+              {/* Time entries list */}
+              <TimeEntryList
+                entries={timeEntries}
+                onDelete={handleDeleteTimeEntry}
+                isLoading={timeEntriesLoading}
+                emptyMessage="No time logged yet. Use the form above to log time."
+              />
+            </CardContent>
+          </Card>
 
           {/* Activity Log */}
           <Card className="bg-card/70 border-primary/20">
