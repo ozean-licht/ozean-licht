@@ -2,12 +2,13 @@
  * Single Task Detail Page
  *
  * Server component that fetches task data and renders the client component.
+ * Phase 8: Now includes parent task and subtasks.
  */
 
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { auth } from '@/lib/auth/config';
-import { getTaskById } from '@/lib/db/tasks';
+import { getTaskById, getSubtasks } from '@/lib/db/tasks';
 import { getCommentsByEntity, getCommentCount } from '@/lib/db/comments';
 import TaskDetailClient from './TaskDetailClient';
 
@@ -31,9 +32,12 @@ export default async function TaskDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const [comments, commentCount] = await Promise.all([
+  // Fetch parent task if this is a subtask, and subtasks if this is a parent
+  const [comments, commentCount, parentTask, subtasks] = await Promise.all([
     getCommentsByEntity('task', id),
     getCommentCount('task', id),
+    task.parent_task_id ? getTaskById(task.parent_task_id) : Promise.resolve(null),
+    getSubtasks(id),
   ]);
 
   return (
@@ -48,6 +52,8 @@ export default async function TaskDetailPage({ params }: PageProps) {
           name: session.user.name || '',
           adminRole: (session.user as any).adminRole || '',
         }}
+        parentTask={parentTask}
+        initialSubtasks={subtasks}
       />
     </Suspense>
   );

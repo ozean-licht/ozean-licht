@@ -54,7 +54,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { PriorityDot, derivePriority, ActivityLog, type ActivityItem, TaskEditModal } from '@/components/projects';
+import { PriorityDot, derivePriority, ActivityLog, type ActivityItem, TaskEditModal, SubtaskList } from '@/components/projects';
 import type { DBTask } from '@/lib/db/tasks';
 import type { DBComment } from '@/lib/db/comments';
 import { cn } from '@/lib/utils';
@@ -70,6 +70,8 @@ interface TaskDetailClientProps {
     name: string;
     adminRole: string;
   };
+  parentTask?: DBTask | null;
+  initialSubtasks?: DBTask[];
 }
 
 // Status options
@@ -138,6 +140,8 @@ export default function TaskDetailClient({
   comments,
   commentCount,
   user,
+  parentTask,
+  initialSubtasks = [],
 }: TaskDetailClientProps) {
   const router = useRouter();
   const [task, setTask] = useState(initialTask);
@@ -147,6 +151,9 @@ export default function TaskDetailClient({
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [subtasks, setSubtasks] = useState<DBTask[]>(initialSubtasks);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [subtasksLoading, _setSubtasksLoading] = useState(false);
 
   const priority = derivePriority(task.target_date, task.is_done, task.status);
   const taskOverdue = isOverdue(task.target_date, task.is_done);
@@ -247,6 +254,43 @@ export default function TaskDetailClient({
     }
   };
 
+  // Subtask handlers
+  const handleToggleSubtask = async (taskId: string, isDone: boolean) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_done: isDone, status: isDone ? 'done' : 'todo' }),
+      });
+      if (!response.ok) throw new Error('Failed to update subtask');
+      setSubtasks(prev =>
+        prev.map(st => st.id === taskId ? { ...st, is_done: isDone, status: isDone ? 'done' : 'todo' } : st)
+      );
+    } catch (error) {
+      console.error('Failed to toggle subtask:', error);
+    }
+  };
+
+  const handleAddSubtask = async (title: string) => {
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: title,
+          parent_task_id: task.id,
+          project_id: task.project_id,
+          status: 'todo',
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to create subtask');
+      const { task: newTask } = await response.json();
+      setSubtasks(prev => [...prev, newTask]);
+    } catch (error) {
+      console.error('Failed to add subtask:', error);
+    }
+  };
+
   // Transform task for modal (map DB fields to form fields)
   const taskForModal = {
     id: task.id,
@@ -281,6 +325,18 @@ export default function TaskDetailClient({
             <FolderKanban className="w-4 h-4 mr-2" />
             {task.project_title}
             <ExternalLink className="w-3 h-3 ml-1" />
+          </Button>
+        )}
+        {/* Parent task link for subtasks */}
+        {parentTask && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(`/dashboard/tools/tasks/${parentTask.id}`)}
+            className="text-[#C4C8D4] hover:text-white border border-primary/20 rounded-lg"
+          >
+            <ArrowLeft className="w-3 h-3 mr-1" />
+            Parent: {parentTask.name}
           </Button>
         )}
       </div>
@@ -446,6 +502,18 @@ export default function TaskDetailClient({
               )}
             </CardContent>
           </Card>
+
+          {/* Subtasks - only show for parent tasks (not subtasks themselves) */}
+          {!task.parent_task_id && (
+            <SubtaskList
+              parentTaskId={task.id}
+              parentProjectId={task.project_id}
+              subtasks={subtasks}
+              onToggleComplete={handleToggleSubtask}
+              onAddSubtask={handleAddSubtask}
+              isLoading={subtasksLoading}
+            />
+          )}
 
           {/* Activity Log */}
           <Card className="bg-card/70 border-primary/20">

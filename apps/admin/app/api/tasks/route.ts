@@ -27,6 +27,10 @@ export async function GET(request: NextRequest) {
   const orderBy = searchParams.get('orderBy') || 'created_at';
   const orderDirection = (searchParams.get('orderDirection') || 'desc') as 'asc' | 'desc';
   const includeStats = searchParams.get('includeStats') === 'true';
+  // Phase 8: Subtask filters
+  const parentTaskId = searchParams.get('parentTaskId') || undefined;
+  const hasParentParam = searchParams.get('hasParent');
+  const hasParent = hasParentParam !== null ? hasParentParam === 'true' : undefined;
 
   try {
     const result = await getAllTasks({
@@ -39,6 +43,8 @@ export async function GET(request: NextRequest) {
       offset,
       orderBy,
       orderDirection,
+      parentTaskId,
+      hasParent,
     });
 
     let stats = undefined;
@@ -86,6 +92,7 @@ export async function POST(request: NextRequest) {
       start_date: body.start_date,
       target_date: body.target_date,
       task_order: body.task_order,
+      parent_task_id: body.parent_task_id,
     });
 
     return NextResponse.json({ task }, { status: 201 });

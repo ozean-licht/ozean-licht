@@ -62,6 +62,7 @@ import {
 import { useRouter } from 'next/navigation';
 import type { DBTask } from '@/lib/db/tasks';
 import type { DBProject } from '@/lib/db/projects';
+import { SubtaskProgress } from '@/components/projects';
 
 // Type for task with assignments
 // Status extends DBTask status to include kanban-specific statuses
@@ -74,6 +75,9 @@ export interface KanbanTask extends Omit<DBTask, 'assignee_ids' | 'status'> {
     role_name?: string;
     role_color?: string;
   }>;
+  // Phase 8: Subtask counts
+  subtask_count?: number;
+  completed_subtask_count?: number;
 }
 
 export interface KanbanProps {
@@ -302,16 +306,25 @@ function TaskCard({
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-primary/10">
-          {/* Task type icon and due date */}
-          <div className="flex items-center gap-2 text-xs text-[#C4C8D4]">
-            <ListTodo className="w-3.5 h-3.5" />
-            {task.target_date && (
-              <span className={derivePriority(task) === 'critical' ? 'text-red-400' : ''}>
-                {new Date(task.target_date).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                })}
-              </span>
+          {/* Task type icon, due date, and subtask progress */}
+          <div className="flex items-center gap-3 text-xs text-[#C4C8D4]">
+            <div className="flex items-center gap-2">
+              <ListTodo className="w-3.5 h-3.5" />
+              {task.target_date && (
+                <span className={derivePriority(task) === 'critical' ? 'text-red-400' : ''}>
+                  {new Date(task.target_date).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </span>
+              )}
+            </div>
+            {/* Subtask progress indicator */}
+            {task.subtask_count !== undefined && task.subtask_count > 0 && (
+              <SubtaskProgress
+                completed={task.completed_subtask_count || 0}
+                total={task.subtask_count}
+              />
             )}
           </div>
 

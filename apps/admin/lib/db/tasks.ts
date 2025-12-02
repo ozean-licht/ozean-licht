@@ -44,8 +44,13 @@ export interface DBTask {
   completed_by_id: string | null;
   completed_by_name: string | null;
   completed_by_email: string | null;
+  // Phase 8: Subtasks
+  parent_task_id: string | null;
   // Joined fields
   project_title?: string;
+  // Computed subtask fields (from getTaskById with subtasks)
+  subtask_count?: number;
+  completed_subtask_count?: number;
 }
 
 // Task activity type
@@ -77,6 +82,9 @@ export interface TaskFilters {
   offset?: number;
   orderBy?: string;
   orderDirection?: 'asc' | 'desc';
+  // Phase 8: Subtask filters
+  parentTaskId?: string;
+  hasParent?: boolean;
 }
 
 // Result type for paginated queries
@@ -101,6 +109,8 @@ export async function getAllTasks(filters: TaskFilters = {}): Promise<TaskListRe
     offset = 0,
     orderBy = 'created_at',
     orderDirection = 'desc',
+    parentTaskId,
+    hasParent,
   } = filters;
 
   // Cap limit at 100 to prevent DoS attacks
@@ -183,6 +193,21 @@ export async function getAllTasks(filters: TaskFilters = {}): Promise<TaskListRe
     params.push(isDone);
   }
 
+  // Phase 8: Parent task filter (get subtasks of a specific task)
+  if (parentTaskId) {
+    conditions.push(`t.parent_task_id = $${paramIndex++}`);
+    params.push(parentTaskId);
+  }
+
+  // Phase 8: Has parent filter (filter top-level vs subtasks)
+  if (hasParent !== undefined) {
+    if (hasParent) {
+      conditions.push(`t.parent_task_id IS NOT NULL`);
+    } else {
+      conditions.push(`t.parent_task_id IS NULL`);
+    }
+  }
+
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
   // Validate orderBy to prevent SQL injection
@@ -200,6 +225,7 @@ export async function getAllTasks(filters: TaskFilters = {}): Promise<TaskListRe
   const total = parseInt(countResult[0]?.count || '0', 10);
 
   // Data query with LEFT JOIN to projects for project_title
+  // Includes subtask count subquery for Phase 8
   const dataSql = `
     SELECT
       t.id, t.airtable_id, t.airtable_auto_number,
@@ -216,7 +242,10 @@ export async function getAllTasks(filters: TaskFilters = {}): Promise<TaskListRe
       t.metadata,
       t.task_code,
       t.completed_by_id, t.completed_by_name, t.completed_by_email,
-      p.title as project_title
+      t.parent_task_id,
+      p.title as project_title,
+      (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id) as subtask_count,
+      (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id AND st.is_done = true) as completed_subtask_count
     FROM tasks t
     LEFT JOIN projects p ON t.project_id = p.id
     ${whereClause}
@@ -233,7 +262,7 @@ export async function getAllTasks(filters: TaskFilters = {}): Promise<TaskListRe
 }
 
 /**
- * Get a single task by ID with project information
+ * Get a single task by ID with project information and subtask counts
  */
 export async function getTaskById(id: string): Promise<DBTask | null> {
   const sql = `
@@ -252,7 +281,10 @@ export async function getTaskById(id: string): Promise<DBTask | null> {
       t.metadata,
       t.task_code,
       t.completed_by_id, t.completed_by_name, t.completed_by_email,
-      p.title as project_title
+      t.parent_task_id,
+      p.title as project_title,
+      (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id) as subtask_count,
+      (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id AND st.is_done = true) as completed_subtask_count
     FROM tasks t
     LEFT JOIN projects p ON t.project_id = p.id
     WHERE t.id = $1
@@ -282,6 +314,7 @@ export async function getTaskByCode(taskCode: string): Promise<DBTask | null> {
       t.metadata,
       t.task_code,
       t.completed_by_id, t.completed_by_name, t.completed_by_email,
+      t.parent_task_id,
       p.title as project_title
     FROM tasks t
     LEFT JOIN projects p ON t.project_id = p.id
@@ -312,7 +345,10 @@ export async function getTasksByProjectId(projectId: string): Promise<DBTask[]> 
       t.metadata,
       t.task_code,
       t.completed_by_id, t.completed_by_name, t.completed_by_email,
-      p.title as project_title
+      t.parent_task_id,
+      p.title as project_title,
+      (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id) as subtask_count,
+      (SELECT COUNT(*) FROM tasks st WHERE st.parent_task_id = t.id AND st.is_done = true) as completed_subtask_count
     FROM tasks t
     LEFT JOIN projects p ON t.project_id = p.id
     WHERE t.project_id = $1
@@ -320,6 +356,37 @@ export async function getTasksByProjectId(projectId: string): Promise<DBTask[]> 
   `;
 
   return query<DBTask>(sql, [projectId]);
+}
+
+/**
+ * Get subtasks of a specific task
+ */
+export async function getSubtasks(parentTaskId: string): Promise<DBTask[]> {
+  const sql = `
+    SELECT
+      t.id, t.airtable_id, t.airtable_auto_number,
+      t.name, t.description, t.status, t.is_done, t.task_order,
+      t.start_date, t.target_date, t.finished_at,
+      t.duration_days, t.offset_days_to_anchor,
+      t.day_of_publish, t.auto_start, t.auto_finished,
+      t.project_airtable_id, t.project_id,
+      t.assignee_ids, t.milestone_ids, t.department_ids,
+      t.created_by_name, t.created_by_email,
+      t.updated_by_name, t.updated_by_email,
+      t.created_at, t.updated_at,
+      t.airtable_created_at, t.airtable_updated_at,
+      t.metadata,
+      t.task_code,
+      t.completed_by_id, t.completed_by_name, t.completed_by_email,
+      t.parent_task_id,
+      p.title as project_title
+    FROM tasks t
+    LEFT JOIN projects p ON t.project_id = p.id
+    WHERE t.parent_task_id = $1
+    ORDER BY t.is_done ASC, t.task_order ASC, t.created_at ASC
+  `;
+
+  return query<DBTask>(sql, [parentTaskId]);
 }
 
 /**
@@ -401,13 +468,14 @@ export async function createTask(data: {
   target_date?: string;
   start_date?: string;
   task_order?: number;
+  parent_task_id?: string;
 }): Promise<DBTask> {
   const sql = `
     INSERT INTO tasks (
       name, description, project_id, status,
-      target_date, start_date, task_order
+      target_date, start_date, task_order, parent_task_id
     ) VALUES (
-      $1, $2, $3, $4, $5, $6, $7
+      $1, $2, $3, $4, $5, $6, $7, $8
     )
     RETURNING
       id, airtable_id, airtable_auto_number,
@@ -423,7 +491,8 @@ export async function createTask(data: {
       airtable_created_at, airtable_updated_at,
       metadata,
       task_code,
-      completed_by_id, completed_by_name, completed_by_email
+      completed_by_id, completed_by_name, completed_by_email,
+      parent_task_id
   `;
 
   const params = [
@@ -434,6 +503,7 @@ export async function createTask(data: {
     data.target_date || null,
     data.start_date || null,
     data.task_order ?? 0,
+    data.parent_task_id || null,
   ];
 
   const rows = await query<DBTask>(sql, params);

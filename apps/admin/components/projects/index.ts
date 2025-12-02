@@ -66,3 +66,7 @@ export type { ActivityItem } from './ActivityLog';
 // Phase 7 Edit Modals
 export { default as TaskEditModal } from './TaskEditModal';
 export { default as ProjectEditModal } from './ProjectEditModal';
+
+// Phase 8 Subtasks
+export { default as SubtaskList } from './SubtaskList';
+export { default as SubtaskProgress } from './SubtaskProgress';
