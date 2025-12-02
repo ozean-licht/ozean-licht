@@ -28,6 +28,8 @@ import {
   Video,
 } from 'lucide-react'
 import { Breadcrumb } from '@/components/dashboard/Breadcrumb'
+import { UserMenu } from '@/components/dashboard/UserMenu'
+import { InboxNotifications } from '@/components/dashboard/InboxNotifications'
 import { BreadcrumbProvider } from '@/lib/contexts/BreadcrumbContext'
 import { useKeyboardShortcuts } from '@/lib/navigation/keyboard-shortcuts'
 import { EntityScope, UserEntity } from '@/types/navigation'
@@ -395,17 +397,34 @@ export default function DashboardLayoutClient({
             isSidebarOpen ? "md:ml-64" : "md:ml-16"
           )}>
             {/* Header */}
-            <header className="bg-[#00111A] backdrop-blur-md border-b border-[#0E282E] px-4 py-3 flex items-center justify-between z-30">
-              <div className="flex items-center gap-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="md:hidden"
-                  onClick={() => setIsMobileMenuOpen(true)}
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-                <span className="text-sm text-[#C4C8D4]">{user.email}</span>
+            <header className="bg-[#00111A] backdrop-blur-md border-b border-[#0E282E] px-4 py-3 z-30">
+              <div className="flex items-center justify-between">
+                {/* Left: Mobile menu + Breadcrumbs */}
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="md:hidden flex-shrink-0"
+                    onClick={() => setIsMobileMenuOpen(true)}
+                  >
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                  {/* Breadcrumbs - Desktop */}
+                  <div className="hidden sm:block flex-1 min-w-0">
+                    <Breadcrumb showHomeIcon maxLabelLength={25} />
+                  </div>
+                </div>
+
+                {/* Right: Notifications + User menu */}
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <InboxNotifications />
+                  <UserMenu user={user} />
+                </div>
+              </div>
+
+              {/* Breadcrumbs - Mobile (below header row) */}
+              <div className="sm:hidden mt-2">
+                <Breadcrumb showHomeIcon maxLabelLength={20} />
               </div>
             </header>
 
@@ -413,9 +432,6 @@ export default function DashboardLayoutClient({
             <div className="flex-1 overflow-y-auto">
               <div className="py-6">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-                  {/* Breadcrumb navigation */}
-                  <Breadcrumb showHomeIcon showEntityBadges />
-
                   {/* Page content */}
                   <div className="relative z-10">
                     {children}

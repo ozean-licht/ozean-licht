@@ -26,22 +26,74 @@
 - Price is in EUR, stored as cents (295 EUR = 29500 cents)
 - Category can be extracted from `tags` array
 
-### Database Architecture
-```
-PostgreSQL Server (iccc0wo0wkgsws4cowk4440c:5432 / localhost:32771)
-├── shared-users-db     → Auth, sessions, admin users
-├── ozean-licht-db      → Content (courses, videos, modules) ← NEW
-├── kids-ascension-db   → Kids Ascension platform
-└── orchestrator-db     → Agent orchestration
+### Database Architecture (VERIFIED 2025-12-02)
 
-Admin Dashboard connects:
-├── shared-users-db → NextAuth sessions
-└── ozean-licht-db  → Content queries (DIRECT, no MCP)
+**IMPORTANT:** There are TWO PostgreSQL containers. Use the correct one!
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ CORRECT: iccc0wo0wkgsws4cowk4440c (port 32771)                      │
+├─────────────────────────────────────────────────────────────────────┤
+│ shared-users-db     → Auth for Admin + Ozean Licht                  │
+│   ├── admin_users, admin_sessions, admin_permissions                │
+│   └── users (platform users - shared between Admin & OL)            │
+│                                                                     │
+│ ozean-licht-db      → Content (USE THIS!)                           │
+│   ├── courses: 64 records (59 published, 5 draft)                   │
+│   ├── videos: 571 records                                           │
+│   ├── projects: 658 records                                         │
+│   ├── tasks: 9,114 records                                          │
+│   └── process_templates: 89 records                                 │
+│                                                                     │
+│ kids-ascension-db   → Kids Ascension platform (SEPARATE auth)       │
+│ orchestrator-db     → Agent orchestration                           │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ OUTDATED: zo8g4ogg8g0gss0oswkcs84w (port 32770) - DO NOT USE        │
+├─────────────────────────────────────────────────────────────────────┤
+│ ozean-licht-db      → Only 64 courses (incomplete migration!)       │
+│ mem0                → Memory service                                │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Auth Clarification
+
+| App | Auth Database | Notes |
+|-----|---------------|-------|
+| Admin Dashboard | `shared-users-db` | NextAuth sessions |
+| Ozean Licht Platform | `shared-users-db` | Same auth as admin (shared users) |
+| Kids Ascension | `kids-ascension-db` | **Separate** auth system |
+
+### Connection Strings
+
+**Admin Dashboard (.env.local):**
+```bash
+# Auth (NextAuth)
+DATABASE_URL=postgresql://postgres:XXX@localhost:32771/shared-users-db
+
+# Content (courses, videos, projects, tasks)
+OZEAN_LICHT_DB_URL=postgresql://postgres:XXX@localhost:32771/ozean-licht-db
+```
+
+### App Connections
+
+```
+Admin Dashboard:
+├── DATABASE_URL       → shared-users-db (auth)
+└── OZEAN_LICHT_DB_URL → ozean-licht-db (content)
+
+Ozean Licht Platform:
+├── DATABASE_URL       → shared-users-db (auth)
+└── OZEAN_LICHT_DB_URL → ozean-licht-db (content)
+
+Kids Ascension:
+└── DATABASE_URL       → kids-ascension-db (separate auth + content)
 
 MCP Gateway:
 ├── Airtable service → Read/write Airtable data
 ├── Postgres service → READ-ONLY queries
-└── Used for: data migration, not admin reads
+└── Used for: data migration, AI agent access (NOT app queries)
 ```
 
 ---
@@ -643,7 +695,34 @@ External port: `localhost:32771` (maps to container :5432)
 
 ## Implementation Status
 
-**Last Updated:** 2025-12-01
+**Last Updated:** 2025-12-02
+
+### Database Consolidation (COMPLETED 2025-12-02)
+
+`shared-users-db` has been merged into `ozean-licht-db`. All auth + content now in single database.
+
+**Before:**
+```
+shared-users-db → auth tables (admin_users, users, etc.)
+ozean-licht-db  → content tables (courses, videos, etc.)
+```
+
+**After:**
+```
+ozean-licht-db → EVERYTHING (auth + content)
+  ├── users, admin_users, admin_roles, admin_permissions (auth)
+  ├── courses, videos (content)
+  └── projects, tasks, process_templates (operations)
+```
+
+**Connection:** `OZEAN_LICHT_DB_URL` (single connection string for everything)
+
+**To complete migration:**
+1. Restart admin app: `cd apps/admin && pnpm dev`
+2. Test login at http://localhost:9200/login
+3. If working, drop shared-users-db: `docker exec iccc0wo0wkgsws4cowk4440c psql -U postgres -c "DROP DATABASE \"shared-users-db\";"`
+
+---
 
 | Phase | Tables | Status |
 |-------|--------|--------|

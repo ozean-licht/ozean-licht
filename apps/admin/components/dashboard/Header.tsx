@@ -1,30 +1,29 @@
 'use client';
 
-import LogoutButton from '../auth/LogoutButton'
-import { RoleBadge } from '@/components/rbac/RoleBadge'
-import { EntityBadge } from '@/components/rbac/EntityBadge'
-import { ThemeToggle } from './ThemeToggle'
-import type { AdminRole } from '@/types/admin'
+import { Breadcrumb } from './Breadcrumb';
+import { UserMenu } from './UserMenu';
+import { ThemeToggle } from './ThemeToggle';
 
 interface HeaderProps {
   user: {
-    email: string
-    adminRole: string
-    entityScope: string | null
-  }
-  onMenuToggle?: () => void
+    email: string;
+    adminRole: string;
+    entityScope: string | null;
+  };
+  onMenuToggle?: () => void;
 }
 
 export default function Header({ user, onMenuToggle }: HeaderProps) {
   return (
     <header className="bg-[#00111A] backdrop-blur-xl shadow-lg border-b border-primary/20">
-      <div className="px-4 sm:px-6 lg:px-8 py-4">
+      <div className="px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
+          {/* Left side: Mobile menu toggle + Breadcrumbs */}
+          <div className="flex items-center gap-4 flex-1 min-w-0">
             {/* Mobile menu toggle button */}
             <button
               onClick={onMenuToggle}
-              className="md:hidden p-2 text-white/70 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary/50 transition-colors"
+              className="md:hidden p-2 text-white/70 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary/50 transition-colors rounded-lg"
               aria-label="Toggle menu"
             >
               <svg
@@ -42,30 +41,24 @@ export default function Header({ user, onMenuToggle }: HeaderProps) {
               </svg>
             </button>
 
-            {/* Title */}
-            <h1 className="text-xl md:text-2xl font-decorative text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
-              Ecosystem Management
-            </h1>
+            {/* Breadcrumbs */}
+            <div className="hidden sm:block flex-1 min-w-0">
+              <Breadcrumb showHomeIcon maxLabelLength={25} />
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-white/90">{user.email}</p>
-              <div className="flex items-center justify-end gap-2 mt-1">
-                <RoleBadge role={user.adminRole as AdminRole} />
-                {user.entityScope && (
-                  <EntityBadge
-                    entity={user.entityScope as 'kids_ascension' | 'ozean_licht'}
-                    compact
-                  />
-                )}
-              </div>
-            </div>
+          {/* Right side: Theme toggle + User menu */}
+          <div className="flex items-center gap-2">
             <ThemeToggle />
-            <LogoutButton className="bg-[#0E282E] hover:bg-[#0E282E]/80 text-white" />
+            <UserMenu user={user} />
           </div>
+        </div>
+
+        {/* Mobile breadcrumbs (below the header row) */}
+        <div className="sm:hidden mt-2">
+          <Breadcrumb showHomeIcon maxLabelLength={20} />
         </div>
       </div>
     </header>
-  )
+  );
 }

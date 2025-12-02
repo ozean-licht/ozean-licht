@@ -1,36 +1,34 @@
 /**
  * Direct PostgreSQL Connection Pool for Authentication
  *
- * This module provides a direct database connection specifically for
- * authentication operations (shared-users-db).
+ * CONSOLIDATED: Auth and content now use the same database (ozean-licht-db).
+ * This simplifies operations and enables native JOINs between users and content.
  *
- * Note: All application database access should use direct PostgreSQL connections.
+ * Database: ozean-licht-db (contains users, admin_users, courses, videos, etc.)
+ * Connection: OZEAN_LICHT_DB_URL (same as lib/db/index.ts)
+ *
+ * Note: All application database access uses direct PostgreSQL connections.
  * MCP Gateway is for AI agent tool access, not application infrastructure.
- * See lib/db/index.ts for the main application database pool (ozean-licht-db).
  */
 
 import { Pool, PoolConfig } from 'pg';
 
-// Parse DATABASE_URL or construct from individual env vars
+// Use OZEAN_LICHT_DB_URL - consolidated database for auth + content
 const getDatabaseConfig = (): PoolConfig => {
-  const databaseUrl = process.env.DATABASE_URL;
+  // Primary: OZEAN_LICHT_DB_URL (consolidated database)
+  // Fallback: DATABASE_URL (legacy, points to same DB now)
+  const databaseUrl = process.env.OZEAN_LICHT_DB_URL
+    || process.env.OZEAN_LICHT_DATABASE_URL
+    || process.env.DATABASE_URL;
 
-  if (databaseUrl) {
-    return {
-      connectionString: databaseUrl,
-      max: 10,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000,
-    };
+  if (!databaseUrl) {
+    throw new Error(
+      'Missing database configuration. Set OZEAN_LICHT_DB_URL environment variable.'
+    );
   }
 
-  // Fallback to individual env vars
   return {
-    host: process.env.POSTGRES_HOST || 'localhost',
-    port: parseInt(process.env.POSTGRES_PORT || '32771'),
-    database: process.env.POSTGRES_DATABASE || 'shared-users-db',
-    user: process.env.POSTGRES_USER || 'postgres',
-    password: process.env.POSTGRES_PASSWORD,
+    connectionString: databaseUrl,
     max: 10,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
