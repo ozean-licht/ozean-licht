@@ -9,13 +9,16 @@
  * - "My Tasks" section header followed by "All Tasks"
  * - Loading skeleton during fetch
  * - Empty state for no tasks
+ *
+ * Phase 5: Tasks stay in order, completed tasks move to separate "Completed" group below
  */
 
 import React, { useState, useMemo } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, AlertTriangle, Clock, CalendarCheck } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Clock, CalendarCheck, ChevronDown, ChevronUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import TaskListItem, { type TaskItem } from './TaskListItem';
 
 type TabValue = 'active' | 'overdue' | 'planned' | 'done';
@@ -37,6 +40,10 @@ interface TaskListProps {
   onTabChange?: (tab: TabValue) => void;
   /** Whether to show project badges */
   showProjects?: boolean;
+  /** ID of the current/highlighted task */
+  currentTaskId?: string;
+  /** Keep completed tasks visible in active tab (grouped separately) */
+  keepCompletedVisible?: boolean;
 }
 
 /**
@@ -77,6 +84,24 @@ function filterTasksByTab(tasks: TaskItem[], tab: TabValue): TaskItem[] {
         return true;
     }
   });
+}
+
+/**
+ * Separate active and completed tasks (for keepCompletedVisible mode)
+ */
+function separateTasksByCompletion(tasks: TaskItem[]): { active: TaskItem[]; completed: TaskItem[] } {
+  const active: TaskItem[] = [];
+  const completed: TaskItem[] = [];
+
+  tasks.forEach((task) => {
+    if (task.is_done || ['done', 'completed'].includes(task.status)) {
+      completed.push(task);
+    } else {
+      active.push(task);
+    }
+  });
+
+  return { active, completed };
 }
 
 /**
@@ -148,6 +173,68 @@ function EmptyState({ tab }: { tab: TabValue }) {
   );
 }
 
+/**
+ * Completed tasks section
+ */
+function CompletedSection({
+  tasks,
+  onToggle,
+  onNavigate,
+  showProjects,
+}: {
+  tasks: TaskItem[];
+  onToggle: (id: string, isDone: boolean) => void;
+  onNavigate?: (id: string) => void;
+  showProjects?: boolean;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const displayTasks = isExpanded ? tasks : tasks.slice(0, 3);
+
+  if (tasks.length === 0) return null;
+
+  return (
+    <div className="mt-6 pt-6 border-t border-primary/20">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-medium text-[#C4C8D4] uppercase tracking-wide flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-green-400" />
+          Completed ({tasks.length})
+        </h3>
+        {tasks.length > 3 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-xs text-primary hover:text-primary/80"
+          >
+            {isExpanded ? (
+              <>
+                <ChevronUp className="w-3 h-3 mr-1" />
+                Show less
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-3 h-3 mr-1" />
+                Show {tasks.length - 3} more
+              </>
+            )}
+          </Button>
+        )}
+      </div>
+      <div className="space-y-2">
+        {displayTasks.map((task) => (
+          <TaskListItem
+            key={task.id}
+            task={task}
+            onToggleDone={onToggle}
+            onNavigate={onNavigate}
+            showProject={showProjects}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function TaskList({
   tasks,
   myTasks,
@@ -157,6 +244,8 @@ export default function TaskList({
   activeTab: controlledTab,
   onTabChange,
   showProjects = true,
+  currentTaskId,
+  keepCompletedVisible = false,
 }: TaskListProps) {
   const [internalTab, setInternalTab] = useState<TabValue>('active');
 
@@ -174,15 +263,54 @@ export default function TaskList({
   const allTasks = useMemo(() => [...(myTasks || []), ...tasks], [myTasks, tasks]);
   const tabCounts = useMemo(() => getTabCounts(allTasks), [allTasks]);
 
-  // Filter tasks for current tab
-  const filteredTasks = useMemo(
-    () => filterTasksByTab(tasks, activeTab),
-    [tasks, activeTab]
-  );
-  const filteredMyTasks = useMemo(
-    () => (myTasks ? filterTasksByTab(myTasks, activeTab) : []),
-    [myTasks, activeTab]
-  );
+  // Filter and separate tasks for current tab
+  const { filteredTasks, filteredMyTasks, completedTasks, completedMyTasks } = useMemo(() => {
+    if (keepCompletedVisible && activeTab === 'active') {
+      // In keepCompletedVisible mode, get all non-overdue, non-planned tasks
+      const allActive = tasks.filter((t) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const targetDate = t.target_date ? new Date(t.target_date) : null;
+        if (targetDate) targetDate.setHours(0, 0, 0, 0);
+
+        // Exclude overdue (will be in overdue tab) and planned
+        const isOverdue = targetDate !== null && targetDate < today && !t.is_done;
+        const isPlanned = t.status === 'planned';
+
+        return !isOverdue && !isPlanned;
+      });
+
+      const allMyActive = myTasks?.filter((t) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const targetDate = t.target_date ? new Date(t.target_date) : null;
+        if (targetDate) targetDate.setHours(0, 0, 0, 0);
+
+        const isOverdue = targetDate !== null && targetDate < today && !t.is_done;
+        const isPlanned = t.status === 'planned';
+
+        return !isOverdue && !isPlanned;
+      }) || [];
+
+      const separated = separateTasksByCompletion(allActive);
+      const separatedMy = separateTasksByCompletion(allMyActive);
+
+      return {
+        filteredTasks: separated.active,
+        filteredMyTasks: separatedMy.active,
+        completedTasks: separated.completed,
+        completedMyTasks: separatedMy.completed,
+      };
+    }
+
+    // Standard filtering
+    return {
+      filteredTasks: filterTasksByTab(tasks, activeTab),
+      filteredMyTasks: myTasks ? filterTasksByTab(myTasks, activeTab) : [],
+      completedTasks: [],
+      completedMyTasks: [],
+    };
+  }, [tasks, myTasks, activeTab, keepCompletedVisible]);
 
   // Handle task toggle
   const handleToggle = (id: string, isDone: boolean) => {
@@ -198,6 +326,18 @@ export default function TaskList({
     );
   }
 
+  // Calculate updated tab counts for keepCompletedVisible mode
+  const adjustedTabCounts = useMemo(() => {
+    if (keepCompletedVisible) {
+      return {
+        ...tabCounts,
+        active: tabCounts.active + tabCounts.done, // Include completed in active count
+        done: 0, // Hide done tab when using keepCompletedVisible
+      };
+    }
+    return tabCounts;
+  }, [tabCounts, keepCompletedVisible]);
+
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)}>
@@ -207,9 +347,9 @@ export default function TaskList({
             className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
           >
             Active
-            {tabCounts.active > 0 && (
+            {adjustedTabCounts.active > 0 && (
               <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">
-                {tabCounts.active}
+                {adjustedTabCounts.active}
               </Badge>
             )}
           </TabsTrigger>
@@ -235,17 +375,19 @@ export default function TaskList({
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger
-            value="done"
-            className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
-          >
-            Done
-            {tabCounts.done > 0 && (
-              <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">
-                {tabCounts.done}
-              </Badge>
-            )}
-          </TabsTrigger>
+          {!keepCompletedVisible && (
+            <TabsTrigger
+              value="done"
+              className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
+            >
+              Done
+              {tabCounts.done > 0 && (
+                <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">
+                  {tabCounts.done}
+                </Badge>
+              )}
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-6">
@@ -263,9 +405,20 @@ export default function TaskList({
                     onToggleDone={handleToggle}
                     onNavigate={onTaskNavigate}
                     showProject={showProjects}
+                    isHighlighted={task.id === currentTaskId}
                   />
                 ))}
               </div>
+
+              {/* Completed My Tasks */}
+              {keepCompletedVisible && completedMyTasks.length > 0 && (
+                <CompletedSection
+                  tasks={completedMyTasks}
+                  onToggle={handleToggle}
+                  onNavigate={onTaskNavigate}
+                  showProjects={showProjects}
+                />
+              )}
             </div>
           )}
 
@@ -285,9 +438,20 @@ export default function TaskList({
                     onToggleDone={handleToggle}
                     onNavigate={onTaskNavigate}
                     showProject={showProjects}
+                    isHighlighted={task.id === currentTaskId}
                   />
                 ))}
               </div>
+
+              {/* Completed Tasks */}
+              {keepCompletedVisible && completedTasks.length > 0 && (
+                <CompletedSection
+                  tasks={completedTasks}
+                  onToggle={handleToggle}
+                  onNavigate={onTaskNavigate}
+                  showProjects={showProjects}
+                />
+              )}
             </div>
           ) : filteredMyTasks.length === 0 ? (
             <EmptyState tab={activeTab} />

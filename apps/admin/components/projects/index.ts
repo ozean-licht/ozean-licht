@@ -58,3 +58,7 @@ export { default as CategoryPicker } from './CategoryPicker';
 export { default as LabelManager } from './LabelManager';
 export { default as ApprovalGate } from './ApprovalGate';
 export { default as PublishScheduler } from './PublishScheduler';
+
+// Phase 5 Polish Components
+export { default as ActivityLog } from './ActivityLog';
+export type { ActivityItem } from './ActivityLog';

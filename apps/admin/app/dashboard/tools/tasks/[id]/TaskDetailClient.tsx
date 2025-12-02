@@ -4,21 +4,25 @@
  * Task Detail Client Component
  *
  * Displays task information with:
- * - Header with name, priority dot, status
+ * - Header with task_code, name, priority dot, status
+ * - Circle checkbox with improved completion UX
+ * - Completion info (avatar + timestamp)
  * - Project link/badge
  * - Description (editable)
  * - Due date with overdue indicator
+ * - Activity log
  * - Status toggle (todo -> in_progress -> done)
  * - Comments section
  * - Quick actions
+ *
+ * Phase 5: Added task_code display, improved completion UX, activity log
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -50,7 +54,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { PriorityDot, derivePriority } from '@/components/projects';
+import { PriorityDot, derivePriority, ActivityLog, type ActivityItem } from '@/components/projects';
 import type { DBTask } from '@/lib/db/tasks';
 import type { DBComment } from '@/lib/db/comments';
 import { cn } from '@/lib/utils';
@@ -91,11 +95,22 @@ const statusColors: Record<string, string> = {
 // Format date for display
 function formatDate(dateString: string | null): string {
   if (!dateString) return 'Not set';
-  return new Date(dateString).toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
+  return new Date(dateString).toLocaleDateString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
     year: 'numeric',
+  });
+}
+
+// Format date with time for completion
+function formatDateTime(dateString: string | null): string {
+  if (!dateString) return 'Not set';
+  return new Date(dateString).toLocaleDateString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
@@ -107,20 +122,52 @@ function isOverdue(dateString: string | null, isDone: boolean): boolean {
   return new Date(dateString) < today;
 }
 
+// Get initials from name
+function getInitials(name?: string | null): string {
+  if (!name) return 'SY';
+  const parts = name.split(' ');
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+}
+
 export default function TaskDetailClient({
   task: initialTask,
   comments,
   commentCount,
-  user: _user,
+  user,
 }: TaskDetailClientProps) {
   const router = useRouter();
   const [task, setTask] = useState(initialTask);
   const [isEditing, setIsEditing] = useState(false);
   const [editedDescription, setEditedDescription] = useState(task.description || '');
   const [isSaving, setIsSaving] = useState(false);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(true);
 
   const priority = derivePriority(task.target_date, task.is_done, task.status);
   const taskOverdue = isOverdue(task.target_date, task.is_done);
+
+  // Fetch activities on mount
+  useEffect(() => {
+    async function fetchActivities() {
+      try {
+        setActivitiesLoading(true);
+        const response = await fetch(`/api/tasks/${task.id}/activities?limit=20`);
+        if (response.ok) {
+          const data = await response.json();
+          setActivities(data.activities || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch activities:', error);
+      } finally {
+        setActivitiesLoading(false);
+      }
+    }
+
+    fetchActivities();
+  }, [task.id]);
 
   // Update task
   const updateTask = async (updates: Partial<DBTask>) => {
@@ -129,13 +176,27 @@ export default function TaskDetailClient({
       const response = await fetch(`/api/tasks/${task.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
+        body: JSON.stringify({
+          ...updates,
+          // Include user info for completion tracking
+          completed_by_name: user.name,
+          completed_by_email: user.email,
+        }),
       });
 
       if (!response.ok) throw new Error('Failed to update task');
 
-      const { task: updatedTask } = await response.json();
+      const updatedTask = await response.json();
       setTask(prev => ({ ...prev, ...updatedTask }));
+
+      // Refresh activities if status changed
+      if (updates.is_done !== undefined || updates.status !== undefined) {
+        const activitiesRes = await fetch(`/api/tasks/${task.id}/activities?limit=20`);
+        if (activitiesRes.ok) {
+          const activitiesData = await activitiesRes.json();
+          setActivities(activitiesData.activities || []);
+        }
+      }
     } catch (error) {
       console.error('Failed to update task:', error);
     } finally {
@@ -195,15 +256,34 @@ export default function TaskDetailClient({
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-8">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-3">
-            {/* Checkbox */}
-            <Checkbox
-              checked={task.is_done}
-              onCheckedChange={toggleDone}
-              className="h-6 w-6 border-primary/40 data-[state=checked]:bg-primary"
-            />
+            {/* Circle Checkbox */}
+            <button
+              onClick={toggleDone}
+              disabled={isSaving}
+              className={cn(
+                'w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0',
+                task.is_done
+                  ? 'bg-primary border-primary'
+                  : 'border-primary/40 hover:border-primary/60 hover:bg-primary/5'
+              )}
+              aria-label={task.is_done ? 'Mark as incomplete' : 'Mark as complete'}
+            >
+              {task.is_done && (
+                <svg className="w-4 h-4 text-white" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </button>
 
             {/* Priority dot */}
             <PriorityDot priority={priority} size="lg" />
+
+            {/* Task code badge */}
+            {task.task_code && (
+              <Badge variant="outline" className="border-primary/50 text-primary font-mono text-xs">
+                {task.task_code}
+              </Badge>
+            )}
 
             {/* Status badge */}
             <Badge className={cn('border', statusColors[task.status] || statusColors.todo)}>
@@ -225,6 +305,24 @@ export default function TaskDetailClient({
           )}>
             {task.name}
           </h1>
+
+          {/* Completion info */}
+          {task.is_done && task.finished_at && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20 mt-4 max-w-md">
+              {/* Avatar */}
+              <div className="w-8 h-8 rounded-full bg-green-500/30 text-green-400 flex items-center justify-center text-sm font-medium flex-shrink-0">
+                {task.completed_by_name ? getInitials(task.completed_by_name) : <CheckCircle2 className="w-4 h-4" />}
+              </div>
+              {/* Completion text */}
+              <p className="text-sm text-green-400">
+                Accomplished{' '}
+                {task.completed_by_name && (
+                  <span className="font-medium">by {task.completed_by_name}</span>
+                )}{' '}
+                at {formatDateTime(task.finished_at)}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Quick actions */}
@@ -310,6 +408,21 @@ export default function TaskDetailClient({
                   {task.description || 'No description provided.'}
                 </p>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Activity Log */}
+          <Card className="bg-card/70 border-primary/20">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg text-white">Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ActivityLog
+                activities={activities}
+                initialCount={5}
+                isLoading={activitiesLoading}
+                emptyMessage="No activity recorded yet"
+              />
             </CardContent>
           </Card>
 
@@ -434,7 +547,7 @@ export default function TaskDetailClient({
                   <p className="text-xs text-[#C4C8D4] uppercase mb-1">Completed</p>
                   <div className="flex items-center gap-2 text-green-400">
                     <CheckCircle2 className="w-4 h-4" />
-                    {formatDate(task.finished_at)}
+                    {formatDateTime(task.finished_at)}
                   </div>
                 </div>
               )}
@@ -447,6 +560,12 @@ export default function TaskDetailClient({
               <CardTitle className="text-lg text-white">Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {task.task_code && (
+                <div>
+                  <p className="text-xs text-[#C4C8D4] uppercase mb-1">Task ID</p>
+                  <p className="text-sm text-white font-mono">{task.task_code}</p>
+                </div>
+              )}
               <div>
                 <p className="text-xs text-[#C4C8D4] uppercase mb-1">Task Order</p>
                 <p className="text-sm text-white">#{task.task_order}</p>

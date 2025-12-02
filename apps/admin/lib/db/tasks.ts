@@ -39,8 +39,29 @@ export interface DBTask {
   airtable_created_at: string | null;
   airtable_updated_at: string | null;
   metadata: Record<string, unknown>;
+  // Phase 5: Task code and completion tracking
+  task_code: string | null;
+  completed_by_id: string | null;
+  completed_by_name: string | null;
+  completed_by_email: string | null;
   // Joined fields
   project_title?: string;
+}
+
+// Task activity type
+export interface TaskActivity {
+  id: string;
+  task_id: string;
+  project_id: string | null;
+  user_id: string | null;
+  user_name: string | null;
+  user_email: string | null;
+  activity_type: 'created' | 'updated' | 'status_changed' | 'completed' | 'reopened' | 'assigned' | 'unassigned' | 'commented' | 'due_date_changed';
+  field_changed: string | null;
+  old_value: string | null;
+  new_value: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
 }
 
 // Filter options for task queries
@@ -193,6 +214,8 @@ export async function getAllTasks(filters: TaskFilters = {}): Promise<TaskListRe
       t.created_at, t.updated_at,
       t.airtable_created_at, t.airtable_updated_at,
       t.metadata,
+      t.task_code,
+      t.completed_by_id, t.completed_by_name, t.completed_by_email,
       p.title as project_title
     FROM tasks t
     LEFT JOIN projects p ON t.project_id = p.id
@@ -227,6 +250,8 @@ export async function getTaskById(id: string): Promise<DBTask | null> {
       t.created_at, t.updated_at,
       t.airtable_created_at, t.airtable_updated_at,
       t.metadata,
+      t.task_code,
+      t.completed_by_id, t.completed_by_name, t.completed_by_email,
       p.title as project_title
     FROM tasks t
     LEFT JOIN projects p ON t.project_id = p.id
@@ -234,6 +259,36 @@ export async function getTaskById(id: string): Promise<DBTask | null> {
   `;
 
   const rows = await query<DBTask>(sql, [id]);
+  return rows.length > 0 ? rows[0] : null;
+}
+
+/**
+ * Get a single task by task_code
+ */
+export async function getTaskByCode(taskCode: string): Promise<DBTask | null> {
+  const sql = `
+    SELECT
+      t.id, t.airtable_id, t.airtable_auto_number,
+      t.name, t.description, t.status, t.is_done, t.task_order,
+      t.start_date, t.target_date, t.finished_at,
+      t.duration_days, t.offset_days_to_anchor,
+      t.day_of_publish, t.auto_start, t.auto_finished,
+      t.project_airtable_id, t.project_id,
+      t.assignee_ids, t.milestone_ids, t.department_ids,
+      t.created_by_name, t.created_by_email,
+      t.updated_by_name, t.updated_by_email,
+      t.created_at, t.updated_at,
+      t.airtable_created_at, t.airtable_updated_at,
+      t.metadata,
+      t.task_code,
+      t.completed_by_id, t.completed_by_name, t.completed_by_email,
+      p.title as project_title
+    FROM tasks t
+    LEFT JOIN projects p ON t.project_id = p.id
+    WHERE t.task_code = $1
+  `;
+
+  const rows = await query<DBTask>(sql, [taskCode]);
   return rows.length > 0 ? rows[0] : null;
 }
 
@@ -255,11 +310,13 @@ export async function getTasksByProjectId(projectId: string): Promise<DBTask[]> 
       t.created_at, t.updated_at,
       t.airtable_created_at, t.airtable_updated_at,
       t.metadata,
+      t.task_code,
+      t.completed_by_id, t.completed_by_name, t.completed_by_email,
       p.title as project_title
     FROM tasks t
     LEFT JOIN projects p ON t.project_id = p.id
     WHERE t.project_id = $1
-    ORDER BY t.task_order ASC, t.created_at ASC
+    ORDER BY t.is_done ASC, t.task_order ASC, t.created_at ASC
   `;
 
   return query<DBTask>(sql, [projectId]);
@@ -324,7 +381,9 @@ export async function updateTask(
       updated_by_name, updated_by_email,
       created_at, updated_at,
       airtable_created_at, airtable_updated_at,
-      metadata
+      metadata,
+      task_code,
+      completed_by_id, completed_by_name, completed_by_email
   `;
 
   const rows = await query<DBTask>(sql, params);
@@ -362,7 +421,9 @@ export async function createTask(data: {
       updated_by_name, updated_by_email,
       created_at, updated_at,
       airtable_created_at, airtable_updated_at,
-      metadata
+      metadata,
+      task_code,
+      completed_by_id, completed_by_name, completed_by_email
   `;
 
   const params = [
@@ -423,4 +484,175 @@ export async function getTaskStats(): Promise<{
     done: parseInt(rows[0]?.done || '0', 10),
     overdue: parseInt(rows[0]?.overdue || '0', 10),
   };
+}
+
+// ============================================
+// ACTIVITY FUNCTIONS
+// ============================================
+
+/**
+ * Get activities for a specific task
+ */
+export async function getTaskActivities(
+  taskId: string,
+  limit: number = 10
+): Promise<TaskActivity[]> {
+  const sql = `
+    SELECT
+      id, task_id, project_id, user_id,
+      user_name, user_email, activity_type,
+      field_changed, old_value, new_value,
+      metadata, created_at
+    FROM task_activities
+    WHERE task_id = $1
+    ORDER BY created_at DESC
+    LIMIT $2
+  `;
+
+  return query<TaskActivity>(sql, [taskId, limit]);
+}
+
+/**
+ * Get activities for a project (all tasks in project)
+ */
+export async function getProjectTaskActivities(
+  projectId: string,
+  limit: number = 10
+): Promise<TaskActivity[]> {
+  const sql = `
+    SELECT
+      ta.id, ta.task_id, ta.project_id, ta.user_id,
+      ta.user_name, ta.user_email, ta.activity_type,
+      ta.field_changed, ta.old_value, ta.new_value,
+      ta.metadata, ta.created_at
+    FROM task_activities ta
+    WHERE ta.project_id = $1
+    ORDER BY ta.created_at DESC
+    LIMIT $2
+  `;
+
+  return query<TaskActivity>(sql, [projectId, limit]);
+}
+
+/**
+ * Log a task activity manually
+ */
+export async function logTaskActivity(data: {
+  task_id: string;
+  project_id?: string;
+  user_id?: string;
+  user_name?: string;
+  user_email?: string;
+  activity_type: TaskActivity['activity_type'];
+  field_changed?: string;
+  old_value?: string;
+  new_value?: string;
+  metadata?: Record<string, unknown>;
+}): Promise<TaskActivity> {
+  const sql = `
+    INSERT INTO task_activities (
+      task_id, project_id, user_id, user_name, user_email,
+      activity_type, field_changed, old_value, new_value, metadata
+    ) VALUES (
+      $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+    )
+    RETURNING *
+  `;
+
+  const params = [
+    data.task_id,
+    data.project_id || null,
+    data.user_id || null,
+    data.user_name || null,
+    data.user_email || null,
+    data.activity_type,
+    data.field_changed || null,
+    data.old_value || null,
+    data.new_value || null,
+    JSON.stringify(data.metadata || {}),
+  ];
+
+  const rows = await query<TaskActivity>(sql, params);
+  return rows[0];
+}
+
+/**
+ * Update task with completion tracking
+ */
+export async function completeTask(
+  taskId: string,
+  completedBy: { id?: string; name: string; email: string }
+): Promise<DBTask | null> {
+  const sql = `
+    UPDATE tasks
+    SET
+      is_done = true,
+      status = 'done',
+      finished_at = NOW(),
+      updated_at = NOW(),
+      completed_by_id = $2,
+      completed_by_name = $3,
+      completed_by_email = $4
+    WHERE id = $1
+    RETURNING
+      id, airtable_id, airtable_auto_number,
+      name, description, status, is_done, task_order,
+      start_date, target_date, finished_at,
+      duration_days, offset_days_to_anchor,
+      day_of_publish, auto_start, auto_finished,
+      project_airtable_id, project_id,
+      assignee_ids, milestone_ids, department_ids,
+      created_by_name, created_by_email,
+      updated_by_name, updated_by_email,
+      created_at, updated_at,
+      airtable_created_at, airtable_updated_at,
+      metadata,
+      task_code,
+      completed_by_id, completed_by_name, completed_by_email
+  `;
+
+  const rows = await query<DBTask>(sql, [
+    taskId,
+    completedBy.id || null,
+    completedBy.name,
+    completedBy.email,
+  ]);
+
+  return rows.length > 0 ? rows[0] : null;
+}
+
+/**
+ * Reopen a completed task
+ */
+export async function reopenTask(taskId: string): Promise<DBTask | null> {
+  const sql = `
+    UPDATE tasks
+    SET
+      is_done = false,
+      status = 'todo',
+      finished_at = NULL,
+      updated_at = NOW(),
+      completed_by_id = NULL,
+      completed_by_name = NULL,
+      completed_by_email = NULL
+    WHERE id = $1
+    RETURNING
+      id, airtable_id, airtable_auto_number,
+      name, description, status, is_done, task_order,
+      start_date, target_date, finished_at,
+      duration_days, offset_days_to_anchor,
+      day_of_publish, auto_start, auto_finished,
+      project_airtable_id, project_id,
+      assignee_ids, milestone_ids, department_ids,
+      created_by_name, created_by_email,
+      updated_by_name, updated_by_email,
+      created_at, updated_at,
+      airtable_created_at, airtable_updated_at,
+      metadata,
+      task_code,
+      completed_by_id, completed_by_name, completed_by_email
+  `;
+
+  const rows = await query<DBTask>(sql, [taskId]);
+  return rows.length > 0 ? rows[0] : null;
 }
