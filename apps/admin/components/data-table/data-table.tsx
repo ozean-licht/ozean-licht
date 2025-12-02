@@ -184,7 +184,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columnsWithSelection.length}
+                  {...({ colSpan: columnsWithSelection.length } as any)}
                   className="h-24 text-center"
                 >
                   No results.

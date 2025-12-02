@@ -85,6 +85,8 @@ export function PermissionMatrix({ permissions, roles }: PermissionMatrixProps) 
           super_admin: 'Super Admin',
           ol_admin: 'OL Admin',
           ol_editor: 'Content Editor',
+          ol_content: 'Content Manager',
+          ol_commerce: 'Commerce Manager',
           support: 'Support',
         };
         return <div className="text-center">{roleLabels[role]}</div>;
@@ -130,6 +132,8 @@ export function PermissionMatrix({ permissions, roles }: PermissionMatrixProps) 
           super_admin: 'Super Admin',
           ol_admin: 'OL Admin',
           ol_editor: 'Content Editor',
+          ol_content: 'Content Manager',
+          ol_commerce: 'Commerce Manager',
           support: 'Support',
         };
         return labels[r];

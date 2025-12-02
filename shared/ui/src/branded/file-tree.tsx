@@ -68,7 +68,7 @@ const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
       dir,
       ...props
     },
-    ref
+    _ref
   ) => {
     const [selectedId, setSelectedId] = useState<string | undefined>(
       initialSelectedId
@@ -219,7 +219,7 @@ const Folder = forwardRef<
       children,
       ...props
     },
-    ref
+    _ref
   ) => {
     const {
       direction,
@@ -299,7 +299,7 @@ const File = forwardRef<
       children,
       ...props
     },
-    ref
+    _ref
   ) => {
     const { direction, selectedId, selectItem } = useTree()
     const isSelected = isSelect ?? selectedId === value

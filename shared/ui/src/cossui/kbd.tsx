@@ -30,7 +30,7 @@ const kbdVariants = cva(
 );
 
 export interface KbdProps
-  extends React.HTMLAttributes<HTMLKbdElement>,
+  extends React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof kbdVariants> {}
 
 /**
@@ -50,7 +50,7 @@ export interface KbdProps
  * <Kbd>Enter</Kbd>
  * <Kbd size="lg">Shift</Kbd>
  */
-const Kbd = React.forwardRef<HTMLKbdElement, KbdProps>(
+const Kbd = React.forwardRef<HTMLElement, KbdProps>(
   ({ className, size, ...props }, ref) => {
     return (
       <kbd

@@ -294,12 +294,20 @@ export class S3StorageClient {
 
   /**
    * Delete a file from bucket
+   *
+   * Note: For folders (keys ending with /), we skip existence check since
+   * S3 folders can be "virtual" (just prefixes with no actual object).
    */
   async deleteFile(params: DeleteFileInput): Promise<DeleteFileResult> {
     const { bucket, fileKey } = params;
 
-    // Verify file exists first
-    await this.statFile({ bucket, fileKey });
+    const isFolder = fileKey.endsWith('/');
+
+    // For regular files, verify exists first
+    // For folders, skip check since they might be virtual prefixes
+    if (!isFolder) {
+      await this.statFile({ bucket, fileKey });
+    }
 
     const command = new DeleteObjectCommand({
       Bucket: bucket,
@@ -308,12 +316,85 @@ export class S3StorageClient {
 
     await this.client.send(command);
 
+    // For folders, also delete all contents recursively
+    if (isFolder) {
+      await this.deleteFolderContents(bucket, fileKey);
+    }
+
     return {
       success: true,
       bucket,
       fileKey,
       deletedAt: new Date().toISOString(),
     };
+  }
+
+  /**
+   * Delete all contents within a folder prefix
+   */
+  private async deleteFolderContents(bucket: string, prefix: string): Promise<void> {
+    // List all objects with this prefix
+    const listCommand = new ListObjectsV2Command({
+      Bucket: bucket,
+      Prefix: prefix,
+    });
+
+    const response = await this.client.send(listCommand);
+
+    if (!response.Contents || response.Contents.length === 0) {
+      return;
+    }
+
+    // Delete each object
+    for (const obj of response.Contents) {
+      if (obj.Key) {
+        const deleteCommand = new DeleteObjectCommand({
+          Bucket: bucket,
+          Key: obj.Key,
+        });
+        await this.client.send(deleteCommand);
+      }
+    }
+
+    // If there are more objects (pagination), continue
+    if (response.IsTruncated && response.NextContinuationToken) {
+      // Recursively handle pagination
+      await this.deleteFolderContentsWithToken(bucket, prefix, response.NextContinuationToken);
+    }
+  }
+
+  /**
+   * Continue deleting folder contents with pagination token
+   */
+  private async deleteFolderContentsWithToken(
+    bucket: string,
+    prefix: string,
+    continuationToken: string
+  ): Promise<void> {
+    const listCommand = new ListObjectsV2Command({
+      Bucket: bucket,
+      Prefix: prefix,
+      ContinuationToken: continuationToken,
+    });
+
+    const response = await this.client.send(listCommand);
+
+    if (response.Contents) {
+      for (const obj of response.Contents) {
+        if (obj.Key) {
+          const deleteCommand = new DeleteObjectCommand({
+            Bucket: bucket,
+            Key: obj.Key,
+          });
+          await this.client.send(deleteCommand);
+        }
+      }
+    }
+
+    // Continue if more pages
+    if (response.IsTruncated && response.NextContinuationToken) {
+      await this.deleteFolderContentsWithToken(bucket, prefix, response.NextContinuationToken);
+    }
   }
 
   /**

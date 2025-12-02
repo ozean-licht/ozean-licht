@@ -12,7 +12,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Upload, Trash2, Download, FolderOpen, AlertCircle, X } from 'lucide-react';
+import { Upload, Trash2, Download, FolderOpen, AlertCircle, X, Eye, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -22,7 +22,9 @@ import {
   StorageBreadcrumb,
   EmptyStorageState,
   BulkActionsToolbar,
+  FilePreviewDialog,
   formatFileSize,
+  type StorageFile,
 } from '@shared/ui';
 import {
   Dialog,
@@ -41,6 +43,7 @@ import {
   deleteStorageFilesBulk,
   getStorageUrl,
   createFolder,
+  renameStorageFile,
   type StorageFileUI,
 } from './actions';
 import { BUCKETS, DEFAULT_BUCKET, type BucketInfo } from './constants';
@@ -116,12 +119,22 @@ export default function OzeanCloudPage() {
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
 
+  // Rename dialog state
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [fileToRename, setFileToRename] = useState<StorageFileUI | null>(null);
+  const [newFileName, setNewFileName] = useState('');
+  const [isRenaming, setIsRenaming] = useState(false);
+
   // Context menu state
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
     file: StorageFileUI;
   } | null>(null);
+
+  // Preview dialog state
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewFile, setPreviewFile] = useState<StorageFile | null>(null);
 
   // Operation loading states
   const [isDeleting, setIsDeleting] = useState(false);
@@ -437,6 +450,52 @@ export default function OzeanCloudPage() {
     }
   };
 
+  // Handle file preview - opens in-app preview dialog
+  const handlePreview = (file: StorageFileUI) => {
+    // Convert StorageFileUI to StorageFile for the preview dialog
+    const previewFileData: StorageFile = {
+      id: file.id,
+      name: file.name,
+      path: file.path,
+      size: file.size,
+      mimeType: file.mimeType,
+      uploadedAt: new Date(file.uploadedAt),
+      bucket: currentBucket,
+      isFolder: file.isFolder,
+    };
+    setPreviewFile(previewFileData);
+    setPreviewOpen(true);
+  };
+
+  // Get previewable files list for navigation (non-folders only)
+  const previewableFiles = React.useMemo(() => {
+    return filteredFiles
+      .filter((f) => !f.isFolder)
+      .map((f): StorageFile => ({
+        id: f.id,
+        name: f.name,
+        path: f.path,
+        size: f.size,
+        mimeType: f.mimeType,
+        uploadedAt: new Date(f.uploadedAt),
+        bucket: currentBucket,
+        isFolder: f.isFolder,
+      }));
+  }, [filteredFiles, currentBucket]);
+
+  // Handle navigation within preview dialog
+  const handlePreviewNavigate = (file: StorageFile) => {
+    setPreviewFile(file);
+  };
+
+  // Handle download from preview dialog
+  const handlePreviewDownload = async (file: StorageFile) => {
+    const uiFile = files.find((f) => f.id === file.id);
+    if (uiFile) {
+      await handleDownload(uiFile);
+    }
+  };
+
   // Handle single file delete
   const handleDeleteClick = (file: StorageFileUI) => {
     setFileToDelete(file);
@@ -538,6 +597,44 @@ export default function OzeanCloudPage() {
     }
   };
 
+  // Handle rename click - open dialog
+  const handleRenameClick = (file: StorageFileUI) => {
+    setFileToRename(file);
+    // Pre-populate with sanitized name (spaces replaced with underscores)
+    const sanitizedName = file.name.replace(/\s+/g, '_');
+    setNewFileName(sanitizedName);
+    setRenameDialogOpen(true);
+  };
+
+  // Handle rename confirm
+  const handleRenameConfirm = async () => {
+    if (!fileToRename || !newFileName.trim() || isRenaming) return;
+
+    setIsRenaming(true);
+    setError(null);
+
+    try {
+      // Build new path
+      const pathParts = fileToRename.path.split('/');
+      pathParts.pop(); // Remove old name
+      const isFolder = fileToRename.isFolder;
+      const newPath = [...pathParts, isFolder ? newFileName + '/' : newFileName].join('/');
+
+      await renameStorageFile(currentBucket, fileToRename.path, newPath);
+
+      setRenameDialogOpen(false);
+      setFileToRename(null);
+      setNewFileName('');
+      await fetchFiles();
+    } catch (err) {
+      console.error('Rename failed:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to rename';
+      setError(errorMessage);
+    } finally {
+      setIsRenaming(false);
+    }
+  };
+
   // Keyboard shortcuts and navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -593,7 +690,7 @@ export default function OzeanCloudPage() {
         }
       }
 
-      // Enter - Open folder or download file
+      // Enter - Open folder or preview file
       if (e.key === 'Enter' && focusedFileIndex >= 0) {
         e.preventDefault();
         const file = filteredFiles[focusedFileIndex];
@@ -601,7 +698,7 @@ export default function OzeanCloudPage() {
           if (file.isFolder) {
             handleFolderClick(file);
           } else {
-            handleDownload(file);
+            handlePreview(file);
           }
         }
       }
@@ -842,7 +939,7 @@ export default function OzeanCloudPage() {
                     <td className="p-3">
                       <button
                         onClick={() => file.isFolder && handleFolderClick(file)}
-                        onDoubleClick={() => !file.isFolder && handleDownload(file)}
+                        onDoubleClick={() => !file.isFolder && handlePreview(file)}
                         className={cn(
                           'flex items-center gap-3 text-left',
                           file.isFolder && 'cursor-pointer'
@@ -866,20 +963,33 @@ export default function OzeanCloudPage() {
                     <td className="p-3">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         {!file.isFolder && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDownload(file)}
-                            className="h-8 w-8 text-white/50 hover:text-white/80"
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handlePreview(file)}
+                              className="h-8 w-8 text-primary hover:text-primary/80 hover:bg-primary/10"
+                              title="Preview"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDownload(file)}
+                              className="h-8 w-8 text-white/50 hover:text-white/80"
+                              title="Download"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </>
                         )}
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDeleteClick(file)}
                           className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                          title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -909,7 +1019,7 @@ export default function OzeanCloudPage() {
                     toggleFileSelection(file.id);
                   }
                 }}
-                onDoubleClick={() => !file.isFolder && handleDownload(file)}
+                onDoubleClick={() => !file.isFolder && handlePreview(file)}
               >
                 {/* Checkbox */}
                 {!file.isFolder && (
@@ -949,17 +1059,32 @@ export default function OzeanCloudPage() {
                 {/* Actions */}
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
                   {!file.isFolder && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDownload(file);
-                      }}
-                      className="h-7 w-7 bg-[#00111A]/80"
-                    >
-                      <Download className="h-3 w-3" />
-                    </Button>
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePreview(file);
+                        }}
+                        className="h-7 w-7 bg-[#00111A]/80 text-primary"
+                        title="Preview"
+                      >
+                        <Eye className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownload(file);
+                        }}
+                        className="h-7 w-7 bg-[#00111A]/80"
+                        title="Download"
+                      >
+                        <Download className="h-3 w-3" />
+                      </Button>
+                    </>
                   )}
                   <Button
                     variant="ghost"
@@ -969,6 +1094,7 @@ export default function OzeanCloudPage() {
                       handleDeleteClick(file);
                     }}
                     className="h-7 w-7 bg-[#00111A]/80 text-red-500"
+                    title="Delete"
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
@@ -1051,47 +1177,139 @@ export default function OzeanCloudPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Rename Dialog */}
+      <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename {fileToRename?.isFolder ? 'Folder' : 'File'}</DialogTitle>
+            <DialogDescription>
+              Enter a new name. Spaces will be replaced with underscores.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-3">
+            <div className="text-xs text-muted-foreground">
+              Current: <span className="font-mono">{fileToRename?.name}</span>
+            </div>
+            <input
+              type="text"
+              value={newFileName}
+              onChange={(e) => setNewFileName(e.target.value.replace(/\s+/g, '_'))}
+              placeholder="New name"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleRenameConfirm();
+                }
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setRenameDialogOpen(false);
+                setFileToRename(null);
+                setNewFileName('');
+              }}
+              disabled={isRenaming}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleRenameConfirm} disabled={isRenaming || !newFileName.trim()}>
+              {isRenaming ? 'Renaming...' : 'Rename'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Context Menu */}
       {contextMenu && (
         <div
-          className="fixed z-50 min-w-[160px] bg-[#00111A] border border-[#0E282E] rounded-lg shadow-xl py-1"
+          className="fixed z-50 min-w-[180px] bg-[#00111A] border border-[#0E282E] rounded-xl shadow-2xl py-1 px-1"
           style={{ left: contextMenu.x, top: contextMenu.y }}
         >
           {contextMenu.file.isFolder ? (
-            <button
-              onClick={() => {
-                handleFolderClick(contextMenu.file);
-                setContextMenu(null);
-              }}
-              className="w-full px-4 py-2 text-left text-sm text-white/80 hover:bg-[#0E282E] hover:text-primary flex items-center gap-2 transition-colors"
-            >
-              <FolderOpen className="h-4 w-4" />
-              Open Folder
-            </button>
+            <>
+              <button
+                onClick={() => {
+                  handleFolderClick(contextMenu.file);
+                  setContextMenu(null);
+                }}
+                className="w-full px-4 py-2.5 text-left text-sm text-white/90 hover:bg-primary/10 hover:text-primary flex items-center gap-3 transition-colors rounded-lg"
+              >
+                <FolderOpen className="h-4 w-4" />
+                Open Folder
+              </button>
+              <button
+                onClick={() => {
+                  handleRenameClick(contextMenu.file);
+                  setContextMenu(null);
+                }}
+                className="w-full px-4 py-2.5 text-left text-sm text-white/90 hover:bg-primary/10 hover:text-primary flex items-center gap-3 transition-colors rounded-lg"
+              >
+                <Pencil className="h-4 w-4" />
+                Rename
+              </button>
+            </>
           ) : (
-            <button
-              onClick={() => {
-                handleDownload(contextMenu.file);
-                setContextMenu(null);
-              }}
-              className="w-full px-4 py-2 text-left text-sm text-white/80 hover:bg-[#0E282E] hover:text-primary flex items-center gap-2 transition-colors"
-            >
-              <Download className="h-4 w-4" />
-              Download
-            </button>
+            <>
+              <button
+                onClick={() => {
+                  handlePreview(contextMenu.file);
+                  setContextMenu(null);
+                }}
+                className="w-full px-4 py-2.5 text-left text-sm text-white/90 hover:bg-primary/10 hover:text-primary flex items-center gap-3 transition-colors rounded-lg"
+              >
+                <Eye className="h-4 w-4" />
+                Preview
+              </button>
+              <button
+                onClick={() => {
+                  handleDownload(contextMenu.file);
+                  setContextMenu(null);
+                }}
+                className="w-full px-4 py-2.5 text-left text-sm text-white/90 hover:bg-primary/10 hover:text-primary flex items-center gap-3 transition-colors rounded-lg"
+              >
+                <Download className="h-4 w-4" />
+                Download
+              </button>
+              <button
+                onClick={() => {
+                  handleRenameClick(contextMenu.file);
+                  setContextMenu(null);
+                }}
+                className="w-full px-4 py-2.5 text-left text-sm text-white/90 hover:bg-primary/10 hover:text-primary flex items-center gap-3 transition-colors rounded-lg"
+              >
+                <Pencil className="h-4 w-4" />
+                Rename
+              </button>
+            </>
           )}
-          <div className="border-t border-[#0E282E] my-1" />
+          <div className="border-t border-[#0E282E] my-2 mx-2" />
           <button
             onClick={() => {
               handleDeleteClick(contextMenu.file);
               setContextMenu(null);
             }}
-            className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-900/20 hover:text-red-300 flex items-center gap-2 transition-colors"
+            className="w-full px-4 py-2.5 text-left text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 flex items-center gap-3 transition-colors rounded-lg"
           >
             <Trash2 className="h-4 w-4" />
             Delete
           </button>
         </div>
+      )}
+
+      {/* File Preview Dialog */}
+      {previewFile && (
+        <FilePreviewDialog
+          file={previewFile}
+          files={previewableFiles}
+          open={previewOpen}
+          onOpenChange={setPreviewOpen}
+          onNavigate={handlePreviewNavigate}
+          onDownload={handlePreviewDownload}
+        />
       )}
     </div>
   );

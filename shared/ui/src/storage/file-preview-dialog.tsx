@@ -2,7 +2,7 @@
 
 /**
  * File Preview Dialog Component
- * Inline file previews for images, videos, PDFs with navigation
+ * Inline file previews for images, videos, audio, text, PDFs with navigation
  */
 
 import * as React from 'react'
@@ -14,11 +14,7 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCw,
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Maximize,
+  FileText,
 } from 'lucide-react'
 import { Dialog, DialogPopup } from '../cossui/dialog'
 import { Button } from '../cossui/button'
@@ -46,9 +42,9 @@ export function FilePreviewDialog({
 }: FilePreviewDialogProps) {
   const [zoom, setZoom] = React.useState(1)
   const [rotation, setRotation] = React.useState(0)
-  const [isPlaying, setIsPlaying] = React.useState(false)
-  const [isMuted, setIsMuted] = React.useState(false)
-  const videoRef = React.useRef<HTMLVideoElement>(null)
+  const [textContent, setTextContent] = React.useState<string | null>(null)
+  const [textLoading, setTextLoading] = React.useState(false)
+  const [textError, setTextError] = React.useState<string | null>(null)
 
   // Get current file index for navigation
   const currentIndex = files.findIndex((f) => f.id === file.id)
@@ -59,14 +55,46 @@ export function FilePreviewDialog({
   React.useEffect(() => {
     setZoom(1)
     setRotation(0)
-    setIsPlaying(false)
+    setTextContent(null)
+    setTextError(null)
   }, [file.id])
+
+  // Fetch text content for text files
+  React.useEffect(() => {
+    if (!open || !isText(file)) return
+
+    const fetchTextContent = async () => {
+      setTextLoading(true)
+      setTextError(null)
+      try {
+        const response = await fetch(`/api/storage/preview/${file.bucket}/${file.path}`)
+        if (!response.ok) throw new Error('Failed to load file')
+        const text = await response.text()
+        // Limit preview to 500KB to prevent browser issues
+        if (text.length > 512000) {
+          setTextContent(text.slice(0, 512000) + '\n\n... (file truncated, download to see full content)')
+        } else {
+          setTextContent(text)
+        }
+      } catch (err) {
+        setTextError(err instanceof Error ? err.message : 'Failed to load file')
+      } finally {
+        setTextLoading(false)
+      }
+    }
+
+    fetchTextContent()
+  }, [open, file.id, file.bucket, file.path])
 
   // Keyboard shortcuts
   React.useEffect(() => {
     if (!open) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept if focused on video/audio (let native controls handle it)
+      const target = e.target as HTMLElement
+      if (target.tagName === 'VIDEO' || target.tagName === 'AUDIO') return
+
       if (e.key === 'Escape') {
         onOpenChange(false)
       } else if (e.key === 'ArrowLeft' && hasPrevious) {
@@ -79,15 +107,12 @@ export function FilePreviewDialog({
         handleZoomOut()
       } else if (e.key === 'r' || e.key === 'R') {
         handleRotate()
-      } else if (e.key === ' ' && isVideo(file)) {
-        e.preventDefault()
-        togglePlayPause()
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [open, file, hasPrevious, hasNext, zoom, rotation, isPlaying])
+  }, [open, file, hasPrevious, hasNext, zoom, rotation])
 
   const handleNavigate = (direction: number) => {
     if (!files.length || currentIndex === -1) return
@@ -109,47 +134,26 @@ export function FilePreviewDialog({
     setRotation(0)
   }
 
-  const togglePlayPause = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause()
-      } else {
-        videoRef.current.play()
-      }
-      setIsPlaying(!isPlaying)
-    }
+  // File type detection helpers
+  const isImage = (f: StorageFile) => f.mimeType.startsWith('image/')
+  const isVideo = (f: StorageFile) => f.mimeType.startsWith('video/')
+  const isAudio = (f: StorageFile) => f.mimeType.startsWith('audio/')
+  const isPdf = (f: StorageFile) => f.mimeType === 'application/pdf'
+  const isText = (f: StorageFile) => {
+    const textTypes = [
+      'text/',
+      'application/json',
+      'application/xml',
+      'application/javascript',
+      'application/typescript',
+      'application/x-yaml',
+      'application/x-sh',
+    ]
+    return textTypes.some((t) => f.mimeType.startsWith(t)) ||
+           f.name.match(/\.(txt|md|json|xml|yaml|yml|csv|log|sh|bash|zsh|env|gitignore|dockerignore|editorconfig)$/i)
   }
 
-  const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted
-      setIsMuted(!isMuted)
-    }
-  }
-
-  const toggleFullscreen = () => {
-    if (videoRef.current) {
-      if (document.fullscreenElement) {
-        document.exitFullscreen()
-      } else {
-        videoRef.current.requestFullscreen()
-      }
-    }
-  }
-
-  const isImage = (file: StorageFile) => {
-    return file.mimeType.startsWith('image/')
-  }
-
-  const isVideo = (file: StorageFile) => {
-    return file.mimeType.startsWith('video/')
-  }
-
-  const isPdf = (file: StorageFile) => {
-    return file.mimeType === 'application/pdf'
-  }
-
-  const canPreview = isImage(file) || isVideo(file) || isPdf(file)
+  const canPreview = isImage(file) || isVideo(file) || isAudio(file) || isPdf(file) || isText(file)
 
   // Format date
   const formatDate = (date: Date) => {
@@ -276,52 +280,69 @@ export function FilePreviewDialog({
                   </div>
                 )}
 
-                {/* Video Preview */}
+                {/* Video Preview - Native HTML5 controls for full functionality */}
                 {isVideo(file) && (
                   <div className="relative w-full h-full flex items-center justify-center p-8">
                     <video
-                      ref={videoRef}
                       src={`/api/storage/preview/${file.bucket}/${file.path}`}
                       className="max-w-full max-h-full rounded-lg"
-                      onPlay={() => setIsPlaying(true)}
-                      onPause={() => setIsPlaying(false)}
+                      controls
+                      controlsList="nodownload"
+                      preload="metadata"
+                      style={{
+                        // Ozean Licht styled controls via CSS
+                        colorScheme: 'dark',
+                      }}
                     />
+                  </div>
+                )}
 
-                    {/* Video Controls */}
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 glass-card-strong rounded-lg p-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={togglePlayPause}
-                        className="text-primary hover:bg-primary/10"
+                {/* Audio Preview - Native HTML5 controls */}
+                {isAudio(file) && (
+                  <div className="flex flex-col items-center justify-center gap-6 p-8">
+                    <div className="rounded-full bg-card p-8 glow">
+                      <svg
+                        className="h-16 w-16 text-primary"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
                       >
-                        {isPlaying ? (
-                          <Pause className="h-4 w-4" />
-                        ) : (
-                          <Play className="h-4 w-4" />
-                        )}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={toggleMute}
-                        className="text-primary hover:bg-primary/10"
-                      >
-                        {isMuted ? (
-                          <VolumeX className="h-4 w-4" />
-                        ) : (
-                          <Volume2 className="h-4 w-4" />
-                        )}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={toggleFullscreen}
-                        className="text-primary hover:bg-primary/10"
-                      >
-                        <Maximize className="h-4 w-4" />
-                      </Button>
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                        />
+                      </svg>
                     </div>
+                    <audio
+                      src={`/api/storage/preview/${file.bucket}/${file.path}`}
+                      className="w-full max-w-md"
+                      controls
+                      controlsList="nodownload"
+                      preload="metadata"
+                      style={{ colorScheme: 'dark' }}
+                    />
+                  </div>
+                )}
+
+                {/* Text Preview */}
+                {isText(file) && (
+                  <div className="w-full h-full overflow-auto p-6">
+                    {textLoading ? (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                      </div>
+                    ) : textError ? (
+                      <div className="flex flex-col items-center justify-center h-full gap-4">
+                        <FileText className="h-12 w-12 text-red-400" />
+                        <p className="text-red-400">{textError}</p>
+                      </div>
+                    ) : (
+                      <pre className="font-mono text-sm text-[#C4C8D4] whitespace-pre-wrap break-words leading-relaxed">
+                        {textContent}
+                      </pre>
+                    )}
                   </div>
                 )}
 

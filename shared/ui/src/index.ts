@@ -23,8 +23,25 @@ export * from './branded'
 // TEMPORARILY DISABLED - compositions have import errors that need fixing
 // export * from './compositions'
 
-// Export storage components
-export * from './storage'
+// Export storage components (but avoid conflicts with branded)
+export type {
+  StorageFile,
+  StorageFolderStats,
+  StorageSort,
+  FileActions,
+  ViewMode as StorageViewMode,
+  BreadcrumbItem as StorageBreadcrumbItem,
+  StorageDialogState,
+  StorageDisplayFile,
+} from './storage/types'
+export * from './storage/file-browser'
+export * from './storage/file-preview-dialog'
+export * from './storage/file-upload-queue'
+export * from './storage/storage-quota-card'
+export * from './storage/storage-search-bar'
+export * from './storage/storage-stats-widget'
+export * from './storage/bucket-selector'
+export * from './storage/bulk-actions-toolbar'
 
 // Export utilities
 export * from './utils'

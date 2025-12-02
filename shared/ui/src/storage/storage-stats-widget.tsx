@@ -14,7 +14,7 @@ import {
   FileText,
   ArrowRight,
 } from 'lucide-react'
-import { LineChart, Line, BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { LineChart, Line, BarChart as _BarChart, Bar as _Bar, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { cn } from '../utils/cn'
 import { Button } from '../cossui/button'
 

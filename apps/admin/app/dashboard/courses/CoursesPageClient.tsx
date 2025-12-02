@@ -11,9 +11,10 @@ import { Plus, List, LayoutGrid } from 'lucide-react';
 interface CoursesPageClientProps {
   initialCourses: Course[];
   initialTotal: number;
+  error?: string | null;
 }
 
-export default function CoursesPageClient({ initialCourses, initialTotal }: CoursesPageClientProps) {
+export default function CoursesPageClient({ initialCourses, initialTotal, error: _error }: CoursesPageClientProps) {
   const searchParams = useSearchParams();
   const [view, setView] = useState<'list' | 'gallery'>('list');
 

@@ -57,8 +57,8 @@ function getTagStyle(tag: string): string {
 }
 
 export function CourseCard({ course, variant = "default" }: CourseCardProps) {
-  const isCompact = variant === "compact"
-  
+  const _isCompact = variant === "compact"
+
   const thumbnailUrl = course.thumbnail_url_desktop || 
                        course.thumbnail_url_mobile || 
                        "/api/placeholder/600/337"

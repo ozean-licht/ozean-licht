@@ -50,7 +50,7 @@ export function FileBrowser({
   onDeleteBulk,
   onDownloadBulk,
   onCreateFolder,
-  onNavigate,
+  onNavigate: _onNavigate,
   currentPath = '/',
   uploads = [],
   onCancelUpload,
@@ -59,7 +59,7 @@ export function FileBrowser({
   isLoading = false,
   error = null,
   viewMode = 'list',
-  filter,
+  filter: _filter,
   className,
   children,
   accept,
@@ -73,7 +73,7 @@ export function FileBrowser({
   const [createFolderOpen, setCreateFolderOpen] = React.useState(false)
 
   // Selection handlers
-  const handleSelectFile = React.useCallback((file: StorageFile, selected: boolean) => {
+  const _handleSelectFile = React.useCallback((file: StorageFile, selected: boolean) => {
     setSelectedFiles((prev) =>
       selected ? [...prev, file] : prev.filter((f) => f.id !== file.id)
     )

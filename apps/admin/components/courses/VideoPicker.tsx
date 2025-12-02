@@ -89,7 +89,8 @@ export default function VideoPicker({
   );
 
   // Handle selection
-  const handleSelect = (videoId: string) => {
+  const handleSelect = (videoId: string | undefined | null) => {
+    if (!videoId) return;
     const video = videos.find((v) => v.id === videoId);
     onChange(videoId, video);
     setOpen(false);

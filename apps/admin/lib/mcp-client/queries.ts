@@ -6,6 +6,7 @@ import { randomUUID } from 'crypto';
 import { MCPGatewayClient } from './client';
 import {
   AdminUser,
+  AdminRole,
   CreateAdminUserInput,
   UpdateAdminUserInput,
   AdminUserFilters,
@@ -209,10 +210,14 @@ export class MCPGatewayClientWithQueries extends MCPGatewayClient {
    * Map database row to AdminUser
    */
   private _mapAdminUser(row: AdminUserRow): AdminUser {
+    // Filter out unsupported roles (like ka_admin which is for Kids Ascension)
+    const adminRole = row.admin_role as AdminRole;
+    const validRoles: AdminRole[] = ['super_admin', 'ol_admin', 'ol_editor', 'ol_content', 'ol_commerce', 'support'];
+
     return {
       id: row.id,
       userId: row.user_id,
-      adminRole: row.admin_role,
+      adminRole: validRoles.includes(adminRole) ? adminRole : 'support',
       entityScope: row.entity_scope,
       isActive: row.is_active,
       permissions: row.permissions,
@@ -790,7 +795,7 @@ export class MCPGatewayClientWithQueries extends MCPGatewayClient {
     return {
       id: row.id,
       email: row.email,
-      emailVerified: row.email_verified,
+      emailVerified: row.email_verified && typeof row.email_verified !== 'boolean' ? new Date(row.email_verified) : null,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       entities,

@@ -6,7 +6,7 @@
  */
 
 import * as React from 'react'
-import { Folder, ChevronDown, Check } from 'lucide-react'
+import { Folder, ChevronDown as _ChevronDown, Check as _Check } from 'lucide-react'
 import { cn } from '../utils/cn'
 import {
   Select,

@@ -86,7 +86,7 @@ export function RadioGroupField({
     >
       <RadioGroup
         value={value}
-        onValueChange={onChange}
+        onValueChange={(val) => val && onChange(val as string)}
         disabled={disabled}
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}

@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import { MyTasksWidget, ProjectCard, ProcessTemplatesWidget } from '@/components/projects';
 import type { DBProject } from '@/lib/db/projects';
-import type { TaskItem } from '@/components/projects';
+import type { TaskItem, Project } from '@/components/projects';
 
 interface ProjectsDashboardProps {
   user: {
@@ -44,18 +44,18 @@ interface ProjectsDashboardProps {
 }
 
 // Map DBProject to the Project type expected by ProjectCard
-function mapToProjectCard(project: DBProject) {
+function mapToProjectCard(project: DBProject): Project {
   return {
     id: project.id,
     name: project.title,
-    description: project.description || undefined,
-    status: project.status as 'active' | 'completed' | 'paused' | 'planning',
+    description: project.description || '',
+    status: (project.status as Project['status']) || 'planning',
     type: project.interval_type === 'Fortlaufend' ? 'recurring' : 'one-time',
-    projectType: project.project_type || undefined, // Video, Post, Short, Kurs, etc.
+    projectType: project.project_type || undefined,
     progress: project.progress_percent || 0,
     totalTasks: project.tasks_total || 0,
     completedTasks: project.tasks_done || 0,
-    startDate: project.start_date || undefined,
+    startDate: project.start_date || '',
     endDate: project.target_date || undefined,
     teamMembers: project.assignee_ids?.length || 0,
     templateName: project.used_template ? 'From Template' : undefined,

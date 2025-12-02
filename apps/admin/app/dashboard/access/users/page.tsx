@@ -33,7 +33,7 @@ const MOCK_USERS: User[] = [
     emailVerified: new Date('2025-11-01'),
     createdAt: new Date('2025-11-01'),
     updatedAt: new Date('2025-11-26'),
-    entities: [{ id: 'e1', entityId: 'ozean_licht', role: 'team' }],
+    entities: [{ id: 'e1', userId: '1', entityId: 'ozean_licht', role: 'team', createdAt: new Date('2025-11-01') }],
   },
   {
     id: '2',
@@ -43,7 +43,7 @@ const MOCK_USERS: User[] = [
     emailVerified: new Date('2025-11-01'),
     createdAt: new Date('2025-11-01'),
     updatedAt: new Date('2025-11-26'),
-    entities: [{ id: 'e2', entityId: 'ozean_licht', role: 'team' }],
+    entities: [{ id: 'e2', userId: '2', entityId: 'ozean_licht', role: 'team', createdAt: new Date('2025-11-01') }],
   },
   {
     id: '3',
@@ -53,7 +53,7 @@ const MOCK_USERS: User[] = [
     emailVerified: new Date('2025-11-01'),
     createdAt: new Date('2025-11-01'),
     updatedAt: new Date('2025-11-26'),
-    entities: [{ id: 'e3', entityId: 'ozean_licht', role: 'team' }],
+    entities: [{ id: 'e3', userId: '3', entityId: 'ozean_licht', role: 'team', createdAt: new Date('2025-11-01') }],
   },
   {
     id: '4',
@@ -63,7 +63,7 @@ const MOCK_USERS: User[] = [
     emailVerified: new Date('2025-11-01'),
     createdAt: new Date('2025-11-01'),
     updatedAt: new Date('2025-11-26'),
-    entities: [{ id: 'e4', entityId: 'ozean_licht', role: 'team' }],
+    entities: [{ id: 'e4', userId: '4', entityId: 'ozean_licht', role: 'team', createdAt: new Date('2025-11-01') }],
   },
   {
     id: '5',
@@ -73,7 +73,7 @@ const MOCK_USERS: User[] = [
     emailVerified: new Date('2025-11-01'),
     createdAt: new Date('2025-11-01'),
     updatedAt: new Date('2025-11-26'),
-    entities: [{ id: 'e5', entityId: 'ozean_licht', role: 'team' }],
+    entities: [{ id: 'e5', userId: '5', entityId: 'ozean_licht', role: 'team', createdAt: new Date('2025-11-01') }],
   },
   {
     id: '6',
@@ -83,7 +83,7 @@ const MOCK_USERS: User[] = [
     emailVerified: new Date('2025-11-01'),
     createdAt: new Date('2025-11-01'),
     updatedAt: new Date('2025-11-26'),
-    entities: [{ id: 'e6', entityId: 'ozean_licht', role: 'team' }],
+    entities: [{ id: 'e6', userId: '6', entityId: 'ozean_licht', role: 'team', createdAt: new Date('2025-11-01') }],
   },
 ];
 

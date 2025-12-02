@@ -12,7 +12,12 @@
  *   - Or individual vars: POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DATABASE, POSTGRES_USER, POSTGRES_PASSWORD
  */
 
-import { Pool, PoolConfig, QueryResult as PgQueryResult } from 'pg';
+import { Pool, PoolConfig, QueryResult as PgQueryResult, PoolClient } from 'pg';
+
+/**
+ * Re-export PoolClient for use in transactions
+ */
+export type { PoolClient };
 
 /**
  * Result type for query operations
@@ -142,6 +147,37 @@ export async function healthCheck(): Promise<boolean> {
     return rows[0]?.ok === 1;
   } catch {
     return false;
+  }
+}
+
+/**
+ * Execute a function within a database transaction
+ *
+ * @param callback - Function to execute within transaction
+ * @returns Result from callback
+ *
+ * @example
+ * await transaction(async (client) => {
+ *   await client.query('INSERT INTO users (name) VALUES ($1)', ['Alice']);
+ *   await client.query('INSERT INTO logs (message) VALUES ($1)', ['User created']);
+ * });
+ */
+export async function transaction<T>(
+  callback: (client: PoolClient) => Promise<T>
+): Promise<T> {
+  const dbPool = getPool();
+  const client = await dbPool.connect();
+
+  try {
+    await client.query('BEGIN');
+    const result = await callback(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
   }
 }
 

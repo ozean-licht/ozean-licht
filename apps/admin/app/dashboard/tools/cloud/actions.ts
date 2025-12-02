@@ -365,6 +365,174 @@ export async function getAvailableBuckets(): Promise<BucketInfo[]> {
 }
 
 /**
+ * Rename a file or folder in storage
+ *
+ * S3 doesn't support rename, so we copy to new key and delete old.
+ * For folders, this recursively copies all contents.
+ *
+ * SAFETY: Only deletes after ALL copies complete successfully.
+ *
+ * @param bucket Bucket name
+ * @param oldKey Current file path/key
+ * @param newKey New file path/key
+ * @returns Rename result
+ */
+export async function renameStorageFile(
+  bucket: string,
+  oldKey: string,
+  newKey: string
+): Promise<{ success: boolean; oldKey: string; newKey: string }> {
+  await requireAuth();
+
+  const client = getS3StorageClient();
+  const isFolder = oldKey.endsWith('/');
+
+  if (isFolder) {
+    // For folders, get ALL files recursively first
+    const allFiles = await listAllFilesRecursive(client, bucket, oldKey);
+
+    if (allFiles.length === 0) {
+      // Empty folder - just create new folder marker
+      await client.uploadFile({
+        bucket,
+        fileKey: newKey,
+        fileBuffer: Buffer.from(''),
+        contentType: 'application/x-directory',
+      });
+    } else {
+      // Copy all files first
+      const copiedFiles: string[] = [];
+
+      for (const file of allFiles) {
+        const relativePath = file.key.slice(oldKey.length);
+        const newFileKey = newKey + relativePath;
+
+        try {
+          await copyFileDirect(client, bucket, file.key, newFileKey);
+          copiedFiles.push(file.key);
+        } catch (err) {
+          // Rollback: delete any files we already copied
+          console.error(`Copy failed for ${file.key}:`, err);
+          for (const copied of copiedFiles) {
+            const copiedNewKey = newKey + copied.slice(oldKey.length);
+            try {
+              await client.deleteFile({ bucket, fileKey: copiedNewKey });
+            } catch {
+              // Ignore rollback errors
+            }
+          }
+          throw new Error(`Rename failed: could not copy ${file.key}`);
+        }
+      }
+
+      // All copies succeeded - now delete old files
+      for (const file of allFiles) {
+        await client.deleteFile({ bucket, fileKey: file.key });
+      }
+    }
+
+    // Delete old folder marker if it exists
+    try {
+      await client.deleteFile({ bucket, fileKey: oldKey });
+    } catch {
+      // Folder marker might not exist, that's OK
+    }
+  } else {
+    // For single files - copy then delete
+    await copyFileDirect(client, bucket, oldKey, newKey);
+    await client.deleteFile({ bucket, fileKey: oldKey });
+  }
+
+  return { success: true, oldKey, newKey };
+}
+
+/**
+ * List ALL files under a prefix recursively (no delimiter)
+ */
+async function listAllFilesRecursive(
+  _client: ReturnType<typeof getS3StorageClient>,
+  bucket: string,
+  prefix: string
+): Promise<Array<{ key: string; size: number }>> {
+  const allFiles: Array<{ key: string; size: number }> = [];
+
+  // Use the S3 client directly to list without delimiter
+  const { S3Client, ListObjectsV2Command } = await import('@aws-sdk/client-s3');
+
+  const s3Config = {
+    endpoint: `${process.env.MINIO_USE_SSL === 'true' ? 'https' : 'http'}://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}`,
+    region: process.env.MINIO_REGION || 'us-east-1',
+    credentials: {
+      accessKeyId: process.env.MINIO_ACCESS_KEY || '',
+      secretAccessKey: process.env.MINIO_SECRET_KEY || '',
+    },
+    forcePathStyle: true,
+  };
+
+  const s3 = new S3Client(s3Config);
+  let continuationToken: string | undefined;
+
+  do {
+    const command = new ListObjectsV2Command({
+      Bucket: bucket,
+      Prefix: prefix,
+      ContinuationToken: continuationToken,
+      // NO Delimiter - this gets ALL files recursively
+    });
+
+    const response = await s3.send(command);
+
+    if (response.Contents) {
+      for (const obj of response.Contents) {
+        // Skip the folder marker itself and any sub-folder markers
+        if (obj.Key && obj.Key !== prefix && !obj.Key.endsWith('/')) {
+          allFiles.push({
+            key: obj.Key,
+            size: obj.Size || 0,
+          });
+        }
+      }
+    }
+
+    continuationToken = response.NextContinuationToken;
+  } while (continuationToken);
+
+  return allFiles;
+}
+
+/**
+ * Copy a single file using S3 CopyObject (much faster than download/upload)
+ */
+async function copyFileDirect(
+  _client: ReturnType<typeof getS3StorageClient>,
+  bucket: string,
+  sourceKey: string,
+  destKey: string
+): Promise<void> {
+  const { S3Client, CopyObjectCommand } = await import('@aws-sdk/client-s3');
+
+  const s3Config = {
+    endpoint: `${process.env.MINIO_USE_SSL === 'true' ? 'https' : 'http'}://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}`,
+    region: process.env.MINIO_REGION || 'us-east-1',
+    credentials: {
+      accessKeyId: process.env.MINIO_ACCESS_KEY || '',
+      secretAccessKey: process.env.MINIO_SECRET_KEY || '',
+    },
+    forcePathStyle: true,
+  };
+
+  const s3 = new S3Client(s3Config);
+
+  const command = new CopyObjectCommand({
+    Bucket: bucket,
+    CopySource: `${bucket}/${sourceKey}`,
+    Key: destKey,
+  });
+
+  await s3.send(command);
+}
+
+/**
  * Helper: Get MIME type from filename
  */
 function getMimeType(filename: string): string {

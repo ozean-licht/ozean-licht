@@ -15,7 +15,7 @@ import {
   Moon,
   Sun,
   Compass,
-  ChevronLeft,
+  ChevronLeft as _ChevronLeft,
   ChevronRight,
   type LucideIcon
 } from "lucide-react"

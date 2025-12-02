@@ -126,6 +126,12 @@ export const ENTITY_CONFIG = {
     color: 'default',
     icon: 'Sparkles',
   },
+  kids_ascension: {
+    label: 'Kids Ascension',
+    shortLabel: 'KA',
+    color: 'secondary',
+    icon: 'Rocket',
+  },
 } as const;
 
 /**

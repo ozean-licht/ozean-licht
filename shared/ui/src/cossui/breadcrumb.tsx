@@ -17,8 +17,8 @@ import { cn } from '../utils/cn'
  * Provides semantic <nav> element with ARIA label
  */
 const Breadcrumb = React.forwardRef<
-  HTMLNavElement,
-  React.HTMLAttributes<HTMLNavElement>
+  HTMLElement,
+  React.HTMLAttributes<HTMLElement>
 >(({ className, ...props }, ref) => (
   <nav
     ref={ref}

@@ -7,11 +7,10 @@
 
 import * as React from 'react'
 import { HardDrive, TrendingUp, AlertCircle } from 'lucide-react'
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { cn } from '../utils/cn'
 import { Button } from '../cossui/button'
 import { Progress } from '../cossui/progress'
-import { ChartContainer, ChartTooltipContent } from '../ui/chart'
 
 export interface FileTypeBreakdown {
   type: string
@@ -125,7 +124,7 @@ export function StorageQuotaCard({
           </span>
           <span className="text-[#C4C8D4]">{formatBytes(remainingBytes)} remaining</span>
         </div>
-        <Progress value={percentage} className="h-2" indicatorClassName={getProgressColor()} />
+        <Progress value={percentage} className={`h-2 ${getProgressColor()}`} />
       </div>
 
       {/* Warning Message */}

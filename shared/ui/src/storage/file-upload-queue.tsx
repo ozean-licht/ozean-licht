@@ -37,6 +37,7 @@ export function FileUploadQueue({
       )
       return () => timers.forEach(clearTimeout)
     }
+    return undefined;
   }, [uploads, onClear])
 
   if (uploads.length === 0) return null

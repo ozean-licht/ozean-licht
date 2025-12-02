@@ -121,7 +121,7 @@ export function StorageSearchBar({
     } else {
       setLocalFilters((prev) => ({
         ...prev,
-        sizeRange: { min: range.min, max: range.max },
+        sizeRange: { min: range.min || 0, max: range.max || Infinity },
       }))
     }
   }
