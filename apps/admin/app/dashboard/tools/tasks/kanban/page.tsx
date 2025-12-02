@@ -14,6 +14,12 @@ import { getTaskAssignments } from '@/lib/db/task-assignments';
 import { query } from '@/lib/db';
 import TasksKanban, { type KanbanTask } from '../TasksKanban';
 
+// Constants
+const KANBAN_TASK_LIMIT = 100;
+const KANBAN_PROJECT_LIMIT = 500;
+const KANBAN_USER_LIMIT = 100;
+const KANBAN_ASSIGNMENT_LIMIT = 1000;
+
 // Get admin users for assignee filter (join with users table for email)
 async function getAdminUsers(): Promise<Array<{ id: string; name: string; email: string }>> {
   const sql = `
@@ -22,7 +28,7 @@ async function getAdminUsers(): Promise<Array<{ id: string; name: string; email:
     JOIN users u ON au.user_id = u.id
     WHERE au.is_active = true
     ORDER BY u.email ASC
-    LIMIT 100
+    LIMIT ${KANBAN_USER_LIMIT}
   `;
   return query<{ id: string; name: string; email: string }>(sql);
 }
@@ -37,12 +43,12 @@ export default async function TasksKanbanPage() {
   // Fetch all data in parallel
   const [tasksResult, stats, projectsResult, users] = await Promise.all([
     getAllTasks({
-      limit: 100, // Show more tasks for kanban
+      limit: KANBAN_TASK_LIMIT,
       orderBy: 'updated_at',
       orderDirection: 'desc',
     }),
     getTaskStats(),
-    getAllProjects({ limit: 500 }),
+    getAllProjects({ limit: KANBAN_PROJECT_LIMIT }),
     getAdminUsers(),
   ]);
 
@@ -51,7 +57,7 @@ export default async function TasksKanbanPage() {
   let allAssignments: Awaited<ReturnType<typeof getTaskAssignments>> = [];
   try {
     if (taskIds.length > 0) {
-      allAssignments = await getTaskAssignments({ limit: 1000 });
+      allAssignments = await getTaskAssignments({ limit: KANBAN_ASSIGNMENT_LIMIT });
     }
   } catch (error) {
     // task_assignments table may not exist yet - continue without assignments

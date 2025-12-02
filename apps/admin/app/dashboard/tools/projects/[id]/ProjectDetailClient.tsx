@@ -274,7 +274,11 @@ export default function ProjectDetailClient({
                   </Badge>
                 )}
               </CardTitle>
-              <Button size="sm" className="bg-primary text-white hover:bg-primary/90">
+              <Button
+                size="sm"
+                className="bg-primary text-white hover:bg-primary/90"
+                onClick={() => router.push(`/dashboard/tools/tasks/new?projectId=${project.id}`)}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Task
               </Button>

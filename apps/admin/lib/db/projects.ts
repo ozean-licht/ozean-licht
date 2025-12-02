@@ -15,7 +15,7 @@ export interface DBProject {
   description: string | null;
   project_type: string | null;
   interval_type: string | null;
-  status: 'planning' | 'active' | 'completed' | 'paused' | 'cancelled' | 'todo' | 'not_started';
+  status: 'planning' | 'active' | 'completed' | 'paused' | 'cancelled' | 'todo' | 'not_started' | 'done';
   progress_percent: number;
   tasks_total: number;
   tasks_done: number;
@@ -164,7 +164,7 @@ export async function getProjectById(id: string): Promise<DBProject | null> {
 export interface UpdateProjectInput {
   title?: string;
   description?: string | null;
-  status?: 'planning' | 'active' | 'completed' | 'paused' | 'cancelled' | 'todo' | 'not_started';
+  status?: 'planning' | 'active' | 'completed' | 'paused' | 'cancelled' | 'todo' | 'not_started' | 'done';
   start_date?: string | null;
   target_date?: string | null;
   project_type?: string | null;
@@ -238,7 +238,7 @@ export interface CreateProjectInput {
   description?: string;
   project_type?: string;
   interval_type?: string;
-  status?: 'planning' | 'active' | 'completed' | 'paused' | 'cancelled' | 'todo' | 'not_started';
+  status?: 'planning' | 'active' | 'completed' | 'paused' | 'cancelled' | 'todo' | 'not_started' | 'done';
   start_date?: string;
   target_date?: string;
   used_template?: boolean;

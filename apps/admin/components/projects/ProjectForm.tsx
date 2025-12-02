@@ -61,6 +61,7 @@ const STATUS_OPTIONS = [
   { value: 'active', label: 'Active' },
   { value: 'on_hold', label: 'On Hold' },
   { value: 'completed', label: 'Completed' },
+  { value: 'done', label: 'Done' },
   { value: 'cancelled', label: 'Cancelled' },
 ];
 

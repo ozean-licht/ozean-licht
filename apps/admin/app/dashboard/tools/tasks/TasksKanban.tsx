@@ -109,6 +109,9 @@ const STATUS_HEADER_CLASSES: Record<KanbanStatus, string> = {
   done: 'glass-card rounded-t-xl p-4 border-b-2 border-green-500/30',
 };
 
+// Drag-and-drop configuration
+const DRAG_ACTIVATION_DISTANCE_PX = 8;
+
 // Kanban columns configuration
 const KANBAN_COLUMNS: Array<{ id: KanbanStatus; title: string }> = [
   { id: 'backlog', title: 'Backlog' },
@@ -439,7 +442,7 @@ export default function TasksKanban({
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: DRAG_ACTIVATION_DISTANCE_PX,
       },
     }),
     useSensor(KeyboardSensor)
@@ -555,9 +558,17 @@ export default function TasksKanban({
         setTasks((prev) =>
           prev.map((t) => (t.id === taskId ? task : t))
         );
-        setUpdateError(
-          error instanceof Error ? error.message : 'Failed to update task'
-        );
+
+        // Log error safely (sanitize in production)
+        const errorMessage = error instanceof Error ? error.message : 'Failed to update task';
+        if (process.env.NODE_ENV === 'development') {
+          console.error('[TasksKanban] Failed to update task status:', error);
+        } else {
+          // In production, log sanitized message only
+          console.error('[TasksKanban] Task update failed:', errorMessage);
+        }
+
+        setUpdateError(errorMessage);
       } finally {
         setIsUpdating(false);
       }
