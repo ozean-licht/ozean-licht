@@ -2,7 +2,8 @@ name: Telegram Commit Notifications
 
 on:
   push:
-    branches: ['*']
+    branches:
+      - '**'  # All branches including ones with slashes (e.g., feat/xyz)
 
 jobs:
   notify:
