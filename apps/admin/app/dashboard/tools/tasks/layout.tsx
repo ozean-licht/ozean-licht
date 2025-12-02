@@ -1,16 +1,15 @@
 /**
  * Tasks Section Layout
- * Wrapper layout for all task management pages
+ *
+ * Layout wrapper for the tasks section.
  */
+
+import React from 'react';
 
 export default function TasksLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  return (
-    <div className="space-y-6">
-      {children}
-    </div>
-  )
+  return <>{children}</>;
 }

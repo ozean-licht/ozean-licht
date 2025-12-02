@@ -24,25 +24,20 @@ export interface QueryResult {
 
 // Parse DATABASE_URL or construct from individual env vars
 const getDatabaseConfig = (): PoolConfig => {
-  // First check for ozean-licht specific DATABASE_URL
-  const databaseUrl = process.env.OZEAN_LICHT_DATABASE_URL || process.env.DATABASE_URL;
+  // Check for ozean-licht content database URL (multiple possible env var names)
+  const databaseUrl = process.env.OZEAN_LICHT_DB_URL
+    || process.env.OZEAN_LICHT_DATABASE_URL
+    || process.env.DATABASE_URL_OL;
 
-  if (databaseUrl) {
-    return {
-      connectionString: databaseUrl,
-      max: 20,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000,
-    };
+  if (!databaseUrl) {
+    throw new Error(
+      'Missing database configuration. Set OZEAN_LICHT_DB_URL environment variable. ' +
+      'Note: DATABASE_URL is for auth (shared-users-db), not content.'
+    );
   }
 
-  // Fallback to individual env vars for ozean-licht-db
   return {
-    host: process.env.POSTGRES_HOST || 'localhost',
-    port: parseInt(process.env.POSTGRES_PORT || '32771'),
-    database: process.env.POSTGRES_DATABASE || 'ozean-licht-db',
-    user: process.env.POSTGRES_USER || 'postgres',
-    password: process.env.POSTGRES_PASSWORD,
+    connectionString: databaseUrl,
     max: 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,

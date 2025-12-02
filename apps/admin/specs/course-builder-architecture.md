@@ -11,7 +11,7 @@ Create a complete course builder CMS that enables:
 2. Creating, editing, and reordering modules within a course
 3. Creating, editing, and reordering lessons within a module
 4. Linking existing videos (571 migrated) to video-type lessons
-5. Supporting multiple content types: video, text, pdf, quiz
+5. Supporting multiple content types: video, text, pdf, quiz, audio
 
 ## Problem Statement
 

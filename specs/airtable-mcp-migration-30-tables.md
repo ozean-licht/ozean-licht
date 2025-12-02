@@ -335,29 +335,30 @@ this.pool = new Pool({
 
 ---
 
-### Phase 4: Project Tables (Priority: HIGH)
+### Phase 4: Project Tables (Priority: HIGH) - COMPLETE
 
-#### 14. projects
-- [ ] **Create standalone schema** (projects table)
-- [ ] Create migration script (`migrate-projects.ts`)
-- [ ] Test with 3 records
-- [ ] Migrate all records
+#### 14. projects - COMPLETE
+- [x] **Create standalone schema** (030_create_project_tables_standalone.sql)
+- [x] Create migration script (`migrate-projects.ts`)
+- [x] Test with 3 records
+- [x] **MIGRATED: 658 records to ozean-licht-db** (2025-12-01)
 
-#### 15. tasks
-- [ ] **Create standalone schema** (tasks table)
-- [ ] Create migration script (`migrate-tasks.ts`)
-- [ ] Link to projects
-- [ ] Test and migrate
+#### 15. tasks - COMPLETE
+- [x] **Create standalone schema** (030_create_project_tables_standalone.sql)
+- [x] Create migration script (`migrate-projects.ts` - handles all 3 tables)
+- [x] Link to projects (8,216 linked, 898 orphans)
+- [x] **MIGRATED: 9,114 records to ozean-licht-db** (2025-12-01)
+- [x] Deduplication logic included (no duplicates found)
 
 #### 16. milestones
 - [ ] **Create schema** (milestones table)
 - [ ] Create migration script
 - [ ] Test and migrate
 
-#### 17. process_templates
-- [ ] **Create standalone schema** (process_templates table)
-- [ ] Create migration script
-- [ ] Test and migrate
+#### 17. process_templates - COMPLETE
+- [x] **Create standalone schema** (030_create_project_tables_standalone.sql)
+- [x] Create migration script (`migrate-projects.ts`)
+- [x] **MIGRATED: 89 records to ozean-licht-db** (2025-12-01)
 
 ---
 
@@ -642,7 +643,7 @@ External port: `localhost:32771` (maps to container :5432)
 
 ## Implementation Status
 
-**Last Updated:** 2025-11-28
+**Last Updated:** 2025-12-01
 
 | Phase | Tables | Status |
 |-------|--------|--------|
@@ -650,21 +651,28 @@ External port: `localhost:32771` (maps to container :5432)
 | Content (Extended) | shorts, posts, blogs, light_segments | Not started |
 | Commerce | orders, transactions, abos | Not started |
 | Users | members, team | Not started |
-| Projects | projects, tasks, milestones, templates | Not started |
+| Projects | projects, tasks, milestones, templates | **3/4 migrated (projects + tasks + templates DONE)** |
 | Calendar | events, connected_calendar | Not started |
 | CRM | tickets, feedbacks, applications | Not started |
 | Organization | departments, announcements | Not started |
 | Low Priority | 6 tables | Not started |
 
-**Total Progress:** 2/33 tables (6%) - courses (64) + videos (571) migrated to ozean-licht-db
+**Total Progress:** 5/33 tables (15%) - migrated to ozean-licht-db
 
 ### Tables Created in ozean-licht-db
 - [x] `courses` - 64 records (020_create_courses_standalone.sql)
 - [x] `videos` - 571 records (021_create_videos_standalone.sql)
+- [x] `process_templates` - 89 records (030_create_project_tables_standalone.sql)
+- [x] `projects` - 658 records (030_create_project_tables_standalone.sql)
+- [x] `tasks` - 9,114 records (030_create_project_tables_standalone.sql)
+  - 8,216 tasks linked to projects via `project_id`
+  - 898 orphan tasks (no project linked in Airtable)
 
 ### Admin Dashboard Integration
 - [x] Direct PostgreSQL connection (no MCP dependency)
 - [x] Environment variables configured
 - [x] Courses page fetches from ozean-licht-db (64 records)
 - [x] Videos page fetches from ozean-licht-db (571 records)
+- [ ] Projects page (needs integration)
+- [ ] Tasks page (needs integration)
 - [ ] Modules, lessons pages (need migration first)

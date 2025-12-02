@@ -37,6 +37,7 @@ export interface Project {
   description: string;
   status: ProjectStatus;
   type: ProjectType;
+  projectType?: string; // Video, Post, Short, Kurs, Kongress, Love Letter, Interview
   recurrencePattern?: RecurrencePattern;
   progress: number;
   totalTasks: number;
@@ -60,22 +61,73 @@ interface ProjectCardProps {
 }
 
 /**
- * Get status badge variant and text
+ * Get status badge - outline style
  */
-const getStatusConfig = (status: ProjectStatus): { variant: 'default' | 'success' | 'warning' | 'destructive' | 'secondary'; text: string; icon: React.ReactNode } => {
+const getStatusConfig = (status: ProjectStatus): { className: string; text: string; icon: React.ReactNode } => {
   switch (status) {
     case 'active':
-      return { variant: 'default', text: 'Active', icon: <Play className="w-3 h-3" /> };
+      return {
+        className: 'border-green-500/50 text-green-400 bg-transparent',
+        text: 'Active',
+        icon: <Play className="w-3 h-3" />
+      };
     case 'paused':
-      return { variant: 'warning', text: 'Paused', icon: <Pause className="w-3 h-3" /> };
+      return {
+        className: 'border-yellow-500/50 text-yellow-400 bg-transparent',
+        text: 'Paused',
+        icon: <Pause className="w-3 h-3" />
+      };
     case 'completed':
-      return { variant: 'success', text: 'Completed', icon: <CheckCircle2 className="w-3 h-3" /> };
+      return {
+        className: 'border-emerald-500/50 text-emerald-400 bg-transparent',
+        text: 'Done',
+        icon: <CheckCircle2 className="w-3 h-3" />
+      };
     case 'archived':
-      return { variant: 'secondary', text: 'Archived', icon: <FolderOpen className="w-3 h-3" /> };
+      return {
+        className: 'border-gray-500/50 text-gray-400 bg-transparent',
+        text: 'Archived',
+        icon: <FolderOpen className="w-3 h-3" />
+      };
     case 'planning':
-      return { variant: 'secondary', text: 'Planning', icon: <Timer className="w-3 h-3" /> };
+      return {
+        className: 'border-blue-500/50 text-blue-400 bg-transparent',
+        text: 'Planning',
+        icon: <Timer className="w-3 h-3" />
+      };
     default:
-      return { variant: 'secondary', text: status, icon: null };
+      return { className: 'border-gray-500/50 text-gray-400 bg-transparent', text: status, icon: null };
+  }
+};
+
+/**
+ * Get content type badge - colored outline style
+ * shorts:orange, video:red, course:purple, kongress:green, post:blue, loveletter:cyan
+ */
+const getContentTypeBadge = (projectType: string | undefined): { className: string; text: string } | null => {
+  if (!projectType) return null;
+
+  const type = projectType.toLowerCase();
+
+  switch (type) {
+    case 'short':
+      return { className: 'border-orange-500/60 text-orange-400 bg-transparent', text: 'Short' };
+    case 'video':
+      return { className: 'border-red-500/60 text-red-400 bg-transparent', text: 'Video' };
+    case 'kurs':
+      return { className: 'border-purple-500/60 text-purple-400 bg-transparent', text: 'Kurs' };
+    case 'kongress':
+      return { className: 'border-green-500/60 text-green-400 bg-transparent', text: 'Kongress' };
+    case 'post':
+      return { className: 'border-blue-500/60 text-blue-400 bg-transparent', text: 'Post' };
+    case 'love letter':
+      return { className: 'border-cyan-500/60 text-cyan-400 bg-transparent', text: 'Love Letter' };
+    case 'interview':
+      return { className: 'border-pink-500/60 text-pink-400 bg-transparent', text: 'Interview' };
+    case 'einzigartig':
+      return { className: 'border-indigo-500/60 text-indigo-400 bg-transparent', text: 'Unique' };
+    default:
+      return { className: 'border-gray-500/60 text-gray-400 bg-transparent', text: projectType };
   }
 };
 
@@ -124,6 +176,7 @@ export default function ProjectCard({
   compact = false,
 }: ProjectCardProps) {
   const statusConfig = getStatusConfig(project.status);
+  const contentTypeBadge = getContentTypeBadge(project.projectType);
   const isRecurring = project.type === 'recurring';
   const isOverdue = project.endDate && new Date(project.endDate) < new Date() && project.status !== 'completed';
 
@@ -134,23 +187,38 @@ export default function ProjectCard({
           bg-[#00111A]/50 border-primary/10 hover:border-primary/30 hover:bg-primary/5`}
         onClick={() => onClick?.(project.id)}
       >
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             {isRecurring && (
-              <RefreshCw className="w-4 h-4 text-primary" />
+              <RefreshCw className="w-4 h-4 text-primary flex-shrink-0" />
             )}
             <h4 className="text-sm font-sans font-medium text-white truncate">
               {project.name}
             </h4>
           </div>
-          <Badge variant={statusConfig.variant} className="text-xs">
-            {statusConfig.icon}
-            <span className="ml-1">{statusConfig.text}</span>
-          </Badge>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Content type badge (colored outline) */}
+            {contentTypeBadge && (
+              <Badge variant="outline" className={`text-xs ${contentTypeBadge.className}`}>
+                {contentTypeBadge.text}
+              </Badge>
+            )}
+            {/* Status badge (outline) */}
+            <Badge variant="outline" className={`text-xs ${statusConfig.className}`}>
+              {statusConfig.icon}
+              <span className="ml-1">{statusConfig.text}</span>
+            </Badge>
+          </div>
         </div>
-        <div className="flex items-center gap-4 text-xs text-[#C4C8D4]">
+        <div className="flex items-center gap-4 text-xs text-[#C4C8D4] mt-2">
           <span>{project.completedTasks}/{project.totalTasks} tasks</span>
           <span>{project.progress}%</span>
+          {isOverdue && (
+            <span className="flex items-center gap-1 text-red-400">
+              <AlertCircle className="w-3 h-3" />
+              Overdue
+            </span>
+          )}
         </div>
         <Progress value={project.progress} className="h-1 mt-2" />
       </div>
@@ -187,7 +255,14 @@ export default function ProjectCard({
             </p>
           </div>
           <div className="flex items-center gap-2 ml-2">
-            <Badge variant={statusConfig.variant}>
+            {/* Content type badge (colored outline) */}
+            {contentTypeBadge && (
+              <Badge variant="outline" className={contentTypeBadge.className}>
+                {contentTypeBadge.text}
+              </Badge>
+            )}
+            {/* Status badge (outline) */}
+            <Badge variant="outline" className={statusConfig.className}>
               {statusConfig.icon}
               <span className="ml-1">{statusConfig.text}</span>
             </Badge>

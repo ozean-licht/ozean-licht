@@ -4,16 +4,17 @@
  * Projects Dashboard
  *
  * Main dashboard view for project management showing:
- * - Overview stats (active projects, tasks, completion rate)
- * - My Tasks widget
+ * - Overview stats (active projects, tasks, completion rate) from real data
+ * - My Tasks widget with real tasks
  * - Tabbed view for Projects and Process Templates
  * - Collapsible Recent Activity
  */
 
-import React, { useState } from 'react';
-// Card components available from @/components/ui/card if needed
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Plus,
   FolderKanban,
@@ -23,14 +24,15 @@ import {
   Filter,
   LayoutGrid,
   List,
-  ArrowUpRight,
   Activity,
   ChevronDown,
   ChevronUp,
   Layers,
+  AlertTriangle,
 } from 'lucide-react';
 import { MyTasksWidget, ProjectCard, ProcessTemplatesWidget } from '@/components/projects';
-import type { Project } from '@/components/projects';
+import type { DBProject } from '@/lib/db/projects';
+import type { TaskItem } from '@/components/projects';
 
 interface ProjectsDashboardProps {
   user: {
@@ -41,125 +43,180 @@ interface ProjectsDashboardProps {
   };
 }
 
-// Mock projects data
-const mockProjects: Project[] = [
-  {
-    id: '1',
-    name: 'Admin Dashboard v2',
-    description: 'Redesign and enhancement of the admin dashboard with new features and improved UX.',
-    status: 'active',
-    type: 'one-time',
-    progress: 65,
-    totalTasks: 48,
-    completedTasks: 31,
-    startDate: '2025-11-01',
-    endDate: '2025-12-15',
-    teamMembers: 4,
-    templateName: 'Feature Development',
-  },
-  {
-    id: '2',
-    name: 'Weekly Content Review',
-    description: 'Recurring weekly review of all new course content submissions.',
-    status: 'active',
-    type: 'recurring',
-    recurrencePattern: 'weekly',
-    progress: 80,
-    totalTasks: 10,
-    completedTasks: 8,
-    startDate: '2025-11-01',
-    nextOccurrence: '2025-11-29',
-    teamMembers: 3,
-  },
-  {
-    id: '3',
-    name: 'Ozean Licht Course Launch',
-    description: 'Launch of the new "Spiritual Awakening" course series including marketing campaign.',
-    status: 'active',
-    type: 'one-time',
-    progress: 45,
-    totalTasks: 36,
-    completedTasks: 16,
-    startDate: '2025-11-10',
-    endDate: '2025-12-20',
-    teamMembers: 6,
-    templateName: 'Course Launch Workflow',
-  },
-  {
-    id: '4',
-    name: 'Monthly Analytics Report',
-    description: 'Generate and distribute monthly platform analytics and KPI reports.',
-    status: 'active',
-    type: 'recurring',
-    recurrencePattern: 'monthly',
-    progress: 25,
-    totalTasks: 8,
-    completedTasks: 2,
-    startDate: '2025-11-01',
-    nextOccurrence: '2025-12-01',
-    teamMembers: 2,
-  },
-  {
-    id: '5',
-    name: 'Shared UI Library',
-    description: 'Development of the shared component library for cross-platform consistency.',
-    status: 'paused',
-    type: 'one-time',
-    progress: 70,
-    totalTasks: 24,
-    completedTasks: 17,
-    startDate: '2025-10-15',
-    endDate: '2025-11-30',
-    teamMembers: 3,
-    templateName: 'Feature Development',
-  },
-  {
-    id: '6',
-    name: 'User Feedback Collection',
-    description: 'Quarterly user feedback collection and analysis initiative.',
-    status: 'planning',
-    type: 'recurring',
-    recurrencePattern: 'quarterly',
-    progress: 0,
-    totalTasks: 12,
-    completedTasks: 0,
-    startDate: '2025-12-01',
-    nextOccurrence: '2025-12-01',
-    teamMembers: 4,
-  },
-];
-
-// Mock recent activity
-const recentActivity = [
-  { id: '1', action: 'Task completed', project: 'Admin Dashboard v2', user: 'Maria S.', time: '10 min ago' },
-  { id: '2', action: 'Comment added', project: 'Ozean Licht Course Launch', user: 'Alex K.', time: '25 min ago' },
-  { id: '3', action: 'Project updated', project: 'Weekly Content Review', user: 'System', time: '1 hour ago' },
-  { id: '4', action: 'New task created', project: 'Admin Dashboard v2', user: 'You', time: '2 hours ago' },
-  { id: '5', action: 'Milestone reached', project: 'Shared UI Library', user: 'Team', time: '3 hours ago' },
-];
+// Map DBProject to the Project type expected by ProjectCard
+function mapToProjectCard(project: DBProject) {
+  return {
+    id: project.id,
+    name: project.title,
+    description: project.description || undefined,
+    status: project.status as 'active' | 'completed' | 'paused' | 'planning',
+    type: project.interval_type === 'Fortlaufend' ? 'recurring' : 'one-time',
+    projectType: project.project_type || undefined, // Video, Post, Short, Kurs, etc.
+    progress: project.progress_percent || 0,
+    totalTasks: project.tasks_total || 0,
+    completedTasks: project.tasks_done || 0,
+    startDate: project.start_date || undefined,
+    endDate: project.target_date || undefined,
+    teamMembers: project.assignee_ids?.length || 0,
+    templateName: project.used_template ? 'From Template' : undefined,
+  };
+}
 
 export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProps) {
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [projectFilter, setProjectFilter] = useState<'all' | 'active' | 'recurring' | 'completed'>('all');
+  const router = useRouter();
+
+  // State
+  const [projects, setProjects] = useState<DBProject[]>([]);
+  const [_tasks, setTasks] = useState<TaskItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState({
+    totalProjects: 0,
+    activeProjects: 0,
+    recurringProjects: 0,
+    completionRate: 0,
+    overdueTasks: 0,
+  });
+
+  // UI state - default to list view and active filter
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [projectFilter, setProjectFilter] = useState<'all' | 'active' | 'recurring' | 'completed'>('active');
   const [mainTab, setMainTab] = useState<'projects' | 'templates'>('projects');
   const [activityExpanded, setActivityExpanded] = useState(false);
 
-  // Calculate stats
-  const totalProjects = mockProjects.length;
-  const activeProjects = mockProjects.filter(p => p.status === 'active').length;
-  const recurringProjects = mockProjects.filter(p => p.type === 'recurring').length;
-  const totalTasks = mockProjects.reduce((sum, p) => sum + p.totalTasks, 0);
-  const completedTasks = mockProjects.reduce((sum, p) => sum + p.completedTasks, 0);
-  const completionRate = Math.round((completedTasks / totalTasks) * 100);
+  // Fetch data on mount
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Fetch projects and tasks in parallel
+        const [projectsRes, tasksRes] = await Promise.all([
+          fetch('/api/projects?includeStats=true&limit=100'),
+          fetch('/api/tasks?tab=active&limit=50&includeStats=true'),
+        ]);
+
+        if (!projectsRes.ok || !tasksRes.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const projectsData = await projectsRes.json();
+        const tasksData = await tasksRes.json();
+
+        setProjects(projectsData.projects || []);
+        setTasks(tasksData.tasks || []);
+
+        // Calculate stats
+        const allProjects = projectsData.projects || [];
+        const totalProjects = projectsData.total || allProjects.length;
+        const activeProjects = allProjects.filter((p: DBProject) => p.status === 'active').length;
+        const recurringProjects = allProjects.filter((p: DBProject) => p.interval_type === 'Fortlaufend').length;
+
+        const totalTasks = allProjects.reduce((sum: number, p: DBProject) => sum + (p.tasks_total || 0), 0);
+        const completedTasks = allProjects.reduce((sum: number, p: DBProject) => sum + (p.tasks_done || 0), 0);
+        const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+        const overdueTasks = tasksData.stats?.overdue || 0;
+
+        setStats({
+          totalProjects,
+          activeProjects,
+          recurringProjects,
+          completionRate,
+          overdueTasks,
+        });
+      } catch (err) {
+        console.error('Failed to fetch data:', err);
+        setError('Failed to load projects. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
 
   // Filter projects
-  const filteredProjects = mockProjects.filter(project => {
+  const filteredProjects = projects.filter(project => {
     if (projectFilter === 'all') return true;
     if (projectFilter === 'active') return project.status === 'active';
-    if (projectFilter === 'recurring') return project.type === 'recurring';
+    if (projectFilter === 'recurring') return project.interval_type === 'Fortlaufend';
     if (projectFilter === 'completed') return project.status === 'completed';
     return true;
   });
+
+  // Handle project click
+  const handleProjectClick = (projectId: string) => {
+    router.push(`/dashboard/tools/projects/${projectId}`);
+  };
+
+  // Handle task update
+  const handleTaskUpdate = async (taskId: string, updates: Partial<TaskItem>) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+
+      if (!response.ok) throw new Error('Failed to update task');
+
+      // Update local state
+      setTasks(prev =>
+        prev.map(task =>
+          task.id === taskId ? { ...task, ...updates } : task
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update task:', error);
+    }
+  };
+
+  // Handle task navigation
+  const handleTaskNavigate = (taskId: string) => {
+    router.push(`/dashboard/tools/tasks/${taskId}`);
+  };
+
+  // Handle new project
+  const handleNewProject = () => {
+    router.push('/dashboard/tools/projects/new');
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <Skeleton className="h-10 w-64 mb-2" />
+          <Skeleton className="h-6 w-96" />
+        </div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+          {[1, 2, 3, 4].map(i => (
+            <Skeleton key={i} className="h-24 rounded-2xl" />
+          ))}
+        </div>
+        <Skeleton className="h-64 rounded-2xl mb-8" />
+        <Skeleton className="h-96 rounded-2xl" />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+          <h2 className="text-xl text-white mb-2">Failed to Load</h2>
+          <p className="text-[#C4C8D4] mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
@@ -170,7 +227,9 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
             Project Management
           </h1>
           <p className="text-lg font-sans text-[#C4C8D4]">
-            Manage projects, tasks, and process templates
+            {stats.totalProjects} projects • {stats.overdueTasks > 0 ? (
+              <span className="text-red-400">{stats.overdueTasks} overdue tasks</span>
+            ) : 'All tasks on track'}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -181,7 +240,10 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
             <Filter className="w-4 h-4 mr-2" />
             Filters
           </Button>
-          <Button className="bg-primary text-white hover:bg-primary/90">
+          <Button
+            className="bg-primary text-white hover:bg-primary/90"
+            onClick={handleNewProject}
+          >
             <Plus className="w-4 h-4 mr-2" />
             New Project
           </Button>
@@ -200,7 +262,7 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
                 Total Projects
               </dt>
               <dd className="text-2xl font-sans font-medium text-white">
-                {totalProjects}
+                {stats.totalProjects}
               </dd>
             </div>
           </div>
@@ -216,7 +278,7 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
                 Active Projects
               </dt>
               <dd className="text-2xl font-sans font-medium text-white">
-                {activeProjects}
+                {stats.activeProjects}
               </dd>
             </div>
           </div>
@@ -232,7 +294,7 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
                 Recurring
               </dt>
               <dd className="text-2xl font-sans font-medium text-white">
-                {recurringProjects}
+                {stats.recurringProjects}
               </dd>
             </div>
           </div>
@@ -248,27 +310,26 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
                 Completion Rate
               </dt>
               <dd className="text-2xl font-sans font-medium text-white">
-                {completionRate}%
+                {stats.completionRate}%
               </dd>
             </div>
           </div>
         </div>
       </div>
 
-      {/* My Tasks Widget */}
+      {/* My Tasks Widget - now with real data */}
       <div className="mb-8">
         <MyTasksWidget
           maxTasks={5}
-          onTaskClick={(taskId) => console.log('Task clicked:', taskId)}
-          onTaskToggle={(taskId, completed) => console.log('Task toggled:', taskId, completed)}
-          onViewAll={() => console.log('View all tasks')}
+          onTaskClick={handleTaskNavigate}
+          onTaskToggle={(taskId, completed) => handleTaskUpdate(taskId, { is_done: completed })}
+          onViewAll={() => router.push('/dashboard/tools/tasks')}
         />
       </div>
 
-      {/* Main Tabbed Section - Projects & Templates */}
+      {/* Main Tabbed Section */}
       <div className="glass-card-strong rounded-2xl overflow-hidden mb-8">
         <Tabs value={mainTab} onValueChange={(v) => setMainTab(v as typeof mainTab)}>
-          {/* Tab Header */}
           <div className="px-6 py-4 border-b border-primary/20">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <TabsList className="bg-[#00111A] border border-primary/20 p-1">
@@ -288,10 +349,8 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
                 </TabsTrigger>
               </TabsList>
 
-              {/* Projects tab controls */}
               {mainTab === 'projects' && (
                 <div className="flex items-center gap-3">
-                  {/* Filter tabs */}
                   <Tabs value={projectFilter} onValueChange={(v) => setProjectFilter(v as typeof projectFilter)}>
                     <TabsList className="bg-[#00111A] border border-primary/20">
                       <TabsTrigger value="all" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary text-xs">
@@ -306,7 +365,6 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
                     </TabsList>
                   </Tabs>
 
-                  {/* View mode toggle */}
                   <div className="flex items-center border border-primary/20 rounded-lg overflow-hidden">
                     <button
                       onClick={() => setViewMode('grid')}
@@ -326,7 +384,6 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
             </div>
           </div>
 
-          {/* Projects Tab Content */}
           <TabsContent value="projects" className="mt-0">
             <div className="px-6 py-2 border-b border-primary/10">
               <p className="text-sm font-sans text-[#C4C8D4]">
@@ -339,8 +396,8 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
                   {filteredProjects.map((project) => (
                     <ProjectCard
                       key={project.id}
-                      project={project}
-                      onClick={(id) => console.log('Project clicked:', id)}
+                      project={mapToProjectCard(project)}
+                      onClick={handleProjectClick}
                       onActionClick={(id, action) => console.log('Action:', id, action)}
                     />
                   ))}
@@ -350,9 +407,9 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
                   {filteredProjects.map((project) => (
                     <ProjectCard
                       key={project.id}
-                      project={project}
+                      project={mapToProjectCard(project)}
                       compact
-                      onClick={(id) => console.log('Project clicked:', id)}
+                      onClick={handleProjectClick}
                     />
                   ))}
                 </div>
@@ -365,7 +422,10 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
                   <p className="text-sm text-[#C4C8D4]/60 mt-1">
                     Try adjusting your filters or create a new project
                   </p>
-                  <Button className="mt-4 bg-primary text-white hover:bg-primary/90">
+                  <Button
+                    className="mt-4 bg-primary text-white hover:bg-primary/90"
+                    onClick={handleNewProject}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Create Project
                   </Button>
@@ -374,13 +434,12 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
             </div>
           </TabsContent>
 
-          {/* Templates Tab Content */}
           <TabsContent value="templates" className="mt-0">
             <div className="p-6">
               <ProcessTemplatesWidget
                 maxTemplates={8}
                 onTemplateClick={(templateId) => console.log('Template clicked:', templateId)}
-                onCreateFromTemplate={(templateId) => console.log('Create from template:', templateId)}
+                onCreateFromTemplate={(templateId) => router.push(`/dashboard/tools/projects/new?template=${templateId}`)}
                 onViewAll={() => console.log('View all templates')}
               />
             </div>
@@ -388,7 +447,7 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
         </Tabs>
       </div>
 
-      {/* Recent Activity Section - Collapsible */}
+      {/* Recent Activity - keep existing implementation */}
       <div className="glass-card rounded-2xl overflow-hidden">
         <button
           onClick={() => setActivityExpanded(!activityExpanded)}
@@ -401,14 +460,11 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
             <div className="text-left">
               <h2 className="text-xl font-sans font-medium text-white">Recent Activity</h2>
               <p className="text-sm text-[#C4C8D4]">
-                {activityExpanded ? 'Latest updates across all projects' : `${recentActivity.length} recent updates`}
+                {activityExpanded ? 'Latest updates across all projects' : 'Click to expand'}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {!activityExpanded && (
-              <span className="text-xs text-[#C4C8D4] hidden sm:inline">Click to expand</span>
-            )}
             {activityExpanded ? (
               <ChevronUp className="w-5 h-5 text-[#C4C8D4]" />
             ) : (
@@ -420,36 +476,9 @@ export default function ProjectsDashboard({ user: _user }: ProjectsDashboardProp
         {activityExpanded && (
           <>
             <div className="border-t border-primary/20" />
-            <div className="divide-y divide-primary/10">
-              {recentActivity.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="px-6 py-4 hover:bg-primary/5 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-primary" />
-                      <div>
-                        <p className="text-sm text-white">
-                          <span className="font-medium">{activity.action}</span>
-                          <span className="text-[#C4C8D4]"> in </span>
-                          <span className="text-primary">{activity.project}</span>
-                        </p>
-                        <p className="text-xs text-[#C4C8D4] mt-0.5">
-                          by {activity.user}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-xs text-[#C4C8D4]">{activity.time}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="px-6 py-3 border-t border-primary/20 flex justify-end">
-              <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
-                View All Activity
-                <ArrowUpRight className="w-4 h-4 ml-1" />
-              </Button>
+            <div className="px-6 py-8 text-center">
+              <Activity className="w-12 h-12 text-primary/40 mx-auto mb-3" />
+              <p className="text-[#C4C8D4]">Activity tracking coming soon</p>
             </div>
           </>
         )}

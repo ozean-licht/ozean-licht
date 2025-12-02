@@ -90,27 +90,27 @@ export async function getAllTasks(filters: TaskFilters = {}): Promise<TaskListRe
   const params: unknown[] = [];
   let paramIndex = 1;
 
-  // Handle tab-based filtering
+  // Handle tab-based filtering (use t. prefix for tasks table)
   if (tab) {
     switch (tab) {
       case 'active':
         // Tasks that are active: in progress or todo, not done, not overdue
-        conditions.push(`status IN ('todo', 'in_progress')`);
-        conditions.push(`is_done = false`);
-        conditions.push(`(target_date >= CURRENT_DATE OR target_date IS NULL)`);
+        conditions.push(`t.status IN ('todo', 'in_progress')`);
+        conditions.push(`t.is_done = false`);
+        conditions.push(`(t.target_date >= CURRENT_DATE OR t.target_date IS NULL)`);
         break;
       case 'overdue':
         // Tasks past their target date and not done
-        conditions.push(`target_date < CURRENT_DATE`);
-        conditions.push(`is_done = false`);
+        conditions.push(`t.target_date < CURRENT_DATE`);
+        conditions.push(`t.is_done = false`);
         break;
       case 'planned':
         // Tasks planned for future or with status 'planned'
-        conditions.push(`(status = 'planned' OR start_date > CURRENT_DATE)`);
+        conditions.push(`(t.status = 'planned' OR t.start_date > CURRENT_DATE)`);
         break;
       case 'done':
         // Completed tasks
-        conditions.push(`(is_done = true OR status IN ('done', 'completed'))`);
+        conditions.push(`(t.is_done = true OR t.status IN ('done', 'completed'))`);
         break;
     }
   }
@@ -119,11 +119,11 @@ export async function getAllTasks(filters: TaskFilters = {}): Promise<TaskListRe
   if (status) {
     if (Array.isArray(status)) {
       const placeholders = status.map((_, i) => `$${paramIndex + i}`).join(', ');
-      conditions.push(`status IN (${placeholders})`);
+      conditions.push(`t.status IN (${placeholders})`);
       params.push(...status);
       paramIndex += status.length;
     } else {
-      conditions.push(`status = $${paramIndex++}`);
+      conditions.push(`t.status = $${paramIndex++}`);
       params.push(status);
     }
   }
