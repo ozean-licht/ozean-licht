@@ -58,7 +58,7 @@ export function FileBrowser({
   onClearUpload,
   isLoading = false,
   error = null,
-  viewMode = 'list',
+  viewMode: _viewMode = 'list',
   filter: _filter,
   className,
   children,
@@ -73,12 +73,6 @@ export function FileBrowser({
   const [createFolderOpen, setCreateFolderOpen] = React.useState(false)
 
   // Selection handlers
-  const _handleSelectFile = React.useCallback((file: StorageFile, selected: boolean) => {
-    setSelectedFiles((prev) =>
-      selected ? [...prev, file] : prev.filter((f) => f.id !== file.id)
-    )
-  }, [])
-
   const handleSelectAll = React.useCallback(() => {
     setSelectedFiles(files)
   }, [files])

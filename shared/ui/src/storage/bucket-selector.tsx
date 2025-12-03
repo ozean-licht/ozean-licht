@@ -5,7 +5,6 @@
  * Bucket/folder picker for storage navigation
  */
 
-import * as React from 'react'
 import { Folder, ChevronDown as _ChevronDown, Check as _Check } from 'lucide-react'
 import { cn } from '../utils/cn'
 import {

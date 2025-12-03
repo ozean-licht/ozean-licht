@@ -26,13 +26,15 @@ export * from './branded'
 // Export storage components (but avoid conflicts with branded)
 export type {
   StorageFile,
-  StorageFolderStats,
-  StorageSort,
-  FileActions,
+  StorageStats,
+  SortField,
+  SortOrder,
+  FileAction,
   ViewMode as StorageViewMode,
   BreadcrumbItem as StorageBreadcrumbItem,
-  StorageDialogState,
-  StorageDisplayFile,
+  UploadProgress,
+  BulkActionItem,
+  FileFilter,
 } from './storage/types'
 export * from './storage/file-browser'
 export * from './storage/file-preview-dialog'

@@ -3,7 +3,7 @@ import { defineConfig } from 'tsup'
 export default defineConfig({
   entry: ['src/index.ts'],
   format: ['cjs', 'esm'],
-  dts: true, // Enabled for proper type exports
+  dts: false, // Temporarily disabled for faster builds (types resolved from src)
   external: [
     'next',
     'next/link',

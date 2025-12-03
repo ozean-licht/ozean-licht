@@ -5,7 +5,6 @@
  * Dashboard widget for storage statistics and trends
  */
 
-import * as React from 'react'
 import {
   HardDrive,
   Upload,
