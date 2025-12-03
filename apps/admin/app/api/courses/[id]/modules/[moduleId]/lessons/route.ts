@@ -9,6 +9,8 @@ import { auth } from '@/lib/auth/config';
 import { hasAnyRole } from '@/lib/rbac/utils';
 import { listLessonsByModule, createLesson } from '@/lib/db/lessons';
 import { getModuleById } from '@/lib/db/modules';
+import { validateQuizData } from '@/lib/validations/course-builder';
+import { z } from 'zod';
 
 interface RouteParams {
   params: Promise<{ id: string; moduleId: string }>;
@@ -84,6 +86,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       videoId,
       contentText,
       contentUrl,
+      quizData,
       durationSeconds,
       isRequired,
       isPreview,
@@ -141,6 +144,27 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Validate quiz data if provided (Blocker 2 - server-side validation)
+    if (contentType === 'quiz' && quizData) {
+      try {
+        validateQuizData(quizData);
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return NextResponse.json(
+            {
+              error: 'Invalid quiz data',
+              details: error.errors.map(issue => ({
+                path: issue.path.join('.'),
+                message: issue.message,
+              })),
+            },
+            { status: 400 }
+          );
+        }
+        throw error;
+      }
+    }
+
     // Create lesson
     const lesson = await createLesson({
       moduleId,
@@ -150,6 +174,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       videoId: contentType === 'video' ? videoId : undefined,
       contentText: contentType === 'text' ? contentText.trim() : undefined,
       contentUrl: contentType === 'pdf' ? contentUrl.trim() : undefined,
+      quizData: contentType === 'quiz' ? quizData : undefined,
       durationSeconds: durationSeconds ? parseInt(durationSeconds, 10) : undefined,
       isRequired: isRequired ?? false,
       isPreview: isPreview ?? false,

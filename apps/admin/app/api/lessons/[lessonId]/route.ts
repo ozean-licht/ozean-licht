@@ -9,6 +9,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/config';
 import { hasAnyRole } from '@/lib/rbac/utils';
 import { getLessonById, updateLesson, deleteLesson } from '@/lib/db/lessons';
+import { validateQuizData } from '@/lib/validations/course-builder';
+import { z } from 'zod';
 
 interface RouteParams {
   params: Promise<{ lessonId: string }>;
@@ -81,6 +83,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       videoId,
       contentText,
       contentUrl,
+      quizData,
       durationSeconds,
       isRequired,
       isPreview,
@@ -142,6 +145,27 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Validate quiz data if provided (Blocker 2 - server-side validation)
+    if (effectiveContentType === 'quiz' && quizData !== undefined && quizData !== null) {
+      try {
+        validateQuizData(quizData);
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return NextResponse.json(
+            {
+              error: 'Invalid quiz data',
+              details: error.errors.map(issue => ({
+                path: issue.path.join('.'),
+                message: issue.message,
+              })),
+            },
+            { status: 400 }
+          );
+        }
+        throw error;
+      }
+    }
+
     // Update lesson
     const updatedLesson = await updateLesson(lessonId, {
       title: title?.trim(),
@@ -150,6 +174,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       videoId: videoId !== undefined ? (videoId || undefined) : undefined,
       contentText: contentText !== undefined ? (contentText?.trim() || undefined) : undefined,
       contentUrl: contentUrl !== undefined ? (contentUrl?.trim() || undefined) : undefined,
+      quizData: quizData !== undefined ? quizData : undefined,
       durationSeconds: durationSeconds !== undefined ? (durationSeconds ? parseInt(durationSeconds, 10) : undefined) : undefined,
       isRequired,
       isPreview,

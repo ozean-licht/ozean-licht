@@ -88,5 +88,19 @@ Services: `postgres`, `minio`, `github`, `telegram`, `mem0`
 
 Quick test: `curl http://localhost:8100/health`
 
+## Current Focus: Course Builder
+
+**Location**: `apps/admin/app/dashboard/courses/`
+
+Completed phases:
+- Phase 6: Rich Content Editing (TipTap, image/PDF upload)
+- Phase 8: Audio & Multi-format (audio upload, transcripts)
+- Phase 9: Learning Sequences (prerequisites, drip scheduling, completion rules)
+
+In progress:
+- Phase 7: Interactive Quiz Builder (BLOCKED - security fixes needed)
+
+See `apps/admin/.claude/CLAUDE.md` for detailed course-builder context.
+
 ---
-*L1 Cache | 90 LOC max | Last: 2025-11-26*
+*L1 Cache | 90 LOC max | Last: 2025-12-03*

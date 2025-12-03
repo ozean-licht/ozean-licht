@@ -111,14 +111,18 @@ const canEdit = hasPermission(session.user.permissions, 'users.update')
 
 | Module | Entity | Key Functions |
 |--------|--------|---------------|
-| `lib/db/projects.ts` | Projects | `getAllProjects()`, `createProject()`, `updateProject()` |
-| `lib/db/tasks.ts` | Tasks | `getAllTasks()`, `updateTask()`, kanban operations |
 | `lib/db/courses.ts` | Courses | `getCourses()`, `getCourseBySlug()`, `createCourse()` |
 | `lib/db/modules.ts` | Modules | `getModulesByCourse()`, `createModule()`, `reorderModules()` |
-| `lib/db/lessons.ts` | Lessons | `getLessonsByModule()`, `createLesson()` |
+| `lib/db/lessons.ts` | Lessons | `getLessonsByModule()`, `createLesson()`, `updateLesson()` |
+| `lib/db/prerequisites.ts` | Prerequisites | `getPrerequisites()`, `setPrerequisites()` |
+| `lib/db/schedules.ts` | Drip Schedules | `getDripSchedule()`, `setDripSchedule()` |
+| `lib/db/videos.ts` | Videos | Video metadata for courses |
+| `lib/db/projects.ts` | Projects | `getAllProjects()`, `createProject()`, `updateProject()` |
+| `lib/db/tasks.ts` | Tasks | `getAllTasks()`, `updateTask()`, kanban operations |
+| `lib/db/sprints.ts` | Sprints | `getAllSprints()`, `createSprint()`, `completeSprint()` |
 | `lib/db/comments.ts` | Comments | `getComments()`, `createComment()` |
 | `lib/db/templates.ts` | Templates | Process templates for projects |
-| `lib/db/videos.ts` | Videos | Video metadata for courses |
+| `lib/db/notifications.ts` | Notifications | `getNotifications()`, `markAsRead()` |
 
 ## Security Checklist
 
@@ -129,50 +133,60 @@ const canEdit = hasPermission(session.user.permissions, 'users.update')
 - [ ] SQL uses parameterized queries (`$1`, `$2`)
 - [ ] No secrets in code
 
-## Current Focus: Project Management MVP
+## Current Focus: Course Builder
 
-**Branch:** `feat/project-management-mvp-enhancement`
-**Context Map:** `app/dashboard/tools/projects/README.md`
+**Location:** `app/dashboard/courses/`
+**Spec:** `specs/course-builder-architecture.md`
 
-### What Exists
-- ProjectsDashboard with stats, tabs, project cards
-- ProjectDetailClient with tasks, comments, progress
-- TasksKanban with columns (mock data)
-- lib/db modules: projects, tasks, comments, templates
-- types/projects.ts with full type definitions
+### Completed Phases
+| Phase | Feature | Key Files |
+|-------|---------|-----------|
+| 6 | Rich Content Editing | `RichTextEditor.tsx`, `ImageUploader.tsx`, `PdfUploader.tsx` |
+| 8 | Audio & Multi-format | `AudioUploader.tsx`, `AudioPlayer.tsx`, `TranscriptEditor.tsx` |
+| 9 | Learning Sequences | `PrerequisiteSelector.tsx`, `DripScheduler.tsx`, `CompletionRulesEditor.tsx` |
 
-### MVP Gaps (To Implement)
-1. **Task Management**
-   - [ ] Task creation modal
-   - [ ] Drag-and-drop reordering
-   - [x] Subtasks support (Phase 8)
-   - [ ] Time tracking
+### In Progress: Phase 7 Quiz Builder (BLOCKED)
 
-2. **Project Editing**
-   - [ ] Project edit modal
-   - [ ] Assignee picker (user selection)
-   - [ ] Due date calendar
+**Status:** Code complete, review failed with 3 blockers
 
-3. **Collaboration**
-   - [ ] Activity log with real events
-   - [ ] @mentions in comments
-   - [ ] Notifications
+**Blockers to fix:**
+1. XSS vulnerability - Add sanitization in `lib/db/lessons.ts`
+2. Missing API validation - Add Zod validation in lesson routes
+3. No data migration - Add `migrateQuizData()` function
 
-4. **Organization**
-   - [ ] Labels/tags CRUD
-   - [ ] Sprint management
-   - [ ] File attachments
-
-### Key Files for Project Work
+**Quiz Builder Files (uncommitted):**
 | File | Purpose |
 |------|---------|
-| `app/dashboard/tools/projects/ProjectsDashboard.tsx` | Main dashboard |
-| `app/dashboard/tools/projects/[id]/ProjectDetailClient.tsx` | Project detail |
-| `app/dashboard/tools/tasks/TasksKanban.tsx` | Kanban board |
-| `components/projects/` | Project/task components |
-| `lib/db/projects.ts` | Project CRUD |
-| `lib/db/tasks.ts` | Task CRUD |
-| `types/projects.ts` | Type definitions |
+| `components/courses/quiz/QuizBuilder.tsx` | Main quiz editor |
+| `components/courses/quiz/QuestionEditor.tsx` | Question type editor |
+| `components/courses/quiz/QuizPreview.tsx` | Live preview with scoring |
+| `types/quiz.ts` | Quiz types and validation |
+| `lib/utils/sanitize-quiz.ts` | XSS sanitization (to implement) |
+
+### Key Course Builder Files
+| File | Purpose |
+|------|---------|
+| `app/dashboard/courses/[slug]/CourseDetailClient.tsx` | Course detail page |
+| `components/courses/LessonEditorModal.tsx` | Lesson create/edit modal |
+| `components/courses/ModuleList.tsx` | Module drag-drop list |
+| `lib/db/courses.ts` | Course CRUD |
+| `lib/db/lessons.ts` | Lesson CRUD with content types |
+| `lib/db/prerequisites.ts` | Prerequisite CRUD |
+| `lib/db/schedules.ts` | Drip schedule CRUD |
+| `lib/validations/course-builder.ts` | Zod schemas |
+
+### Database Tables (Course Builder)
+```
+courses, course_modules, course_lessons
+lesson_prerequisites, drip_schedules, user_drip_status
+course_completion_rules, module_unlock_rules, course_drip_settings
+```
+
+## Completed: Project Management MVP
+
+**Context Map:** `app/dashboard/tools/projects/README.md`
+
+All 13 phases complete: Projects, Tasks, Kanban, Subtasks, Time Tracking, Sprints, Attachments, Notifications, Timeline, Export
 
 ## Database Migrations
 
@@ -206,4 +220,4 @@ npm run typecheck
 
 ---
 
-*Last Updated: 2025-12-02 | Focus: Project Management MVP | 273 files*
+*Last Updated: 2025-12-03 | Focus: Course Builder | 273 files*

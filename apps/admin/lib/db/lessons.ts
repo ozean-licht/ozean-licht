@@ -8,6 +8,8 @@
 import { query, execute, transaction, PoolClient } from './index';
 import { Lesson, Video, CreateLessonInput, UpdateLessonInput, LessonContentType, LessonStatus, TranscriptSegment } from '@/types/content';
 import { sanitizeHtml } from '@/lib/utils/sanitize';
+import { sanitizeQuizData } from '@/lib/utils/sanitize-quiz';
+import { migrateQuizData } from '@/types/quiz';
 
 // Database row type (snake_case)
 interface LessonRow {
@@ -55,7 +57,8 @@ function mapLesson(row: LessonRow): Lesson {
     videoId: row.video_id || undefined,
     contentText: row.content_text || undefined,
     contentUrl: row.content_url || undefined,
-    quizData: row.quiz_data || undefined,
+    // Migrate quiz data to handle old versions (Blocker 3)
+    quizData: row.quiz_data ? migrateQuizData(row.quiz_data) : undefined,
     // Audio fields
     audioUrl: row.audio_url || undefined,
     audioMimeType: row.audio_mime_type || undefined,
@@ -182,6 +185,9 @@ export async function createLesson(input: CreateLessonInput): Promise<Lesson> {
   // Sanitize contentText if present (prevent XSS on server-side)
   const sanitizedContentText = input.contentText ? sanitizeHtml(input.contentText) : null;
 
+  // Sanitize quiz data if present (Blocker 1 - prevent XSS in quiz content)
+  const sanitizedQuizData = input.quizData ? sanitizeQuizData(input.quizData) : null;
+
   const rows = await query<LessonRow>(sql, [
     input.moduleId,
     input.title,
@@ -190,7 +196,7 @@ export async function createLesson(input: CreateLessonInput): Promise<Lesson> {
     input.videoId || null,
     sanitizedContentText,
     input.contentUrl || null,
-    input.quizData || null,
+    sanitizedQuizData,
     input.audioUrl || null,
     input.audioMimeType || null,
     input.transcript || null,
@@ -248,7 +254,9 @@ export async function updateLesson(id: string, input: UpdateLessonInput): Promis
 
   if (input.quizData !== undefined) {
     setClauses.push(`quiz_data = $${paramIndex++}`);
-    params.push(input.quizData || null);
+    // Sanitize quiz data if present (Blocker 1 - prevent XSS in quiz content)
+    const sanitizedQuizData = input.quizData ? sanitizeQuizData(input.quizData) : null;
+    params.push(sanitizedQuizData);
   }
 
   // Audio fields
