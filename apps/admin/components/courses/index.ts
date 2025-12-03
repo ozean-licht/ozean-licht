@@ -20,6 +20,11 @@ export { default as VideoPicker } from './VideoPicker';
 // Uploaders
 export { default as ImageUploader } from './ImageUploader';
 export { default as PdfUploader } from './PdfUploader';
+export { default as AudioUploader } from './AudioUploader';
 
 // Editors
 export { default as RichTextEditor } from './RichTextEditor';
+export { default as TranscriptEditor } from './TranscriptEditor';
+
+// Players
+export { default as AudioPlayer } from './AudioPlayer';

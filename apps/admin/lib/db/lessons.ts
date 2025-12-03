@@ -6,7 +6,7 @@
  */
 
 import { query, execute, transaction, PoolClient } from './index';
-import { Lesson, Video, CreateLessonInput, UpdateLessonInput, LessonContentType, LessonStatus } from '@/types/content';
+import { Lesson, Video, CreateLessonInput, UpdateLessonInput, LessonContentType, LessonStatus, TranscriptSegment } from '@/types/content';
 import { sanitizeHtml } from '@/lib/utils/sanitize';
 
 // Database row type (snake_case)
@@ -20,6 +20,12 @@ interface LessonRow {
   content_text: string | null;
   content_url: string | null;
   quiz_data: Record<string, unknown> | null;
+  // Audio fields
+  audio_url: string | null;
+  audio_mime_type: string | null;
+  transcript: string | null;
+  transcript_segments: TranscriptSegment[] | null;
+  // Metadata
   duration_seconds: number | null;
   is_required: boolean;
   is_preview: boolean;
@@ -50,6 +56,12 @@ function mapLesson(row: LessonRow): Lesson {
     contentText: row.content_text || undefined,
     contentUrl: row.content_url || undefined,
     quizData: row.quiz_data || undefined,
+    // Audio fields
+    audioUrl: row.audio_url || undefined,
+    audioMimeType: row.audio_mime_type || undefined,
+    transcript: row.transcript || undefined,
+    transcriptSegments: row.transcript_segments || undefined,
+    // Metadata
     durationSeconds: row.duration_seconds || undefined,
     isRequired: row.is_required,
     isPreview: row.is_preview,
@@ -96,6 +108,7 @@ export async function listLessonsByModule(moduleId: string): Promise<ListLessons
     SELECT
       l.id, l.module_id, l.title, l.description,
       l.content_type, l.video_id, l.content_text, l.content_url, l.quiz_data,
+      l.audio_url, l.audio_mime_type, l.transcript, l.transcript_segments,
       l.duration_seconds, l.is_required, l.is_preview,
       l.sort_order, l.status, l.created_at, l.updated_at,
       v.title as video_title, v.description as video_description,
@@ -123,6 +136,7 @@ export async function getLessonById(id: string): Promise<Lesson | null> {
     SELECT
       l.id, l.module_id, l.title, l.description,
       l.content_type, l.video_id, l.content_text, l.content_url, l.quiz_data,
+      l.audio_url, l.audio_mime_type, l.transcript, l.transcript_segments,
       l.duration_seconds, l.is_required, l.is_preview,
       l.sort_order, l.status, l.created_at, l.updated_at,
       v.title as video_title, v.description as video_description,
@@ -153,12 +167,14 @@ export async function createLesson(input: CreateLessonInput): Promise<Lesson> {
   const sql = `
     INSERT INTO course_lessons (
       module_id, title, description, content_type,
-      video_id, content_text, content_url,
+      video_id, content_text, content_url, quiz_data,
+      audio_url, audio_mime_type, transcript, transcript_segments,
       duration_seconds, is_required, is_preview, sort_order, status
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
     RETURNING id, module_id, title, description, content_type,
       video_id, content_text, content_url, quiz_data,
+      audio_url, audio_mime_type, transcript, transcript_segments,
       duration_seconds, is_required, is_preview, sort_order, status,
       created_at, updated_at
   `;
@@ -174,6 +190,11 @@ export async function createLesson(input: CreateLessonInput): Promise<Lesson> {
     input.videoId || null,
     sanitizedContentText,
     input.contentUrl || null,
+    input.quizData || null,
+    input.audioUrl || null,
+    input.audioMimeType || null,
+    input.transcript || null,
+    input.transcriptSegments ? JSON.stringify(input.transcriptSegments) : null,
     input.durationSeconds || null,
     input.isRequired ?? false,
     input.isPreview ?? false,
@@ -225,6 +246,32 @@ export async function updateLesson(id: string, input: UpdateLessonInput): Promis
     params.push(input.contentUrl || null);
   }
 
+  if (input.quizData !== undefined) {
+    setClauses.push(`quiz_data = $${paramIndex++}`);
+    params.push(input.quizData || null);
+  }
+
+  // Audio fields
+  if (input.audioUrl !== undefined) {
+    setClauses.push(`audio_url = $${paramIndex++}`);
+    params.push(input.audioUrl || null);
+  }
+
+  if (input.audioMimeType !== undefined) {
+    setClauses.push(`audio_mime_type = $${paramIndex++}`);
+    params.push(input.audioMimeType || null);
+  }
+
+  if (input.transcript !== undefined) {
+    setClauses.push(`transcript = $${paramIndex++}`);
+    params.push(input.transcript || null);
+  }
+
+  if (input.transcriptSegments !== undefined) {
+    setClauses.push(`transcript_segments = $${paramIndex++}`);
+    params.push(input.transcriptSegments ? JSON.stringify(input.transcriptSegments) : null);
+  }
+
   if (input.durationSeconds !== undefined) {
     setClauses.push(`duration_seconds = $${paramIndex++}`);
     params.push(input.durationSeconds);
@@ -257,6 +304,7 @@ export async function updateLesson(id: string, input: UpdateLessonInput): Promis
     WHERE id = $${paramIndex}
     RETURNING id, module_id, title, description, content_type,
       video_id, content_text, content_url, quiz_data,
+      audio_url, audio_mime_type, transcript, transcript_segments,
       duration_seconds, is_required, is_preview, sort_order, status,
       created_at, updated_at
   `;

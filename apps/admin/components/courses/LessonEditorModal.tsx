@@ -7,6 +7,7 @@ import {
   LessonContentType,
   LessonStatus,
   Video,
+  TranscriptSegment,
 } from '@/types/content';
 import {
   CossUIDialog,
@@ -33,10 +34,15 @@ import {
   CossUITabsPanel,
   CossUILabel,
 } from '@shared/ui';
-import { Video as VideoIcon, FileText, File, HelpCircle } from 'lucide-react';
+import { Video as VideoIcon, FileText, File, HelpCircle, Music } from 'lucide-react';
 import VideoPicker from './VideoPicker';
 import RichTextEditor from './RichTextEditor';
 import PdfUploader from './PdfUploader';
+import AudioUploader from './AudioUploader';
+import TranscriptEditor from './TranscriptEditor';
+import { QuizBuilder } from './quiz';
+import { QuizData, emptyQuizData, migrateQuizData } from '@/types/quiz';
+import ErrorBoundary from '../ErrorBoundary';
 import {
   lessonFormSchema,
   extractZodErrors,
@@ -66,6 +72,7 @@ interface FormErrors {
   videoId?: string;
   contentText?: string;
   contentUrl?: string;
+  audioUrl?: string;
 }
 
 const contentTypeIcons: Record<LessonContentType, typeof VideoIcon> = {
@@ -73,6 +80,7 @@ const contentTypeIcons: Record<LessonContentType, typeof VideoIcon> = {
   text: FileText,
   pdf: File,
   quiz: HelpCircle,
+  audio: Music,
 };
 
 const contentTypeLabels: Record<LessonContentType, string> = {
@@ -80,6 +88,7 @@ const contentTypeLabels: Record<LessonContentType, string> = {
   text: 'Text',
   pdf: 'PDF',
   quiz: 'Quiz',
+  audio: 'Audio',
 };
 
 export default function LessonEditorModal({
@@ -101,6 +110,13 @@ export default function LessonEditorModal({
   const [selectedVideo, setSelectedVideo] = useState<Video | undefined>();
   const [contentText, setContentText] = useState('');
   const [contentUrl, setContentUrl] = useState('');
+  const [quizData, setQuizData] = useState<QuizData>(emptyQuizData);
+  // Audio state
+  const [audioUrl, setAudioUrl] = useState('');
+  const [audioMimeType, setAudioMimeType] = useState<string | undefined>();
+  const [transcript, setTranscript] = useState('');
+  const [transcriptSegments, setTranscriptSegments] = useState<TranscriptSegment[]>([]);
+  // Metadata
   const [durationSeconds, setDurationSeconds] = useState<number | undefined>();
   const [isRequired, setIsRequired] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
@@ -119,6 +135,17 @@ export default function LessonEditorModal({
         setSelectedVideo(lesson.video);
         setContentText(lesson.contentText || '');
         setContentUrl(lesson.contentUrl || '');
+        // Parse and migrate quizData from lesson if available
+        const parsedQuizData = lesson.quizData
+          ? migrateQuizData(lesson.quizData)
+          : emptyQuizData;
+        setQuizData(parsedQuizData);
+        // Audio fields
+        setAudioUrl(lesson.audioUrl || '');
+        setAudioMimeType(lesson.audioMimeType);
+        setTranscript(lesson.transcript || '');
+        setTranscriptSegments(lesson.transcriptSegments || []);
+        // Metadata
         setDurationSeconds(lesson.durationSeconds);
         setIsRequired(lesson.isRequired);
         setIsPreview(lesson.isPreview);
@@ -131,6 +158,13 @@ export default function LessonEditorModal({
         setSelectedVideo(undefined);
         setContentText('');
         setContentUrl('');
+        setQuizData(emptyQuizData);
+        // Reset audio fields
+        setAudioUrl('');
+        setAudioMimeType(undefined);
+        setTranscript('');
+        setTranscriptSegments([]);
+        // Reset metadata
         setDurationSeconds(undefined);
         setIsRequired(false);
         setIsPreview(false);
@@ -158,6 +192,10 @@ export default function LessonEditorModal({
         videoId: contentType === 'video' ? videoId : undefined,
         contentText: contentType === 'text' ? contentText : undefined,
         contentUrl: contentType === 'pdf' ? contentUrl : undefined,
+        audioUrl: contentType === 'audio' ? audioUrl : undefined,
+        audioMimeType: contentType === 'audio' ? audioMimeType : undefined,
+        transcript: contentType === 'audio' ? transcript : undefined,
+        transcriptSegments: contentType === 'audio' && transcriptSegments.length > 0 ? transcriptSegments : undefined,
         durationSeconds,
         isRequired,
         isPreview,
@@ -204,6 +242,11 @@ export default function LessonEditorModal({
         videoId: contentType === 'video' ? videoId : undefined,
         contentText: contentType === 'text' ? contentText : undefined,
         contentUrl: contentType === 'pdf' ? contentUrl : undefined,
+        quizData: contentType === 'quiz' ? quizData : undefined,
+        audioUrl: contentType === 'audio' ? audioUrl : undefined,
+        audioMimeType: contentType === 'audio' ? audioMimeType : undefined,
+        transcript: contentType === 'audio' ? transcript : undefined,
+        transcriptSegments: contentType === 'audio' && transcriptSegments.length > 0 ? transcriptSegments : undefined,
         durationSeconds,
         isRequired,
         isPreview,
@@ -249,7 +292,7 @@ export default function LessonEditorModal({
   return (
     <CossUIDialog open={open} onOpenChange={onOpenChange}>
       {trigger && <CossUIDialogTrigger render={<>{trigger}</>} />}
-      <CossUIDialogPopup className="max-w-xl max-h-[90vh] overflow-y-auto">
+      <CossUIDialogPopup className={`max-h-[90vh] overflow-y-auto ${contentType === 'quiz' || contentType === 'audio' ? 'max-w-3xl' : 'max-w-xl'}`}>
         <form onSubmit={handleSubmit}>
           <CossUIDialogHeader>
             <CossUIDialogTitle>
@@ -304,15 +347,15 @@ export default function LessonEditorModal({
                 value={contentType}
                 onValueChange={(value: string) => setContentType(value as LessonContentType)}
               >
-                <CossUITabsList className="grid grid-cols-4 w-full">
-                  {(['video', 'text', 'pdf', 'quiz'] as LessonContentType[]).map((type) => {
+                <CossUITabsList className="grid grid-cols-5 w-full">
+                  {(['video', 'text', 'pdf', 'quiz', 'audio'] as LessonContentType[]).map((type) => {
                     const Icon = contentTypeIcons[type];
                     return (
                       <CossUITabsTab
                         key={type}
                         value={type}
                         className="flex items-center gap-2"
-                        disabled={type === 'quiz' || isSubmitting}
+                        disabled={isSubmitting}
                       >
                         <Icon className="h-4 w-4" />
                         <span className="hidden sm:inline">{contentTypeLabels[type]}</span>
@@ -381,13 +424,63 @@ export default function LessonEditorModal({
                   </div>
                 </CossUITabsPanel>
 
-                {/* Quiz Content (Coming Soon) */}
+                {/* Quiz Content */}
                 <CossUITabsPanel value="quiz" className="pt-4">
-                  <div className="p-6 text-center bg-muted/50 rounded-lg">
-                    <HelpCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-muted-foreground">
-                      Quiz builder coming soon!
+                  <div className="space-y-2">
+                    <CossUILabel className="text-sm font-medium">
+                      Quiz Builder
+                    </CossUILabel>
+                    <p className="text-xs text-muted-foreground">
+                      Create an interactive quiz with multiple question types
                     </p>
+                    <ErrorBoundary>
+                      <QuizBuilder
+                        value={quizData}
+                        onChange={setQuizData}
+                        disabled={isSubmitting}
+                      />
+                    </ErrorBoundary>
+                  </div>
+                </CossUITabsPanel>
+
+                {/* Audio Content */}
+                <CossUITabsPanel value="audio" className="pt-4">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <CossUILabel className="text-sm font-medium">
+                        Audio File <span className="text-destructive">*</span>
+                      </CossUILabel>
+                      <p className="text-xs text-muted-foreground">
+                        Upload an audio file or enter a URL
+                      </p>
+                      <AudioUploader
+                        value={audioUrl}
+                        mimeType={audioMimeType}
+                        onChange={(url, mime, duration) => {
+                          setAudioUrl(url);
+                          setAudioMimeType(mime);
+                          if (duration) {
+                            setDurationSeconds(duration);
+                          }
+                        }}
+                        disabled={isSubmitting}
+                        error={errors.audioUrl}
+                      />
+                      {errors.audioUrl && (
+                        <p className="text-sm text-destructive">{errors.audioUrl}</p>
+                      )}
+                    </div>
+
+                    {/* Transcript Editor - only show if audio is uploaded */}
+                    {audioUrl && (
+                      <TranscriptEditor
+                        transcript={transcript}
+                        segments={transcriptSegments}
+                        onTranscriptChange={setTranscript}
+                        onSegmentsChange={setTranscriptSegments}
+                        disabled={isSubmitting}
+                      />
+                    )}
                   </div>
                 </CossUITabsPanel>
               </CossUITabs>

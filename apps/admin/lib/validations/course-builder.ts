@@ -4,6 +4,7 @@
  * Provides client-side and server-side validation for:
  * - Modules (create, update)
  * - Lessons (create, update)
+ * - Quizzes (settings, questions)
  *
  * Usage:
  * - Client-side: Use schemas in form components for instant validation
@@ -16,7 +17,7 @@ import { z } from 'zod';
 
 export const moduleStatusSchema = z.enum(['draft', 'published']);
 export const lessonStatusSchema = z.enum(['draft', 'published']);
-export const lessonContentTypeSchema = z.enum(['video', 'text', 'pdf', 'quiz']);
+export const lessonContentTypeSchema = z.enum(['video', 'text', 'pdf', 'quiz', 'audio']);
 
 // === Module Schemas ===
 
@@ -133,7 +134,7 @@ const createPdfLessonSchema = z.object({
 });
 
 /**
- * Schema for creating a quiz lesson (future)
+ * Schema for creating a quiz lesson
  */
 const createQuizLessonSchema = z.object({
   ...baseLessonFields,
@@ -142,7 +143,45 @@ const createQuizLessonSchema = z.object({
   videoId: z.undefined(),
   contentText: z.undefined(),
   contentUrl: z.undefined(),
-  quizData: z.record(z.unknown()).optional(),
+  quizData: z.lazy(() => quizDataSchema).optional(),
+});
+
+/**
+ * Transcript segment schema for audio lessons
+ */
+export const transcriptSegmentSchema = z.object({
+  start: z.number().min(0, 'Start time must be positive'),
+  end: z.number().min(0, 'End time must be positive'),
+  text: z.string().min(1, 'Segment text is required'),
+}).refine((data) => data.end >= data.start, {
+  message: 'End time must be after start time',
+  path: ['end'],
+});
+
+/**
+ * Schema for creating an audio lesson
+ */
+const createAudioLessonSchema = z.object({
+  ...baseLessonFields,
+  moduleId: z.string().uuid('Invalid module ID'),
+  contentType: z.literal('audio'),
+  videoId: z.undefined(),
+  contentText: z.undefined(),
+  contentUrl: z.undefined(),
+  audioUrl: z
+    .string()
+    .url('Please enter a valid audio URL')
+    .min(1, 'Audio URL is required'),
+  audioMimeType: z
+    .string()
+    .optional(),
+  transcript: z
+    .string()
+    .max(50000, 'Transcript must be 50000 characters or less')
+    .optional(),
+  transcriptSegments: z
+    .array(transcriptSegmentSchema)
+    .optional(),
 });
 
 /**
@@ -154,6 +193,7 @@ export const createLessonSchema = z.discriminatedUnion('contentType', [
   createTextLessonSchema,
   createPdfLessonSchema,
   createQuizLessonSchema,
+  createAudioLessonSchema,
 ]);
 
 /**
@@ -175,6 +215,16 @@ export const lessonFormSchema = z
     videoId: z.string().uuid().optional().nullable(),
     contentText: z.string().optional(),
     contentUrl: z.string().optional(),
+    // Audio fields
+    audioUrl: z.string().optional(),
+    audioMimeType: z.string().optional(),
+    transcript: z.string().optional(),
+    transcriptSegments: z.array(z.object({
+      start: z.number(),
+      end: z.number(),
+      text: z.string(),
+    })).optional(),
+    // Metadata
     durationSeconds: z.number().int().min(0).optional().nullable(),
     isRequired: z.boolean().optional(),
     isPreview: z.boolean().optional(),
@@ -220,6 +270,28 @@ export const lessonFormSchema = z
         });
       }
     }
+
+    // Validate audio lessons require audioUrl
+    if (data.contentType === 'audio' && (!data.audioUrl || !data.audioUrl.trim())) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Audio file is required',
+        path: ['audioUrl'],
+      });
+    }
+
+    // Validate audio URL format
+    if (data.contentType === 'audio' && data.audioUrl) {
+      try {
+        new URL(data.audioUrl);
+      } catch {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Please enter a valid audio URL',
+          path: ['audioUrl'],
+        });
+      }
+    }
   });
 
 /**
@@ -242,6 +314,16 @@ export const updateLessonSchema = z
     videoId: z.string().uuid().optional().nullable(),
     contentText: z.string().optional().nullable(),
     contentUrl: z.string().url('Please enter a valid URL').optional().nullable(),
+    // Audio fields
+    audioUrl: z.string().url('Please enter a valid audio URL').optional().nullable(),
+    audioMimeType: z.string().optional().nullable(),
+    transcript: z.string().max(50000, 'Transcript must be 50000 characters or less').optional().nullable(),
+    transcriptSegments: z.array(z.object({
+      start: z.number(),
+      end: z.number(),
+      text: z.string(),
+    })).optional().nullable(),
+    // Metadata
     durationSeconds: z.number().int().min(0).optional().nullable(),
     isRequired: z.boolean().optional(),
     isPreview: z.boolean().optional(),
@@ -270,6 +352,14 @@ export const updateLessonSchema = z
         code: z.ZodIssueCode.custom,
         message: 'PDF URL is required',
         path: ['contentUrl'],
+      });
+    }
+
+    if (data.contentType === 'audio' && data.audioUrl === null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Audio file is required',
+        path: ['audioUrl'],
       });
     }
   });
@@ -316,6 +406,138 @@ export const courseEditorSchema = courseUpdateSchema.extend({
   title: z.string().min(3, 'Title must be at least 3 characters').max(200, 'Title must be 200 characters or less'),
 });
 
+// === Quiz Schemas ===
+
+/**
+ * Question type enum
+ */
+export const questionTypeSchema = z.enum(['multiple_choice', 'true_false', 'fill_blank', 'matching']);
+
+/**
+ * Quiz option schema (for multiple choice)
+ */
+export const quizOptionSchema = z.object({
+  id: z.string().min(1, 'Option ID is required'),
+  text: z.string().min(1, 'Option text is required').max(500, 'Option text must be 500 characters or less'),
+  isCorrect: z.boolean(),
+  feedback: z.string().max(500).optional(),
+});
+
+/**
+ * Blank answer schema (for fill-in-blank)
+ */
+export const blankAnswerSchema = z.object({
+  id: z.string().min(1, 'Blank ID is required'),
+  acceptedAnswers: z.array(z.string().min(1)).min(1, 'At least one accepted answer is required'),
+  caseSensitive: z.boolean().default(false),
+});
+
+/**
+ * Match pair schema (for matching questions)
+ */
+export const matchPairSchema = z.object({
+  id: z.string().min(1, 'Pair ID is required'),
+  left: z.string().min(1, 'Left side text is required').max(200),
+  right: z.string().min(1, 'Right side text is required').max(200),
+});
+
+/**
+ * Base question fields
+ */
+const baseQuestionFields = {
+  id: z.string().min(1, 'Question ID is required'),
+  question: z.string().min(1, 'Question text is required').max(2000, 'Question must be 2000 characters or less'),
+  points: z.number().int().min(0, 'Points cannot be negative').max(100, 'Points cannot exceed 100').default(1),
+  required: z.boolean().default(true),
+  explanation: z.string().max(1000).optional(),
+  hint: z.string().max(500).optional(),
+};
+
+/**
+ * Multiple choice question schema (base, without refinement for discriminatedUnion)
+ */
+const multipleChoiceQuestionBaseSchema = z.object({
+  ...baseQuestionFields,
+  type: z.literal('multiple_choice'),
+  options: z.array(quizOptionSchema).min(2, 'At least 2 options required').max(10, 'Maximum 10 options'),
+  allowMultiple: z.boolean().default(false),
+});
+
+/**
+ * Multiple choice question schema with validation
+ */
+export const multipleChoiceQuestionSchema = multipleChoiceQuestionBaseSchema;
+
+/**
+ * True/false question schema
+ */
+export const trueFalseQuestionSchema = z.object({
+  ...baseQuestionFields,
+  type: z.literal('true_false'),
+  correctAnswer: z.boolean(),
+});
+
+/**
+ * Fill-in-blank question schema
+ */
+export const fillBlankQuestionSchema = z.object({
+  ...baseQuestionFields,
+  type: z.literal('fill_blank'),
+  blanks: z.array(blankAnswerSchema).min(1, 'At least one blank is required').max(10),
+});
+
+/**
+ * Matching question schema
+ */
+export const matchingQuestionSchema = z.object({
+  ...baseQuestionFields,
+  type: z.literal('matching'),
+  pairs: z.array(matchPairSchema).min(2, 'At least 2 pairs required').max(10),
+});
+
+/**
+ * Union schema for all question types
+ */
+export const quizQuestionSchema = z.discriminatedUnion('type', [
+  multipleChoiceQuestionSchema,
+  trueFalseQuestionSchema,
+  fillBlankQuestionSchema,
+  matchingQuestionSchema,
+]);
+
+/**
+ * Quiz settings schema
+ */
+export const quizSettingsSchema = z.object({
+  passingScore: z.number().int().min(0).max(100).default(70),
+  maxAttempts: z.number().int().min(-1).default(-1), // -1 = unlimited
+  timeLimitMinutes: z.number().int().min(1).max(480).nullable().default(null),
+  shuffleQuestions: z.boolean().default(false),
+  shuffleAnswers: z.boolean().default(false),
+  showCorrectAnswers: z.boolean().default(true),
+  showFeedback: z.boolean().default(true),
+  showResultsImmediately: z.boolean().default(true),
+  allowReview: z.boolean().default(true),
+});
+
+/**
+ * Complete quiz data schema
+ */
+export const quizDataSchema = z.object({
+  settings: quizSettingsSchema,
+  questions: z.array(quizQuestionSchema).min(1, 'At least one question is required'),
+  version: z.number().int().positive().default(1),
+});
+
+/**
+ * Quiz form schema (for lesson editor - allows empty questions during editing)
+ */
+export const quizFormSchema = z.object({
+  settings: quizSettingsSchema,
+  questions: z.array(quizQuestionSchema).default([]),
+  version: z.number().int().positive().default(1),
+});
+
 // === Type Exports ===
 
 export type CreateModuleInput = z.infer<typeof createModuleSchema>;
@@ -330,6 +552,20 @@ export type LessonStatus = z.infer<typeof lessonStatusSchema>;
 export type LessonContentType = z.infer<typeof lessonContentTypeSchema>;
 export type CourseUpdateInput = z.infer<typeof courseUpdateSchema>;
 export type CourseEditorInput = z.infer<typeof courseEditorSchema>;
+
+// Quiz types
+export type QuestionTypeValue = z.infer<typeof questionTypeSchema>;
+export type QuizOptionInput = z.infer<typeof quizOptionSchema>;
+export type BlankAnswerInput = z.infer<typeof blankAnswerSchema>;
+export type MatchPairInput = z.infer<typeof matchPairSchema>;
+export type MultipleChoiceQuestionInput = z.infer<typeof multipleChoiceQuestionSchema>;
+export type TrueFalseQuestionInput = z.infer<typeof trueFalseQuestionSchema>;
+export type FillBlankQuestionInput = z.infer<typeof fillBlankQuestionSchema>;
+export type MatchingQuestionInput = z.infer<typeof matchingQuestionSchema>;
+export type QuizQuestionInput = z.infer<typeof quizQuestionSchema>;
+export type QuizSettingsInput = z.infer<typeof quizSettingsSchema>;
+export type QuizDataInput = z.infer<typeof quizDataSchema>;
+export type QuizFormInput = z.infer<typeof quizFormSchema>;
 
 // === Validation Helpers ===
 
@@ -411,4 +647,62 @@ export function safeValidateCourseUpdate(data: unknown) {
 
 export function safeValidateCourseEditor(data: unknown) {
   return courseEditorSchema.safeParse(data);
+}
+
+// === Quiz Validation Helpers ===
+
+/**
+ * Validate quiz data (requires at least one question)
+ */
+export function validateQuizData(data: unknown) {
+  return quizDataSchema.parse(data);
+}
+
+/**
+ * Safe validate quiz data
+ */
+export function safeValidateQuizData(data: unknown) {
+  return quizDataSchema.safeParse(data);
+}
+
+/**
+ * Validate quiz form (allows empty questions during editing)
+ */
+export function validateQuizForm(data: unknown) {
+  return quizFormSchema.parse(data);
+}
+
+/**
+ * Safe validate quiz form
+ */
+export function safeValidateQuizForm(data: unknown) {
+  return quizFormSchema.safeParse(data);
+}
+
+/**
+ * Validate a single question
+ */
+export function validateQuizQuestion(data: unknown) {
+  return quizQuestionSchema.parse(data);
+}
+
+/**
+ * Safe validate a single question
+ */
+export function safeValidateQuizQuestion(data: unknown) {
+  return quizQuestionSchema.safeParse(data);
+}
+
+/**
+ * Validate quiz settings
+ */
+export function validateQuizSettings(data: unknown) {
+  return quizSettingsSchema.parse(data);
+}
+
+/**
+ * Safe validate quiz settings
+ */
+export function safeValidateQuizSettings(data: unknown) {
+  return quizSettingsSchema.safeParse(data);
 }

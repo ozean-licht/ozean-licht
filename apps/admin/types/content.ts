@@ -115,7 +115,16 @@ export interface ModuleWithLessons extends Module {
 /**
  * Lesson content type
  */
-export type LessonContentType = 'video' | 'text' | 'pdf' | 'quiz';
+export type LessonContentType = 'video' | 'text' | 'pdf' | 'quiz' | 'audio';
+
+/**
+ * Transcript segment for audio lessons
+ */
+export interface TranscriptSegment {
+  start: number;  // Start time in seconds
+  end: number;    // End time in seconds
+  text: string;   // Transcript text for this segment
+}
 
 /**
  * Lesson status
@@ -137,6 +146,11 @@ export interface Lesson {
   contentText?: string;  // For text type (markdown)
   contentUrl?: string;   // For pdf type (URL to PDF)
   quizData?: Record<string, unknown>;  // For quiz type (future)
+  // Audio content fields (for audio type)
+  audioUrl?: string;              // URL to audio file
+  audioMimeType?: string;         // MIME type (audio/mpeg, audio/wav, etc.)
+  transcript?: string;            // Plain text transcript
+  transcriptSegments?: TranscriptSegment[];  // Timestamped transcript segments
   // Metadata
   sortOrder: number;
   durationSeconds?: number;
@@ -266,6 +280,13 @@ export interface CreateLessonInput {
   videoId?: string;
   contentText?: string;
   contentUrl?: string;
+  quizData?: Record<string, unknown>;
+  // Audio fields
+  audioUrl?: string;
+  audioMimeType?: string;
+  transcript?: string;
+  transcriptSegments?: TranscriptSegment[];
+  // Metadata
   durationSeconds?: number;
   isRequired?: boolean;
   isPreview?: boolean;
@@ -290,6 +311,13 @@ export interface UpdateLessonInput {
   videoId?: string;
   contentText?: string;
   contentUrl?: string;
+  quizData?: Record<string, unknown>;
+  // Audio fields
+  audioUrl?: string;
+  audioMimeType?: string;
+  transcript?: string;
+  transcriptSegments?: TranscriptSegment[];
+  // Metadata
   durationSeconds?: number;
   isRequired?: boolean;
   isPreview?: boolean;
