@@ -1,0 +1,91 @@
+{
+  "name": "Ablefy to PostgreSQL Direct",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ablefy-transactions",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Ablefy Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "ablefy-transactions"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO transactions (\n  trx_id, relevante_id, rechnungsnummer,\n  transaction_date, datum_raw, erfolgt_am,\n  status, typ, zahlungsart,\n  order_number, product_id, produkt, psp,\n  faelliger_betrag, bezahlt, bezahlt_minus_fee,\n  fees_total, fees_service, fees_payment_provider,\n  vat_rate, ust, waehrung,\n  plan, zahlungsplan_id, gutscheincode,\n  buyer_email, buyer_first_name, buyer_last_name,\n  buyer_phone, buyer_land, buyer_stadt,\n  buyer_strasse, buyer_hausnummer, buyer_plz,\n  buyer_ust_id, buyer_unternehmen,\n  account_type, source_platform, imported_from_ablefy\n) VALUES (\n  {{ $json.trx_id }},\n  {{ $json.relevante_id ? \"'\" + $json.relevante_id + \"'\" : \"NULL\" }},\n  {{ $json.rechnungsnummer ? \"'\" + $json.rechnungsnummer + \"'\" : \"NULL\" }},\n  {{ $json.datum ? \"'\" + $json.datum + \"'::timestamp\" : \"NOW()\" }},\n  {{ $json.datum ? \"'\" + $json.datum + \"'\" : \"NULL\" }},\n  {{ $json.erfolgt_am ? \"'\" + $json.erfolgt_am + \"'\" : \"NULL\" }},\n  '{{ $json.status || \"Ausstehend\" }}',\n  '{{ $json.typ || \"unknown\" }}',\n  '{{ $json.zahlungsart || \"unknown\" }}',\n  {{ $json.order_number || \"NULL\" }},\n  {{ $json.product_id || \"NULL\" }},\n  {{ $json.produkt ? \"'\" + $json.produkt.replace(/'/g, \"''\") + \"'\" : \"NULL\" }},\n  {{ $json.psp ? \"'\" + $json.psp + \"'\" : \"NULL\" }},\n  {{ $json.faelliger_betrag || 0 }},\n  {{ $json.bezahlt || 0 }},\n  {{ $json.bezahlt_minus_fee || \"NULL\" }},\n  {{ $json.fees_total || 0 }},\n  {{ $json.fees_service || 0 }},\n  {{ $json.fees_payment_provider || 0 }},\n  {{ $json.vat_rate || 0 }},\n  {{ $json.ust || 0 }},\n  '{{ $json.waehrung || \"EUR\" }}',\n  {{ $json.plan ? \"'\" + $json.plan + \"'\" : \"NULL\" }},\n  {{ $json.zahlungsplan_id || \"NULL\" }},\n  {{ $json.gutscheincode ? \"'\" + $json.gutscheincode + \"'\" : \"NULL\" }},\n  '{{ $json.email || \"unknown@unknown.com\" }}',\n  {{ $json.vorname ? \"'\" + $json.vorname.replace(/'/g, \"''\") + \"'\" : \"NULL\" }},\n  {{ $json.nachname ? \"'\" + $json.nachname.replace(/'/g, \"''\") + \"'\" : \"NULL\" }},\n  {{ $json.telefon ? \"'\" + $json.telefon + \"'\" : \"NULL\" }},\n  {{ $json.land ? \"'\" + $json.land + \"'\" : \"NULL\" }},\n  {{ $json.stadt ? \"'\" + $json.stadt.replace(/'/g, \"''\") + \"'\" : \"NULL\" }},\n  {{ $json.strasse ? \"'\" + $json.strasse.replace(/'/g, \"''\") + \"'\" : \"NULL\" }},\n  {{ $json.hausnummer ? \"'\" + $json.hausnummer + \"'\" : \"NULL\" }},\n  {{ $json.plz || \"NULL\" }},\n  {{ $json.ust_id ? \"'\" + $json.ust_id + \"'\" : \"NULL\" }},\n  {{ $json.unternehmen ? \"'\" + $json.unternehmen.replace(/'/g, \"''\") + \"'\" : \"NULL\" }},\n  '{{ $json.account_type || \"new\" }}',\n  'ablefy',\n  true\n)\nON CONFLICT (trx_id) WHERE trx_id IS NOT NULL\nDO UPDATE SET\n  status = EXCLUDED.status,\n  bezahlt = EXCLUDED.bezahlt,\n  updated_at = NOW()\nRETURNING id, trx_id;",
+        "options": {}
+      },
+      "id": "postgres",
+      "name": "Insert to PostgreSQL",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [500, 300],
+      "credentials": {
+        "postgres": {
+          "id": "ozean-licht-db",
+          "name": "Ozean Licht DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "status",
+              "value": "success"
+            },
+            {
+              "name": "message",
+              "value": "Transaction {{ $json.trx_id }} processed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [750, 300]
+    }
+  ],
+  "connections": {
+    "Ablefy Webhook": {
+      "main": [
+        [
+          {
+            "node": "Insert to PostgreSQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert to PostgreSQL": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "meta": {
+    "instanceId": "ozean-licht"
+  },
+  "tags": []
+}
