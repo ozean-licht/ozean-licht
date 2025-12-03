@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/config';
 import { hasAnyRole } from '@/lib/rbac/utils';
 import { getLessonById, updateLesson, deleteLesson } from '@/lib/db/lessons';
-import { validateQuizData } from '@/lib/validations/course-builder';
+import { validateQuizData, formatQuizValidationError } from '@/lib/validations/course-builder';
 import { z } from 'zod';
 
 interface RouteParams {
@@ -153,11 +153,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         if (error instanceof z.ZodError) {
           return NextResponse.json(
             {
-              error: 'Invalid quiz data',
-              details: error.errors.map(issue => ({
-                path: issue.path.join('.'),
-                message: issue.message,
-              })),
+              error: formatQuizValidationError(error),
             },
             { status: 400 }
           );

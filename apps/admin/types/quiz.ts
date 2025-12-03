@@ -8,6 +8,37 @@
  * - Quiz results and attempts
  */
 
+// === Quiz Builder Limits ===
+
+/**
+ * Quiz builder configuration limits
+ *
+ * These limits can be adjusted based on product requirements.
+ * Consider making them configurable via environment variables for different deployments.
+ */
+export const QUIZ_LIMITS = {
+  /** Maximum number of options per multiple choice question */
+  MAX_OPTIONS: 10,
+  /** Maximum number of questions per quiz */
+  MAX_QUESTIONS: 100,
+  /** Maximum number of blanks per fill-in-the-blank question */
+  MAX_BLANKS: 10,
+  /** Maximum number of pairs per matching question */
+  MAX_PAIRS: 20,
+  /** Minimum passing score percentage */
+  MIN_PASSING_SCORE: 0,
+  /** Maximum passing score percentage */
+  MAX_PASSING_SCORE: 100,
+  /** Maximum time limit in minutes */
+  MAX_TIME_LIMIT_MINUTES: 180,
+  /** Minimum number of options for multiple choice questions */
+  MIN_OPTIONS: 2,
+  /** Minimum number of blanks for fill-in-the-blank questions */
+  MIN_BLANKS: 1,
+  /** Minimum number of pairs for matching questions */
+  MIN_PAIRS: 2,
+} as const;
+
 // === Question Types ===
 
 export type QuestionType = 'multiple_choice' | 'true_false' | 'fill_blank' | 'matching';
@@ -281,6 +312,33 @@ export interface QuizSummary {
 
 /**
  * Check if a question is valid for saving
+ *
+ * Validates that a quiz question has all required fields and meets minimum requirements:
+ * - Non-empty question text
+ * - Non-negative points
+ * - Type-specific validation:
+ *   - Multiple choice: At least 2 options, at least one correct, all options have text
+ *   - True/false: Has a boolean correctAnswer
+ *   - Fill blank: At least 1 blank with accepted answers
+ *   - Matching: At least 2 pairs with non-empty left and right values
+ *
+ * @param question - The quiz question to validate
+ * @returns true if the question is valid and can be saved, false otherwise
+ *
+ * @example
+ * const question: MultipleChoiceQuestion = {
+ *   id: '1',
+ *   type: 'multiple_choice',
+ *   question: 'What is 2+2?',
+ *   points: 10,
+ *   required: true,
+ *   options: [
+ *     { id: 'a', text: '3', isCorrect: false },
+ *     { id: 'b', text: '4', isCorrect: true }
+ *   ],
+ *   allowMultiple: false
+ * };
+ * isValidQuestion(question); // returns true
  */
 export function isValidQuestion(question: QuizQuestion): boolean {
   if (!question.question.trim()) return false;
@@ -312,6 +370,34 @@ export function isValidQuestion(question: QuizQuestion): boolean {
 
 /**
  * Calculate quiz summary from quiz data
+ *
+ * Computes summary statistics for display on quiz overview screens:
+ * - Total number of questions
+ * - Total possible points across all questions
+ * - Estimated completion time (1.5 minutes per question)
+ * - List of unique question types present in the quiz
+ * - Whether the quiz has a time limit
+ *
+ * @param quiz - The quiz data to summarize
+ * @returns Summary object with computed statistics
+ *
+ * @example
+ * const quiz: QuizData = {
+ *   settings: { ...defaultQuizSettings, timeLimitMinutes: 30 },
+ *   questions: [
+ *     { type: 'multiple_choice', points: 10, ... },
+ *     { type: 'true_false', points: 5, ... }
+ *   ],
+ *   version: 1
+ * };
+ * const summary = calculateQuizSummary(quiz);
+ * // {
+ * //   totalQuestions: 2,
+ * //   totalPoints: 15,
+ * //   estimatedTime: 3,
+ * //   questionTypes: ['multiple_choice', 'true_false'],
+ * //   hasTimeLimit: true
+ * // }
  */
 export function calculateQuizSummary(quiz: QuizData): QuizSummary {
   const totalPoints = quiz.questions.reduce((sum, q) => sum + q.points, 0);

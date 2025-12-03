@@ -26,6 +26,7 @@ import {
 import MultipleChoiceEditor from './MultipleChoiceEditor';
 import TrueFalseEditor from './TrueFalseEditor';
 import FillBlankEditor from './FillBlankEditor';
+import { sanitizeHtml } from '@/lib/utils/sanitize';
 
 interface QuestionEditorProps {
   question: QuizQuestion;
@@ -121,6 +122,19 @@ export default function QuestionEditor({
     }));
   }, []);
 
+  // Sanitize text field on blur
+  const handleTextBlur = useCallback((field: 'question' | 'explanation' | 'hint') => (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const sanitized = sanitizeHtml(e.target.value);
+    if (sanitized !== e.target.value) {
+      setQuestion(prev => ({
+        ...prev,
+        [field]: sanitized,
+      }));
+    }
+  }, []);
+
   // Handle type-specific changes
   const handleTypeSpecificChange = useCallback((updates: Partial<QuizQuestion>) => {
     setQuestion(prev => ({
@@ -166,24 +180,29 @@ export default function QuestionEditor({
         <div className="space-y-6 py-4">
           {/* Question Text */}
           <div className="space-y-2">
-            <CossUILabel className="text-sm font-medium">
+            <CossUILabel htmlFor="question-text" className="text-sm font-medium">
               Question <span className="text-destructive">*</span>
             </CossUILabel>
             <CossUITextarea
+              id="question-text"
               value={question.question}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                 handleFieldChange('question', e.target.value)
               }
+              onBlur={handleTextBlur('question')}
               placeholder="Enter your question..."
               rows={3}
               className={errors.question ? 'border-destructive' : ''}
               disabled={disabled || isSubmitting}
+              aria-required="true"
+              aria-invalid={!!errors.question}
+              aria-describedby={errors.question ? 'question-error' : question.type === 'fill_blank' ? 'question-help' : undefined}
             />
             {errors.question && (
-              <p className="text-sm text-destructive">{errors.question}</p>
+              <p id="question-error" className="text-sm text-destructive" role="alert">{errors.question}</p>
             )}
             {question.type === 'fill_blank' && (
-              <p className="text-xs text-muted-foreground">
+              <p id="question-help" className="text-xs text-muted-foreground">
                 Use {'{{blank}}'} to indicate where blanks should appear.
               </p>
             )}
@@ -219,10 +238,11 @@ export default function QuestionEditor({
           {/* Points and Settings Row */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <CossUILabel className="text-sm font-medium">
+              <CossUILabel htmlFor="question-points" className="text-sm font-medium">
                 Points
               </CossUILabel>
               <CossUIInput
+                id="question-points"
                 type="number"
                 value={question.points}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -232,9 +252,11 @@ export default function QuestionEditor({
                 max={100}
                 className={errors.points ? 'border-destructive' : ''}
                 disabled={disabled || isSubmitting}
+                aria-invalid={!!errors.points}
+                aria-describedby={errors.points ? 'points-error' : undefined}
               />
               {errors.points && (
-                <p className="text-sm text-destructive">{errors.points}</p>
+                <p id="points-error" className="text-sm text-destructive" role="alert">{errors.points}</p>
               )}
             </div>
 
@@ -259,32 +281,38 @@ export default function QuestionEditor({
 
           {/* Explanation (shown after answering) */}
           <div className="space-y-2">
-            <CossUILabel className="text-sm font-medium">
+            <CossUILabel htmlFor="question-explanation" className="text-sm font-medium">
               Explanation (optional)
             </CossUILabel>
             <CossUITextarea
+              id="question-explanation"
               value={question.explanation || ''}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                 handleFieldChange('explanation', e.target.value)
               }
+              onBlur={handleTextBlur('explanation')}
               placeholder="Explain the correct answer (shown after submission)..."
               rows={2}
               disabled={disabled || isSubmitting}
+              aria-label="Explanation shown after answering"
             />
           </div>
 
           {/* Hint (shown before answering) */}
           <div className="space-y-2">
-            <CossUILabel className="text-sm font-medium">
+            <CossUILabel htmlFor="question-hint" className="text-sm font-medium">
               Hint (optional)
             </CossUILabel>
             <CossUIInput
+              id="question-hint"
               value={question.hint || ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 handleFieldChange('hint', e.target.value)
               }
+              onBlur={handleTextBlur('hint')}
               placeholder="A helpful hint for learners..."
               disabled={disabled || isSubmitting}
+              aria-label="Hint shown before answering"
             />
           </div>
         </div>

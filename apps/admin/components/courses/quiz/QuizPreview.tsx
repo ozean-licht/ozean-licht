@@ -156,17 +156,17 @@ export default function QuizPreview({ quiz }: QuizPreviewProps) {
     const passed = score.percentage >= quiz.settings.passingScore;
 
     return (
-      <CossUICard className="p-6 space-y-6">
-        <div className="text-center">
+      <CossUICard className="p-6 space-y-6" role="region" aria-label="Quiz results">
+        <div className="text-center" role="status" aria-live="polite">
           {passed ? (
-            <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" />
+            <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" aria-hidden="true" />
           ) : (
-            <XCircle className="h-16 w-16 text-destructive mx-auto mb-4" />
+            <XCircle className="h-16 w-16 text-destructive mx-auto mb-4" aria-hidden="true" />
           )}
           <h3 className="text-2xl font-bold mb-2">
             {passed ? 'Quiz Passed!' : 'Quiz Not Passed'}
           </h3>
-          <p className="text-4xl font-bold text-primary mb-2">
+          <p className="text-4xl font-bold text-primary mb-2" aria-label={`Score: ${score.percentage} percent`}>
             {score.percentage}%
           </p>
           <p className="text-muted-foreground">
@@ -177,7 +177,7 @@ export default function QuizPreview({ quiz }: QuizPreviewProps) {
           </p>
         </div>
 
-        <CossUIButton onClick={handleReset} className="w-full">
+        <CossUIButton onClick={handleReset} className="w-full" aria-label="Reset quiz and try again">
           Try Again
         </CossUIButton>
       </CossUICard>
@@ -185,22 +185,22 @@ export default function QuizPreview({ quiz }: QuizPreviewProps) {
   }
 
   return (
-    <CossUICard className="p-6 space-y-6">
+    <CossUICard className="p-6 space-y-6" role="form" aria-label="Quiz">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between" role="region" aria-label="Quiz progress">
         <div className="flex items-center gap-2">
-          <CossUIBadge variant="secondary">
+          <CossUIBadge variant="secondary" aria-label={`Question ${currentIndex + 1} of ${questions.length}`}>
             Question {currentIndex + 1} of {questions.length}
           </CossUIBadge>
           {currentQuestion && (
-            <CossUIBadge variant="outline">
+            <CossUIBadge variant="outline" aria-label={`${currentQuestion.points} points`}>
               {currentQuestion.points} pt{currentQuestion.points !== 1 ? 's' : ''}
             </CossUIBadge>
           )}
         </div>
         {quiz.settings.timeLimitMinutes && (
-          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-            <Clock className="h-4 w-4" />
+          <div className="flex items-center gap-1 text-sm text-muted-foreground" aria-label={`Time limit: ${quiz.settings.timeLimitMinutes} minutes`}>
+            <Clock className="h-4 w-4" aria-hidden="true" />
             <span>{quiz.settings.timeLimitMinutes} min</span>
           </div>
         )}
@@ -210,11 +210,13 @@ export default function QuizPreview({ quiz }: QuizPreviewProps) {
       <CossUIProgress
         value={(Object.keys(answers).length / questions.length) * 100}
         className="h-2"
+        aria-label={`Quiz progress: ${Object.keys(answers).length} of ${questions.length} questions answered`}
       />
 
       {/* Question */}
       {currentQuestion && (
         <div className="space-y-4">
+          {/* SECURITY: Content is sanitized via renderSanitized() using DOMPurify before rendering */}
           <p
             className="text-lg font-medium"
             dangerouslySetInnerHTML={{ __html: renderSanitized(currentQuestion.question) }}
@@ -250,6 +252,7 @@ export default function QuizPreview({ quiz }: QuizPreviewProps) {
           {/* Hint */}
           {currentQuestion.hint && (
             <p className="text-sm text-muted-foreground italic">
+              {/* SECURITY: Content is sanitized via renderSanitized() using DOMPurify before rendering */}
               Hint: <span dangerouslySetInnerHTML={{ __html: renderSanitized(currentQuestion.hint) }} />
             </p>
           )}
@@ -257,24 +260,25 @@ export default function QuizPreview({ quiz }: QuizPreviewProps) {
       )}
 
       {/* Navigation */}
-      <div className="flex items-center justify-between pt-4 border-t">
+      <div className="flex items-center justify-between pt-4 border-t" role="navigation" aria-label="Quiz navigation">
         <CossUIButton
           variant="outline"
           onClick={goPrev}
           disabled={currentIndex === 0}
+          aria-label="Go to previous question"
         >
-          <ChevronLeft className="h-4 w-4 mr-1" />
+          <ChevronLeft className="h-4 w-4 mr-1" aria-hidden="true" />
           Previous
         </CossUIButton>
 
         {currentIndex === questions.length - 1 ? (
-          <CossUIButton onClick={handleSubmit}>
+          <CossUIButton onClick={handleSubmit} aria-label="Submit quiz answers">
             Submit Quiz
           </CossUIButton>
         ) : (
-          <CossUIButton onClick={goNext}>
+          <CossUIButton onClick={goNext} aria-label="Go to next question">
             Next
-            <ChevronRight className="h-4 w-4 ml-1" />
+            <ChevronRight className="h-4 w-4 ml-1" aria-hidden="true" />
           </CossUIButton>
         )}
       </div>
@@ -318,6 +322,7 @@ function MultipleChoicePreview({
                 handleChange(option.id, checked === true)
               }
             />
+            {/* SECURITY: Content is sanitized via renderSanitized() using DOMPurify before rendering */}
             <span dangerouslySetInnerHTML={{ __html: renderSanitized(option.text) }} />
           </label>
         ))}
@@ -344,6 +349,7 @@ function MultipleChoicePreview({
               <div className="h-2.5 w-2.5 rounded-full bg-primary" />
             )}
           </div>
+          {/* SECURITY: Content is sanitized via renderSanitized() using DOMPurify before rendering */}
           <span dangerouslySetInnerHTML={{ __html: renderSanitized(option.text) }} />
         </label>
       ))}

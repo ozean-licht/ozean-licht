@@ -26,8 +26,20 @@ import type {
 } from '@/types/quiz';
 
 /**
- * Sanitize HTML content
- * Allows basic formatting but removes dangerous elements and attributes
+ * Sanitize HTML content for quiz display
+ *
+ * Allows basic formatting tags (bold, italic, emphasis, etc.) but removes dangerous
+ * elements and attributes that could cause XSS attacks.
+ *
+ * Allowed tags: b, i, em, strong, u, br, p, span, code, pre
+ * Allowed attributes: class
+ *
+ * @param html - Raw HTML string from user input
+ * @returns Sanitized HTML string safe for rendering
+ *
+ * @example
+ * sanitizeQuizHtml('<p>Safe text</p><script>alert("xss")</script>');
+ * // Returns: '<p>Safe text</p>'
  */
 export function sanitizeQuizHtml(html: string): string {
   return DOMPurify.sanitize(html, {
@@ -38,7 +50,17 @@ export function sanitizeQuizHtml(html: string): string {
 }
 
 /**
- * Sanitize plain text (removes all HTML)
+ * Sanitize plain text by removing all HTML tags
+ *
+ * Strips all HTML tags from the input while keeping the text content.
+ * Use this for fields that should not contain any HTML formatting.
+ *
+ * @param text - Raw text that may contain HTML
+ * @returns Plain text with all HTML tags removed
+ *
+ * @example
+ * sanitizeQuizText('Hello <b>world</b><script>alert("xss")</script>');
+ * // Returns: 'Hello world'
  */
 export function sanitizeQuizText(text: string): string {
   return DOMPurify.sanitize(text, {
@@ -48,8 +70,19 @@ export function sanitizeQuizText(text: string): string {
 }
 
 /**
- * Render sanitized HTML safely
- * Use this for rendering user-generated quiz content
+ * Render sanitized HTML safely for display
+ *
+ * This is a convenience wrapper around sanitizeQuizHtml() for rendering
+ * user-generated quiz content with dangerouslySetInnerHTML.
+ *
+ * Always use this function when displaying quiz content that may contain
+ * user-provided HTML to prevent XSS attacks.
+ *
+ * @param html - Raw HTML string to sanitize and render
+ * @returns Sanitized HTML string safe for dangerouslySetInnerHTML
+ *
+ * @example
+ * <div dangerouslySetInnerHTML={{ __html: renderSanitized(question.text) }} />
  */
 export function renderSanitized(html: string): string {
   return sanitizeQuizHtml(html);

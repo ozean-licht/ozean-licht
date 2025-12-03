@@ -12,7 +12,9 @@ import {
   FillBlankQuestion,
   BlankAnswer,
   generateQuizId,
+  QUIZ_LIMITS,
 } from '@/types/quiz';
+import { sanitizeHtml } from '@/lib/utils/sanitize';
 
 interface FillBlankEditorProps {
   question: FillBlankQuestion;
@@ -49,7 +51,7 @@ export default function FillBlankEditor({
 
   // Remove a blank
   const handleRemoveBlank = useCallback((blankId: string) => {
-    if (question.blanks.length <= 1) return; // Minimum 1 blank
+    if (question.blanks.length <= QUIZ_LIMITS.MIN_BLANKS) return;
     onChange({
       blanks: question.blanks.filter(b => b.id !== blankId),
     });
@@ -80,6 +82,19 @@ export default function FillBlankEditor({
     return blank.acceptedAnswers.join(', ');
   };
 
+  // Sanitize answer text on blur
+  const handleAnswerTextBlur = useCallback((blankId: string) => (
+    e: React.FocusEvent<HTMLInputElement>
+  ) => {
+    const sanitizedValue = sanitizeHtml(e.target.value);
+    if (sanitizedValue !== e.target.value) {
+      const answers = sanitizedValue.split(',').map(a => a.trim()).filter(Boolean);
+      handleBlankChange(blankId, {
+        acceptedAnswers: answers.length > 0 ? answers : [''],
+      });
+    }
+  }, [handleBlankChange]);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -105,7 +120,7 @@ export default function FillBlankEditor({
                 variant="ghost"
                 size="sm"
                 onClick={() => handleRemoveBlank(blank.id)}
-                disabled={disabled || question.blanks.length <= 1}
+                disabled={disabled || question.blanks.length <= QUIZ_LIMITS.MIN_BLANKS}
                 className="h-6 w-6 p-0 text-destructive hover:text-destructive"
               >
                 <Trash2 className="h-3 w-3" />
@@ -123,6 +138,7 @@ export default function FillBlankEditor({
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   handleAnswersChange(blank.id, e.target.value)
                 }
+                onBlur={handleAnswerTextBlur(blank.id)}
                 placeholder="answer1, answer2, answer3"
                 disabled={disabled}
               />
@@ -156,7 +172,7 @@ export default function FillBlankEditor({
         variant="outline"
         size="sm"
         onClick={handleAddBlank}
-        disabled={disabled || question.blanks.length >= 10}
+        disabled={disabled || question.blanks.length >= QUIZ_LIMITS.MAX_BLANKS}
         className="w-full"
       >
         <Plus className="h-4 w-4 mr-1" />

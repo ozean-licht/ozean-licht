@@ -706,3 +706,69 @@ export function validateQuizSettings(data: unknown) {
 export function safeValidateQuizSettings(data: unknown) {
   return quizSettingsSchema.safeParse(data);
 }
+
+/**
+ * Format quiz validation errors into user-friendly messages
+ *
+ * Converts technical Zod error paths (e.g., "questions.0.options") into
+ * readable messages that help users identify and fix validation issues.
+ *
+ * @param zodError - The Zod validation error from quiz validation
+ * @returns A user-friendly error message string
+ *
+ * @example
+ * // Zod error with path "questions.2.options"
+ * formatQuizValidationError(error);
+ * // Returns: "Question 3: At least 2 options required"
+ *
+ * @example
+ * // Multiple errors
+ * formatQuizValidationError(error);
+ * // Returns: "Question 1: Question text is required. Settings: Passing score must be between 0 and 100"
+ */
+export function formatQuizValidationError(zodError: z.ZodError): string {
+  const messages: string[] = [];
+
+  for (const issue of zodError.errors) {
+    const path = issue.path.join('.');
+
+    // Questions array errors
+    if (path.includes('questions')) {
+      const questionMatch = path.match(/questions\.(\d+)/);
+      if (questionMatch) {
+        const questionNum = parseInt(questionMatch[1], 10) + 1;
+
+        // Determine which field has the error
+        if (path.includes('options')) {
+          messages.push(`Question ${questionNum}: ${issue.message}`);
+        } else if (path.includes('blanks')) {
+          messages.push(`Question ${questionNum}: ${issue.message}`);
+        } else if (path.includes('pairs')) {
+          messages.push(`Question ${questionNum}: ${issue.message}`);
+        } else if (path.includes('correctAnswer')) {
+          messages.push(`Question ${questionNum}: ${issue.message}`);
+        } else if (path.endsWith('question')) {
+          messages.push(`Question ${questionNum}: Question text - ${issue.message}`);
+        } else if (path.endsWith('points')) {
+          messages.push(`Question ${questionNum}: Points - ${issue.message}`);
+        } else {
+          messages.push(`Question ${questionNum}: ${issue.message}`);
+        }
+      } else {
+        // General questions array error (e.g., "At least one question is required")
+        messages.push(`Quiz questions: ${issue.message}`);
+      }
+    }
+    // Settings errors
+    else if (path.includes('settings')) {
+      const settingName = path.split('.').pop() || 'setting';
+      messages.push(`Quiz settings (${settingName}): ${issue.message}`);
+    }
+    // Top-level errors
+    else {
+      messages.push(issue.message);
+    }
+  }
+
+  return messages.join('. ');
+}

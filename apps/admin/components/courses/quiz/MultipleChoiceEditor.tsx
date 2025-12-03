@@ -13,7 +13,9 @@ import {
   MultipleChoiceQuestion,
   QuizOption,
   generateQuizId,
+  QUIZ_LIMITS,
 } from '@/types/quiz';
+import { sanitizeHtml } from '@/lib/utils/sanitize';
 
 interface MultipleChoiceEditorProps {
   question: MultipleChoiceQuestion;
@@ -51,7 +53,7 @@ export default function MultipleChoiceEditor({
 
   // Remove an option
   const handleRemoveOption = useCallback((optionId: string) => {
-    if (question.options.length <= 2) return; // Minimum 2 options
+    if (question.options.length <= QUIZ_LIMITS.MIN_OPTIONS) return;
     onChange({
       options: question.options.filter(o => o.id !== optionId),
     });
@@ -102,6 +104,16 @@ export default function MultipleChoiceEditor({
     }
   }, [question.options, onChange]);
 
+  // Sanitize option text on blur
+  const handleOptionTextBlur = useCallback((optionId: string, field: 'text' | 'feedback') => (
+    e: React.FocusEvent<HTMLInputElement>
+  ) => {
+    const sanitized = sanitizeHtml(e.target.value);
+    if (sanitized !== e.target.value) {
+      handleOptionChange(optionId, { [field]: sanitized });
+    }
+  }, [handleOptionChange]);
+
   return (
     <div className="space-y-4">
       {/* Allow Multiple Toggle */}
@@ -151,6 +163,7 @@ export default function MultipleChoiceEditor({
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   handleOptionChange(option.id, { text: e.target.value })
                 }
+                onBlur={handleOptionTextBlur(option.id, 'text')}
                 placeholder={`Option ${index + 1}`}
                 disabled={disabled}
               />
@@ -160,6 +173,7 @@ export default function MultipleChoiceEditor({
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   handleOptionChange(option.id, { feedback: e.target.value })
                 }
+                onBlur={handleOptionTextBlur(option.id, 'feedback')}
                 placeholder="Feedback for this option (optional)"
                 className="text-xs"
                 disabled={disabled}
@@ -172,7 +186,7 @@ export default function MultipleChoiceEditor({
               variant="ghost"
               size="sm"
               onClick={() => handleRemoveOption(option.id)}
-              disabled={disabled || question.options.length <= 2}
+              disabled={disabled || question.options.length <= QUIZ_LIMITS.MIN_OPTIONS}
               className="mt-1.5 h-8 w-8 p-0 text-destructive hover:text-destructive"
             >
               <Trash2 className="h-4 w-4" />
@@ -193,7 +207,7 @@ export default function MultipleChoiceEditor({
         variant="outline"
         size="sm"
         onClick={handleAddOption}
-        disabled={disabled || question.options.length >= 10}
+        disabled={disabled || question.options.length >= QUIZ_LIMITS.MAX_OPTIONS}
         className="w-full"
       >
         <Plus className="h-4 w-4 mr-1" />
@@ -203,7 +217,7 @@ export default function MultipleChoiceEditor({
       {/* Help Text */}
       <p className="text-xs text-muted-foreground">
         Check the box next to the correct answer{question.allowMultiple ? '(s)' : ''}.
-        Minimum 2 options, maximum 10.
+        Minimum {QUIZ_LIMITS.MIN_OPTIONS} options, maximum {QUIZ_LIMITS.MAX_OPTIONS}.
       </p>
     </div>
   );
