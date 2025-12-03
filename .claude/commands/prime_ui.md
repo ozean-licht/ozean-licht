@@ -6,7 +6,8 @@ Execute the `Read` and `Report` sections to understand the codebase-ui and brand
 README.md
 design-system.md
 apps/storybook/README.md
-/opt/ozean-licht-ecosystem/shared/ui/README.md
+shared/ui/README.md
+shared/ui/COMPONENT_INDEX.md
 
 
 ## Report

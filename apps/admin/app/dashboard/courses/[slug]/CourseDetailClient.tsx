@@ -4,11 +4,21 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Course, ModuleWithLessons } from '@/types/content';
 import { Button, Badge, Alert, AlertTitle, AlertDescription } from '@/lib/ui';
-import { ArrowLeft, Plus, BookOpen, Clock, Video, Eye, Edit } from 'lucide-react';
+import { ArrowLeft, Plus, BookOpen, Clock, Video, Eye, Edit, LayoutList, List } from 'lucide-react';
 import CourseDetailHeader from '@/components/courses/CourseDetailHeader';
 import ModuleList from '@/components/courses/ModuleList';
 import ModuleEditorModal from '@/components/courses/ModuleEditorModal';
 import CourseEditorModal from '@/components/courses/CourseEditorModal';
+import { CourseOutlineEditor } from '@/components/courses/outline';
+import ErrorBoundary from '@/components/ErrorBoundary';
+
+// Feature flag for new outline editor - can be controlled via env var or localStorage
+const useOutlineEditor = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('course_outline_editor') === 'true';
+  }
+  return process.env.NEXT_PUBLIC_OUTLINE_EDITOR === 'true';
+};
 
 interface CourseDetailClientProps {
   course: Course;
@@ -25,6 +35,7 @@ export default function CourseDetailClient({
   const [modules, setModules] = useState<ModuleWithLessons[]>(initialModules);
   const [addModuleOpen, setAddModuleOpen] = useState(false);
   const [editCourseOpen, setEditCourseOpen] = useState(false);
+  const [showOutlineEditor, setShowOutlineEditor] = useState(useOutlineEditor);
 
   // Calculate totals
   const totalLessons = modules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
@@ -110,17 +121,76 @@ export default function CourseDetailClient({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-decorative text-white">Course Content</h2>
-          <Button onClick={() => setAddModuleOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Module
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* View Toggle - Switch between outline and accordion view */}
+            <div className="flex items-center border rounded-md p-0.5 bg-card/30">
+              <Button
+                variant={showOutlineEditor ? 'ghost' : 'secondary'}
+                size="sm"
+                className="h-7 px-2"
+                onClick={() => {
+                  setShowOutlineEditor(false);
+                  localStorage.setItem('course_outline_editor', 'false');
+                }}
+                title="Accordion View"
+              >
+                <LayoutList className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={showOutlineEditor ? 'secondary' : 'ghost'}
+                size="sm"
+                className="h-7 px-2"
+                onClick={() => {
+                  setShowOutlineEditor(true);
+                  localStorage.setItem('course_outline_editor', 'true');
+                }}
+                title="Outline View"
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
+            {!showOutlineEditor && (
+              <Button onClick={() => setAddModuleOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Module
+              </Button>
+            )}
+          </div>
         </div>
 
-        <ModuleList
-          courseId={course.id}
-          modules={modules}
-          onModulesChange={setModules}
-        />
+        {showOutlineEditor ? (
+          <ErrorBoundary
+            fallback={
+              <div className="p-6 border border-destructive rounded-md bg-card/30">
+                <h3 className="text-lg font-semibold mb-2">Course Outline Editor Error</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  The outline editor encountered an error. You can switch back to the classic view.
+                </p>
+                <Button
+                  onClick={() => {
+                    setShowOutlineEditor(false);
+                    localStorage.setItem('course_outline_editor', 'false');
+                  }}
+                  variant="outline"
+                >
+                  Switch to Classic View
+                </Button>
+              </div>
+            }
+          >
+            <CourseOutlineEditor
+              courseId={course.id}
+              initialModules={modules}
+              onModulesChange={setModules}
+            />
+          </ErrorBoundary>
+        ) : (
+          <ModuleList
+            courseId={course.id}
+            modules={modules}
+            onModulesChange={setModules}
+          />
+        )}
       </div>
 
       {/* Add Module Modal (for header button) */}

@@ -51,6 +51,7 @@ export default function RichTextEditor({
     extensions: getEditorExtensions({ placeholder }),
     content: value,
     editable: !disabled,
+    immediatelyRender: false, // Prevent SSR hydration mismatch
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       // Sanitize HTML before passing to parent (SSR-safe)

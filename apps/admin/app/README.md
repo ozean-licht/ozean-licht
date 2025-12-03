@@ -1,80 +1,140 @@
-# app/
+# App Directory
 
-> Next.js 14 App Router - pages, layouts, and API routes for the admin dashboard.
+> Next.js 14 App Router — 28 pages + 24 API routes organized by functional areas with server-first rendering and RBAC protection.
 
 ## Quick Nav
 
-**Root:** `layout.tsx` | **Dashboard:** `dashboard/` | **API:** `api/`
+**Entry:** `page.tsx` | **Dashboard:** `dashboard/` | **API:** `api/`
 
 ## If You Need To...
 
 | Task | Start Here | Flow |
 |------|------------|------|
-| Add dashboard page | `dashboard/[area]/` | Create `[feature]/page.tsx` → Add `requireAnyRole()` → Update Sidebar |
-| Add API endpoint | `api/` | Create `[resource]/route.ts` → Export GET/POST/PATCH → Use `auth()` |
-| Add route group layout | `dashboard/[area]/` | Create `layout.tsx` → Wrap children → Add breadcrumbs if needed |
-| Protect page by role | Page file | `await requireAnyRole(['super_admin', 'ol_admin'])` at top |
-| Add login customization | `(auth)/login/page.tsx` | Modify form → Update validation → Style with design system |
-| Debug routing | `layout.tsx` chain | Root → Dashboard → Area → Page (each can have layout) |
+| Add dashboard page | `dashboard/[area]/` | Create folder → Add `page.tsx` → Add to Sidebar |
+| Add API endpoint | `api/[resource]/` | Create `route.ts` → Check `auth()` → Call `lib/db/` |
+| Add nested route | `dashboard/[area]/[id]/` | Create `[id]/page.tsx` → Handle params |
+| Add layout wrapper | `dashboard/[area]/` | Create `layout.tsx` → Wrap children |
+| Protect by role | Page component | Call `requireAnyRole()` at top |
+| Add loading state | Any route folder | Create `loading.tsx` with skeleton |
+| Add error boundary | Any route folder | Create `error.tsx` with fallback UI |
 
 ## Structure
 
 ```
 .
-├── layout.tsx                # Root: fonts, ThemeProvider, ToastProvider
-├── page.tsx                  # Redirects to /dashboard
-├── globals.css               # Tailwind + design system styles
-├── (auth)/                   # Auth route group (no /auth in URL)
-│   ├── layout.tsx            # Centered card layout
-│   └── login/page.tsx        # Login form with credentials
-├── dashboard/                # Protected routes
-│   ├── layout.tsx            # Auth check + Sidebar/Header shell
-│   ├── page.tsx              # Dashboard home with stats
-│   ├── access/               # User & permission management
+├── (auth)/                   # Auth group (no layout nesting)
+│   └── login/page.tsx        # Login form, redirects if authenticated
+├── dashboard/                # Protected area (28 pages)
+│   ├── layout.tsx            # Shell: Sidebar + Header + auth check
+│   ├── page.tsx              # Home: stats, activity, permissions
+│   ├── access/               # User management
 │   │   ├── users/            # User list, detail, permissions
-│   │   └── permissions/      # System permissions matrix
-│   └── system/               # System administration
-│       └── health/           # Health monitoring dashboard
-└── api/                      # API routes
-    ├── auth/[...nextauth]/   # NextAuth handlers
-    ├── admin-users/          # User CRUD operations
-    └── permissions/          # Permission management
+│   │   └── permissions/      # Permission matrix
+│   ├── tools/                # Internal tools
+│   │   ├── cloud/            # Ozean Cloud storage
+│   │   ├── projects/         # Project management
+│   │   ├── tasks/            # Task kanban
+│   │   └── templates/        # Process templates
+│   ├── courses/              # Course builder
+│   ├── content/              # Blog, videos
+│   ├── commerce/             # Orders, products, transactions
+│   ├── calendar/             # Events
+│   ├── system/               # Health monitoring
+│   └── account/              # Profile, settings, inbox
+├── api/                      # API routes (24 endpoints)
+│   ├── auth/                 # NextAuth handlers
+│   ├── projects/             # Project CRUD
+│   ├── tasks/                # Task CRUD
+│   ├── courses/              # Course + modules + lessons
+│   ├── permissions/          # Permission checks
+│   └── storage/              # File preview proxy
+├── layout.tsx                # Root: providers, fonts, metadata
+└── page.tsx                  # Landing: redirects to /dashboard
 ```
+
+## Dashboard Pages
+
+| Route | Page | Purpose |
+|-------|------|---------|
+| `/dashboard` | `page.tsx` | Home with stats, activity chart, permissions list |
+| `/dashboard/access/users` | `UsersDataTable` | Admin user list with search, filters |
+| `/dashboard/access/users/[id]` | `AdminUserForm` | User detail and role editing |
+| `/dashboard/access/permissions` | `PermissionMatrix` | Role-permission grid editor |
+| `/dashboard/tools/cloud` | `StoragePageClient` | Ozean Cloud file browser |
+| `/dashboard/tools/projects` | `ProjectsDashboard` | Project cards with filters |
+| `/dashboard/tools/projects/[id]` | `ProjectDetailClient` | Project detail with tasks |
+| `/dashboard/tools/tasks` | `TasksKanban` | Kanban board for all tasks |
+| `/dashboard/courses` | `CoursesPageClient` | Course gallery + data table |
+| `/dashboard/courses/[slug]` | `CourseDetailClient` | Course editor with modules |
+| `/dashboard/content/blog` | `BlogWriter` | Blog post editor |
+| `/dashboard/system/health` | Health cards | Server, DB, MCP status |
+
+## API Routes
+
+| Endpoint | Methods | Purpose |
+|----------|---------|---------|
+| `/api/auth/[...nextauth]` | * | NextAuth handlers |
+| `/api/projects` | GET, POST | List/create projects |
+| `/api/projects/[id]` | GET, PATCH, DELETE | Project CRUD |
+| `/api/projects/[id]/comments` | GET, POST | Project comments |
+| `/api/tasks` | GET, POST | List/create tasks |
+| `/api/tasks/[id]` | GET, PATCH, DELETE | Task CRUD |
+| `/api/tasks/[id]/comments` | GET, POST | Task comments |
+| `/api/courses/[id]` | GET, PATCH, DELETE | Course CRUD |
+| `/api/courses/[id]/modules` | GET, POST | Course modules |
+| `/api/courses/[id]/modules/reorder` | POST | Reorder modules |
+| `/api/courses/[id]/modules/[moduleId]/lessons` | GET, POST | Module lessons |
+| `/api/permissions` | GET | List all permissions |
+| `/api/permissions/check` | POST | Check user permission |
+| `/api/permissions/matrix` | GET, POST | Permission matrix data |
+| `/api/admin-users/[id]` | GET, PATCH | Admin user CRUD |
+| `/api/storage/preview/[bucket]/[...path]` | GET | File preview proxy |
 
 ## Key Files
 
 | File | Purpose | Gravity |
 |------|---------|---------|
-| `layout.tsx` | Root layout: Google fonts, ThemeProvider, ToastProvider | ●●● |
-| `globals.css` | Tailwind base + Ozean Licht design tokens + glass morphism | ●●● |
-| `dashboard/layout.tsx` | Auth check via `requireAuth()`, renders Sidebar/Header shell | ●●● |
-| `dashboard/page.tsx` | Dashboard home: welcome, stats cards, permissions list | ●● |
-| `(auth)/login/page.tsx` | Login form with email/password credentials | ●● |
-| `api/auth/[...nextauth]/route.ts` | NextAuth GET/POST handlers (uses config from lib/auth) | ●● |
+| `layout.tsx` | Root layout, ThemeProvider, ToastProvider, fonts | ●●● |
+| `dashboard/layout.tsx` | Dashboard shell, auth check, entity scope | ●●● |
+| `dashboard/layout-client.tsx` | Client shell with Sidebar, Header, Breadcrumb | ●●● |
+| `api/auth/[...nextauth]/route.ts` | NextAuth route handlers | ●●● |
+| `dashboard/page.tsx` | Dashboard home with stats and charts | ●● |
+| `api/projects/route.ts` | Project list/create pattern | ●● |
 
-## Route Map
+## Patterns
 
-| URL | File | Auth | Purpose |
-|-----|------|------|---------|
-| `/` | `page.tsx` | No | Redirect to /dashboard |
-| `/login` | `(auth)/login/page.tsx` | No | Login form |
-| `/dashboard` | `dashboard/page.tsx` | Yes | Home with stats |
-| `/dashboard/access/users` | `dashboard/access/users/page.tsx` | Yes | User list |
-| `/dashboard/access/users/[id]` | `dashboard/access/users/[id]/page.tsx` | Yes | User detail |
-| `/dashboard/access/permissions` | `dashboard/access/permissions/page.tsx` | Yes | Permissions matrix |
-| `/dashboard/system/health` | `dashboard/system/health/page.tsx` | Yes | Health monitoring |
+### Server Component Page
+```typescript
+import { requireAnyRole } from '@/lib/auth-utils'
 
-## API Routes
+export default async function Page() {
+  await requireAnyRole(['super_admin', 'ol_admin'])
+  // Fetch data server-side
+  return <div>...</div>
+}
+```
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/auth/*` | GET/POST | NextAuth authentication |
-| `/api/admin-users/[id]` | GET/PATCH/DELETE | User CRUD |
-| `/api/admin-users/[id]/permissions` | GET/PATCH | User permissions |
-| `/api/permissions` | GET | List all permissions |
-| `/api/permissions/check` | POST | Check if user has permission |
-| `/api/permissions/matrix` | GET | Full permissions matrix |
+### API Route
+```typescript
+import { auth } from '@/lib/auth/config'
+import { NextResponse } from 'next/server'
+
+export async function GET() {
+  const session = await auth()
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // Handle request
+}
+```
+
+### Dynamic Route
+```typescript
+export default async function Page({ params }: { params: { id: string } }) {
+  const item = await getById(params.id)
+  if (!item) notFound()
+  return <DetailView item={item} />
+}
+```
 
 ---
 
-*Mapped: 2025-11-26 | Priority: high | Files: 29*
+*Mapped: 2025-12-02 | Pages: 28 | API Routes: 24 | Layouts: 14*
