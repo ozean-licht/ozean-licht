@@ -41,6 +41,10 @@ import PdfUploader from './PdfUploader';
 import AudioUploader from './AudioUploader';
 import TranscriptEditor from './TranscriptEditor';
 import { QuizBuilder } from './quiz';
+import PrerequisiteSelector from './PrerequisiteSelector';
+import DripScheduler from './DripScheduler';
+import type { Prerequisite as PrerequisiteType } from './PrerequisiteSelector';
+import type { DripScheduleValue } from './DripScheduler';
 import { QuizData, emptyQuizData, migrateQuizData } from '@/types/quiz';
 import ErrorBoundary from '../ErrorBoundary';
 import {
@@ -123,6 +127,10 @@ export default function LessonEditorModal({
   const [status, setStatus] = useState<LessonStatus>('draft');
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Phase 9: Learning Sequences
+  const [prerequisites, setPrerequisites] = useState<PrerequisiteType[]>([]);
+  const [dripSchedule, setDripSchedule] = useState<DripScheduleValue | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Reset form when modal opens or lesson changes
   useEffect(() => {
@@ -150,6 +158,10 @@ export default function LessonEditorModal({
         setIsRequired(lesson.isRequired);
         setIsPreview(lesson.isPreview);
         setStatus(lesson.status);
+        // Learning sequences will be loaded separately via useEffect
+        setPrerequisites([]);
+        setDripSchedule(null);
+        setShowAdvanced(false);
       } else {
         setTitle('');
         setDescription('');
@@ -169,10 +181,52 @@ export default function LessonEditorModal({
         setIsRequired(false);
         setIsPreview(false);
         setStatus('draft');
+        // Reset learning sequences
+        setPrerequisites([]);
+        setDripSchedule(null);
+        setShowAdvanced(false);
       }
       setErrors({});
     }
   }, [open, lesson]);
+
+  // Load prerequisites and drip schedule when editing existing lesson
+  useEffect(() => {
+    if (open && isEditing && lesson) {
+      // Load prerequisites
+      fetch(`/api/lessons/${lesson.id}/prerequisites`)
+        .then(res => res.ok ? res.json() : [])
+        .then(data => {
+          const mappedPrereqs = data.map((p: { requiredLessonId: string; type: string; minScore?: number }) => ({
+            requiredLessonId: p.requiredLessonId,
+            type: p.type as 'completion' | 'passing_score' | 'viewed',
+            minScore: p.minScore,
+          }));
+          setPrerequisites(mappedPrereqs);
+        })
+        .catch(err => console.error('Failed to load prerequisites:', err));
+
+      // Load drip schedule
+      fetch(`/api/lessons/${lesson.id}/drip-schedule`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data) {
+            setDripSchedule({
+              releaseType: data.releaseType,
+              releaseDate: data.releaseDate,
+              relativeDays: data.relativeDays,
+              relativeHours: data.relativeHours,
+              afterLessonId: data.afterLessonId,
+              afterModuleId: data.afterModuleId,
+              releaseTime: data.releaseTime,
+              isActive: data.isActive,
+            });
+            setShowAdvanced(true); // Show advanced if drip exists
+          }
+        })
+        .catch(err => console.error('Failed to load drip schedule:', err));
+    }
+  }, [open, isEditing, lesson]);
 
   // Update duration when video is selected
   useEffect(() => {
@@ -265,6 +319,34 @@ export default function LessonEditorModal({
       }
 
       const savedLesson = await response.json();
+
+      // Save prerequisites if editing and they've been set
+      if (isEditing && showAdvanced) {
+        // Save prerequisites
+        try {
+          await fetch(`/api/lessons/${savedLesson.id}/prerequisites`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(prerequisites),
+          });
+        } catch (prereqError) {
+          console.error('Failed to save prerequisites:', prereqError);
+          // Don't block on prerequisite save failure
+        }
+
+        // Save drip schedule
+        try {
+          await fetch(`/api/lessons/${savedLesson.id}/drip-schedule?courseId=${courseId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dripSchedule),
+          });
+        } catch (dripError) {
+          console.error('Failed to save drip schedule:', dripError);
+          // Don't block on drip schedule save failure
+        }
+      }
+
       onSave(savedLesson);
       onOpenChange(false);
 
@@ -545,6 +627,68 @@ export default function LessonEditorModal({
                 <span className="text-sm">Free Preview</span>
               </label>
             </div>
+
+            {/* Advanced Options Toggle */}
+            <div className="border-t border-border pt-4">
+              <CossUIButton
+                type="button"
+                variant="ghost"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="w-full justify-between text-sm"
+                disabled={isSubmitting}
+              >
+                <span>Learning Sequences</span>
+                <span className="text-xs text-muted-foreground">
+                  {showAdvanced ? 'Hide' : 'Show'} prerequisites & scheduling
+                </span>
+              </CossUIButton>
+            </div>
+
+            {/* Advanced Options - Prerequisites & Drip Scheduling */}
+            {showAdvanced && isEditing && lesson && (
+              <div className="space-y-4 border border-border/50 rounded-lg p-4 bg-background/50">
+                {/* Prerequisites */}
+                <div className="space-y-2">
+                  <CossUILabel className="text-sm font-medium">
+                    Prerequisites
+                  </CossUILabel>
+                  <p className="text-xs text-muted-foreground">
+                    Select lessons that must be completed before this one
+                  </p>
+                  <PrerequisiteSelector
+                    courseId={courseId}
+                    lessonId={lesson.id}
+                    value={prerequisites}
+                    onChange={setPrerequisites}
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                {/* Drip Scheduling */}
+                <div className="space-y-2 pt-4 border-t border-border/50">
+                  <CossUILabel className="text-sm font-medium">
+                    Content Release
+                  </CossUILabel>
+                  <p className="text-xs text-muted-foreground">
+                    Control when this lesson becomes available
+                  </p>
+                  <DripScheduler
+                    courseId={courseId}
+                    lessonId={lesson.id}
+                    moduleId={moduleId}
+                    value={dripSchedule}
+                    onChange={setDripSchedule}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+            )}
+
+            {showAdvanced && !isEditing && (
+              <p className="text-xs text-muted-foreground italic text-center p-4 border border-dashed border-border rounded-lg">
+                Save the lesson first to configure prerequisites and release scheduling
+              </p>
+            )}
           </div>
 
           <CossUIDialogFooter className="gap-2">

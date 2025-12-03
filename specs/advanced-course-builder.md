@@ -657,25 +657,25 @@ cd apps/admin && pnpm add @react-pdf/renderer
 - [x] Add server-side sanitization in lib/db/lessons.ts
 - [x] Add SSRF protection for user-provided URLs
 
-### 4. Phase 7 - Quiz Data Types
-- [ ] Create `types/quiz.ts` with interfaces
-- [ ] Update `types/content.ts` to import quiz types
-- [ ] Add quiz validation schema to Zod
+### 4. Phase 7 - Quiz Data Types ✅ COMPLETE (2025-12-03)
+- [x] Create `types/quiz.ts` with interfaces
+- [x] Update `types/content.ts` to import quiz types
+- [x] Add quiz validation schema to Zod
 
-### 5. Phase 7 - Quiz Builder Components
-- [ ] Create `components/courses/quiz/QuizBuilder.tsx`
-- [ ] Create `QuestionEditor.tsx` with type-specific fields
-- [ ] Create `MultipleChoiceEditor.tsx`
-- [ ] Create `TrueFalseEditor.tsx`
-- [ ] Create `FillBlankEditor.tsx`
-- [ ] Add drag-drop question reordering
+### 5. Phase 7 - Quiz Builder Components ✅ COMPLETE (2025-12-03)
+- [x] Create `components/courses/quiz/QuizBuilder.tsx`
+- [x] Create `QuestionEditor.tsx` with type-specific fields
+- [x] Create `MultipleChoiceEditor.tsx`
+- [x] Create `TrueFalseEditor.tsx`
+- [x] Create `FillBlankEditor.tsx`
+- [x] Add drag-drop question reordering
 
-### 6. Phase 7 - Quiz Settings & Preview
-- [ ] Create `QuizSettings.tsx` (passing score, retakes, timer)
-- [ ] Create `QuizPreview.tsx` for testing
-- [ ] Integrate quiz builder into `LessonEditorModal.tsx`
+### 6. Phase 7 - Quiz Settings & Preview ✅ COMPLETE (2025-12-03)
+- [x] Create `QuizSettings.tsx` (passing score, retakes, timer)
+- [x] Create `QuizPreview.tsx` for testing
+- [x] Integrate quiz builder into `LessonEditorModal.tsx`
 
-### 7. Phase 7 - Question Bank
+### 7. Phase 7 - Question Bank (DEFERRED)
 - [ ] Create `lib/db/quizzes.ts` for question queries
 - [ ] Create `app/api/quizzes/` routes
 - [ ] Create `QuestionBank.tsx` for reusable questions
@@ -866,6 +866,92 @@ isomorphic-dompurify@3.3.0
 - Configurable file size via `PDF_MAX_SIZE_MB` env var
 
 **Review:** `app_review/review_2025-12-03T15-30-00Z_phase6-rich-content.md`
+
+---
+
+### Phase 7 Implementation (2025-12-03)
+
+**Files Created:**
+| File | Lines | Purpose |
+|------|-------|---------|
+| `types/quiz.ts` | 403 | Quiz types (questions, settings, results, migration) |
+| `components/courses/quiz/QuizBuilder.tsx` | 364 | Main quiz authoring interface with drag-drop |
+| `components/courses/quiz/QuestionEditor.tsx` | 314 | Modal for editing individual questions |
+| `components/courses/quiz/QuestionListItem.tsx` | 187 | Sortable question list item |
+| `components/courses/quiz/MultipleChoiceEditor.tsx` | 210 | MC question editor with options |
+| `components/courses/quiz/TrueFalseEditor.tsx` | 114 | T/F question editor |
+| `components/courses/quiz/FillBlankEditor.tsx` | 179 | Fill-in-blank editor with multiple accepted answers |
+| `components/courses/quiz/QuizSettings.tsx` | 227 | Quiz behavior settings (pass score, timer, etc.) |
+| `components/courses/quiz/QuizPreview.tsx` | 429 | Interactive preview for testing quizzes |
+| `components/courses/quiz/index.ts` | 22 | Barrel exports |
+| `lib/utils/sanitize-quiz.ts` | ~50 | DOMPurify sanitization for quiz content |
+| `components/ErrorBoundary.tsx` | ~80 | React error boundary for crash protection |
+
+**Files Modified:**
+| File | Changes |
+|------|---------|
+| `lib/validations/course-builder.ts` | +209 lines (quiz Zod schemas, validation helpers) |
+| `components/courses/LessonEditorModal.tsx` | Integrated QuizBuilder, ErrorBoundary, migration |
+| `app/api/lessons/[lessonId]/route.ts` | Added quiz_data server validation |
+| `app/api/courses/[id]/modules/[moduleId]/lessons/route.ts` | Added quiz_data server validation |
+| `lib/db/lessons.ts` | Added quiz_data support in create/update |
+| `types/content.ts` | Added quizData to lesson input types |
+
+**Security Fixes Applied:**
+| Issue | Severity | Fix |
+|-------|----------|-----|
+| XSS in quiz content | Critical | DOMPurify sanitization via `renderSanitized()` |
+| Missing API validation | Critical | Zod validation in POST/PATCH endpoints |
+| No data migration | Critical | `migrateQuizData()` function for version upgrades |
+| Weak ID generation | High | `crypto.randomUUID()` for secure IDs |
+| Missing error boundaries | High | ErrorBoundary wrapping QuizBuilder |
+
+**Review:** `app_review/review_2025-12-03T16-00-00Z_phase7-quiz-builder.md`
+
+---
+
+## Known Issues & Future Enhancements
+
+### BLOCKER: "+ New Course" Button Non-Functional
+
+**Issue:** The "+ New Course" button in `app/dashboard/courses/CoursesPageClient.tsx` (line 88-91) has no `onClick` handler and does nothing when clicked.
+
+**Root Cause:**
+1. Button has no event handler attached
+2. No POST API endpoint exists at `/api/courses` for creating courses
+3. `CourseEditorModal` is designed for editing only (requires existing `course` prop)
+
+**Required Fix:**
+```
+1. Create `app/api/courses/route.ts` with POST handler
+2. Add state + handler in CoursesPageClient.tsx
+3. Either:
+   a. Modify CourseEditorModal to support create mode (course prop optional)
+   b. Create separate CreateCourseModal component
+4. After creation, redirect to course builder page
+```
+
+**Priority:** P0 - Blocks manual testing of course builder
+
+---
+
+### Enhancement: Framer-Style Publish & Preview UX
+
+**Inspiration:** Framer's floating publish button and instant preview functionality
+
+**Proposed Features:**
+
+| Feature | Description | Components |
+|---------|-------------|------------|
+| **Floating Publish Button** | Sticky button showing draft/published status, one-click publish | `PublishButton.tsx` |
+| **Preview Mode** | Open course in student view without publishing | `PreviewButton.tsx`, `/preview/[slug]` route |
+| **Status Badge** | Visual indicator (Draft/Published/Scheduled) | Integrate into course header |
+| **Publish Confirmation** | Modal with checklist before publishing | `PublishConfirmModal.tsx` |
+| **Version History** | Track changes, allow rollback | Future enhancement |
+
+**Implementation Location:** Course builder page (`app/dashboard/courses/[slug]/page.tsx`)
+
+**Priority:** P2 - UX enhancement after core functionality complete
 
 ---
 
