@@ -4,9 +4,9 @@
   "description": "Admin Dashboard for Kids Ascension & Ozean Licht with NextAuth authentication",
   "private": true,
   "scripts": {
-    "dev": "next dev -p ${FRONTEND_PORT:-9200}",
+    "dev": "next dev -p ${FRONTEND_PORT:-3000}",
     "build": "next build",
-    "start": "next start -p ${FRONTEND_PORT:-9200}",
+    "start": "next start -p ${FRONTEND_PORT:-3000}",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "jest",
@@ -16,7 +16,7 @@
     "seed:test-admin": "ts-node scripts/seed-test-admin.ts",
     "clean": "rm -rf .next",
     "clean:force": "sudo rm -rf .next",
-    "dev:clean": "npm run clean:force && next dev -p ${FRONTEND_PORT:-9200}",
+    "dev:clean": "npm run clean:force && next dev -p ${FRONTEND_PORT:-3000}",
     "build:clean": "npm run clean:force && next build"
   },
   "dependencies": {
@@ -75,11 +75,13 @@
     "react-day-picker": "^9.11.1",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.3.8",
+    "react-hotkeys-hook": "^5.2.1",
     "recharts": "^2.13.3",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "uuid": "^9.0.1",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.1",
