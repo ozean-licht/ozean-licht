@@ -556,3 +556,103 @@ export function formatDuration(minutes: number): string {
   if (mins === 0) return `${hours}h`;
   return `${hours}h ${mins}m`;
 }
+
+// =============================================================================
+// Phase 12: Notifications & Collaboration
+// =============================================================================
+
+// Notification type
+export type NotificationType =
+  | 'mention'
+  | 'assignment'
+  | 'comment'
+  | 'task_update'
+  | 'project_update'
+  | 'due_date'
+  | 'system';
+
+// Email digest frequency
+export type EmailDigestFrequency = 'none' | 'instant' | 'daily' | 'weekly';
+
+/**
+ * Notification entity
+ */
+export interface Notification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  message?: string;
+  link?: string;
+  isRead: boolean;
+  entityType?: 'task' | 'project' | 'comment';
+  entityId?: string;
+  actorId?: string;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+  // Joined fields
+  actor?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+/**
+ * Notification preferences entity
+ */
+export interface NotificationPreferences {
+  userId: string;
+  inApp: boolean;
+  emailDigest: EmailDigestFrequency;
+  mentionNotify: boolean;
+  assignmentNotify: boolean;
+  commentNotify: boolean;
+  taskUpdateNotify: boolean;
+  projectUpdateNotify: boolean;
+  dueDateNotify: boolean;
+  systemNotify: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Notification list result
+ */
+export interface NotificationListResult {
+  notifications: Notification[];
+  total: number;
+  unreadCount: number;
+}
+
+/**
+ * Get notification type icon
+ */
+export function getNotificationTypeIcon(type: NotificationType): string {
+  const icons: Record<NotificationType, string> = {
+    mention: 'at-sign',
+    assignment: 'user-plus',
+    comment: 'message-circle',
+    task_update: 'check-square',
+    project_update: 'folder',
+    due_date: 'clock',
+    system: 'bell',
+  };
+  return icons[type] || 'bell';
+}
+
+/**
+ * Get notification type color
+ */
+export function getNotificationTypeColor(type: NotificationType): string {
+  const colors: Record<NotificationType, string> = {
+    mention: 'blue',
+    assignment: 'green',
+    comment: 'purple',
+    task_update: 'yellow',
+    project_update: 'teal',
+    due_date: 'orange',
+    system: 'gray',
+  };
+  return colors[type] || 'gray';
+}

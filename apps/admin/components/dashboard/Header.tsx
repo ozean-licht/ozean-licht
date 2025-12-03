@@ -3,6 +3,7 @@
 import { Breadcrumb } from './Breadcrumb';
 import { UserMenu } from './UserMenu';
 import { ThemeToggle } from './ThemeToggle';
+import { NotificationCenter } from './NotificationCenter';
 
 interface HeaderProps {
   user: {
@@ -47,8 +48,9 @@ export default function Header({ user, onMenuToggle }: HeaderProps) {
             </div>
           </div>
 
-          {/* Right side: Theme toggle + User menu */}
+          {/* Right side: Notifications + Theme toggle + User menu */}
           <div className="flex items-center gap-2">
+            <NotificationCenter />
             <ThemeToggle />
             <UserMenu user={user} />
           </div>

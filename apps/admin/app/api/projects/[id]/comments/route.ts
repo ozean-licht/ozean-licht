@@ -7,6 +7,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/config';
 import { getCommentsByEntity, createComment } from '@/lib/db/comments';
+import { getProjectById } from '@/lib/db/projects';
+import { createMentionNotifications } from '@/lib/db/notifications';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -62,6 +64,32 @@ export async function POST(
       );
     }
 
+    // Validate mentioned_user_ids if provided
+    const mentionedUserIds = body.mentioned_user_ids as string[] | undefined;
+    if (mentionedUserIds !== undefined) {
+      if (!Array.isArray(mentionedUserIds)) {
+        return NextResponse.json(
+          { error: 'mentioned_user_ids must be an array' },
+          { status: 400 }
+        );
+      }
+      if (mentionedUserIds.length > 20) {
+        return NextResponse.json(
+          { error: 'Cannot mention more than 20 users' },
+          { status: 400 }
+        );
+      }
+      // Validate UUIDs
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const invalidIds = mentionedUserIds.filter(id => typeof id !== 'string' || !uuidRegex.test(id));
+      if (invalidIds.length > 0) {
+        return NextResponse.json(
+          { error: 'Invalid user IDs in mentioned_user_ids' },
+          { status: 400 }
+        );
+      }
+    }
+
     const comment = await createComment({
       entity_type: 'project',
       entity_id: id,
@@ -70,6 +98,23 @@ export async function POST(
       author_email: session.user.email || undefined,
       parent_comment_id: body.parent_comment_id,
     });
+
+    // Create notifications for @mentions
+    if (mentionedUserIds && mentionedUserIds.length > 0 && session.user.id) {
+      const project = await getProjectById(id);
+      const projectTitle = project?.title || 'a project';
+      await createMentionNotifications(
+        mentionedUserIds,
+        session.user.id,
+        'project',
+        id,
+        projectTitle,
+        `/dashboard/tools/projects/${id}`
+      );
+    }
+
+    // Note: Project owner notifications could be added once owner_id is available in DBProject
+    // Currently the assignee_ids array could be used to notify project team members
 
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {

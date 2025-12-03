@@ -8,7 +8,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/config';
 import { getTaskById, updateTask, deleteTask } from '@/lib/db/tasks';
-import { recalculateProjectProgress } from '@/lib/db/projects';
+import { recalculateProjectProgress, getProjectById } from '@/lib/db/projects';
+import { createAssignmentNotification } from '@/lib/db/notifications';
 
 export async function GET(
   _request: NextRequest,
@@ -97,6 +98,35 @@ export async function PATCH(
     // Recalculate project progress if task is linked to a project
     if (existingTask.project_id) {
       await recalculateProjectProgress(existingTask.project_id);
+    }
+
+    // Create assignment notifications for new assignees
+    if (body.assignee_ids && session.user.id) {
+      const oldAssignees = existingTask.assignee_ids || [];
+      const newAssignees = body.assignee_ids as string[];
+
+      // Find newly added assignees
+      const addedAssignees = newAssignees.filter(
+        (id: string) => !oldAssignees.includes(id)
+      );
+
+      // Get project name if available
+      let projectName: string | undefined;
+      if (existingTask.project_id) {
+        const project = await getProjectById(existingTask.project_id);
+        projectName = project?.title;
+      }
+
+      // Notify each new assignee
+      for (const assigneeId of addedAssignees) {
+        await createAssignmentNotification(
+          assigneeId,
+          session.user.id,
+          id,
+          existingTask.name || 'a task',
+          projectName
+        );
+      }
     }
 
     return NextResponse.json({ task });
