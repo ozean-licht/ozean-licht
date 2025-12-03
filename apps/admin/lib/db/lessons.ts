@@ -7,6 +7,7 @@
 
 import { query, execute, transaction, PoolClient } from './index';
 import { Lesson, Video, CreateLessonInput, UpdateLessonInput, LessonContentType, LessonStatus } from '@/types/content';
+import { sanitizeHtml } from '@/lib/utils/sanitize';
 
 // Database row type (snake_case)
 interface LessonRow {
@@ -162,13 +163,16 @@ export async function createLesson(input: CreateLessonInput): Promise<Lesson> {
       created_at, updated_at
   `;
 
+  // Sanitize contentText if present (prevent XSS on server-side)
+  const sanitizedContentText = input.contentText ? sanitizeHtml(input.contentText) : null;
+
   const rows = await query<LessonRow>(sql, [
     input.moduleId,
     input.title,
     input.description || null,
     input.contentType,
     input.videoId || null,
-    input.contentText || null,
+    sanitizedContentText,
     input.contentUrl || null,
     input.durationSeconds || null,
     input.isRequired ?? false,
@@ -211,7 +215,9 @@ export async function updateLesson(id: string, input: UpdateLessonInput): Promis
 
   if (input.contentText !== undefined) {
     setClauses.push(`content_text = $${paramIndex++}`);
-    params.push(input.contentText || null);
+    // Sanitize contentText if present (prevent XSS on server-side)
+    const sanitizedContentText = input.contentText ? sanitizeHtml(input.contentText) : null;
+    params.push(sanitizedContentText);
   }
 
   if (input.contentUrl !== undefined) {

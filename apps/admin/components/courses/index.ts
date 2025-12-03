@@ -19,3 +19,7 @@ export { default as VideoPicker } from './VideoPicker';
 
 // Uploaders
 export { default as ImageUploader } from './ImageUploader';
+export { default as PdfUploader } from './PdfUploader';
+
+// Editors
+export { default as RichTextEditor } from './RichTextEditor';

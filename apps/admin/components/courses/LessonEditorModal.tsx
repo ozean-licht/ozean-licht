@@ -35,6 +35,8 @@ import {
 } from '@shared/ui';
 import { Video as VideoIcon, FileText, File, HelpCircle } from 'lucide-react';
 import VideoPicker from './VideoPicker';
+import RichTextEditor from './RichTextEditor';
+import PdfUploader from './PdfUploader';
 import {
   lessonFormSchema,
   extractZodErrors,
@@ -343,15 +345,14 @@ export default function LessonEditorModal({
                       Content <span className="text-destructive">*</span>
                     </CossUILabel>
                     <p className="text-xs text-muted-foreground">
-                      Supports Markdown formatting
+                      Rich text editor with formatting, images, and video embeds
                     </p>
-                    <CossUITextarea
+                    <RichTextEditor
                       value={contentText}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContentText(e.target.value)}
-                      placeholder="Write your lesson content here... (Markdown supported)"
-                      rows={8}
-                      className={`font-mono text-sm ${errors.contentText ? 'border-destructive' : ''}`}
+                      onChange={setContentText}
+                      placeholder="Write your lesson content here..."
                       disabled={isSubmitting}
+                      error={errors.contentText}
                     />
                     {errors.contentText && (
                       <p className="text-sm text-destructive">{errors.contentText}</p>
@@ -363,18 +364,16 @@ export default function LessonEditorModal({
                 <CossUITabsPanel value="pdf" className="pt-4">
                   <div className="space-y-2">
                     <CossUILabel className="text-sm font-medium">
-                      PDF URL <span className="text-destructive">*</span>
+                      PDF Document <span className="text-destructive">*</span>
                     </CossUILabel>
                     <p className="text-xs text-muted-foreground">
-                      Enter the URL to your PDF file
+                      Upload a PDF or enter a URL
                     </p>
-                    <CossUIInput
+                    <PdfUploader
                       value={contentUrl}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setContentUrl(e.target.value)}
-                      placeholder="https://example.com/document.pdf"
-                      type="url"
-                      className={errors.contentUrl ? 'border-destructive' : ''}
+                      onChange={setContentUrl}
                       disabled={isSubmitting}
+                      error={errors.contentUrl}
                     />
                     {errors.contentUrl && (
                       <p className="text-sm text-destructive">{errors.contentUrl}</p>
