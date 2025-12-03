@@ -86,3 +86,9 @@ export { default as SprintStatsWidget } from './SprintStatsWidget';
 export { default as AttachmentUploader } from './AttachmentUploader';
 export { default as AttachmentList } from './AttachmentList';
 export { default as AttachmentPreview } from './AttachmentPreview';
+
+// Phase 13 Advanced Views
+export { default as SavedFilters } from './SavedFilters';
+export { default as ColumnCustomizer } from './ColumnCustomizer';
+export { default as TimelineView } from './TimelineView';
+export { default as ExportButton } from './ExportButton';

@@ -9,9 +9,10 @@
  * - Project filter dropdown
  * - DataTable with pagination
  * - Task statistics
+ * - Phase 13: Advanced Views (SavedFilters, ExportButton, Timeline)
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,9 +37,17 @@ import {
   X,
   LayoutGrid,
   List,
+  GanttChart,
 } from 'lucide-react';
-import { TaskList, type TaskItem } from '@/components/projects';
+import {
+  TaskList,
+  SavedFilters,
+  ExportButton,
+  TimelineView,
+  type TaskItem,
+} from '@/components/projects';
 import type { DBProject } from '@/lib/types';
+import type { FilterState, Task } from '@/types/projects';
 
 interface TasksPageClientProps {
   tasks: TaskItem[];
@@ -86,6 +95,44 @@ export default function TasksPageClient({
     (filters.tab as any) || 'active'
   );
   const [selectedProject, setSelectedProject] = useState(filters.projectId || 'all');
+  const [viewMode, setViewMode] = useState<'list' | 'kanban' | 'timeline'>('list');
+
+  // Build current filter state for SavedFilters
+  const currentFilterState: FilterState = useMemo(() => ({
+    projectId: selectedProject !== 'all' ? selectedProject : undefined,
+    search: searchValue || undefined,
+    tab: activeTab,
+  }), [selectedProject, searchValue, activeTab]);
+
+  // Timeline date range (last 30 days to next 60 days)
+  const timelineRange = useMemo(() => {
+    const start = new Date();
+    start.setDate(start.getDate() - 30);
+    const end = new Date();
+    end.setDate(end.getDate() + 60);
+    return { start, end };
+  }, []);
+
+  // Convert TaskItem[] to Task[] for Timeline/Export components
+  const tasksForExport = useMemo(() => {
+    return tasks.map((t) => ({
+      id: t.id,
+      title: t.title,
+      status: t.status,
+      priority: t.priority || 'medium',
+      taskType: 'task' as const,
+      actualHours: 0,
+      orderIndex: 0,
+      dependsOn: [],
+      tags: [],
+      labels: [],
+      createdAt: t.createdAt || new Date().toISOString(),
+      updatedAt: t.updatedAt || new Date().toISOString(),
+      dueDate: t.dueDate,
+      startDate: t.startDate,
+      assignee: t.assignee,
+    })) as Task[];
+  }, [tasks]);
 
   // Update URL params
   const updateParams = (updates: Record<string, string | undefined>) => {
@@ -170,6 +217,24 @@ export default function TasksPageClient({
 
   const hasFilters = filters.search || filters.projectId || (filters.tab && filters.tab !== 'active');
 
+  // Handle loading a saved filter preset
+  const handleLoadFilter = (filter: FilterState) => {
+    if (filter.search !== undefined) setSearchValue(filter.search);
+    if (filter.tab) setActiveTab(filter.tab);
+    if (filter.projectId) {
+      setSelectedProject(filter.projectId);
+    } else {
+      setSelectedProject('all');
+    }
+
+    // Update URL params
+    updateParams({
+      search: filter.search || undefined,
+      tab: filter.tab || undefined,
+      projectId: filter.projectId || undefined,
+    });
+  };
+
   return (
     <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       {/* Header */}
@@ -189,21 +254,48 @@ export default function TasksPageClient({
             <Button
               variant="ghost"
               size="sm"
-              className="rounded-none bg-primary/10 text-primary border-r border-primary/20"
-              aria-label="List view (current)"
+              className={`rounded-none border-r border-primary/20 ${
+                viewMode === 'list'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-[#C4C8D4] hover:text-primary'
+              }`}
+              onClick={() => setViewMode('list')}
+              aria-label="List view"
             >
               <List className="w-4 h-4" />
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              className="rounded-none text-[#C4C8D4] hover:text-primary"
+              className={`rounded-none border-r border-primary/20 ${
+                viewMode === 'kanban'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-[#C4C8D4] hover:text-primary'
+              }`}
               onClick={() => router.push('/dashboard/tools/tasks/kanban')}
               aria-label="Kanban view"
             >
               <LayoutGrid className="w-4 h-4" />
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`rounded-none ${
+                viewMode === 'timeline'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-[#C4C8D4] hover:text-primary'
+              }`}
+              onClick={() => setViewMode('timeline')}
+              aria-label="Timeline view"
+            >
+              <GanttChart className="w-4 h-4" />
+            </Button>
           </div>
+
+          {/* Phase 13: Advanced toolbar */}
+          <SavedFilters currentFilter={currentFilterState} onLoad={handleLoadFilter} />
+          <ExportButton data={tasksForExport} filename="tasks" type="tasks" />
+
           <Button className="bg-primary text-white hover:bg-primary/90">
             <Plus className="w-4 h-4 mr-2" />
             New Task
@@ -327,45 +419,54 @@ export default function TasksPageClient({
         </div>
       </div>
 
-      {/* Task list */}
-      <div className="glass-card rounded-2xl p-6">
-        <TaskList
-          tasks={tasks}
-          isLoading={false}
-          onTaskUpdate={handleTaskUpdate}
-          onTaskNavigate={handleTaskNavigate}
-          activeTab={activeTab}
-          onTabChange={(tab) => handleTabChange(tab)}
-          showProjects={true}
+      {/* Task list or Timeline view */}
+      {viewMode === 'timeline' ? (
+        <TimelineView
+          tasks={tasksForExport}
+          startDate={timelineRange.start}
+          endDate={timelineRange.end}
+          onTaskClick={handleTaskNavigate}
         />
+      ) : (
+        <div className="glass-card rounded-2xl p-6">
+          <TaskList
+            tasks={tasks}
+            isLoading={false}
+            onTaskUpdate={handleTaskUpdate}
+            onTaskNavigate={handleTaskNavigate}
+            activeTab={activeTab}
+            onTabChange={(tab) => handleTabChange(tab)}
+            showProjects={true}
+          />
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-6 pt-6 border-t border-primary/10">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="border-primary/30 text-primary"
-            >
-              Previous
-            </Button>
-            <span className="text-sm text-[#C4C8D4] px-4">
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="border-primary/30 text-primary"
-            >
-              Next
-            </Button>
-          </div>
-        )}
-      </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-6 pt-6 border-t border-primary/10">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="border-primary/30 text-primary"
+              >
+                Previous
+              </Button>
+              <span className="text-sm text-[#C4C8D4] px-4">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="border-primary/30 text-primary"
+              >
+                Next
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

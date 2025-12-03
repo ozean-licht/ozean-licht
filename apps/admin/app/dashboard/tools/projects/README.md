@@ -140,7 +140,18 @@ ProjectDetailClient.tsx (client)
 - [x] Phase 9: Time tracking entries
 - [x] Phase 10: Sprint management
 - [x] Phase 11: File attachments
+- [x] Phase 12: Collaboration (notifications, @mentions)
+- [x] Phase 13: Advanced Views (saved filters, timeline, export)
+
+### Phase 13 Components
+
+| Component | Purpose |
+|-----------|---------|
+| `SavedFilters` | Save/load filter presets (localStorage) |
+| `ColumnCustomizer` | Toggle visible columns in list views |
+| `TimelineView` | Gantt-style timeline with task bars |
+| `ExportButton` | Export tasks/projects to CSV/JSON |
 
 ---
 
-*Mapped: 2025-12-02 | Files: 12 | API: 10 endpoints | Components: 12*
+*Mapped: 2025-12-03 | Files: 16 | API: 10 endpoints | Components: 16*

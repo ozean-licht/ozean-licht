@@ -656,3 +656,92 @@ export function getNotificationTypeColor(type: NotificationType): string {
   };
   return colors[type] || 'gray';
 }
+
+// =============================================================================
+// Phase 13: Advanced Views
+// =============================================================================
+
+/**
+ * Filter state for saved filters
+ */
+export interface FilterState {
+  projectId?: string;
+  status?: TaskStatus;
+  priority?: Priority;
+  assigneeId?: string;
+  sprintId?: string;
+  taskType?: TaskType;
+  search?: string;
+  tab?: 'active' | 'overdue' | 'planned' | 'done';
+}
+
+/**
+ * Saved filter preset
+ */
+export interface FilterPreset {
+  id: string;
+  name: string;
+  filter: FilterState;
+  isDefault?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Column definition for customizable views
+ */
+export interface ColumnDefinition {
+  id: string;
+  label: string;
+  accessor: keyof Task | string;
+  sortable?: boolean;
+  width?: number;
+  visible?: boolean;
+}
+
+/**
+ * Default task columns
+ */
+export const DEFAULT_TASK_COLUMNS: ColumnDefinition[] = [
+  { id: 'title', label: 'Title', accessor: 'title', sortable: true, visible: true },
+  { id: 'status', label: 'Status', accessor: 'status', sortable: true, visible: true },
+  { id: 'priority', label: 'Priority', accessor: 'priority', sortable: true, visible: true },
+  { id: 'assignee', label: 'Assignee', accessor: 'assignee', sortable: true, visible: true },
+  { id: 'dueDate', label: 'Due Date', accessor: 'dueDate', sortable: true, visible: true },
+  { id: 'project', label: 'Project', accessor: 'project', sortable: true, visible: true },
+  { id: 'taskType', label: 'Type', accessor: 'taskType', sortable: true, visible: false },
+  { id: 'estimatedHours', label: 'Estimated', accessor: 'estimatedHours', sortable: true, visible: false },
+  { id: 'actualHours', label: 'Actual Hours', accessor: 'actualHours', sortable: true, visible: false },
+  { id: 'storyPoints', label: 'Story Points', accessor: 'storyPoints', sortable: true, visible: false },
+  { id: 'createdAt', label: 'Created', accessor: 'createdAt', sortable: true, visible: false },
+  { id: 'updatedAt', label: 'Updated', accessor: 'updatedAt', sortable: true, visible: false },
+];
+
+/**
+ * Timeline bar for Gantt view
+ */
+export interface TimelineTask {
+  id: string;
+  title: string;
+  startDate: Date | null;
+  endDate: Date | null;
+  status: TaskStatus;
+  priority: Priority;
+  assignee?: { id: string; name: string };
+  progress?: number;
+  dependencies?: string[];
+}
+
+/**
+ * Export format options
+ */
+export type ExportFormat = 'csv' | 'json';
+
+/**
+ * Export field configuration
+ */
+export interface ExportField {
+  key: string;
+  label: string;
+  formatter?: (value: unknown) => string;
+}
