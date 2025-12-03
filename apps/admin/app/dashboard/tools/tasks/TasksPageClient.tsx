@@ -38,7 +38,7 @@ import {
   List,
 } from 'lucide-react';
 import { TaskList, type TaskItem } from '@/components/projects';
-import type { DBProject } from '@/lib/db/projects';
+import type { DBProject } from '@/lib/types';
 
 interface TasksPageClientProps {
   tasks: TaskItem[];

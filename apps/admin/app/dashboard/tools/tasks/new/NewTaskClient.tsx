@@ -31,7 +31,7 @@ import {
   AlertDescription,
 } from '@/lib/ui';
 import { ArrowLeft, Save, AlertCircle } from 'lucide-react';
-import type { DBProject } from '@/lib/db/projects';
+import type { DBProject } from '@/lib/types';
 
 interface NewTaskClientProps {
   projects: DBProject[];

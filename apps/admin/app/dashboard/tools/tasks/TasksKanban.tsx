@@ -60,8 +60,8 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import type { DBTask } from '@/lib/db/tasks';
-import type { DBProject } from '@/lib/db/projects';
+import type { DBTask } from '@/lib/types';
+import type { DBProject } from '@/lib/types';
 import { SubtaskProgress } from '@/components/projects';
 
 // Type for task with assignments

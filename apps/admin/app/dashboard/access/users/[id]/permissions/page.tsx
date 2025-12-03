@@ -26,7 +26,7 @@ export default async function UserPermissionsPage({
   const session = await requireRole('super_admin');
 
   // Fetch admin user
-  const client = new MCPGatewayClientWithQueries({ database: 'shared-users-db' });
+  const client = new MCPGatewayClientWithQueries({ database: 'ozean-licht-db' });
   const adminUser = await client.getAdminUserById(params.id);
 
   if (!adminUser) {

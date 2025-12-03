@@ -41,7 +41,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
-import type { DBSprint } from '@/lib/db/sprints';
+import type { DBSprint } from '@/lib/types';
 
 interface SprintManagerProps {
   projectId: string;

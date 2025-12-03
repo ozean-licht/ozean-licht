@@ -34,14 +34,11 @@ export {
   type ButtonProps,
 } from '@shared/ui/src/cossui/button'
 
-// Badge
-export {
-  Badge,
-  badgeVariants,
-} from '@shared/ui/src/cossui/badge'
+// Badge - use local component for proper type inference
+export { Badge, badgeVariants } from '@/components/ui/badge'
 
-// Input
-export { Input } from '@shared/ui/src/cossui/input'
+// Input - use local component for proper type inference
+export { Input } from '@/components/ui/input'
 
 // Textarea
 export { Textarea } from '@shared/ui/src/cossui/textarea'

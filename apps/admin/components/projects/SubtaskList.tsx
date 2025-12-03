@@ -19,7 +19,7 @@ import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, ChevronRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { DBTask } from '@/lib/db/tasks';
+import type { DBTask } from '@/lib/types';
 
 interface SubtaskListProps {
   parentTaskId: string;

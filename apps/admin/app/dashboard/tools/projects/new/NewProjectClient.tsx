@@ -35,7 +35,7 @@ import {
   Search,
   X,
 } from 'lucide-react';
-import type { DBProcessTemplate } from '@/lib/db/templates';
+import type { DBProcessTemplate } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface NewProjectClientProps {

@@ -1,82 +1,91 @@
 # Admin Dashboard Dockerfile
-# Using Debian-based slim image for better npm compatibility (vs Alpine musl libc)
+# Built from monorepo root: docker build -f apps/admin/Dockerfile .
+# Uses pnpm to properly handle workspace dependencies
+
 FROM node:18-slim AS base
 
-# Install dependencies only when needed
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+
+# ============================================================================
+# Dependencies stage - install all workspace dependencies
+# ============================================================================
 FROM base AS deps
 WORKDIR /app
 
-# Explicitly set to development to install ALL deps (including dev needed for build)
-ENV NODE_ENV=development
+# Copy workspace configuration files
+COPY pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml ./
+COPY package.json ./
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Copy all workspace package.json files that pnpm needs to resolve
+COPY apps/admin/package.json ./apps/admin/
+COPY shared/ui/package.json ./shared/ui/
 
-# Cache bust: Ensure npm ci runs with new flags (change this comment to invalidate cache)
-# Last updated: 2025-11-10 - Force 766 packages with --include=dev
+# Install dependencies using pnpm with frozen lockfile
+# --filter targets admin and its dependencies (including @shared/ui)
+RUN pnpm install --frozen-lockfile --filter @admin/dashboard...
 
-# Install ALL dependencies (including devDependencies needed for Next.js build)
-RUN npm ci --include=dev
-
-# WORKAROUND: npm ci skips @radix-ui/react-icons for unknown reason
-# Force install it explicitly (shows as "Not in dependency tree" despite being in package.json)
-RUN npm install @radix-ui/react-icons@1.3.2 --no-save
-
-# DEBUG: Verify it's now installed
-RUN echo "=== DEBUGGING after force install ===" && \
-    ls node_modules/@radix-ui/ | grep react-icons && \
-    test -d node_modules/@radix-ui/react-icons && echo "✅ react-icons NOW installed!"
-
-# Validate critical package installed
-RUN test -d node_modules/@radix-ui/react-icons || \
-    (echo "ERROR: @radix-ui/react-icons not installed!" && exit 1)
-
-# Rebuild the source code only when needed
+# ============================================================================
+# Builder stage - build the Next.js application
+# ============================================================================
 FROM base AS builder
 WORKDIR /app
 
-# Copy all node_modules including devDependencies
+# Copy installed node_modules from deps stage
+# pnpm creates a hoisted node_modules at root with symlinks
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/admin/node_modules ./apps/admin/node_modules
 
-# Verify critical package copied correctly
-RUN ls node_modules/@radix-ui/ | grep react-icons || \
-    (echo "ERROR: react-icons missing in builder stage!" && exit 1)
+# Copy workspace config (needed for pnpm workspace resolution)
+COPY pnpm-workspace.yaml ./
+COPY package.json ./
 
-COPY . .
+# Copy shared/ui source and dist (workspace dependency)
+COPY shared/ui ./shared/ui
 
-# Disable telemetry during build
+# Copy shared/assets (referenced by shared/ui components)
+COPY shared/assets ./shared/assets
+
+# Copy admin application source
+COPY apps/admin ./apps/admin
+
+# Set working directory to admin app
+WORKDIR /app/apps/admin
+
+# Disable telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
-
-# Set production mode ONLY for Next.js build (not for deps install)
 ENV NODE_ENV=production
 
-# Set placeholder for build (will be overridden at runtime)
-# Next.js needs this for next.config.js evaluation
+# Build placeholder URLs (overridden at runtime)
 ENV NEXTAUTH_URL=https://dashboard.ozean-licht.dev
 
-# Build the Next.js app
-RUN npm run build
+# Build the Next.js application
+RUN pnpm run build
 
-# Production image, copy all the files and run next
+# ============================================================================
+# Runner stage - production image
+# ============================================================================
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-# Copy built application
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy built application from builder
+COPY --from=builder /app/apps/admin/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/static ./.next/static
 
 USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]

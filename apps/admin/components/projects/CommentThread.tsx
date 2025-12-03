@@ -28,7 +28,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import CommentForm from './CommentForm';
-import type { DBComment } from '@/lib/db/comments';
+import type { DBComment } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface CommentThreadProps {

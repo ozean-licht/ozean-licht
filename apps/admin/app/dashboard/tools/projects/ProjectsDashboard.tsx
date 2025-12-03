@@ -31,7 +31,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { MyTasksWidget, ProjectCard, ProcessTemplatesWidget } from '@/components/projects';
-import type { DBProject } from '@/lib/db/projects';
+import type { DBProject } from '@/lib/types';
 import type { TaskItem, Project } from '@/components/projects';
 
 interface ProjectsDashboardProps {

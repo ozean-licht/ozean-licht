@@ -3,13 +3,13 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import {
-  CossUIAlert,
-  CossUIAlertTitle,
-  CossUIAlertDescription,
-  CossUIButton,
-  CossUICard,
-  CossUICardPanel,
-} from '@shared/ui';
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  Button,
+  Card,
+  CardPanel,
+} from '@/lib/ui';
 import { ArrowLeft, AlertTriangle } from 'lucide-react';
 
 interface ErrorProps {
@@ -35,8 +35,8 @@ export default function CourseDetailError({ error, reset }: ErrorProps) {
       </Link>
 
       {/* Error Card */}
-      <CossUICard className="max-w-2xl mx-auto">
-        <CossUICardPanel className="p-8">
+      <Card className="max-w-2xl mx-auto">
+        <CardPanel className="p-8">
           <div className="flex flex-col items-center text-center space-y-6">
             {/* Icon */}
             <div className="p-4 rounded-full bg-destructive/10">
@@ -53,28 +53,28 @@ export default function CourseDetailError({ error, reset }: ErrorProps) {
             </div>
 
             {/* Error Details */}
-            <CossUIAlert variant="destructive" className="w-full text-left">
-              <CossUIAlertTitle>Error Details</CossUIAlertTitle>
-              <CossUIAlertDescription className="font-mono text-sm">
+            <Alert variant="destructive" className="w-full text-left">
+              <AlertTitle>Error Details</AlertTitle>
+              <AlertDescription className="font-mono text-sm">
                 {error.message || 'An unexpected error occurred'}
                 {error.digest && (
                   <div className="mt-2 text-xs opacity-70">Error ID: {error.digest}</div>
                 )}
-              </CossUIAlertDescription>
-            </CossUIAlert>
+              </AlertDescription>
+            </Alert>
 
             {/* Actions */}
             <div className="flex gap-3">
-              <CossUIButton onClick={reset} variant="default">
+              <Button onClick={reset} variant="default">
                 Try Again
-              </CossUIButton>
-              <CossUIButton asChild variant="outline">
+              </Button>
+              <Button asChild variant="outline">
                 <Link href="/dashboard/courses">Back to Courses</Link>
-              </CossUIButton>
+              </Button>
             </div>
           </div>
-        </CossUICardPanel>
-      </CossUICard>
+        </CardPanel>
+      </Card>
     </div>
   );
 }

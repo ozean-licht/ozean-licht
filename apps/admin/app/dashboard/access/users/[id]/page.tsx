@@ -15,7 +15,7 @@ import { notFound } from 'next/navigation';
 
 const mcpClient = new MCPGatewayClientWithQueries({
   baseUrl: process.env.MCP_GATEWAY_URL || 'http://localhost:8100',
-  database: 'shared-users-db',
+  database: 'ozean-licht-db',
 });
 
 interface UserDetailPageProps {

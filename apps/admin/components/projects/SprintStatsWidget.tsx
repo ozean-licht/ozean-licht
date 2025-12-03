@@ -19,7 +19,7 @@ import {
   TrendingUp,
   Calendar,
 } from 'lucide-react';
-import type { DBSprint } from '@/lib/db/sprints';
+import type { DBSprint } from '@/lib/types';
 
 interface SprintStatsWidgetProps {
   sprint: DBSprint;

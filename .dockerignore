@@ -1,11 +1,10 @@
-# Dockerignore for Storybook Auth Wrapper deployment
+# Dockerignore for monorepo builds (Storybook + Admin Dashboard)
 # Build context: monorepo root
-# Include what's needed to build Storybook + auth wrapper
+# Include what's needed to build both apps with pnpm
 
 # Exclude all root-level items except what we need
 /*
 !/package.json
-!/package-lock.json
 !/pnpm-workspace.yaml
 !/pnpm-lock.yaml
 !/storybook
@@ -15,17 +14,25 @@
 # Include only what's needed from shared
 /shared/*
 !/shared/ui
+!/shared/assets
+# Exclude shared/ui build artifacts and node_modules (pnpm will install fresh)
+/shared/ui/.next
+/shared/ui/node_modules
 
-# Include only what's needed from apps
+# Include apps we need to build
 /apps/*
 !/apps/storybook
 !/apps/admin
-/apps/admin/*
-!/apps/admin/package.json
-!/apps/admin/app
-/apps/admin/app/*
-!/apps/admin/app/globals.css
-!/apps/admin/components
+
+# Admin Dashboard - include full app for Docker build
+# Exclude only node_modules and build artifacts
+/apps/admin/node_modules
+/apps/admin/.next
+/apps/admin/out
+/apps/admin/docs
+/apps/admin/specs
+/apps/admin/tests
+/apps/admin/app_review
 
 # Exclude unnecessary storybook subdirs
 /storybook/node_modules

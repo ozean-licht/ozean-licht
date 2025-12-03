@@ -3,13 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Course, ModuleWithLessons } from '@/types/content';
-import {
-  CossUIButton,
-  CossUIBadge,
-  CossUIAlert,
-  CossUIAlertTitle,
-  CossUIAlertDescription,
-} from '@shared/ui';
+import { Button, Badge, Alert, AlertTitle, AlertDescription } from '@/lib/ui';
 import { ArrowLeft, Plus, BookOpen, Clock, Video, Eye, Edit } from 'lucide-react';
 import CourseDetailHeader from '@/components/courses/CourseDetailHeader';
 import ModuleList from '@/components/courses/ModuleList';
@@ -57,10 +51,10 @@ export default function CourseDetailClient({
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Courses
         </Link>
-        <CossUIAlert variant="destructive">
-          <CossUIAlertTitle>Error loading course</CossUIAlertTitle>
-          <CossUIAlertDescription>{error}</CossUIAlertDescription>
-        </CossUIAlert>
+        <Alert variant="destructive">
+          <AlertTitle>Error loading course</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       </div>
     );
   }
@@ -74,22 +68,22 @@ export default function CourseDetailClient({
           Back to Courses
         </Link>
         <div className="flex items-center gap-2">
-          <CossUIButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => window.open(`/courses/${course.slug}`, '_blank')}
           >
             <Eye className="h-4 w-4 mr-2" />
             Preview
-          </CossUIButton>
-          <CossUIButton
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setEditCourseOpen(true)}
           >
             <Edit className="h-4 w-4 mr-2" />
             Edit
-          </CossUIButton>
+          </Button>
         </div>
       </div>
 
@@ -98,36 +92,36 @@ export default function CourseDetailClient({
 
       {/* Stats Row - Compact badges, centered */}
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <CossUIBadge variant="outline" className="gap-1.5 py-1 px-2.5 capitalize">
+        <Badge variant="outline" className="gap-1.5 py-1 px-2.5 capitalize">
           {course.status}
-        </CossUIBadge>
+        </Badge>
         {course.category && (
-          <CossUIBadge variant="outline" className="gap-1.5 py-1 px-2.5">
+          <Badge variant="outline" className="gap-1.5 py-1 px-2.5">
             {course.category}
-          </CossUIBadge>
+          </Badge>
         )}
-        <CossUIBadge variant="outline" className="gap-1.5 py-1 px-2.5">
+        <Badge variant="outline" className="gap-1.5 py-1 px-2.5">
           <BookOpen className="h-3.5 w-3.5" />
           <span>{modules.length} Modules</span>
-        </CossUIBadge>
-        <CossUIBadge variant="outline" className="gap-1.5 py-1 px-2.5">
+        </Badge>
+        <Badge variant="outline" className="gap-1.5 py-1 px-2.5">
           <Video className="h-3.5 w-3.5" />
           <span>{totalLessons} Lessons</span>
-        </CossUIBadge>
-        <CossUIBadge variant="outline" className="gap-1.5 py-1 px-2.5">
+        </Badge>
+        <Badge variant="outline" className="gap-1.5 py-1 px-2.5">
           <Clock className="h-3.5 w-3.5" />
           <span>{formatDuration(totalDuration)}</span>
-        </CossUIBadge>
+        </Badge>
       </div>
 
       {/* Modules Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-decorative text-white">Course Content</h2>
-          <CossUIButton onClick={() => setAddModuleOpen(true)}>
+          <Button onClick={() => setAddModuleOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Module
-          </CossUIButton>
+          </Button>
         </div>
 
         <ModuleList

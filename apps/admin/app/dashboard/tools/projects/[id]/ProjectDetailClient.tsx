@@ -43,9 +43,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { TaskList, ActivityLog, type TaskItem, type ActivityItem, ProjectEditModal, SprintManager, SprintStatsWidget } from '@/components/projects';
-import type { DBProject } from '@/lib/db/projects';
-import type { DBComment } from '@/lib/db/comments';
-import type { DBSprint } from '@/lib/db/sprints';
+import type { DBProject } from '@/lib/types';
+import type { DBComment } from '@/lib/types';
+import type { DBSprint } from '@/lib/types';
 
 interface ProjectDetailClientProps {
   project: DBProject;

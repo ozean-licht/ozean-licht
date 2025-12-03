@@ -11,7 +11,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Trash2, DollarSign, Calendar } from 'lucide-react';
-import type { DBTimeEntry } from '@/lib/db/time-entries';
+import type { DBTimeEntry } from '@/lib/types';
 
 interface TimeEntryListProps {
   entries: DBTimeEntry[];
