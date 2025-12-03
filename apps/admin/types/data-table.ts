@@ -44,6 +44,9 @@ export interface DataTableProps<TData, TValue> {
       onClick: () => void;
     };
   };
+
+  // Row interaction
+  onRowDoubleClick?: (row: TData) => void;
 }
 
 export interface BulkAction<TData> {

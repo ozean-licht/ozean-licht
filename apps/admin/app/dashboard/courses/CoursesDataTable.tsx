@@ -39,7 +39,7 @@ export default function CoursesDataTable({
   // Local state for filters
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'all');
-  const [levelFilter, setLevelFilter] = useState(searchParams.get('level') || 'all');
+  const [categoryFilter, setCategoryFilter] = useState(searchParams.get('category') || 'all');
 
   // Debounce search
   const debouncedSearch = useDebounce(searchQuery, 300);
@@ -80,20 +80,20 @@ export default function CoursesDataTable({
     updateUrl({ status: value === 'all' ? null : value });
   };
 
-  const handleLevelChange = (value: string) => {
-    setLevelFilter(value);
-    updateUrl({ level: value === 'all' ? null : value });
+  const handleCategoryChange = (value: string) => {
+    setCategoryFilter(value);
+    updateUrl({ category: value === 'all' ? null : value });
   };
 
   // Clear all filters
   const clearFilters = () => {
     setSearchQuery('');
     setStatusFilter('all');
-    setLevelFilter('all');
+    setCategoryFilter('all');
     router.push(pathname);
   };
 
-  const hasActiveFilters = searchQuery || statusFilter !== 'all' || levelFilter !== 'all';
+  const hasActiveFilters = searchQuery || statusFilter !== 'all' || categoryFilter !== 'all';
 
   return (
     <div className="space-y-4">
@@ -124,16 +124,21 @@ export default function CoursesDataTable({
             </SelectContent>
           </Select>
 
-          {/* Level Filter */}
-          <Select value={levelFilter} onValueChange={handleLevelChange} name="level-filter">
-            <SelectTrigger className="w-[140px]" id="level-filter">
-              <SelectValue placeholder="Level" />
+          {/* Category Filter */}
+          <Select value={categoryFilter} onValueChange={handleCategoryChange} name="category-filter">
+            <SelectTrigger className="w-[160px]" id="category-filter">
+              <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Levels</SelectItem>
-              <SelectItem value="beginner">Beginner</SelectItem>
-              <SelectItem value="intermediate">Intermediate</SelectItem>
-              <SelectItem value="advanced">Advanced</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="Basis">Basis</SelectItem>
+              <SelectItem value="LCQ">LCQ</SelectItem>
+              <SelectItem value="Interview">Interview</SelectItem>
+              <SelectItem value="Q&A">Q&A</SelectItem>
+              <SelectItem value="Kostenlos">Kostenlos</SelectItem>
+              <SelectItem value="Aufbau">Aufbau</SelectItem>
+              <SelectItem value="Master">Master</SelectItem>
+              <SelectItem value="Fortgeschritten">Fortgeschritten</SelectItem>
             </SelectContent>
           </Select>
 
@@ -181,6 +186,7 @@ export default function CoursesDataTable({
         columns={columns}
         data={courses}
         enableExport
+        onRowDoubleClick={(course) => router.push(`/dashboard/courses/${course.slug}`)}
       />
     </div>
   );

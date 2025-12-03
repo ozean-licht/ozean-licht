@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import CoursesDataTable from './CoursesDataTable';
 import CoursesGallery from './CoursesGallery';
+import CreateCourseModal from '@/components/courses/CreateCourseModal';
 import { Course } from '@/types/content';
 import { Button } from '@/lib/ui';
-import { Plus, List, LayoutGrid } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 interface CoursesPageClientProps {
   initialCourses: Course[];
@@ -16,12 +17,14 @@ interface CoursesPageClientProps {
 
 export default function CoursesPageClient({ initialCourses, initialTotal, error: _error }: CoursesPageClientProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [view, setView] = useState<'list' | 'gallery'>('list');
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   // Parse filters from URL
   const search = searchParams.get('search') || '';
   const status = searchParams.get('status') || '';
-  const level = searchParams.get('level') || '';
+  const category = searchParams.get('category') || '';
 
   // Filter courses client-side for quick filtering
   const filteredCourses = useMemo(() => {
@@ -41,12 +44,12 @@ export default function CoursesPageClient({ initialCourses, initialTotal, error:
       result = result.filter((c) => c.status === status);
     }
 
-    if (level && level !== 'all') {
-      result = result.filter((c) => c.level === level);
+    if (category && category !== 'all') {
+      result = result.filter((c) => c.category === category);
     }
 
     return result;
-  }, [initialCourses, search, status, level]);
+  }, [initialCourses, search, status, category]);
 
   const total = filteredCourses.length;
 
@@ -62,34 +65,10 @@ export default function CoursesPageClient({ initialCourses, initialTotal, error:
               : 'Manage your educational content'}
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          {/* View Toggle */}
-          <div className="flex items-center gap-1 border rounded-lg p-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`h-8 w-8 p-0 ${view === 'list' ? 'bg-primary/10' : ''}`}
-              onClick={() => setView('list')}
-              title="List view"
-            >
-              <List className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`h-8 w-8 p-0 ${view === 'gallery' ? 'bg-primary/10' : ''}`}
-              onClick={() => setView('gallery')}
-              title="Gallery view"
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Course
-          </Button>
-        </div>
+        <Button onClick={() => setShowCreateModal(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          New Course
+        </Button>
       </div>
 
       {/* Content */}
@@ -99,10 +78,18 @@ export default function CoursesPageClient({ initialCourses, initialTotal, error:
           total={total}
           limit={50}
           offset={0}
+          onViewChange={setView}
         />
       ) : (
-        <CoursesGallery courses={filteredCourses} />
+        <CoursesGallery courses={filteredCourses} onViewChange={setView} />
       )}
+
+      {/* Create Course Modal */}
+      <CreateCourseModal
+        open={showCreateModal}
+        onOpenChange={setShowCreateModal}
+        onSuccess={() => router.refresh()}
+      />
     </div>
   );
 }

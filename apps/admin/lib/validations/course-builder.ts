@@ -379,6 +379,24 @@ export const currencySchema = z.enum(['EUR', 'USD', 'CHF']);
 export const entityScopeSchema = z.enum(['ozean_licht', 'kids_ascension']);
 
 /**
+ * Schema for creating a new course
+ */
+export const courseCreateSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(200),
+  slug: z.string().regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens').optional(),
+  description: z.string().optional(),
+  shortDescription: z.string().max(300).optional(),
+  status: courseStatusSchema.default('draft'),
+  level: courseLevelSchema.optional(),
+  category: z.string().optional(),
+  entityScope: entityScopeSchema.default('ozean_licht'),
+  priceCents: z.number().min(0).default(0),
+  currency: currencySchema.default('EUR'),
+  thumbnailUrl: z.string().url().optional(),
+  coverImageUrl: z.string().url().optional(),
+});
+
+/**
  * Schema for updating an existing course
  */
 export const courseUpdateSchema = z.object({
@@ -550,6 +568,7 @@ export type ReorderLessonsInput = z.infer<typeof reorderLessonsSchema>;
 export type ModuleStatus = z.infer<typeof moduleStatusSchema>;
 export type LessonStatus = z.infer<typeof lessonStatusSchema>;
 export type LessonContentType = z.infer<typeof lessonContentTypeSchema>;
+export type CourseCreateInput = z.infer<typeof courseCreateSchema>;
 export type CourseUpdateInput = z.infer<typeof courseUpdateSchema>;
 export type CourseEditorInput = z.infer<typeof courseEditorSchema>;
 

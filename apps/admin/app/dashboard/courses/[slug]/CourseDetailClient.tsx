@@ -90,16 +90,8 @@ export default function CourseDetailClient({
       {/* Course Header */}
       <CourseDetailHeader course={course} />
 
-      {/* Stats Row - Compact badges, centered */}
+      {/* Course Stats - Modules, Lessons, Duration */}
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <Badge variant="outline" className="gap-1.5 py-1 px-2.5 capitalize">
-          {course.status}
-        </Badge>
-        {course.category && (
-          <Badge variant="outline" className="gap-1.5 py-1 px-2.5">
-            {course.category}
-          </Badge>
-        )}
         <Badge variant="outline" className="gap-1.5 py-1 px-2.5">
           <BookOpen className="h-3.5 w-3.5" />
           <span>{modules.length} Modules</span>

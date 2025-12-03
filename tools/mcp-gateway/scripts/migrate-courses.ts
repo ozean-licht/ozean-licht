@@ -124,6 +124,8 @@ interface MigrationResult {
   successCount: number;
   failureCount: number;
   skippedCount: number;
+  insertedCount: number;
+  updatedCount: number;
   errors: Array<{ airtableId: string; error: string }>;
   duration: number;
 }
@@ -314,6 +316,30 @@ function mapLevel(airtableLevel: string | undefined): 'beginner' | 'intermediate
 }
 
 /**
+ * Extract URL from Airtable attachment field
+ */
+function getAttachmentUrl(attachments: any): string | null {
+  if (!attachments) return null;
+
+  // Handle array of attachments
+  if (Array.isArray(attachments) && attachments.length > 0) {
+    return attachments[0]?.url || null;
+  }
+
+  // Handle single attachment object
+  if (typeof attachments === 'object' && attachments.url) {
+    return attachments.url;
+  }
+
+  // Handle direct URL string
+  if (typeof attachments === 'string' && attachments.startsWith('http')) {
+    return attachments;
+  }
+
+  return null;
+}
+
+/**
  * Parse price from various formats
  */
 function parsePrice(price: any): number {
@@ -392,17 +418,17 @@ function transformCourse(record: AirtableRecord): CourseRecord {
     null;
 
   const thumbnailUrl =
-    fields['thumbnail']?.[0]?.url ||
-    fields['Thumbnail']?.[0]?.url ||
-    fields['Image']?.[0]?.url ||
-    fields['Cover']?.[0]?.url ||
+    getAttachmentUrl(fields['thumbnail']) ||
+    getAttachmentUrl(fields['Thumbnail']) ||
+    getAttachmentUrl(fields['Image']) ||
+    getAttachmentUrl(fields['Cover']) ||
     fields['Thumbnail URL'] ||
     null;
 
   const coverImageUrl =
-    fields['cover_image']?.[0]?.url ||
-    fields['Cover Image']?.[0]?.url ||
-    fields['Banner']?.[0]?.url ||
+    getAttachmentUrl(fields['cover_image']) ||
+    getAttachmentUrl(fields['Cover Image']) ||
+    getAttachmentUrl(fields['Banner']) ||
     fields['Cover Image URL'] ||
     null;
 
@@ -562,9 +588,10 @@ class CoursesMigration {
   }
 
   /**
-   * Insert a single course into PostgreSQL
+   * Insert or update a single course in PostgreSQL
+   * Returns whether the operation was an insert or update
    */
-  async insertCourse(course: CourseRecord): Promise<void> {
+  async upsertCourse(course: CourseRecord): Promise<'inserted' | 'updated'> {
     const sql = `
       INSERT INTO courses (
         airtable_id, title, slug, description, short_description,
@@ -588,9 +615,15 @@ class CoursesMigration {
         entity_scope = EXCLUDED.entity_scope,
         metadata = EXCLUDED.metadata,
         updated_at = NOW()
+      RETURNING id, airtable_id,
+        CASE WHEN xmax = 0 THEN 'inserted' ELSE 'updated' END as operation
     `;
 
-    await this.postgres.execute(sql, [
+    const result = await this.postgres.query<{
+      id: string;
+      airtable_id: string;
+      operation: 'inserted' | 'updated';
+    }>(sql, [
       course.airtable_id,
       course.title,
       course.slug,
@@ -607,6 +640,8 @@ class CoursesMigration {
       course.entity_scope,
       JSON.stringify(course.metadata),
     ]);
+
+    return result[0]?.operation || 'updated';
   }
 
   /**
@@ -626,6 +661,8 @@ class CoursesMigration {
       successCount: 0,
       failureCount: 0,
       skippedCount: 0,
+      insertedCount: 0,
+      updatedCount: 0,
       errors: [],
       duration: 0,
     };
@@ -674,17 +711,25 @@ class CoursesMigration {
           this.verbose(`Transformed course: ${course.title} (${course.slug})`);
 
           if (this.config.dryRun) {
-            this.log(`[DRY RUN] Would insert/update course: ${course.title}`);
+            const action = existingIds.has(record.id) ? 'update' : 'insert';
+            this.log(`[DRY RUN] Would ${action} course: ${course.title}`);
             this.verbose('Course data:', JSON.stringify(course, null, 2));
+            if (action === 'insert') {
+              result.insertedCount++;
+            } else {
+              result.updatedCount++;
+            }
             result.successCount++;
           } else {
-            // Insert or update
-            await this.insertCourse(course);
+            // Upsert the course
+            const operation = await this.upsertCourse(course);
 
-            if (existingIds.has(record.id)) {
-              this.verbose(`Updated existing course: ${course.title}`);
-            } else {
+            if (operation === 'inserted') {
               this.verbose(`Inserted new course: ${course.title}`);
+              result.insertedCount++;
+            } else {
+              this.verbose(`Updated existing course: ${course.title}`);
+              result.updatedCount++;
             }
             result.successCount++;
           }
@@ -741,6 +786,8 @@ async function main(): Promise<void> {
     console.log('='.repeat(60));
     console.log(`  Total Records: ${result.totalRecords}`);
     console.log(`  Successful: ${result.successCount}`);
+    console.log(`    - Inserted: ${result.insertedCount}`);
+    console.log(`    - Updated: ${result.updatedCount}`);
     console.log(`  Failed: ${result.failureCount}`);
     console.log(`  Skipped: ${result.skippedCount}`);
     console.log(`  Duration: ${(result.duration / 1000).toFixed(2)}s`);

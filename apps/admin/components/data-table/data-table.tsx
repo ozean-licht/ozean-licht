@@ -49,6 +49,7 @@ export function DataTable<TData, TValue>({
   exportFilename = 'data',
   isLoading = false,
   emptyState,
+  onRowDoubleClick,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -170,6 +171,8 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  className={onRowDoubleClick ? 'cursor-pointer hover:bg-muted/50' : undefined}
+                  onDoubleClick={() => onRowDoubleClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

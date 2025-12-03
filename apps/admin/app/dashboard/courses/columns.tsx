@@ -1,11 +1,10 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { Course, CourseStatus, CourseLevel } from '@/types/content';
+import { Course, CourseStatus } from '@/types/content';
 import { formatPrice } from '@/types/commerce';
 import { Button, Badge } from '@/lib/ui';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
 import { MoreHorizontal, Eye, Edit, Trash2, BookOpen, Users, Layers } from 'lucide-react';
 import {
   DropdownMenu,
@@ -38,36 +37,50 @@ function getStatusConfig(status: CourseStatus): { className: string; label: stri
 }
 
 /**
- * Get badge config for course level
+ * Get badge config for course category
+ * Colors: New=Primary, Interview=Green, Aufbau=Indigo, Kostenlos=Orange,
+ *         LCQ=Yellow, Q&A=Turquoise, Basis=Blue, Fortgeschritten=Purple, Master=Red
  */
-function getLevelConfig(level: CourseLevel): { className: string; label: string } {
-  const configs: Record<CourseLevel, { className: string; label: string }> = {
-    beginner: {
+function getCategoryConfig(category: string | undefined): { className: string; label: string } {
+  const configs: Record<string, { className: string; label: string }> = {
+    New: {
+      className: 'border bg-primary/20 text-primary border-primary/30',
+      label: 'New',
+    },
+    Basis: {
       className: 'border bg-blue-500/20 text-blue-700 border-blue-500/30 dark:text-blue-400',
-      label: 'Beginner',
+      label: 'Basis',
     },
-    intermediate: {
-      className: 'border bg-purple-500/20 text-purple-700 border-purple-500/30 dark:text-purple-400',
-      label: 'Intermediate',
+    LCQ: {
+      className: 'border bg-yellow-500/20 text-yellow-700 border-yellow-500/30 dark:text-yellow-400',
+      label: 'LCQ',
     },
-    advanced: {
+    Interview: {
+      className: 'border bg-green-500/20 text-green-700 border-green-500/30 dark:text-green-400',
+      label: 'Interview',
+    },
+    'Q&A': {
+      className: 'border bg-cyan-500/20 text-cyan-700 border-cyan-500/30 dark:text-cyan-400',
+      label: 'Q&A',
+    },
+    Kostenlos: {
+      className: 'border bg-orange-500/20 text-orange-700 border-orange-500/30 dark:text-orange-400',
+      label: 'Kostenlos',
+    },
+    Aufbau: {
+      className: 'border bg-indigo-500/20 text-indigo-700 border-indigo-500/30 dark:text-indigo-400',
+      label: 'Aufbau',
+    },
+    Master: {
       className: 'border bg-red-500/20 text-red-700 border-red-500/30 dark:text-red-400',
-      label: 'Advanced',
+      label: 'Master',
+    },
+    Fortgeschritten: {
+      className: 'border bg-purple-500/20 text-purple-700 border-purple-500/30 dark:text-purple-400',
+      label: 'Fortgeschritten',
     },
   };
-  return configs[level] || configs.beginner;
-}
-
-/**
- * Format duration from minutes to readable string
- */
-function formatDuration(minutes?: number): string {
-  if (!minutes) return '-';
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  if (hours === 0) return `${mins}m`;
-  if (mins === 0) return `${hours}h`;
-  return `${hours}h ${mins}m`;
+  return configs[category || ''] || { className: 'border bg-gray-500/20 text-gray-600 border-gray-500/30', label: category || '-' };
 }
 
 export const columns: ColumnDef<Course>[] = [
@@ -125,17 +138,20 @@ export const columns: ColumnDef<Course>[] = [
     },
   },
   {
-    accessorKey: 'level',
-    header: 'Level',
+    accessorKey: 'category',
+    header: 'Category',
     cell: ({ row }) => {
-      const level = row.getValue('level') as CourseLevel | undefined;
-      if (!level) return <span className="text-muted-foreground">-</span>;
-      const config = getLevelConfig(level);
+      const category = row.original.category;
+      if (!category) return <span className="text-muted-foreground">-</span>;
+      const config = getCategoryConfig(category);
       return (
         <Badge variant="outline" className={config.className}>
           {config.label}
         </Badge>
       );
+    },
+    filterFn: (row, id, value) => {
+      return value === 'all' || row.original.category === value;
     },
   },
   {
@@ -187,28 +203,31 @@ export const columns: ColumnDef<Course>[] = [
     },
   },
   {
-    accessorKey: 'durationMinutes',
-    header: 'Duration',
-    cell: ({ row }) => {
-      const duration = row.getValue('durationMinutes') as number | undefined;
-      return <span className="text-muted-foreground">{formatDuration(duration)}</span>;
-    },
-  },
-  {
     accessorKey: 'updatedAt',
     header: 'Updated',
     cell: ({ row }) => {
-      const date = row.getValue('updatedAt') as string;
-      return (
-        <div className="flex flex-col">
-          <span className="text-sm">
-            {formatDistanceToNow(new Date(date), { addSuffix: true })}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            {new Date(date).toLocaleDateString('de-AT')}
-          </span>
-        </div>
-      );
+      const date = new Date(row.getValue('updatedAt') as string);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+      let display: string;
+      if (diffMins < 60) {
+        display = `${diffMins} min ago`;
+      } else if (diffHours < 24) {
+        display = `${diffHours} hours ago`;
+      } else {
+        display = date.toLocaleString('de-AT', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      }
+
+      return <span className="text-sm text-muted-foreground whitespace-nowrap">{display}</span>;
     },
     enableSorting: true,
   },
