@@ -715,3 +715,273 @@ export interface ConversationFilterPreset {
   createdAt: string;
   updatedAt: string;
 }
+
+// ============================================================================
+// Channel Configuration Types (Phase 5)
+// ============================================================================
+
+/**
+ * Platform identifier
+ */
+export type Platform = 'ozean_licht' | 'kids_ascension';
+
+/**
+ * Widget position
+ */
+export type WidgetPosition = 'left' | 'right';
+
+/**
+ * Reply time indicator
+ */
+export type ReplyTime = 'in_a_few_minutes' | 'in_a_few_hours' | 'in_a_day';
+
+/**
+ * Channel configuration entity
+ */
+export interface ChannelConfig {
+  id: string;
+  channel: Channel;
+  displayName: string;
+  isEnabled: boolean;
+  chatwootInboxId?: number;
+  config: ChannelSpecificConfig;
+  defaultTeam?: Team;
+  autoResponseEnabled: boolean;
+  autoResponseMessage?: string;
+  businessHours: BusinessHours;
+  platform: Platform;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Channel-specific configuration union type
+ *
+ * Discriminated union for different channel types. Each channel requires
+ * different configuration parameters for integration with Chatwoot.
+ *
+ * @example Web Widget
+ * ```typescript
+ * const webConfig: WebWidgetConfig = {
+ *   websiteToken: 'abc123xyz',
+ *   allowedDomains: ['ozean-licht.de', 'kids-ascension.com']
+ * };
+ * ```
+ *
+ * @example WhatsApp Business API
+ * ```typescript
+ * const whatsappConfig: WhatsAppConfig = {
+ *   phoneNumber: '+4912345678',
+ *   businessId: 'biz_123',
+ *   accessToken: 'encrypted_token', // Must be encrypted
+ *   wabaId: 'waba_456'
+ * };
+ * ```
+ */
+export type ChannelSpecificConfig =
+  | WebWidgetConfig
+  | WhatsAppConfig
+  | TelegramConfig
+  | EmailConfig;
+
+/**
+ * Web widget configuration
+ */
+export interface WebWidgetConfig {
+  websiteToken: string;
+  allowedDomains: string[];
+}
+
+/**
+ * WhatsApp Business API configuration
+ *
+ * TODO: SECURITY - accessToken must be encrypted before enabling this channel in production
+ */
+export interface WhatsAppConfig {
+  phoneNumber: string;
+  businessId: string;
+  accessToken: string; // SENSITIVE: Must be encrypted at rest
+  wabaId: string;
+}
+
+/**
+ * Telegram bot configuration
+ *
+ * TODO: SECURITY - botToken must be encrypted before enabling this channel in production
+ */
+export interface TelegramConfig {
+  botToken: string; // SENSITIVE: Must be encrypted at rest
+  botUsername: string;
+  webhookUrl: string;
+}
+
+/**
+ * Email channel configuration
+ *
+ * TODO: SECURITY - password must be encrypted before storing
+ */
+export interface EmailConfig {
+  imapAddress: string;
+  smtpAddress: string;
+  email: string;
+  password: string; // SENSITIVE: Must be encrypted at rest
+}
+
+/**
+ * Business hours configuration
+ */
+export interface BusinessHours {
+  enabled?: boolean;
+  timezone?: string;
+  schedule?: {
+    [day: string]: {
+      enabled: boolean;
+      start: string;
+      end: string;
+    };
+  };
+}
+
+/**
+ * Widget settings for web chat
+ */
+export interface WidgetSettings {
+  id: string;
+  platform: Platform;
+  primaryColor: string;
+  position: WidgetPosition;
+  welcomeTitle: string;
+  welcomeSubtitle: string;
+  replyTime: ReplyTime;
+  showBranding: boolean;
+  logoUrl?: string;
+  preChatFormEnabled: boolean;
+  preChatFormFields: PreChatFormField[];
+  hideMessageBubble: boolean;
+  showPopupOnload: boolean;
+  popupDelaySeconds: number;
+  language: string;
+  customCss?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Pre-chat form field definition
+ */
+export interface PreChatFormField {
+  name: string;
+  type: 'text' | 'email' | 'select';
+  label: string;
+  placeholder?: string;
+  required: boolean;
+  options?: string[];
+}
+
+/**
+ * Update channel config input
+ *
+ * Partial update object for modifying channel configurations.
+ * All fields are optional to allow targeted updates without replacing
+ * the entire configuration.
+ *
+ * @property isEnabled - Toggle channel on/off
+ * @property chatwootInboxId - Chatwoot inbox ID for routing conversations
+ * @property config - Channel-specific settings (merged with existing)
+ * @property defaultTeam - Team to auto-assign new conversations
+ * @property autoResponseEnabled - Whether to send auto-response messages
+ * @property autoResponseMessage - Message content for auto-response
+ * @property businessHours - Operating hours configuration
+ *
+ * @example Enable channel with auto-response
+ * ```typescript
+ * const update: UpdateChannelConfigInput = {
+ *   isEnabled: true,
+ *   autoResponseEnabled: true,
+ *   autoResponseMessage: 'Thanks! We\'ll respond within 24 hours.',
+ *   defaultTeam: 'sales'
+ * };
+ * ```
+ */
+export interface UpdateChannelConfigInput {
+  isEnabled?: boolean;
+  chatwootInboxId?: number;
+  config?: Partial<ChannelSpecificConfig>;
+  defaultTeam?: Team;
+  autoResponseEnabled?: boolean;
+  autoResponseMessage?: string;
+  businessHours?: BusinessHours;
+}
+
+/**
+ * Update widget settings input
+ *
+ * Partial update object for modifying web chat widget appearance and behavior.
+ * All fields are optional to allow targeted updates.
+ *
+ * @property primaryColor - Hex color for widget buttons and highlights
+ * @property position - Widget bubble position (left or right side)
+ * @property welcomeTitle - Greeting message shown when widget opens
+ * @property welcomeSubtitle - Subtitle text in widget header
+ * @property replyTime - Expected response time displayed to users
+ * @property showBranding - Show/hide "Powered by Chatwoot" branding
+ * @property logoUrl - Custom logo URL for widget header
+ * @property preChatFormEnabled - Require form before chat starts
+ * @property preChatFormFields - Fields to collect in pre-chat form
+ * @property hideMessageBubble - Hide the floating bubble launcher
+ * @property showPopupOnload - Auto-open widget on page load
+ * @property popupDelaySeconds - Delay before auto-opening widget
+ * @property language - Widget UI language (ISO 639-1 code)
+ * @property customCss - Additional CSS to inject into widget
+ *
+ * @example Customize widget appearance
+ * ```typescript
+ * const update: UpdateWidgetSettingsInput = {
+ *   primaryColor: '#6366f1',
+ *   position: 'right',
+ *   welcomeTitle: 'How can we help you today?',
+ *   showPopupOnload: true,
+ *   popupDelaySeconds: 5
+ * };
+ * ```
+ */
+export interface UpdateWidgetSettingsInput {
+  primaryColor?: string;
+  position?: WidgetPosition;
+  welcomeTitle?: string;
+  welcomeSubtitle?: string;
+  replyTime?: ReplyTime;
+  showBranding?: boolean;
+  logoUrl?: string;
+  preChatFormEnabled?: boolean;
+  preChatFormFields?: PreChatFormField[];
+  hideMessageBubble?: boolean;
+  showPopupOnload?: boolean;
+  popupDelaySeconds?: number;
+  language?: string;
+  customCss?: string;
+}
+
+/**
+ * Get display name for channel
+ */
+export function getChannelDisplayName(channel: Channel): string {
+  const names: Record<Channel, string> = {
+    web_widget: 'Website Chat',
+    whatsapp: 'WhatsApp Business',
+    email: 'Email',
+    telegram: 'Telegram',
+  };
+  return names[channel] || channel;
+}
+
+/**
+ * Get platform display name
+ */
+export function getPlatformDisplayName(platform: Platform): string {
+  const names: Record<Platform, string> = {
+    ozean_licht: 'Ozean Licht Akademie',
+    kids_ascension: 'Kids Ascension',
+  };
+  return names[platform] || platform;
+}

@@ -27,6 +27,7 @@ import {
   MessageSquare,
   HelpCircle,
   BarChart3,
+  Settings,
 } from 'lucide-react';
 import { NavigationSection, UserEntity, EntityScope } from '@/types/navigation';
 import { canAccessRoute } from '@/lib/rbac/constants';
@@ -173,6 +174,11 @@ export default function Sidebar({
           label: 'Analytics',
           href: '/dashboard/support/analytics',
           icon: BarChart3,
+        },
+        {
+          label: 'Settings',
+          href: '/dashboard/support/settings',
+          icon: Settings,
         },
       ],
     },

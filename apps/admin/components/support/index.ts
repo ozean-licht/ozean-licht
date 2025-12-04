@@ -21,3 +21,8 @@ export { default as ArticleSuggestions } from './ArticleSuggestions';
 
 // Phase 4: Quick responses for agents
 export { default as QuickResponses } from './QuickResponses';
+
+// Phase 5: Channel configuration components
+export { default as ChannelConfigCard } from './ChannelConfigCard';
+export { default as ChannelSettingsModal } from './ChannelSettingsModal';
+export { default as WidgetCustomizer } from './WidgetCustomizer';

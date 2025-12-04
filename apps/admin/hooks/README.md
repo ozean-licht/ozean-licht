@@ -6,7 +6,57 @@
 
 | File | Purpose |
 |------|--------|
-| `use-toast.ts` | TODO: Add description |
+| `use-toast.ts` | Toast notification hook (from shadcn/ui) |
+| `useConversationPolling.ts` | Real-time conversation updates with auto-pause on tab visibility |
+
+## useConversationPolling
+
+Custom hook for polling the support conversations API with smart resource management.
+
+**Features:**
+- Configurable polling interval (default: 30 seconds)
+- Auto-pauses when browser tab is hidden (saves resources)
+- Manual refresh capability
+- Full filter support (status, team, channel, search, etc.)
+- Loading and error states
+- Last updated timestamp
+
+**Usage:**
+```typescript
+import { useConversationPolling } from '@/hooks/useConversationPolling';
+
+function InboxPage() {
+  const {
+    conversations,
+    total,
+    loading,
+    error,
+    refresh,
+    lastUpdated
+  } = useConversationPolling({
+    status: 'open',
+    team: 'tech',
+    pollInterval: 30000, // 30 seconds
+    enabled: true
+  });
+
+  // conversations updates automatically every 30 seconds
+  // pauses when tab is not visible
+}
+```
+
+**Options:**
+- `pollInterval` - Polling interval in milliseconds (default: 30000)
+- `enabled` - Enable/disable polling (default: true)
+- All `ConversationListOptions`: status, team, channel, assignedAgentId, search, limit, offset, orderBy, orderDirection
+
+**Returns:**
+- `conversations` - Array of conversations
+- `total` - Total count (for pagination)
+- `loading` - Loading state
+- `error` - Error message (null if no error)
+- `refresh` - Manual refresh function
+- `lastUpdated` - Timestamp of last successful fetch
 
 ---
 
