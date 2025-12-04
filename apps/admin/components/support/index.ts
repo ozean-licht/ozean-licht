@@ -11,9 +11,13 @@ export { default as MessageThread } from './MessageThread';
 export { default as CustomerContextPanel } from './CustomerContextPanel';
 export { default as SupportStatsCard } from './SupportStatsCard';
 export { default as RoutingBadge } from './RoutingBadge';
+export { default as RoutingSuggestions } from './RoutingSuggestions';
 
 // Phase 3: Knowledge base components
 export { default as KnowledgeArticleEditor } from './KnowledgeArticleEditor';
 export { default as ArticlePreviewModal } from './ArticlePreviewModal';
 export { default as CategoryManager } from './CategoryManager';
 export { default as ArticleSuggestions } from './ArticleSuggestions';
+
+// Phase 4: Quick responses for agents
+export { default as QuickResponses } from './QuickResponses';
