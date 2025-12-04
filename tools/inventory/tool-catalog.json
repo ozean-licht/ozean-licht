@@ -487,6 +487,104 @@
       },
       "rationale": "Complex content extraction and markdown conversion"
     },
+    "stripe": {
+      "name": "Stripe MCP",
+      "type": "mcp",
+      "tier": "tier3-mcp",
+      "description": "Payment processing via Stripe's remote MCP server (https://mcp.stripe.com)",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "dependencies": ["mcp-gateway", "stripe-api-key"],
+      "capabilities": [
+        "customers",
+        "products",
+        "prices",
+        "invoices",
+        "subscriptions",
+        "payments",
+        "refunds",
+        "coupons",
+        "disputes",
+        "search"
+      ],
+      "operations": {
+        "account": ["get-account", "get-balance"],
+        "customers": ["list-customers", "create-customer"],
+        "products": ["list-products", "create-product"],
+        "prices": ["list-prices", "create-price"],
+        "invoices": ["list-invoices", "create-invoice", "create-invoice-item", "finalize-invoice"],
+        "subscriptions": ["list-subscriptions", "update-subscription", "cancel-subscription"],
+        "payments": ["list-payment-intents", "create-payment-link", "create-refund"],
+        "promotions": ["list-coupons", "create-coupon"],
+        "disputes": ["list-disputes", "update-dispute"],
+        "search": ["search", "fetch", "search-docs"]
+      },
+      "commands": [
+        {
+          "command": "/mcp-stripe get-balance",
+          "description": "Get account balance (available/pending by currency)",
+          "example": "/mcp-stripe get-balance"
+        },
+        {
+          "command": "/mcp-stripe list-customers",
+          "description": "List customers with pagination",
+          "example": "/mcp-stripe list-customers --limit=10",
+          "parameters": {
+            "limit": { "type": "number", "required": false, "default": 10 }
+          }
+        },
+        {
+          "command": "/mcp-stripe create-customer {args}",
+          "description": "Create customer (name, email, description, metadata)",
+          "example": "/mcp-stripe create-customer {\"name\": \"John\", \"email\": \"john@example.com\"}",
+          "parameters": {
+            "name": { "type": "string", "required": false },
+            "email": { "type": "string", "required": false }
+          }
+        },
+        {
+          "command": "/mcp-stripe list-subscriptions",
+          "description": "List subscriptions, filter by customer/status",
+          "example": "/mcp-stripe list-subscriptions --customer=cus_xxx",
+          "parameters": {
+            "customer": { "type": "string", "required": false },
+            "status": { "type": "string", "required": false }
+          }
+        },
+        {
+          "command": "/mcp-stripe create-payment-link {args}",
+          "description": "Create hosted payment link with line items",
+          "example": "/mcp-stripe create-payment-link {\"line_items\": [{\"price\": \"price_xxx\", \"quantity\": 1}]}",
+          "parameters": {
+            "line_items": { "type": "array", "required": true }
+          }
+        },
+        {
+          "command": "/mcp-stripe search-docs \"[query]\"",
+          "description": "Search Stripe documentation",
+          "example": "/mcp-stripe search-docs \"webhooks\"",
+          "parameters": {
+            "query": { "type": "string", "required": true }
+          }
+        }
+      ],
+      "healthCheck": {
+        "method": "http",
+        "endpoint": "http://localhost:8100/mcp/test/stripe",
+        "interval": 60
+      },
+      "tokenCost": {
+        "avgTokensPerCall": 400,
+        "costPerCall": 0.0012,
+        "complexity": "medium"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 100,
+        "burstLimit": 25
+      },
+      "rationale": "Proxies to Stripe's official MCP server for secure payment operations"
+    },
     "playwright": {
       "name": "Playwright MCP",
       "type": "mcp",
@@ -1162,19 +1260,19 @@
     "whenToUse": "Always use before and after solving non-trivial problems to build institutional knowledge"
   },
   "aggregates": {
-    "totalTools": 20,
-    "mcpServices": 11,
+    "totalTools": 21,
+    "mcpServices": 12,
     "scriptBasedTools": 9,
     "tier1Native": 6,
     "tier2Api": 1,
-    "tier3Mcp": 11,
-    "serverSideTools": 8,
+    "tier3Mcp": 12,
+    "serverSideTools": 9,
     "localTools": 12,
     "averageScriptExecutionTime": "1-2s",
     "estimatedSpeedup": "3-5x for script tools"
   },
   "metadata": {
-    "lastUpdated": "2025-11-11T00:00:00Z",
+    "lastUpdated": "2025-12-04T00:00:00Z",
     "maintainer": "Ozean Licht Infrastructure Team",
     "documentation": "tools/inventory/README.md",
     "schema_version": "1.0.0"

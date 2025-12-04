@@ -530,10 +530,11 @@
     },
     "stripe": {
       "name": "Stripe MCP",
-      "description": "Payment processing and billing management via Stripe's remote MCP server",
+      "description": "Payment processing and billing management via Stripe's remote MCP server at https://mcp.stripe.com",
       "location": "server",
       "version": "1.0.0",
       "status": "active",
+      "auth": "Bearer token (STRIPE_SECRET_KEY)",
       "capabilities": [
         "get-account",
         "get-balance",
@@ -562,6 +563,53 @@
         "search-docs",
         "health"
       ],
+      "operations": {
+        "account": {
+          "get-account": "Retrieve connected account info (ID, display name)",
+          "get-balance": "Get available/pending balance by currency"
+        },
+        "customers": {
+          "list-customers": "List customers with pagination (limit, starting_after)",
+          "create-customer": "Create customer with name, email, description, metadata"
+        },
+        "products": {
+          "list-products": "List products, filter by active status",
+          "create-product": "Create product with name, description, metadata"
+        },
+        "prices": {
+          "list-prices": "List prices, filter by product ID",
+          "create-price": "Create price: unit_amount (cents), currency, product, recurring"
+        },
+        "invoices": {
+          "list-invoices": "List invoices, filter by customer/status",
+          "create-invoice": "Create draft invoice for customer",
+          "create-invoice-item": "Add line item to invoice",
+          "finalize-invoice": "Finalize draft invoice for payment"
+        },
+        "subscriptions": {
+          "list-subscriptions": "List subscriptions, filter by customer/status",
+          "update-subscription": "Update items, cancel_at_period_end",
+          "cancel-subscription": "Cancel subscription immediately"
+        },
+        "payments": {
+          "list-payment-intents": "List payment intents, filter by customer",
+          "create-payment-link": "Create hosted payment link with line_items",
+          "create-refund": "Refund payment_intent, optional amount/reason"
+        },
+        "promotions": {
+          "list-coupons": "List discount coupons",
+          "create-coupon": "Create coupon: percent_off or amount_off, duration"
+        },
+        "disputes": {
+          "list-disputes": "List payment disputes",
+          "update-dispute": "Submit evidence for dispute"
+        },
+        "search": {
+          "search": "Search resources by query (customers, charges, etc)",
+          "fetch": "Fetch any Stripe object by ID",
+          "search-docs": "Search Stripe documentation and knowledge base"
+        }
+      },
       "commands": [
         {
           "command": "/mcp-stripe list-customers",
