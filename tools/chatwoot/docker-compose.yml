@@ -1,0 +1,283 @@
+version: '3.9'
+
+services:
+  # PostgreSQL database for Chatwoot
+  postgres:
+    image: postgres:17-alpine
+    container_name: chatwoot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${CHATWOOT_POSTGRES_DATABASE:-chatwoot}
+      POSTGRES_USER: ${CHATWOOT_POSTGRES_USERNAME:-chatwoot}
+      POSTGRES_PASSWORD: ${CHATWOOT_POSTGRES_PASSWORD:?CHATWOOT_POSTGRES_PASSWORD is required}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - chatwoot-postgres-data:/var/lib/postgresql/data
+    networks:
+      - chatwoot-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CHATWOOT_POSTGRES_USERNAME:-chatwoot}"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Redis for Chatwoot cache and background jobs
+  redis:
+    image: redis:7-alpine
+    container_name: chatwoot-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${CHATWOOT_REDIS_PASSWORD:-chatwootredis}
+    volumes:
+      - chatwoot-redis-data:/data
+    networks:
+      - chatwoot-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Chatwoot Rails web service
+  chatwoot-web:
+    image: chatwoot/chatwoot:${CHATWOOT_VERSION:-latest}
+    container_name: chatwoot-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "${CHATWOOT_PORT:-3000}:3000"
+    environment:
+      # Core Configuration
+      NODE_ENV: production
+      RAILS_ENV: production
+      INSTALLATION_ENV: docker
+
+      # Application URLs
+      FRONTEND_URL: ${CHATWOOT_BASE_URL:?CHATWOOT_BASE_URL is required}
+      BACKEND_URL: ${CHATWOOT_BASE_URL:?CHATWOOT_BASE_URL is required}
+
+      # Rails Secret Key (generate with: openssl rand -hex 64)
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:?SECRET_KEY_BASE is required}
+
+      # Database Configuration
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE: ${CHATWOOT_POSTGRES_DATABASE:-chatwoot}
+      POSTGRES_USERNAME: ${CHATWOOT_POSTGRES_USERNAME:-chatwoot}
+      POSTGRES_PASSWORD: ${CHATWOOT_POSTGRES_PASSWORD:?CHATWOOT_POSTGRES_PASSWORD is required}
+
+      # Redis Configuration
+      REDIS_URL: redis://:${CHATWOOT_REDIS_PASSWORD:-chatwootredis}@redis:6379
+      REDIS_PASSWORD: ${CHATWOOT_REDIS_PASSWORD:-chatwootredis}
+      REDIS_SENTINELS: ${CHATWOOT_REDIS_SENTINELS:-}
+      REDIS_SENTINEL_MASTER_NAME: ${CHATWOOT_REDIS_SENTINEL_MASTER_NAME:-}
+
+      # Email Configuration (SMTP)
+      MAILER_SENDER_EMAIL: ${CHATWOOT_MAILER_SENDER_EMAIL:-support@ozean-licht.at}
+      SMTP_ADDRESS: ${CHATWOOT_SMTP_ADDRESS}
+      SMTP_PORT: ${CHATWOOT_SMTP_PORT:-587}
+      SMTP_USERNAME: ${CHATWOOT_SMTP_USERNAME}
+      SMTP_PASSWORD: ${CHATWOOT_SMTP_PASSWORD}
+      SMTP_DOMAIN: ${CHATWOOT_SMTP_DOMAIN:-ozean-licht.at}
+      SMTP_AUTHENTICATION: ${CHATWOOT_SMTP_AUTHENTICATION:-plain}
+      SMTP_ENABLE_STARTTLS_AUTO: ${CHATWOOT_SMTP_ENABLE_STARTTLS_AUTO:-true}
+      SMTP_OPENSSL_VERIFY_MODE: ${CHATWOOT_SMTP_OPENSSL_VERIFY_MODE:-none}
+      MAILER_INBOUND_EMAIL_DOMAIN: ${CHATWOOT_MAILER_INBOUND_EMAIL_DOMAIN:-}
+
+      # Storage Configuration (use local file storage or configure S3)
+      ACTIVE_STORAGE_SERVICE: ${ACTIVE_STORAGE_SERVICE:-local}
+
+      # S3 Storage (optional - for attachments)
+      S3_BUCKET_NAME: ${CHATWOOT_S3_BUCKET_NAME:-}
+      AWS_ACCESS_KEY_ID: ${CHATWOOT_AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${CHATWOOT_AWS_SECRET_ACCESS_KEY:-}
+      AWS_REGION: ${CHATWOOT_AWS_REGION:-eu-central-1}
+      S3_ENDPOINT: ${CHATWOOT_S3_ENDPOINT:-}
+
+      # Webhooks
+      WEBHOOK_VERIFY_TOKEN: ${CHATWOOT_WEBHOOK_SECRET:?CHATWOOT_WEBHOOK_SECRET is required}
+
+      # Force SSL in production
+      FORCE_SSL: ${CHATWOOT_FORCE_SSL:-false}
+
+      # Additional Features
+      ENABLE_ACCOUNT_SIGNUP: ${CHATWOOT_ENABLE_ACCOUNT_SIGNUP:-false}
+      USE_INBOX_AVATAR_FOR_BOT: ${CHATWOOT_USE_INBOX_AVATAR_FOR_BOT:-true}
+
+      # Rate Limiting
+      RAILS_MAX_THREADS: ${CHATWOOT_RAILS_MAX_THREADS:-5}
+
+      # Log Level
+      LOG_LEVEL: ${CHATWOOT_LOG_LEVEL:-info}
+      LOG_SIZE: ${CHATWOOT_LOG_SIZE:-500}
+
+      # Disable Telemetry (optional)
+      TELEMETRY_ENABLED: ${CHATWOOT_TELEMETRY_ENABLED:-false}
+
+    volumes:
+      - chatwoot-storage:/app/storage
+      - chatwoot-public:/app/public
+    networks:
+      - chatwoot-network
+      - coolify
+    labels:
+      # Coolify labels for automatic proxy configuration
+      - "coolify.managed=true"
+      - "coolify.type=service"
+      - "coolify.name=chatwoot"
+      # Traefik labels (if using Traefik reverse proxy)
+      - "traefik.enable=true"
+      - "traefik.http.routers.chatwoot.rule=Host(`chatwoot.ozean-licht.dev`)"
+      - "traefik.http.routers.chatwoot.entrypoints=websecure"
+      - "traefik.http.routers.chatwoot.tls.certresolver=letsencrypt"
+      - "traefik.http.services.chatwoot.loadbalancer.server.port=3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+
+  # Chatwoot Sidekiq worker for background jobs
+  chatwoot-sidekiq:
+    image: chatwoot/chatwoot:${CHATWOOT_VERSION:-latest}
+    container_name: chatwoot-sidekiq
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      chatwoot-web:
+        condition: service_started
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    environment:
+      # Core Configuration
+      NODE_ENV: production
+      RAILS_ENV: production
+      INSTALLATION_ENV: docker
+
+      # Application URLs
+      FRONTEND_URL: ${CHATWOOT_BASE_URL:?CHATWOOT_BASE_URL is required}
+      BACKEND_URL: ${CHATWOOT_BASE_URL:?CHATWOOT_BASE_URL is required}
+
+      # Rails Secret Key
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:?SECRET_KEY_BASE is required}
+
+      # Database Configuration
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE: ${CHATWOOT_POSTGRES_DATABASE:-chatwoot}
+      POSTGRES_USERNAME: ${CHATWOOT_POSTGRES_USERNAME:-chatwoot}
+      POSTGRES_PASSWORD: ${CHATWOOT_POSTGRES_PASSWORD:?CHATWOOT_POSTGRES_PASSWORD is required}
+
+      # Redis Configuration
+      REDIS_URL: redis://:${CHATWOOT_REDIS_PASSWORD:-chatwootredis}@redis:6379
+      REDIS_PASSWORD: ${CHATWOOT_REDIS_PASSWORD:-chatwootredis}
+      REDIS_SENTINELS: ${CHATWOOT_REDIS_SENTINELS:-}
+      REDIS_SENTINEL_MASTER_NAME: ${CHATWOOT_REDIS_SENTINEL_MASTER_NAME:-}
+
+      # Email Configuration (SMTP)
+      MAILER_SENDER_EMAIL: ${CHATWOOT_MAILER_SENDER_EMAIL:-support@ozean-licht.at}
+      SMTP_ADDRESS: ${CHATWOOT_SMTP_ADDRESS}
+      SMTP_PORT: ${CHATWOOT_SMTP_PORT:-587}
+      SMTP_USERNAME: ${CHATWOOT_SMTP_USERNAME}
+      SMTP_PASSWORD: ${CHATWOOT_SMTP_PASSWORD}
+      SMTP_DOMAIN: ${CHATWOOT_SMTP_DOMAIN:-ozean-licht.at}
+      SMTP_AUTHENTICATION: ${CHATWOOT_SMTP_AUTHENTICATION:-plain}
+      SMTP_ENABLE_STARTTLS_AUTO: ${CHATWOOT_SMTP_ENABLE_STARTTLS_AUTO:-true}
+      SMTP_OPENSSL_VERIFY_MODE: ${CHATWOOT_SMTP_OPENSSL_VERIFY_MODE:-none}
+      MAILER_INBOUND_EMAIL_DOMAIN: ${CHATWOOT_MAILER_INBOUND_EMAIL_DOMAIN:-}
+
+      # Storage Configuration
+      ACTIVE_STORAGE_SERVICE: ${ACTIVE_STORAGE_SERVICE:-local}
+
+      # S3 Storage (optional)
+      S3_BUCKET_NAME: ${CHATWOOT_S3_BUCKET_NAME:-}
+      AWS_ACCESS_KEY_ID: ${CHATWOOT_AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${CHATWOOT_AWS_SECRET_ACCESS_KEY:-}
+      AWS_REGION: ${CHATWOOT_AWS_REGION:-eu-central-1}
+      S3_ENDPOINT: ${CHATWOOT_S3_ENDPOINT:-}
+
+      # Webhooks
+      WEBHOOK_VERIFY_TOKEN: ${CHATWOOT_WEBHOOK_SECRET:?CHATWOOT_WEBHOOK_SECRET is required}
+
+      # Force SSL
+      FORCE_SSL: ${CHATWOOT_FORCE_SSL:-false}
+
+      # Log Level
+      LOG_LEVEL: ${CHATWOOT_LOG_LEVEL:-info}
+      LOG_SIZE: ${CHATWOOT_LOG_SIZE:-500}
+
+      # Disable Telemetry
+      TELEMETRY_ENABLED: ${CHATWOOT_TELEMETRY_ENABLED:-false}
+
+    volumes:
+      - chatwoot-storage:/app/storage
+      - chatwoot-public:/app/public
+    networks:
+      - chatwoot-network
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f sidekiq || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+
+networks:
+  chatwoot-network:
+    driver: bridge
+    name: chatwoot-network
+  coolify:
+    external: true
+
+volumes:
+  chatwoot-postgres-data:
+    driver: local
+    name: chatwoot-postgres-data
+  chatwoot-redis-data:
+    driver: local
+    name: chatwoot-redis-data
+  chatwoot-storage:
+    driver: local
+    name: chatwoot-storage
+  chatwoot-public:
+    driver: local
+    name: chatwoot-public
