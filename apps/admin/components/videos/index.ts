@@ -10,3 +10,4 @@ export { default as PlatformBadges } from './PlatformBadges';
 export { PipelineStageSelect } from './PipelineStageSelect';
 export { MigrationStatus } from './MigrationStatus';
 export { default as EncodingProgress } from './EncodingProgress';
+export { default as AnalyticsSummary } from './AnalyticsSummary';

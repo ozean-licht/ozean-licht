@@ -101,6 +101,16 @@ export default function Sidebar({
           icon: Video,
         },
         {
+          label: 'Video Analytics',
+          href: '/dashboard/content/videos/analytics',
+          icon: Activity,
+        },
+        {
+          label: 'Migration',
+          href: '/dashboard/content/videos/migration',
+          icon: Cloud,
+        },
+        {
           label: 'Blog',
           href: '/dashboard/content/blog',
           icon: PenLine,

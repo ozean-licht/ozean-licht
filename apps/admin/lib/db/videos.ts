@@ -508,6 +508,50 @@ export async function bulkUpdateVideos(
 }
 
 /**
+ * Get migration dashboard statistics
+ */
+export async function getMigrationStats() {
+  const sql = `
+    SELECT
+      COUNT(*) as total_videos,
+      COUNT(*) FILTER (WHERE migration_status IN ('hetzner_primary', 'hetzner_only')) as migrated_count,
+      COUNT(*) FILTER (WHERE migration_status = 'vimeo_only') as pending_count,
+      COUNT(*) FILTER (WHERE migration_status = 'migrating') as in_progress_count
+    FROM videos
+  `;
+
+  const rows = await query<{
+    total_videos: string;
+    migrated_count: string;
+    pending_count: string;
+    in_progress_count: string;
+  }>(sql);
+
+  const totalVideos = parseInt(rows[0]?.total_videos || '0', 10);
+  const migratedCount = parseInt(rows[0]?.migrated_count || '0', 10);
+  const pendingCount = parseInt(rows[0]?.pending_count || '0', 10);
+  const inProgressCount = parseInt(rows[0]?.in_progress_count || '0', 10);
+
+  // Calculate estimated savings (assuming $5/video/month on Vimeo)
+  const estimatedSavings = migratedCount * 5;
+
+  // Calculate migration progress percentage
+  const migrationProgress = totalVideos > 0
+    ? Math.round((migratedCount / totalVideos) * 100)
+    : 0;
+
+  return {
+    totalVideos,
+    migratedCount,
+    pendingCount,
+    inProgressCount,
+    failedCount: 0, // TODO: Track failed migrations
+    estimatedSavings,
+    migrationProgress,
+  };
+}
+
+/**
  * Search videos with full-text search and filters
  */
 export async function searchVideos(

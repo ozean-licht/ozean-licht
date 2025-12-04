@@ -269,3 +269,34 @@ export async function getVideosWithoutPlatform(
   const rows = await query<{ id: string; title: string }>(sql, [platform]);
   return rows;
 }
+
+/**
+ * Find a video by platform and external ID
+ *
+ * Useful for sync operations to check if a video from an external platform
+ * already exists in the local database.
+ *
+ * @param platform - Platform identifier
+ * @param externalId - External platform video ID
+ * @returns Video ID if found, null otherwise
+ *
+ * @example
+ * const videoId = await findVideoByExternalId('vimeo', '123456789');
+ * if (videoId) {
+ *   console.log('Video already exists with ID:', videoId);
+ * }
+ */
+export async function findVideoByExternalId(
+  platform: VideoPlatform,
+  externalId: string
+): Promise<string | null> {
+  const sql = `
+    SELECT video_id
+    FROM video_platforms
+    WHERE platform = $1 AND external_id = $2
+    LIMIT 1
+  `;
+
+  const rows = await query<{ video_id: string }>(sql, [platform, externalId]);
+  return rows.length > 0 ? rows[0].video_id : null;
+}

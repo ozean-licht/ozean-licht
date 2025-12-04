@@ -937,12 +937,39 @@ Update `apps/admin/components/dashboard/Sidebar.tsx`:
 - `apps/admin/components/videos/VideoPlayer.tsx` - HLS player with fallback
 - `apps/admin/components/videos/EncodingProgress.tsx` - Progress UI
 
-### Phase 3 Completion
-- [ ] Migration dashboard operational
-- [ ] Batch migration tool working (Vimeo → Hetzner)
-- [ ] Rollback mechanism functional (revert to Vimeo embed)
-- [ ] Vimeo analytics aggregated in dashboard
-- [ ] Migration status visible: vimeo_only → migrating → hetzner_primary
+### Phase 3 Completion (2025-12-04)
+- [x] Migration dashboard operational
+- [x] Batch migration tool working (Vimeo → Hetzner)
+- [x] Rollback mechanism functional (revert to Vimeo embed)
+- [x] Vimeo analytics aggregated in dashboard
+- [x] Migration status visible: vimeo_only → migrating → hetzner_primary
+
+**Phase 3 Files Created:**
+- `apps/admin/app/dashboard/content/videos/migration/page.tsx` - Migration Dashboard server component
+- `apps/admin/app/dashboard/content/videos/migration/MigrationDashboardClient.tsx` - Interactive migration UI
+- `apps/admin/app/api/videos/[id]/rollback/route.ts` - Rollback API endpoint
+- `apps/admin/lib/integrations/vimeo.ts` - Vimeo API integration with rate limiting
+- `apps/admin/lib/integrations/index.ts` - Integration exports
+- `apps/admin/app/api/videos/sync/vimeo/route.ts` - Vimeo sync endpoint (GET/POST)
+- `apps/admin/app/dashboard/content/videos/analytics/page.tsx` - Analytics Dashboard server component
+- `apps/admin/app/dashboard/content/videos/analytics/AnalyticsDashboardClient.tsx` - Interactive analytics UI
+- `apps/admin/components/videos/AnalyticsSummary.tsx` - Compact analytics widget
+- `apps/admin/lib/utils/format.ts` - Number/duration formatting utilities
+
+**Phase 3 Features:**
+- Migration Dashboard with stats cards (Total, Migrated, Pending, In Progress)
+- Migration progress bar with percentage visualization
+- Estimated cost savings display ($5/video/month)
+- Batch migration trigger with video selection
+- Individual video migrate/rollback actions
+- Vimeo API integration with rate limiting (1 req/sec, 1000/day quota)
+- Vimeo library sync with intelligent upsert (create or update)
+- Analytics Dashboard with views, watch time, engagement metrics
+- Views over time chart (Recharts AreaChart)
+- Platform breakdown pie chart (Vimeo vs Hetzner)
+- Top 10 performing videos list
+- CSV export functionality
+- Sidebar navigation updated with Videos submenu
 
 ### Phase 4 Completion
 - [ ] Videos assignable to courses/modules
