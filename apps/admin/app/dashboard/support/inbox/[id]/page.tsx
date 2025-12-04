@@ -7,15 +7,38 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, MessageSquare, User, CreditCard, BookOpen } from 'lucide-react';
+import { ArrowLeft, MessageSquare, User, CreditCard, BookOpen, Lightbulb } from 'lucide-react';
 import Link from 'next/link';
-import type { Conversation, CustomerContext } from '@/types/support';
+import type { Conversation, CustomerContext, KnowledgeArticle } from '@/types/support';
 import { getRelativeTime } from '@/types/support';
+import { ArticleSuggestions } from '@/components/support';
+import { toast } from 'sonner';
+
+// Move keyword patterns to module level to prevent recreation on each render
+const KEYWORD_PATTERNS = [
+  // Account & Billing
+  { pattern: /(?:payment|zahlung|bezahlung|rechnung|invoice)/gi, keyword: 'payment' },
+  { pattern: /(?:account|konto|anmelden|login)/gi, keyword: 'account' },
+  { pattern: /(?:password|passwort|kennwort)/gi, keyword: 'password' },
+  { pattern: /(?:subscription|abo|abonnement)/gi, keyword: 'subscription' },
+  // Courses & Learning
+  { pattern: /(?:course|kurs|lektion|lesson)/gi, keyword: 'course' },
+  { pattern: /(?:video|video)/gi, keyword: 'video' },
+  { pattern: /(?:certificate|zertifikat)/gi, keyword: 'certificate' },
+  { pattern: /(?:progress|fortschritt)/gi, keyword: 'progress' },
+  // Technical
+  { pattern: /(?:error|fehler|problem)/gi, keyword: 'error' },
+  { pattern: /(?:download|herunterladen)/gi, keyword: 'download' },
+  { pattern: /(?:mobile|handy|app)/gi, keyword: 'mobile' },
+  // Spiritual
+  { pattern: /(?:meditation|meditat)/gi, keyword: 'meditation' },
+  { pattern: /(?:practice|praxis|übung)/gi, keyword: 'practice' },
+] as const;
 
 export default function ConversationDetailPage() {
   const { status } = useSession();
@@ -27,6 +50,12 @@ export default function ConversationDetailPage() {
   const [customerContext, setCustomerContext] = useState<CustomerContext | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Memoize keyword extraction to prevent recalculation on every render
+  const extractedKeywords = useMemo(
+    () => extractKeywordsFromConversation(conversation),
+    [conversation?.id, conversation?.messages?.length]
+  );
 
   // Fetch conversation details
   useEffect(() => {
@@ -374,8 +403,71 @@ export default function ConversationDetailPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Article Suggestions - Chatwoot Integration */}
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Lightbulb className="h-4 w-4 text-primary" />
+                Suggested Articles
+              </CardTitle>
+              <CardDescription>
+                Relevant knowledge base articles
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ArticleSuggestions
+                keywords={extractedKeywords}
+                onArticleSelect={(article: KnowledgeArticle) => {
+                  // Copy article link to clipboard for easy sharing
+                  navigator.clipboard.writeText(`${window.location.origin}/kb/${article.slug}`);
+                  toast.success(`Article "${article.title}" link copied!`);
+                }}
+              />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
   );
+}
+
+/**
+ * Extract keywords from conversation messages for article suggestions
+ * Now uses module-level KEYWORD_PATTERNS to avoid recreating regex objects
+ */
+function extractKeywordsFromConversation(conversation: Conversation | null): string[] {
+  if (!conversation?.messages || conversation.messages.length === 0) {
+    // Fall back to labels if no messages
+    return conversation?.labels || [];
+  }
+
+  // Combine all message content
+  const allText = conversation.messages
+    .map((m) => m.content || '')
+    .join(' ')
+    .toLowerCase();
+
+  const foundKeywords: string[] = [];
+
+  // Use module-level patterns to avoid recreation
+  for (const { pattern, keyword } of KEYWORD_PATTERNS) {
+    // Reset regex lastIndex to ensure proper testing (global flag)
+    pattern.lastIndex = 0;
+    if (pattern.test(allText) && !foundKeywords.includes(keyword)) {
+      foundKeywords.push(keyword);
+    }
+  }
+
+  // Add conversation labels as keywords
+  if (conversation.labels.length > 0) {
+    for (const label of conversation.labels) {
+      if (!foundKeywords.includes(label.toLowerCase())) {
+        foundKeywords.push(label.toLowerCase());
+      }
+    }
+  }
+
+  // Limit to 5 keywords max for API performance
+  return foundKeywords.slice(0, 5);
 }

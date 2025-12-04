@@ -176,15 +176,26 @@ Build the core admin UI for viewing and managing conversations.
 - Updated `components/dashboard/Sidebar.tsx` - Added Support navigation section
 - Updated `lib/rbac/constants.ts` - Added support permissions and routes
 
-### Phase 3: Knowledge Base & Self-Service
-**Duration:** 2-3 days
+### Phase 3: Knowledge Base & Self-Service - COMPLETED
+**Duration:** 2-3 days | **Status:** Completed 2025-12-04
 
 Create knowledge base management and self-service portal.
 
-- Knowledge article CRUD
-- Article categories and search
-- Chatwoot integration for article suggestions
-- Public help center page (optional)
+- [x] Knowledge article CRUD with rich text editor
+- [x] Article categories management and filtering
+- [x] Full-text search for articles
+- [x] Article preview and publishing workflow
+- [x] Chatwoot integration for article suggestions
+- [ ] Public help center page (optional - deferred to future)
+
+**Phase 3 Deliverables:**
+- `apps/admin/components/support/KnowledgeArticleEditor.tsx` - Rich text article editor modal with TipTap
+- `apps/admin/components/support/ArticlePreviewModal.tsx` - Full article preview with publishing actions
+- `apps/admin/components/support/CategoryManager.tsx` - Sidebar category filter and management
+- `apps/admin/components/support/ArticleSuggestions.tsx` - Keyword-based article suggestions for conversations
+- Updated `apps/admin/components/support/index.ts` - Added Phase 3 component exports
+- Updated `apps/admin/app/dashboard/support/knowledge/page.tsx` - Full-featured knowledge base UI
+- Updated `apps/admin/app/dashboard/support/inbox/[id]/page.tsx` - Article suggestions integration
 
 ### Phase 4: Analytics & AI Enhancement
 **Duration:** 2-3 days
