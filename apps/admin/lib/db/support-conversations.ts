@@ -197,7 +197,7 @@ export async function getAllConversations(
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-  // Validate orderBy to prevent SQL injection
+  // Validate orderBy to prevent SQL injection - use type-safe whitelist
   const validOrderColumns = [
     'created_at',
     'updated_at',
@@ -207,8 +207,14 @@ export async function getAllConversations(
     'team',
     'first_response_at',
     'resolved_at',
-  ];
-  const safeOrderBy = validOrderColumns.includes(orderBy) ? orderBy : 'created_at';
+  ] as const;
+  type ValidOrderColumn = typeof validOrderColumns[number];
+
+  const isValidOrderColumn = (value: string): value is ValidOrderColumn => {
+    return (validOrderColumns as readonly string[]).includes(value);
+  };
+
+  const safeOrderBy = isValidOrderColumn(orderBy) ? orderBy : 'created_at';
   const safeOrderDir = orderDirection === 'asc' ? 'ASC' : 'DESC';
 
   // Count query

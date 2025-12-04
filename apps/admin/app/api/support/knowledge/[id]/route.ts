@@ -175,16 +175,16 @@ export async function PATCH(
     }
 
     // Update article
-    const updated = await updateArticle(id, body);
+    const article = await updateArticle(id, body);
 
-    if (!updated) {
+    if (!article) {
       return NextResponse.json(
         { error: 'Failed to update article' },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ article: updated });
+    return NextResponse.json({ article });
   } catch (error) {
     console.error('[API] Failed to update knowledge article:', error);
 

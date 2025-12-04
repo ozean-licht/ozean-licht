@@ -8,6 +8,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import type { Conversation, CustomerContext } from '@/types/support';
 import { getRelativeTime } from '@/types/support';
 
 export default function ConversationDetailPage() {
+  const { status } = useSession();
   const params = useParams();
   const router = useRouter();
   const conversationId = params.id as string;
@@ -28,6 +30,16 @@ export default function ConversationDetailPage() {
 
   // Fetch conversation details
   useEffect(() => {
+    // Check auth status before fetching
+    if (status === 'loading') {
+      return; // Still checking auth
+    }
+
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin');
+      return;
+    }
+
     const fetchData = async () => {
       setLoading(true);
       setError(null);
@@ -39,7 +51,7 @@ export default function ConversationDetailPage() {
           throw new Error('Failed to fetch conversation');
         }
         const convData = await convResponse.json();
-        setConversation(convData);
+        setConversation(convData.conversation);
 
         // Fetch customer context
         try {
@@ -63,7 +75,7 @@ export default function ConversationDetailPage() {
     if (conversationId) {
       fetchData();
     }
-  }, [conversationId]);
+  }, [status, conversationId, router]);
 
   if (loading) {
     return (

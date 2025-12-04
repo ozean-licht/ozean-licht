@@ -69,6 +69,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Validate search query length to prevent abuse
+    if (search && search.length > 200) {
+      return NextResponse.json(
+        { error: 'Search query is too long (max 200 characters)' },
+        { status: 400 }
+      );
+    }
+
     // Validate pagination parameters
     if (isNaN(limit) || limit < 1) {
       return NextResponse.json(
@@ -80,6 +88,15 @@ export async function GET(request: NextRequest) {
     if (isNaN(offset) || offset < 0) {
       return NextResponse.json(
         { error: 'Offset must be zero or a positive number' },
+        { status: 400 }
+      );
+    }
+
+    // Add maximum offset limit to prevent pagination abuse
+    const MAX_OFFSET = 10000;
+    if (offset > MAX_OFFSET) {
+      return NextResponse.json(
+        { error: `Offset too large (max ${MAX_OFFSET}). Please use search filters to narrow results.` },
         { status: 400 }
       );
     }

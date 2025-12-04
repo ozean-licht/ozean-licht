@@ -107,6 +107,7 @@ export const ROLE_CONFIG: Record<AdminRole, {
       'analytics.read',
       'support.view',
       'support.respond',
+      'support.analytics',
     ],
     allowedRoutes: [
       '/dashboard',
@@ -159,7 +160,7 @@ export const ROUTE_ROLES: Record<string, AdminRole[]> = {
   '/dashboard/support': ['super_admin', 'ol_admin', 'support'],
   '/dashboard/support/inbox': ['super_admin', 'ol_admin', 'support'],
   '/dashboard/support/knowledge': ['super_admin', 'ol_admin', 'support'],
-  '/dashboard/support/analytics': ['super_admin', 'ol_admin'],
+  '/dashboard/support/analytics': ['super_admin', 'ol_admin', 'support'],
   // Tools section - accessible to all roles
   '/dashboard/tools': ['super_admin', 'ol_admin', 'ol_editor', 'support'],
   '/dashboard/tools/projects': ['super_admin', 'ol_admin', 'ol_editor', 'support'],

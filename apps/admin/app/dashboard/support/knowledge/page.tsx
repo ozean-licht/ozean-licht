@@ -8,6 +8,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -16,6 +18,8 @@ import type { KnowledgeArticle, ArticleStatus } from '@/types/support';
 import { getRelativeTime } from '@/types/support';
 
 export default function KnowledgeBasePage() {
+  const { status } = useSession();
+  const router = useRouter();
   const [articles, setArticles] = useState<KnowledgeArticle[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -31,6 +35,16 @@ export default function KnowledgeBasePage() {
 
   // Fetch articles
   useEffect(() => {
+    // Check auth status before fetching
+    if (status === 'loading') {
+      return; // Still checking auth
+    }
+
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin');
+      return;
+    }
+
     const fetchArticles = async () => {
       setLoading(true);
       setError(null);
@@ -69,7 +83,7 @@ export default function KnowledgeBasePage() {
     };
 
     fetchArticles();
-  }, [statusFilter, categoryFilter, searchQuery]);
+  }, [status, statusFilter, categoryFilter, searchQuery, router]);
 
   return (
     <div className="space-y-6">

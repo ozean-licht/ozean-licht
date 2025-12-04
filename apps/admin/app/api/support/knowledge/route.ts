@@ -39,6 +39,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Validate search query length to prevent abuse
+    if (search && search.length > 200) {
+      return NextResponse.json(
+        { error: 'Search query is too long (max 200 characters)' },
+        { status: 400 }
+      );
+    }
+
     // Get articles
     const result = await getAllArticles({
       status: status || undefined,
@@ -117,6 +125,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Language must be a string' },
         { status: 400 }
+      );
+    }
+
+    // Validate adminUserId exists before proceeding
+    if (!session.user.adminUserId || typeof session.user.adminUserId !== 'string') {
+      return NextResponse.json(
+        { error: 'Invalid session: admin user ID not found' },
+        { status: 401 }
       );
     }
 
