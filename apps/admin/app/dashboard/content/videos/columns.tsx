@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
+import { VideoPipelineStage, PIPELINE_STAGES } from '@/types/video';
 
 /**
  * Format duration from seconds to MM:SS or HH:MM:SS
@@ -64,6 +65,28 @@ function getStatusConfig(status: Video['status']): { variant: 'default' | 'secon
       };
   }
 }
+
+/**
+ * Get pipeline stage config for display
+ */
+function getPipelineStageConfig(stage: VideoPipelineStage | undefined): { label: string; color: string } {
+  const config = PIPELINE_STAGES.find(s => s.value === stage);
+  return config || { label: stage || 'Unknown', color: 'gray' };
+}
+
+/**
+ * Map color names to Tailwind background classes
+ */
+const PIPELINE_COLOR_MAP: Record<string, string> = {
+  gray: 'bg-gray-400',
+  yellow: 'bg-yellow-400',
+  orange: 'bg-orange-400',
+  blue: 'bg-blue-400',
+  purple: 'bg-purple-400',
+  cyan: 'bg-cyan-400',
+  green: 'bg-green-400',
+  slate: 'bg-slate-400',
+};
 
 export const columns: ColumnDef<Video>[] = [
   {
@@ -135,6 +158,22 @@ export const columns: ColumnDef<Video>[] = [
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Clock className="h-4 w-4" />
           <span>{formatDuration(duration)}</span>
+        </div>
+      );
+    },
+    enableSorting: true,
+  },
+  {
+    accessorKey: 'pipelineStage',
+    header: 'Pipeline',
+    cell: ({ row }) => {
+      const stage = (row.original as Video & { pipelineStage?: VideoPipelineStage }).pipelineStage;
+      const config = getPipelineStageConfig(stage);
+
+      return (
+        <div className="flex items-center gap-2">
+          <span className={`w-2 h-2 rounded-full ${PIPELINE_COLOR_MAP[config.color] || 'bg-gray-400'}`} />
+          <span className="text-sm">{config.label}</span>
         </div>
       );
     },

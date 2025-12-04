@@ -5,7 +5,7 @@
  * No MCP Gateway dependency.
  */
 
-import { query, execute } from './index';
+import { query, execute, PoolClient } from './index';
 import {
   Video,
   CreateVideoInput,
@@ -183,6 +183,33 @@ export async function getVideoById(id: string): Promise<Video | null> {
 
   const rows = await query<VideoRow>(sql, [id]);
   return rows.length > 0 ? mapVideo(rows[0]) : null;
+}
+
+/**
+ * Get multiple videos by IDs in a single query
+ * Optimized to avoid N+1 query pattern
+ */
+export async function getVideosByIds(ids: string[]): Promise<Video[]> {
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const sql = `
+    SELECT
+      id, airtable_id, title, description,
+      video_url, thumbnail_url, duration_seconds,
+      status, entity_scope, created_by,
+      created_at, updated_at, metadata,
+      tags, master_file_url, visibility,
+      course_id, module_id, sort_order,
+      published_at, migration_status, pipeline_stage
+    FROM videos
+    WHERE id = ANY($1)
+    ORDER BY array_position($1, id)
+  `;
+
+  const rows = await query<VideoRow>(sql, [ids]);
+  return rows.map(mapVideo);
 }
 
 /**
@@ -446,10 +473,12 @@ export async function getVideoWithPlatforms(id: string): Promise<Video | null> {
 
 /**
  * Bulk update multiple videos
+ * Supports both direct execution and transaction-based execution
  */
 export async function bulkUpdateVideos(
   ids: string[],
-  updates: Partial<UpdateVideoInput>
+  updates: Partial<UpdateVideoInput>,
+  client?: PoolClient
 ): Promise<number> {
   if (ids.length === 0) {
     return 0;
@@ -503,8 +532,14 @@ export async function bulkUpdateVideos(
     WHERE id = ANY($${paramIndex})
   `;
 
-  const result = await execute(sql, params);
-  return result.rowCount || 0;
+  // Use client if provided (transaction), otherwise use execute
+  if (client) {
+    const result = await client.query(sql, params);
+    return result.rowCount || 0;
+  } else {
+    const result = await execute(sql, params);
+    return result.rowCount || 0;
+  }
 }
 
 /**

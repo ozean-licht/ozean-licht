@@ -11,3 +11,6 @@ export { PipelineStageSelect } from './PipelineStageSelect';
 export { MigrationStatus } from './MigrationStatus';
 export { default as EncodingProgress } from './EncodingProgress';
 export { default as AnalyticsSummary } from './AnalyticsSummary';
+export { BulkActionsToolbar } from './BulkActionsToolbar';
+export type { BulkAction, BulkActionsToolbarProps } from './BulkActionsToolbar';
+export { default as CourseVideoAssignment } from './CourseVideoAssignment';

@@ -97,6 +97,25 @@ export async function getModuleById(id: string): Promise<Module | null> {
 }
 
 /**
+ * Validate that a module belongs to a specific course
+ * Returns true if the module exists and belongs to the course, false otherwise
+ */
+export async function validateModuleBelongsToCourse(
+  moduleId: string,
+  courseId: string
+): Promise<boolean> {
+  const sql = `
+    SELECT EXISTS(
+      SELECT 1 FROM course_modules
+      WHERE id = $1 AND course_id = $2
+    ) as exists
+  `;
+
+  const rows = await query<{ exists: boolean }>(sql, [moduleId, courseId]);
+  return rows[0]?.exists ?? false;
+}
+
+/**
  * Create a new module (auto-increments sort_order)
  */
 export async function createModule(input: CreateModuleInput): Promise<Module> {

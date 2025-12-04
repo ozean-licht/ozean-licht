@@ -45,6 +45,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+// Video Components
+import CourseVideoAssignment from './CourseVideoAssignment';
+
 // Icons
 import { Loader2, Save } from 'lucide-react';
 
@@ -69,6 +72,7 @@ interface FormData {
   masterFileUrl: string;
   durationSeconds: string;
   courseId: string;
+  moduleId: string;
   sortOrder: string;
 }
 
@@ -115,6 +119,7 @@ export default function VideoForm({
       masterFileUrl: video?.masterFileUrl || '',
       durationSeconds: video?.durationSeconds?.toString() || '',
       courseId: video?.courseId || '',
+      moduleId: video?.moduleId || '',
       sortOrder: video?.sortOrder?.toString() || '0',
     },
   });
@@ -132,6 +137,7 @@ export default function VideoForm({
         masterFileUrl: video.masterFileUrl || '',
         durationSeconds: video.durationSeconds?.toString() || '',
         courseId: video.courseId || '',
+        moduleId: video.moduleId || '',
         sortOrder: video.sortOrder?.toString() || '0',
       });
     }
@@ -157,6 +163,7 @@ export default function VideoForm({
         ? parseInt(formData.durationSeconds, 10)
         : undefined,
       courseId: formData.courseId || undefined,
+      moduleId: formData.moduleId || undefined,
       sortOrder: formData.sortOrder
         ? parseInt(formData.sortOrder, 10)
         : 0,
@@ -389,25 +396,29 @@ export default function VideoForm({
         </div>
       </div>
 
-      {/* Course ID Field */}
-      <div className="space-y-2">
-        <Label htmlFor="courseId" className="font-medium text-sm text-white">
-          Course ID
-        </Label>
-        <Input
-          id="courseId"
-          {...register('courseId')}
-          placeholder="Enter course UUID (optional)"
-          disabled={isLoading}
-          className="bg-card border-primary/20 text-white placeholder:text-gray-400"
-        />
-        <p className="text-xs text-gray-400">
-          Future: This will be replaced with a dropdown selector
-        </p>
-        {errors.courseId && (
-          <p className="text-sm text-red-400">{errors.courseId.message}</p>
+      {/* Course Assignment */}
+      <Controller
+        name="courseId"
+        control={control}
+        render={({ field: courseField }) => (
+          <Controller
+            name="moduleId"
+            control={control}
+            render={({ field: moduleField }) => (
+              <CourseVideoAssignment
+                videoId={video?.id}
+                courseId={courseField.value || null}
+                moduleId={moduleField.value || null}
+                onChange={({ courseId, moduleId }) => {
+                  courseField.onChange(courseId || '');
+                  moduleField.onChange(moduleId || '');
+                }}
+                disabled={isLoading}
+              />
+            )}
+          />
         )}
-      </div>
+      />
 
       {/* Action Buttons */}
       <div className="flex justify-end gap-2 pt-4 border-t border-primary/10">

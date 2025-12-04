@@ -971,12 +971,35 @@ Update `apps/admin/components/dashboard/Sidebar.tsx`:
 - CSV export functionality
 - Sidebar navigation updated with Videos submenu
 
-### Phase 4 Completion
-- [ ] Videos assignable to courses/modules
-- [ ] Pipeline stage dropdown functional
-- [ ] All Vimeo content migrated to Hetzner
-- [ ] Vimeo subscription can be cancelled
-- [ ] Lia can manage videos independently
+### Phase 4 Completion (2025-12-04)
+- [x] Videos assignable to courses/modules (CourseVideoAssignment component)
+- [x] Pipeline stage dropdown functional (PipelineStageSelect, visible in DataTable)
+- [x] Bulk actions toolbar for batch operations (archive, visibility, stage, tags, migrate)
+- [x] Batch API endpoint for bulk video updates (/api/videos/batch)
+- [ ] All Vimeo content migrated to Hetzner (operational - depends on content upload)
+- [ ] Vimeo subscription can be cancelled (operational - depends on migration completion)
+- [ ] Lia can manage videos independently (UI complete, needs user testing)
+
+**Phase 4 Files Created/Modified:**
+- `apps/admin/components/videos/CourseVideoAssignment.tsx` - Course/module assignment with cascading dropdowns
+- `apps/admin/components/videos/BulkActionsToolbar.tsx` - Sticky toolbar for bulk operations
+- `apps/admin/app/api/videos/batch/route.ts` - Batch video operations API
+- `apps/admin/components/videos/index.ts` - Updated exports
+
+**Phase 4 Files Modified:**
+- `apps/admin/components/videos/VideoForm.tsx` - Integrated CourseVideoAssignment component
+- `apps/admin/app/dashboard/content/videos/VideosDataTable.tsx` - Added row selection + bulk actions
+- `apps/admin/app/dashboard/content/videos/columns.tsx` - Added pipeline stage column
+
+**Phase 4 Features:**
+- Course assignment with cascading dropdown (Course → Module)
+- Module selection auto-loads when course is selected
+- Pipeline stage visible in videos data table
+- Bulk row selection with checkbox column
+- Bulk actions: Archive, Change Visibility, Change Pipeline Stage, Migrate, Add Tags
+- Animated bottom toolbar appears on selection
+- Selection count displayed in results summary
+- Clear selection functionality
 
 ---
 
