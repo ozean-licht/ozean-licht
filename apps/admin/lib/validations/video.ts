@@ -406,6 +406,77 @@ export const encodingJobSchema = z.object({
 });
 
 /**
+ * Schema for triggering an encoding job via API
+ */
+export const triggerEncodingSchema = z.object({
+  inputFileUrl: z
+    .string()
+    .url('Please enter a valid input file URL')
+    .optional()
+    .refine(
+      (url) => {
+        if (!url) return true; // Optional field
+
+        // Only allow HTTPS URLs (not HTTP)
+        if (!url.startsWith('https://')) {
+          return false;
+        }
+
+        // Parse URL to check hostname
+        try {
+          const parsed = new URL(url);
+          const hostname = parsed.hostname.toLowerCase();
+
+          // Block localhost and loopback addresses
+          if (
+            hostname === 'localhost' ||
+            hostname === '127.0.0.1' ||
+            hostname === '::1' ||
+            hostname === '0.0.0.0'
+          ) {
+            return false;
+          }
+
+          // Block private IP ranges (RFC 1918)
+          // 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+          if (
+            hostname.startsWith('10.') ||
+            hostname.startsWith('192.168.') ||
+            /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)
+          ) {
+            return false;
+          }
+
+          // Block link-local addresses (169.254.0.0/16)
+          if (hostname.startsWith('169.254.')) {
+            return false;
+          }
+
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      {
+        message:
+          'Invalid URL: Only HTTPS URLs to public hosts are allowed (no localhost, private IPs, or link-local addresses)',
+      }
+    ),
+  outputBucket: z
+    .string()
+    .min(1, 'Output bucket name is required')
+    .optional()
+    .default('video-hls'),
+  resolutions: z
+    .array(z.enum(['360p', '480p', '720p', '1080p']))
+    .optional(),
+  priority: z
+    .enum(['low', 'normal', 'high'])
+    .optional()
+    .default('normal'),
+});
+
+/**
  * Schema for updating an encoding job
  */
 export const updateEncodingJobSchema = z.object({
@@ -584,6 +655,7 @@ export type UpsertPlatformInput = z.infer<typeof upsertPlatformSchema>;
 export type VideoRendition = z.infer<typeof videoRenditionSchema>;
 export type EncodingError = z.infer<typeof encodingErrorSchema>;
 export type CreateEncodingJobInput = z.infer<typeof encodingJobSchema>;
+export type TriggerEncodingInput = z.infer<typeof triggerEncodingSchema>;
 export type UpdateEncodingJobInput = z.infer<typeof updateEncodingJobSchema>;
 export type EncodingWebhookPayload = z.infer<typeof encodingWebhookSchema>;
 
@@ -629,6 +701,14 @@ export function validateEncodingJob(data: unknown) {
 }
 
 /**
+ * Validate and parse trigger encoding input
+ * @returns Parsed data or throws ZodError
+ */
+export function validateTriggerEncoding(data: unknown) {
+  return triggerEncodingSchema.parse(data);
+}
+
+/**
  * Validate and parse platform upsert input
  * @returns Parsed data or throws ZodError
  */
@@ -661,6 +741,10 @@ export function safeValidateVideoFilter(data: unknown) {
 
 export function safeValidateEncodingJob(data: unknown) {
   return encodingJobSchema.safeParse(data);
+}
+
+export function safeValidateTriggerEncoding(data: unknown) {
+  return triggerEncodingSchema.safeParse(data);
 }
 
 export function safeValidateUpsertPlatform(data: unknown) {

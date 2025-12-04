@@ -24,6 +24,7 @@ interface EncodingJobRow {
   output_manifest_url: string | null;
   output_bucket: string;
   output_key: string | null;
+  webhook_url: string | null;
   renditions: VideoRendition[];
   thumbnail_urls: string[];
   attempt_count: number;
@@ -52,6 +53,7 @@ function mapEncodingJob(row: EncodingJobRow): EncodingJob {
     outputManifestUrl: row.output_manifest_url || undefined,
     outputBucket: row.output_bucket,
     outputKey: row.output_key || undefined,
+    webhookUrl: row.webhook_url || undefined,
     renditions: row.renditions || [],
     thumbnailUrls: row.thumbnail_urls || [],
     attemptCount: row.attempt_count,
@@ -91,13 +93,14 @@ export async function createEncodingJob(
       video_id,
       input_file_url,
       output_bucket,
+      webhook_url,
       status,
       progress
-    ) VALUES ($1, $2, $3, 'queued', 0)
+    ) VALUES ($1, $2, $3, $4, 'queued', 0)
     RETURNING
       id, video_id, status, progress,
       input_file_url, output_manifest_url, output_bucket, output_key,
-      renditions, thumbnail_urls,
+      webhook_url, renditions, thumbnail_urls,
       attempt_count, max_attempts, next_retry_at,
       last_error, error_history, alert_sent,
       worker_id, started_at, completed_at,
@@ -108,6 +111,7 @@ export async function createEncodingJob(
     input.videoId,
     input.inputFileUrl,
     input.outputBucket || process.env.VIDEO_ENCODING_BUCKET || 'video-hls',
+    input.webhookUrl || null,
   ];
 
   const rows = await query<EncodingJobRow>(sql, params);
@@ -126,7 +130,7 @@ export async function getEncodingJobById(id: string): Promise<EncodingJob | null
     SELECT
       id, video_id, status, progress,
       input_file_url, output_manifest_url, output_bucket, output_key,
-      renditions, thumbnail_urls,
+      webhook_url, renditions, thumbnail_urls,
       attempt_count, max_attempts, next_retry_at,
       last_error, error_history, alert_sent,
       worker_id, started_at, completed_at,
@@ -165,7 +169,7 @@ export async function updateJobProgress(
     RETURNING
       id, video_id, status, progress,
       input_file_url, output_manifest_url, output_bucket, output_key,
-      renditions, thumbnail_urls,
+      webhook_url, renditions, thumbnail_urls,
       attempt_count, max_attempts, next_retry_at,
       last_error, error_history, alert_sent,
       worker_id, started_at, completed_at,
@@ -200,7 +204,7 @@ export async function completeJob(
     RETURNING
       id, video_id, status, progress,
       input_file_url, output_manifest_url, output_bucket, output_key,
-      renditions, thumbnail_urls,
+      webhook_url, renditions, thumbnail_urls,
       attempt_count, max_attempts, next_retry_at,
       last_error, error_history, alert_sent,
       worker_id, started_at, completed_at,
@@ -261,7 +265,7 @@ export async function failJob(
     RETURNING
       id, video_id, status, progress,
       input_file_url, output_manifest_url, output_bucket, output_key,
-      renditions, thumbnail_urls,
+      webhook_url, renditions, thumbnail_urls,
       attempt_count, max_attempts, next_retry_at,
       last_error, error_history, alert_sent,
       worker_id, started_at, completed_at,
@@ -290,7 +294,7 @@ export async function getJobsByStatus(
     SELECT
       id, video_id, status, progress,
       input_file_url, output_manifest_url, output_bucket, output_key,
-      renditions, thumbnail_urls,
+      webhook_url, renditions, thumbnail_urls,
       attempt_count, max_attempts, next_retry_at,
       last_error, error_history, alert_sent,
       worker_id, started_at, completed_at,
@@ -315,7 +319,7 @@ export async function getActiveJobForVideo(
     SELECT
       id, video_id, status, progress,
       input_file_url, output_manifest_url, output_bucket, output_key,
-      renditions, thumbnail_urls,
+      webhook_url, renditions, thumbnail_urls,
       attempt_count, max_attempts, next_retry_at,
       last_error, error_history, alert_sent,
       worker_id, started_at, completed_at,
@@ -340,7 +344,7 @@ export async function getJobsReadyForRetry(): Promise<EncodingJob[]> {
     SELECT
       id, video_id, status, progress,
       input_file_url, output_manifest_url, output_bucket, output_key,
-      renditions, thumbnail_urls,
+      webhook_url, renditions, thumbnail_urls,
       attempt_count, max_attempts, next_retry_at,
       last_error, error_history, alert_sent,
       worker_id, started_at, completed_at,
@@ -386,7 +390,7 @@ export async function cancelJob(id: string): Promise<EncodingJob | null> {
     RETURNING
       id, video_id, status, progress,
       input_file_url, output_manifest_url, output_bucket, output_key,
-      renditions, thumbnail_urls,
+      webhook_url, renditions, thumbnail_urls,
       attempt_count, max_attempts, next_retry_at,
       last_error, error_history, alert_sent,
       worker_id, started_at, completed_at,

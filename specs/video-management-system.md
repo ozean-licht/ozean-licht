@@ -913,14 +913,29 @@ Update `apps/admin/components/dashboard/Sidebar.tsx`:
 - [x] Video detail page showing metadata (/dashboard/content/videos/[id])
 - [x] Migration status field tracking per video (migrationStatus column)
 
-### Phase 2 Completion
-- [ ] Encoding worker processing jobs
-- [ ] HLS output served via Bunny.net CDN
-- [ ] Progress tracking visible in UI
-- [ ] Thumbnails generated automatically
-- [ ] Failed jobs retry 3x with backoff (5min, 15min, 60min)
-- [ ] Telegram alert on final failure
-- [ ] hls.js player with Vimeo embed fallback
+### Phase 2 Completion (2025-12-04)
+- [x] Encoding worker processing jobs (tools/encoding-worker/ with BullMQ)
+- [x] HLS output served via Bunny.net CDN (uploader.ts with S3-compatible upload)
+- [x] Progress tracking visible in UI (EncodingProgress.tsx component)
+- [x] Thumbnails generated automatically (encoder.ts generateThumbnails)
+- [x] Failed jobs retry 3x with backoff (5min, 15min, 60min) (encoding-jobs.ts)
+- [x] Telegram alert on final failure (index.ts sendTelegramAlert)
+- [x] hls.js player with Vimeo embed fallback (VideoPlayer.tsx)
+
+**Phase 2 Files Created:**
+- `tools/encoding-worker/package.json` - Worker dependencies
+- `tools/encoding-worker/tsconfig.json` - TypeScript config
+- `tools/encoding-worker/Dockerfile` - Multi-stage Docker build with FFmpeg
+- `tools/encoding-worker/docker-compose.yml` - Redis + Worker services
+- `tools/encoding-worker/src/config.ts` - Environment config with Zod
+- `tools/encoding-worker/src/queue.ts` - BullMQ queue setup
+- `tools/encoding-worker/src/encoder.ts` - FFmpeg HLS encoding
+- `tools/encoding-worker/src/uploader.ts` - S3 upload to Hetzner
+- `tools/encoding-worker/src/index.ts` - Worker entry point
+- `apps/admin/app/api/encoding/webhook/route.ts` - HMAC webhook endpoint
+- `apps/admin/app/api/videos/[id]/encode/route.ts` - Trigger encoding API
+- `apps/admin/components/videos/VideoPlayer.tsx` - HLS player with fallback
+- `apps/admin/components/videos/EncodingProgress.tsx` - Progress UI
 
 ### Phase 3 Completion
 - [ ] Migration dashboard operational

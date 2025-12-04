@@ -264,6 +264,7 @@ export interface EncodingJob {
   outputManifestUrl?: string;
   outputBucket: string;
   outputKey?: string;
+  webhookUrl?: string;
   renditions: VideoRendition[];
   thumbnailUrls: string[];
 
@@ -292,6 +293,7 @@ export interface CreateEncodingJobInput {
   videoId: string;
   inputFileUrl: string;
   outputBucket?: string;
+  webhookUrl?: string;
 }
 
 /**

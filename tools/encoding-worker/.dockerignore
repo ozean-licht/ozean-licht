@@ -1,0 +1,49 @@
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build output
+dist
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Tests
+coverage
+*.test.ts
+__tests__
+__mocks__
+
+# Documentation
+*.md
+docs
+
+# Environment (should be injected at runtime)
+.env
+.env.*
+
+# Logs
+logs
+*.log
+
+# Temporary files
+tmp
+temp
+*.tmp

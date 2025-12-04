@@ -1,0 +1,47 @@
+{
+  "name": "@ozean-licht/encoding-worker",
+  "version": "1.0.0",
+  "description": "Video encoding worker for Ozean Licht Akademie using FFmpeg and BullMQ",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "tsc --noEmit",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage"
+  },
+  "keywords": [
+    "video",
+    "encoding",
+    "ffmpeg",
+    "worker",
+    "bullmq"
+  ],
+  "author": "Ozean Licht Akademie",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.0.0",
+    "@aws-sdk/lib-storage": "^3.0.0",
+    "bullmq": "^5.0.0",
+    "dotenv": "^16.0.0",
+    "fluent-ffmpeg": "^2.1.0",
+    "ioredis": "^5.0.0",
+    "pino": "^8.0.0",
+    "pino-pretty": "^10.0.0",
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/fluent-ffmpeg": "^2.1.0",
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

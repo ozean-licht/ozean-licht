@@ -1,0 +1,140 @@
+services:
+  # Redis service for BullMQ job queue
+  redis:
+    image: redis:7-alpine
+    container_name: encoding-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - encoding-network
+    command: redis-server --appendonly yes --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Encoding worker service
+  encoding-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: encoding-worker
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      # Node Environment
+      NODE_ENV: ${NODE_ENV:-production}
+
+      # Redis Configuration (connect to local redis service)
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_DB: ${REDIS_DB:-0}
+
+      # S3/Object Storage Configuration (Hetzner)
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_BUCKET: ${S3_BUCKET:-video-hls}
+      S3_REGION: ${S3_REGION:-eu-central-1}
+      S3_USE_SSL: ${S3_USE_SSL:-true}
+      S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-true}
+
+      # CDN Configuration (Bunny.net)
+      CDN_BASE_URL: ${CDN_BASE_URL}
+      CDN_STORAGE_ZONE: ${CDN_STORAGE_ZONE:-}
+
+      # FFmpeg Configuration (use system ffmpeg from Dockerfile)
+      FFMPEG_PATH: ${FFMPEG_PATH:-/usr/bin/ffmpeg}
+      FFPROBE_PATH: ${FFPROBE_PATH:-/usr/bin/ffprobe}
+
+      # Worker Configuration
+      MAX_CONCURRENT_JOBS: ${MAX_CONCURRENT_JOBS:-3}
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-3}
+      JOB_TIMEOUT_MS: ${JOB_TIMEOUT_MS:-3600000}
+      JOB_ATTEMPTS: ${JOB_ATTEMPTS:-3}
+      JOB_BACKOFF_DELAY_MS: ${JOB_BACKOFF_DELAY_MS:-5000}
+
+      # Webhook Configuration (for progress callbacks)
+      WEBHOOK_URL: ${WEBHOOK_URL:-}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-}
+      WEBHOOK_TIMEOUT_MS: ${WEBHOOK_TIMEOUT_MS:-10000}
+
+      # Storage Configuration
+      TEMP_DIR: /tmp/encoding
+      CLEANUP_TEMP_FILES: ${CLEANUP_TEMP_FILES:-true}
+
+      # Logging Configuration
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_FORMAT: ${LOG_FORMAT:-json}
+
+      # Encoding Presets
+      DEFAULT_VIDEO_CODEC: ${DEFAULT_VIDEO_CODEC:-libx264}
+      DEFAULT_AUDIO_CODEC: ${DEFAULT_AUDIO_CODEC:-aac}
+      HLS_SEGMENT_DURATION: ${HLS_SEGMENT_DURATION:-6}
+      HLS_PLAYLIST_TYPE: ${HLS_PLAYLIST_TYPE:-vod}
+
+      # Quality Profiles
+      ENABLE_ADAPTIVE_BITRATE: ${ENABLE_ADAPTIVE_BITRATE:-true}
+      VIDEO_RESOLUTIONS: ${VIDEO_RESOLUTIONS:-1080p,720p,480p,360p}
+
+      # Alerting Configuration (optional)
+      ALERTING_ENABLED: ${ALERTING_ENABLED:-false}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_ALERT_CHAT_ID: ${TELEGRAM_ALERT_CHAT_ID:-}
+    volumes:
+      # Temporary storage for encoding - using tmpfs for better performance
+      - encoding-temp:/tmp/encoding
+      # Optional: Persistent logs
+      - ./logs:/app/logs
+    networks:
+      - encoding-network
+    tmpfs:
+      # Use tmpfs for fast temporary storage (if not using encoding-temp volume)
+      # This stores data in RAM, faster but limited by available memory
+      - /tmp/encoding-tmpfs:size=4G,mode=1777
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+networks:
+  encoding-network:
+    driver: bridge
+    name: encoding-network
+
+volumes:
+  # Redis persistent data
+  redis-data:
+    driver: local
+    name: encoding-redis-data
+
+  # Temporary encoding files (alternative to tmpfs)
+  encoding-temp:
+    driver: local
+    name: encoding-temp-storage
