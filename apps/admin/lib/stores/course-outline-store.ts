@@ -213,9 +213,9 @@ export const useCourseOutlineStore = create<CourseOutlineState>((set, get) => ({
 
     // Find the lesson and its module
     let moduleId: string | null = null;
-    for (const module of modules) {
-      if (module.lessons.some((l) => l.id === id)) {
-        moduleId = module.id;
+    for (const mod of modules) {
+      if (mod.lessons.some((l) => l.id === id)) {
+        moduleId = mod.id;
         break;
       }
     }
@@ -569,29 +569,29 @@ export const useCourseOutlineStore = create<CourseOutlineState>((set, get) => ({
     const { modules, expandedIds } = get();
     const items: FlattenedItem[] = [];
 
-    for (const module of modules) {
+    for (const mod of modules) {
       // Add module
       items.push({
-        id: module.id,
+        id: mod.id,
         type: 'module',
-        title: module.title,
+        title: mod.title,
         depth: 0,
         parentId: null,
         ancestorIds: [],
-        data: module,
-        childCount: module.lessons.length,
+        data: mod,
+        childCount: mod.lessons.length,
       });
 
       // Add lessons if module is expanded
-      if (expandedIds.has(module.id)) {
-        for (const lesson of module.lessons) {
+      if (expandedIds.has(mod.id)) {
+        for (const lesson of mod.lessons) {
           items.push({
             id: lesson.id,
             type: 'lesson',
             title: lesson.title,
             depth: 1,
-            parentId: module.id,
-            ancestorIds: [module.id],
+            parentId: mod.id,
+            ancestorIds: [mod.id],
             data: lesson,
           });
         }

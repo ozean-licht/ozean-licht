@@ -88,6 +88,9 @@ const envSchema = z.object({
   AIRTABLE_API_KEY: z.string().optional(),
   AIRTABLE_BASE_ID: z.string().optional(),
 
+  // Stripe - Payment processing
+  STRIPE_SECRET_KEY: z.string().optional(),
+
   // Security
   JWT_SECRET: z.string().min(32),
   JWT_EXPIRES_IN: z.string().default('24h'),

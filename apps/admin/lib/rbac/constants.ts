@@ -96,7 +96,7 @@ export const ROLE_CONFIG: Record<AdminRole, {
   },
   support: {
     label: 'Support',
-    description: 'Read-only access for customer support',
+    description: 'Customer support with access to inbox and knowledge base',
     color: 'secondary',
     icon: 'Headphones',
     defaultPermissions: [
@@ -105,12 +105,18 @@ export const ROLE_CONFIG: Record<AdminRole, {
       'members.read',
       'content.read',
       'analytics.read',
+      'support.view',
+      'support.respond',
     ],
     allowedRoutes: [
       '/dashboard',
       '/dashboard/users',
       '/dashboard/content',
       '/dashboard/members',
+      '/dashboard/support',
+      '/dashboard/support/inbox',
+      '/dashboard/support/knowledge',
+      '/dashboard/support/analytics',
     ],
   },
 };
@@ -149,6 +155,11 @@ export const ROUTE_ROLES: Record<string, AdminRole[]> = {
   '/dashboard/analytics': ['super_admin', 'ol_admin', 'ol_editor'],
   '/dashboard/settings': ['super_admin', 'ol_admin'],
   '/dashboard/audit': ['super_admin'],
+  // Support section - accessible to admins and support role
+  '/dashboard/support': ['super_admin', 'ol_admin', 'support'],
+  '/dashboard/support/inbox': ['super_admin', 'ol_admin', 'support'],
+  '/dashboard/support/knowledge': ['super_admin', 'ol_admin', 'support'],
+  '/dashboard/support/analytics': ['super_admin', 'ol_admin'],
   // Tools section - accessible to all roles
   '/dashboard/tools': ['super_admin', 'ol_admin', 'ol_editor', 'support'],
   '/dashboard/tools/projects': ['super_admin', 'ol_admin', 'ol_editor', 'support'],

@@ -29,6 +29,7 @@ npm test
 | `MINIO_USE_SSL` | No | - | `src/mcp/initialize.ts:192` |
 | `NODE_ENV` | No | - | `src/monitoring/health.ts:72` |
 | `PRESIGNED_URL_EXPIRY_SECONDS` | No | 300 | `src/mcp/initialize.ts:197` |
+| `STRIPE_SECRET_KEY` | No | - | `src/mcp/handlers/stripe.ts` |
 
 ## API Endpoints
 

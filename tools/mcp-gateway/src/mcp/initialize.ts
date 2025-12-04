@@ -57,6 +57,7 @@ async function initializeServerServices(registry: MCPRegistry): Promise<void> {
     { name: 'coolify', initializer: initializeCoolify },
     { name: 'firecrawl', initializer: initializeFirecrawl },
     { name: 'context7', initializer: initializeContext7 },
+    { name: 'stripe', initializer: initializeStripe },
   ];
 
   for (const { name, initializer } of services) {
@@ -279,6 +280,25 @@ async function initializeContext7(registry: MCPRegistry): Promise<void> {
   const serviceConfig = mcpCatalog.services.context7;
   registry.registerService({
     name: 'context7',
+    version: serviceConfig.version,
+    description: serviceConfig.description,
+    location: 'server',
+    capabilities: serviceConfig.capabilities,
+    status: 'active',
+  }, handler);
+}
+
+/**
+ * Stripe MCP Initializer
+ */
+async function initializeStripe(registry: MCPRegistry): Promise<void> {
+  const { StripeHandler } = await import('./handlers/stripe');
+
+  const handler = new StripeHandler();
+
+  const serviceConfig = mcpCatalog.services.stripe;
+  registry.registerService({
+    name: 'stripe',
     version: serviceConfig.version,
     description: serviceConfig.description,
     location: 'server',

@@ -65,6 +65,9 @@ services:
       # Firecrawl API (for web scraping)
       FIRECRAWL_API_KEY: ${FIRECRAWL_API_KEY}
 
+      # Stripe API (for payment processing)
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+
       # Orchestrator API (for permission checks)
       ORCHESTRATOR_URL: ${ORCHESTRATOR_URL:-http://orchestrator-3-stream:9403}
 

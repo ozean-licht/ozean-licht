@@ -1,6 +1,6 @@
 {
-  "version": "1.1.0",
-  "updated": "2025-11-28",
+  "version": "1.2.0",
+  "updated": "2025-12-04",
   "services": {
     "airtable": {
       "name": "Airtable MCP",
@@ -527,17 +527,98 @@
         "requestsPerMinute": 100,
         "burstLimit": 20
       }
+    },
+    "stripe": {
+      "name": "Stripe MCP",
+      "description": "Payment processing and billing management via Stripe's remote MCP server",
+      "location": "server",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": [
+        "get-account",
+        "get-balance",
+        "list-customers",
+        "create-customer",
+        "list-products",
+        "create-product",
+        "list-prices",
+        "create-price",
+        "list-invoices",
+        "create-invoice",
+        "create-invoice-item",
+        "finalize-invoice",
+        "list-subscriptions",
+        "update-subscription",
+        "cancel-subscription",
+        "list-payment-intents",
+        "create-payment-link",
+        "create-refund",
+        "list-coupons",
+        "create-coupon",
+        "list-disputes",
+        "update-dispute",
+        "search",
+        "fetch",
+        "search-docs",
+        "health"
+      ],
+      "commands": [
+        {
+          "command": "/mcp-stripe list-customers",
+          "description": "List all Stripe customers",
+          "example": "/mcp-stripe list-customers --limit=10"
+        },
+        {
+          "command": "/mcp-stripe create-customer {name} {email}",
+          "description": "Create a new Stripe customer",
+          "example": "/mcp-stripe create-customer \"John Doe\" \"john@example.com\""
+        },
+        {
+          "command": "/mcp-stripe list-subscriptions",
+          "description": "List all subscriptions",
+          "example": "/mcp-stripe list-subscriptions --status=active"
+        },
+        {
+          "command": "/mcp-stripe list-invoices",
+          "description": "List all invoices",
+          "example": "/mcp-stripe list-invoices --customer=cus_xxx"
+        },
+        {
+          "command": "/mcp-stripe get-balance",
+          "description": "Get account balance",
+          "example": "/mcp-stripe get-balance"
+        },
+        {
+          "command": "/mcp-stripe search-docs \"[query]\"",
+          "description": "Search Stripe documentation",
+          "example": "/mcp-stripe search-docs \"webhook events\""
+        },
+        {
+          "command": "/mcp-stripe health",
+          "description": "Check Stripe MCP health",
+          "example": "/mcp-stripe health"
+        }
+      ],
+      "tokenCost": {
+        "avgTokensPerCall": 400,
+        "costPerCall": 0.0012,
+        "complexity": "medium"
+      },
+      "rateLimit": {
+        "requestsPerMinute": 100,
+        "burstLimit": 25
+      }
     }
   },
   "aggregates": {
-    "totalServices": 13,
-    "serverSideServices": 10,
+    "totalServices": 14,
+    "serverSideServices": 11,
     "localServices": 3,
     "averageTokenCost": 400,
     "averageCostPerCall": 0.0012
   },
   "metadata": {
-    "lastUpdated": "2025-11-07T15:00:00Z",
+    "lastUpdated": "2025-12-04T00:00:00Z",
     "maintainer": "Ozean Licht Infrastructure Team",
     "documentation": "/docs/mcp-catalog.md"
   }

@@ -47,7 +47,7 @@ interface RateLimitState {
   lastResetDate: string;
 }
 
-let rateLimitState: RateLimitState = {
+const rateLimitState: RateLimitState = {
   requestsToday: 0,
   lastRequestAt: 0,
   backoffUntil: null,

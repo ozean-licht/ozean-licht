@@ -23,6 +23,10 @@ import {
   Calendar,
   ListTodo,
   FileText,
+  Headphones,
+  MessageSquare,
+  HelpCircle,
+  BarChart3,
 } from 'lucide-react';
 import { NavigationSection, UserEntity, EntityScope } from '@/types/navigation';
 import { canAccessRoute } from '@/lib/rbac/constants';
@@ -144,6 +148,31 @@ export default function Sidebar({
           label: 'Events',
           href: '/dashboard/calendar/events',
           icon: Calendar,
+        },
+      ],
+    },
+    {
+      title: 'Support',
+      items: [
+        {
+          label: 'Support Dashboard',
+          href: '/dashboard/support',
+          icon: Headphones,
+        },
+        {
+          label: 'Inbox',
+          href: '/dashboard/support/inbox',
+          icon: MessageSquare,
+        },
+        {
+          label: 'Knowledge Base',
+          href: '/dashboard/support/knowledge',
+          icon: HelpCircle,
+        },
+        {
+          label: 'Analytics',
+          href: '/dashboard/support/analytics',
+          icon: BarChart3,
         },
       ],
     },
