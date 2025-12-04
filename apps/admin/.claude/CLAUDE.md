@@ -133,60 +133,36 @@ const canEdit = hasPermission(session.user.permissions, 'users.update')
 - [ ] SQL uses parameterized queries (`$1`, `$2`)
 - [ ] No secrets in code
 
-## Current Focus: Course Builder
+## Current Focus: Video Management System
 
-**Location:** `app/dashboard/courses/`
-**Spec:** `specs/course-builder-architecture.md`
+**Location:** `app/dashboard/content/videos/`
+**Status:** In development
 
-### Completed Phases
-| Phase | Feature | Key Files |
-|-------|---------|-----------|
-| 6 | Rich Content Editing | `RichTextEditor.tsx`, `ImageUploader.tsx`, `PdfUploader.tsx` |
-| 8 | Audio & Multi-format | `AudioUploader.tsx`, `AudioPlayer.tsx`, `TranscriptEditor.tsx` |
-| 9 | Learning Sequences | `PrerequisiteSelector.tsx`, `DripScheduler.tsx`, `CompletionRulesEditor.tsx` |
+Building a comprehensive video management system for organizing, tagging, and integrating videos with courses.
 
-### In Progress: Phase 7 Quiz Builder (BLOCKED)
+---
 
-**Status:** Code complete, review failed with 3 blockers
+## Completed MVPs (Need Polish)
 
-**Blockers to fix:**
-1. XSS vulnerability - Add sanitization in `lib/db/lessons.ts`
-2. Missing API validation - Add Zod validation in lesson routes
-3. No data migration - Add `migrateQuizData()` function
+### Ozean Cloud Storage
+**Location:** `app/dashboard/tools/cloud/`
+**Status:** MVP Complete - needs polish update
 
-**Quiz Builder Files (uncommitted):**
-| File | Purpose |
-|------|---------|
-| `components/courses/quiz/QuizBuilder.tsx` | Main quiz editor |
-| `components/courses/quiz/QuestionEditor.tsx` | Question type editor |
-| `components/courses/quiz/QuizPreview.tsx` | Live preview with scoring |
-| `types/quiz.ts` | Quiz types and validation |
-| `lib/utils/sanitize-quiz.ts` | XSS sanitization (to implement) |
-
-### Key Course Builder Files
-| File | Purpose |
-|------|---------|
-| `app/dashboard/courses/[slug]/CourseDetailClient.tsx` | Course detail page |
-| `components/courses/LessonEditorModal.tsx` | Lesson create/edit modal |
-| `components/courses/ModuleList.tsx` | Module drag-drop list |
-| `lib/db/courses.ts` | Course CRUD |
-| `lib/db/lessons.ts` | Lesson CRUD with content types |
-| `lib/db/prerequisites.ts` | Prerequisite CRUD |
-| `lib/db/schedules.ts` | Drip schedule CRUD |
-| `lib/validations/course-builder.ts` | Zod schemas |
-
-### Database Tables (Course Builder)
-```
-courses, course_modules, course_lessons
-lesson_prerequisites, drip_schedules, user_drip_status
-course_completion_rules, module_unlock_rules, course_drip_settings
-```
-
-## Completed: Project Management MVP
-
+### Project Management
+**Location:** `app/dashboard/tools/projects/`
 **Context Map:** `app/dashboard/tools/projects/README.md`
+**Status:** MVP Complete - needs polish update
 
 All 13 phases complete: Projects, Tasks, Kanban, Subtasks, Time Tracking, Sprints, Attachments, Notifications, Timeline, Export
+
+### Course Builder
+**Location:** `app/dashboard/courses/`
+**Spec:** `specs/course-builder-architecture.md`
+**Status:** MVP Complete - needs polish update
+
+Completed Phases: 6 (Rich Content), 8 (Audio), 9 (Learning Sequences), 10 (Analytics), 11 (Display), 13 (Outline Editor), 14 (Keyboard Navigation)
+
+**Phase 7 Quiz Builder (BLOCKED):** XSS vulnerability, missing API validation, no data migration
 
 ## Database Migrations
 
@@ -220,4 +196,4 @@ npm run typecheck
 
 ---
 
-*Last Updated: 2025-12-03 | Focus: Course Builder | 273 files*
+*Last Updated: 2025-12-04 | Focus: Video Management System | 273 files*
