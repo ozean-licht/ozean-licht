@@ -30,6 +30,12 @@ interface CourseRow {
   updated_at: string;
   published_at: string | null;
   metadata: Record<string, unknown> | null;
+  // Stripe integration
+  stripe_product_id: string | null;
+  stripe_price_id: string | null;
+  stripe_payment_link_id: string | null;
+  stripe_payment_link_url: string | null;
+  // Computed fields
   lesson_count?: string;
   module_count?: string;
   enrollment_count?: string;
@@ -60,6 +66,12 @@ function mapCourse(row: CourseRow): Course {
     updatedAt: row.updated_at,
     publishedAt: row.published_at || undefined,
     metadata: row.metadata || undefined,
+    // Stripe integration
+    stripeProductId: row.stripe_product_id || undefined,
+    stripePriceId: row.stripe_price_id || undefined,
+    stripePaymentLinkId: row.stripe_payment_link_id || undefined,
+    stripePaymentLinkUrl: row.stripe_payment_link_url || undefined,
+    // Computed fields
     lessonCount: row.lesson_count ? parseInt(row.lesson_count, 10) : undefined,
     moduleCount: row.module_count ? parseInt(row.module_count, 10) : undefined,
     enrollmentCount: row.enrollment_count ? parseInt(row.enrollment_count, 10) : undefined,
@@ -148,7 +160,8 @@ export async function listCourses(options: ListCoursesOptions = {}): Promise<Lis
       id, airtable_id, title, slug, description, short_description,
       thumbnail_url, cover_image_url, price_cents, currency,
       status, level, category, duration_minutes, entity_scope,
-      instructor_id, created_at, updated_at, published_at, metadata
+      instructor_id, created_at, updated_at, published_at, metadata,
+      stripe_product_id, stripe_price_id, stripe_payment_link_id, stripe_payment_link_url
     FROM courses
     ${whereClause}
     ORDER BY ${safeOrderBy} ${safeOrderDir}
@@ -172,7 +185,8 @@ export async function getCourseById(id: string): Promise<Course | null> {
       id, airtable_id, title, slug, description, short_description,
       thumbnail_url, cover_image_url, price_cents, currency,
       status, level, category, duration_minutes, entity_scope,
-      instructor_id, created_at, updated_at, published_at, metadata
+      instructor_id, created_at, updated_at, published_at, metadata,
+      stripe_product_id, stripe_price_id, stripe_payment_link_id, stripe_payment_link_url
     FROM courses
     WHERE id = $1
   `;
@@ -190,7 +204,8 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
       id, airtable_id, title, slug, description, short_description,
       thumbnail_url, cover_image_url, price_cents, currency,
       status, level, category, duration_minutes, entity_scope,
-      instructor_id, created_at, updated_at, published_at, metadata
+      instructor_id, created_at, updated_at, published_at, metadata,
+      stripe_product_id, stripe_price_id, stripe_payment_link_id, stripe_payment_link_url
     FROM courses
     WHERE slug = $1
   `;
@@ -246,6 +261,11 @@ export interface UpdateCourseInput {
   entityScope?: 'ozean_licht' | 'kids_ascension' | null;
   instructorId?: string | null;
   metadata?: Record<string, unknown> | null;
+  // Stripe integration
+  stripeProductId?: string | null;
+  stripePriceId?: string | null;
+  stripePaymentLinkId?: string | null;
+  stripePaymentLinkUrl?: string | null;
 }
 
 /**
@@ -274,6 +294,11 @@ export async function updateCourse(id: string, input: UpdateCourseInput): Promis
     { key: 'entityScope', column: 'entity_scope' },
     { key: 'instructorId', column: 'instructor_id' },
     { key: 'metadata', column: 'metadata' },
+    // Stripe integration
+    { key: 'stripeProductId', column: 'stripe_product_id' },
+    { key: 'stripePriceId', column: 'stripe_price_id' },
+    { key: 'stripePaymentLinkId', column: 'stripe_payment_link_id' },
+    { key: 'stripePaymentLinkUrl', column: 'stripe_payment_link_url' },
   ];
 
   for (const { key, column } of fieldMappings) {
@@ -305,7 +330,8 @@ export async function updateCourse(id: string, input: UpdateCourseInput): Promis
       id, airtable_id, title, slug, description, short_description,
       thumbnail_url, cover_image_url, price_cents, currency,
       status, level, category, duration_minutes, entity_scope,
-      instructor_id, created_at, updated_at, published_at, metadata
+      instructor_id, created_at, updated_at, published_at, metadata,
+      stripe_product_id, stripe_price_id, stripe_payment_link_id, stripe_payment_link_url
   `;
 
   const rows = await query<CourseRow>(sql, params);
@@ -365,4 +391,62 @@ export async function createCourse(input: {
 
   const rows = await query<CourseRow>(sql, params);
   return mapCourse(rows[0]);
+}
+
+/**
+ * List courses that need Stripe sync (published, has price, missing Stripe IDs)
+ */
+export async function listCoursesNeedingStripeSync(): Promise<Course[]> {
+  const sql = `
+    SELECT
+      id, airtable_id, title, slug, description, short_description,
+      thumbnail_url, cover_image_url, price_cents, currency,
+      status, level, category, duration_minutes, entity_scope,
+      instructor_id, created_at, updated_at, published_at, metadata,
+      stripe_product_id, stripe_price_id, stripe_payment_link_id, stripe_payment_link_url
+    FROM courses
+    WHERE status = 'published'
+      AND price_cents > 0
+      AND (stripe_payment_link_url IS NULL OR stripe_payment_link_url = '')
+    ORDER BY price_cents DESC
+  `;
+
+  const rows = await query<CourseRow>(sql);
+  return rows.map(mapCourse);
+}
+
+/**
+ * Update Stripe fields for a course
+ */
+export async function updateCourseStripeInfo(
+  id: string,
+  stripeInfo: {
+    stripeProductId?: string;
+    stripePriceId?: string;
+    stripePaymentLinkId?: string;
+    stripePaymentLinkUrl?: string;
+  }
+): Promise<Course | null> {
+  return updateCourse(id, stripeInfo);
+}
+
+/**
+ * Batch update Stripe info for multiple courses
+ */
+export async function batchUpdateCourseStripeInfo(
+  updates: Array<{
+    id: string;
+    stripeProductId?: string;
+    stripePriceId?: string;
+    stripePaymentLinkId?: string;
+    stripePaymentLinkUrl?: string;
+  }>
+): Promise<number> {
+  let updated = 0;
+  for (const update of updates) {
+    const { id, ...stripeInfo } = update;
+    const result = await updateCourse(id, stripeInfo);
+    if (result) updated++;
+  }
+  return updated;
 }

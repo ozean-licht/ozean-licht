@@ -67,6 +67,11 @@ export interface Course {
   updatedAt: string;
   publishedAt?: string;
   metadata?: Record<string, unknown>;
+  // Stripe integration
+  stripeProductId?: string;
+  stripePriceId?: string;
+  stripePaymentLinkId?: string;
+  stripePaymentLinkUrl?: string;
   // Computed/joined fields
   lessonCount?: number;
   moduleCount?: number;
