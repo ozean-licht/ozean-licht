@@ -1197,8 +1197,8 @@ export function MessageComposer({ conversationId, onSend }: Props) {
 
 ---
 
-### Phase 9: Unified Inbox UI
-**Duration:** 4-5 days | **Priority:** High
+### Phase 9: Unified Inbox UI (COMPLETED)
+**Duration:** 4-5 days | **Priority:** High | **Status:** Complete as of 2025-12-05
 
 Build the single inbox that shows all conversation types.
 
@@ -1740,10 +1740,22 @@ Self-service knowledge base for customers.
 - `components/messaging/FileDropzone.tsx` - Drag-and-drop file upload wrapper
 - `components/messaging/index.ts` - Component exports
 
-### Phase 9: Unified Inbox
-- [ ] All types in one view
-- [ ] Escalation flow works
-- [ ] Mobile responsive
+### Phase 9: Unified Inbox UI ✅ COMPLETED (2025-12-05)
+- [x] All types in one view (support, channels, DMs, internal tickets)
+- [x] Escalation flow works (support → internal ticket)
+- [x] Mobile responsive layout
+- [x] Type filter tabs (All, Team, Support, DMs, Tickets)
+- [x] Context panel adapts to conversation type
+
+**Files Created/Modified:**
+- `components/messages/TypeFilterTabs.tsx` - Filter tabs for unified inbox
+- `components/messages/ContextPanel.tsx` - Adaptive context panel by type
+- `components/messages/NewTicketModal.tsx` - Create internal tickets modal
+- `components/messages/EscalateToTicketButton.tsx` - Escalation from support to ticket
+- `components/messages/ConversationSidebar.tsx` - Added support ticket section
+- `app/dashboard/messages/inbox/page.tsx` - Unified inbox page
+- `app/dashboard/messages/MessagesPageClient.tsx` - Full unified inbox features
+- `app/api/messages/tickets/route.ts` - Internal tickets API
 
 ### Phase 10: Widget
 - [ ] Anonymous chat works

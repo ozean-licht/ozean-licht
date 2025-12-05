@@ -15,8 +15,12 @@ export type ConversationType = 'support' | 'team_channel' | 'direct_message' | '
 
 /**
  * Conversation status across all types
+ * - support: 'open', 'pending', 'resolved', 'snoozed'
+ * - team_channel: 'active', 'archived'
+ * - direct_message: 'active'
+ * - internal_ticket: 'open', 'in_progress', 'resolved', 'closed'
  */
-export type ConversationStatus = 'active' | 'open' | 'pending' | 'resolved' | 'archived' | 'snoozed';
+export type ConversationStatus = 'active' | 'open' | 'pending' | 'resolved' | 'archived' | 'snoozed' | 'in_progress' | 'closed';
 
 /**
  * Participant role in a conversation
@@ -827,6 +831,8 @@ export function getConversationStatusColor(status: ConversationStatus): string {
     resolved: 'gray',
     archived: 'gray',
     snoozed: 'purple',
+    in_progress: 'orange',
+    closed: 'gray',
   };
   return colors[status] || 'gray';
 }

@@ -28,10 +28,14 @@ interface ConversationSidebarProps {
   onNewChannel?: () => void;
   /** Callback to create a new DM */
   onNewDM?: () => void;
+  /** Callback to create a new internal ticket */
+  onNewTicket?: () => void;
   /** Current user ID for filtering */
   currentUserId?: string;
   /** Whether user can access internal tickets */
   canAccessInternalTickets?: boolean;
+  /** Whether user can access support tickets */
+  canAccessSupportTickets?: boolean;
 }
 
 /**
@@ -39,12 +43,13 @@ interface ConversationSidebarProps {
  *
  * Features:
  * - Search input at top
+ * - Support Tickets section with customer tickets (if user has access)
  * - Team Channels section with channel list
  * - Direct Messages section with DM list
  * - Internal Tickets section (if user has access)
  * - Each item shows: title/name, unread badge, last message preview, timestamp
  * - Active item highlighted with primary color
- * - "New Channel" and "New DM" buttons
+ * - "New Channel", "New DM", and "New Ticket" buttons
  *
  * @example
  * ```tsx
@@ -65,8 +70,10 @@ export default function ConversationSidebar({
   onSelect,
   onNewChannel,
   onNewDM,
+  onNewTicket,
   currentUserId,
   canAccessInternalTickets = false,
+  canAccessSupportTickets = false,
 }: ConversationSidebarProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -78,11 +85,24 @@ export default function ConversationSidebar({
       conv.participants
         ?.map((p) => p.user?.name?.toLowerCase() || '')
         .join(' ') || '';
+    // Also search by contact info for support tickets
+    const contactInfo = [
+      conv.contactName || '',
+      conv.contactEmail || '',
+    ].join(' ').toLowerCase();
+    // Search by ticket number for internal tickets
+    const ticketNumber = (conv.ticketNumber || '').toLowerCase();
 
-    return title.includes(query) || participantNames.includes(query);
+    return title.includes(query) ||
+           participantNames.includes(query) ||
+           contactInfo.includes(query) ||
+           ticketNumber.includes(query);
   });
 
   // Group conversations by type
+  const supportTickets = filteredConversations.filter(
+    (c) => c.type === 'support'
+  );
   const channels = filteredConversations.filter(
     (c) => c.type === 'team_channel'
   ) as TeamChannel[];
@@ -118,8 +138,39 @@ export default function ConversationSidebar({
     // Get title based on conversation type
     let title = '';
     let icon: React.ReactNode = null;
+    let statusBadge: React.ReactNode = null;
 
-    if (conv.type === 'team_channel') {
+    if (conv.type === 'support') {
+      title = conv.contactName || conv.contactEmail || 'Support Ticket';
+      // Headset icon for support
+      icon = (
+        <svg
+          className="w-4 h-4 text-primary"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+          />
+        </svg>
+      );
+      // Show status badge for support tickets
+      const statusColors: Record<string, string> = {
+        open: 'bg-green-500/20 text-green-400',
+        pending: 'bg-yellow-500/20 text-yellow-400',
+        resolved: 'bg-gray-500/20 text-gray-400',
+        snoozed: 'bg-blue-500/20 text-blue-400',
+      };
+      statusBadge = (
+        <span className={`text-[10px] px-1.5 py-0.5 rounded ${statusColors[conv.status] || statusColors.open}`}>
+          {conv.status}
+        </span>
+      );
+    } else if (conv.type === 'team_channel') {
       title = conv.title || 'Unnamed Channel';
       icon = (
         <svg
@@ -185,7 +236,7 @@ export default function ConversationSidebar({
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            {/* Title and unread badge */}
+            {/* Title and badges */}
             <div className="flex items-center gap-2 mb-1">
               <h4
                 className={`text-sm font-sans font-medium truncate ${
@@ -194,16 +245,17 @@ export default function ConversationSidebar({
               >
                 {title}
               </h4>
+              {statusBadge}
               {unreadCount > 0 && <UnreadBadge count={unreadCount} />}
             </div>
 
             {/* Last message preview */}
             {lastMessage && (
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-sans font-light text-[#C4C8D4] truncate">
+                <p className="text-xs font-sans font-light text-muted-foreground truncate">
                   {lastMessage.content || 'Attachment'}
                 </p>
-                <span className="text-xs font-sans font-light text-[#C4C8D4] flex-shrink-0">
+                <span className="text-xs font-sans font-light text-muted-foreground flex-shrink-0">
                   {getRelativeTime(lastMessage.createdAt)}
                 </span>
               </div>
@@ -228,16 +280,35 @@ export default function ConversationSidebar({
           placeholder="Search conversations..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="bg-background/50 border-border text-white placeholder:text-[#C4C8D4]/50"
+          className="bg-background/50 border-border text-white placeholder:text-muted-foreground/50"
         />
       </div>
 
       {/* Conversation lists */}
       <div className="flex-1 overflow-y-auto">
+        {/* Support Tickets */}
+        {canAccessSupportTickets && (
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-sans font-medium text-muted-foreground uppercase tracking-wide">
+                Support Tickets
+              </h3>
+            </div>
+            <div className="space-y-1">
+              {supportTickets.map((conv) => renderConversationItem(conv))}
+              {supportTickets.length === 0 && (
+                <p className="text-xs font-sans font-light text-muted-foreground italic px-3 py-2">
+                  No support tickets
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Team Channels */}
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-sans font-medium text-[#C4C8D4] uppercase tracking-wide">
+            <h3 className="text-xs font-sans font-medium text-muted-foreground uppercase tracking-wide">
               Team Channels
             </h3>
             {onNewChannel && (
@@ -246,6 +317,7 @@ export default function ConversationSidebar({
                 variant="ghost"
                 onClick={onNewChannel}
                 className="h-6 px-2 text-primary hover:text-primary hover:bg-primary/10"
+                aria-label="Create new channel"
               >
                 <svg
                   className="w-3 h-3"
@@ -266,7 +338,7 @@ export default function ConversationSidebar({
           <div className="space-y-1">
             {channels.map((conv) => renderConversationItem(conv))}
             {channels.length === 0 && (
-              <p className="text-xs font-sans font-light text-[#C4C8D4] italic px-3 py-2">
+              <p className="text-xs font-sans font-light text-muted-foreground italic px-3 py-2">
                 No channels
               </p>
             )}
@@ -276,7 +348,7 @@ export default function ConversationSidebar({
         {/* Direct Messages */}
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-sans font-medium text-[#C4C8D4] uppercase tracking-wide">
+            <h3 className="text-xs font-sans font-medium text-muted-foreground uppercase tracking-wide">
               Direct Messages
             </h3>
             {onNewDM && (
@@ -285,6 +357,7 @@ export default function ConversationSidebar({
                 variant="ghost"
                 onClick={onNewDM}
                 className="h-6 px-2 text-primary hover:text-primary hover:bg-primary/10"
+                aria-label="Create new direct message"
               >
                 <svg
                   className="w-3 h-3"
@@ -305,7 +378,7 @@ export default function ConversationSidebar({
           <div className="space-y-1">
             {directMessages.map((conv) => renderConversationItem(conv))}
             {directMessages.length === 0 && (
-              <p className="text-xs font-sans font-light text-[#C4C8D4] italic px-3 py-2">
+              <p className="text-xs font-sans font-light text-muted-foreground italic px-3 py-2">
                 No direct messages
               </p>
             )}
@@ -316,14 +389,37 @@ export default function ConversationSidebar({
         {canAccessInternalTickets && (
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-sans font-medium text-[#C4C8D4] uppercase tracking-wide">
+              <h3 className="text-xs font-sans font-medium text-muted-foreground uppercase tracking-wide">
                 Internal Tickets
               </h3>
+              {onNewTicket && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={onNewTicket}
+                  className="h-6 px-2 text-primary hover:text-primary hover:bg-primary/10"
+                  aria-label="Create new internal ticket"
+                >
+                  <svg
+                    className="w-3 h-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                </Button>
+              )}
             </div>
             <div className="space-y-1">
               {internalTickets.map((conv) => renderConversationItem(conv))}
               {internalTickets.length === 0 && (
-                <p className="text-xs font-sans font-light text-[#C4C8D4] italic px-3 py-2">
+                <p className="text-xs font-sans font-light text-muted-foreground italic px-3 py-2">
                   No internal tickets
                 </p>
               )}

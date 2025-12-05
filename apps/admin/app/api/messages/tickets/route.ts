@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the ticket
-    const ticket = await createInternalTicket(
+    const conversation = await createInternalTicket(
       {
         title,
         description,
@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
       session.user.id
     );
 
-    return NextResponse.json({ ticket }, { status: 201 });
+    return NextResponse.json({ conversation, ticket: conversation }, { status: 201 });
   } catch (error) {
     console.error('[API] Failed to create internal ticket:', error);
     return NextResponse.json(
