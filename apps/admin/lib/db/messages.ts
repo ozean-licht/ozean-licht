@@ -1,18 +1,13 @@
 /**
- * Unified Messages Database Module
+ * Unified Messages Database Queries
  *
- * Handles all message types in the unified messaging system:
- * - text: Plain text messages
- * - image: Image attachments
- * - file: File attachments
- * - system: System-generated messages
- *
- * Supports message threading via threadId field.
- * Uses direct PostgreSQL connection via lib/db/index.ts
+ * Database queries for unified messaging system via direct PostgreSQL connection.
+ * Supports all conversation types: support tickets, team channels, direct messages, internal tickets.
+ * Uses the query/execute functions from index.ts for connection pooling.
  */
 
 import { query, execute, transaction, PoolClient } from './index';
-import {
+import type {
   Message,
   MessageListOptions,
   MessageListResult,
@@ -21,6 +16,7 @@ import {
   MessageContentType,
   Attachment,
   SentimentScore,
+  TypingIndicator,
 } from '../../types/messaging';
 
 // ============================================================================
@@ -93,6 +89,17 @@ interface DBMessage {
   edited_at: string | null;
   deleted_at: string | null;
   created_at: string;
+}
+
+/**
+ * Database row type for typing_indicators table
+ */
+interface DBTypingIndicator {
+  conversation_id: string;
+  user_id: string;
+  user_name: string | null;
+  started_at: string;
+  expires_at: string;
 }
 
 // ============================================================================
@@ -188,8 +195,11 @@ export async function getMessagesByConversation(
   let paramIndex = 2;
 
   // Filter by thread
+  // threadId === '' means get top-level messages only (exclude threads)
+  // threadId === 'some-uuid' means get replies to that thread
+  // threadId === undefined means get all messages
   if (threadId !== undefined) {
-    if (threadId === null) {
+    if (threadId === '') {
       // Only top-level messages (not replies)
       conditions.push('thread_id IS NULL');
     } else {
@@ -513,4 +523,401 @@ export async function getMessageCount(conversationId: string): Promise<number> {
 
   const rows = await query<{ count: string }>(sql, [conversationId]);
   return parseInt(rows[0]?.count || '0', 10);
+}
+
+// ============================================================================
+// Additional Message Functions (Unified API)
+// ============================================================================
+
+/**
+ * Get messages with pagination (simplified wrapper for getMessagesByConversation)
+ *
+ * @param conversationId - Conversation UUID
+ * @param options - Query options
+ * @returns Array of messages
+ *
+ * @example
+ * const messages = await getMessages('conv-uuid', { limit: 50, offset: 0 });
+ */
+export async function getMessages(
+  conversationId: string,
+  options: {
+    limit?: number;
+    offset?: number;
+    excludeThreads?: boolean;
+    includePrivate?: boolean;
+  } = {}
+): Promise<Message[]> {
+  // Note: to exclude threads, we pass threadId undefined and filter in the query
+  // The underlying query checks for thread_id IS NULL when threadId === ''
+  const result = await getMessagesByConversation({
+    conversationId,
+    threadId: options.excludeThreads ? '' : undefined,
+    includePrivate: options.includePrivate,
+    limit: options.limit,
+    offset: options.offset,
+  });
+
+  return result.messages;
+}
+
+/**
+ * Get thread replies (alias for getThreadMessages)
+ *
+ * @param messageId - Parent message UUID
+ * @returns Array of reply messages
+ *
+ * @example
+ * const replies = await getThreadReplies('msg-uuid');
+ */
+export async function getThreadReplies(messageId: string): Promise<Message[]> {
+  return getThreadMessages(messageId);
+}
+
+/**
+ * Create a thread reply (wrapper for createMessage with threadId)
+ *
+ * @param parentId - Parent message UUID
+ * @param data - Message data
+ * @returns Created reply message
+ *
+ * @example
+ * const reply = await createThreadReply('parent-uuid', {
+ *   conversationId: 'conv-uuid',
+ *   senderType: 'agent',
+ *   senderId: 'user-uuid',
+ *   senderName: 'John',
+ *   content: 'This is a reply',
+ * });
+ */
+export async function createThreadReply(
+  parentId: string,
+  data: Omit<CreateMessageInput, 'threadId'>
+): Promise<Message> {
+  return createMessage({
+    ...data,
+    threadId: parentId,
+  });
+}
+
+/**
+ * Search messages with full-text search
+ *
+ * @param searchQuery - Search query string
+ * @param conversationId - Optional conversation UUID to scope search
+ * @param options - Additional options
+ * @returns Array of matching messages
+ *
+ * @example
+ * const results = await searchMessages('invoice payment');
+ *
+ * @example
+ * const results = await searchMessages('bug', 'conv-uuid', { limit: 20 });
+ */
+export async function searchMessages(
+  searchQuery: string,
+  conversationId?: string,
+  options: {
+    limit?: number;
+    includePrivate?: boolean;
+  } = {}
+): Promise<Message[]> {
+  const { limit = 50, includePrivate = true } = options;
+  const safeLimit = Math.min(limit, 200);
+
+  const conditions: string[] = [
+    'deleted_at IS NULL',
+    '(content ILIKE $1 OR sender_name ILIKE $1)',
+  ];
+  const params: any[] = [`%${searchQuery}%`];
+
+  if (conversationId) {
+    conditions.push(`conversation_id = $${params.length + 1}`);
+    params.push(conversationId);
+  }
+
+  if (!includePrivate) {
+    conditions.push('is_private = FALSE');
+  }
+
+  const sql = `
+    SELECT
+      id, conversation_id, sender_type, sender_id, sender_name,
+      content, content_type, thread_id, reply_count, is_private,
+      mentions, attachments, external_id, external_status,
+      sentiment, intent, edited_at, deleted_at, created_at
+    FROM messages
+    WHERE ${conditions.join(' AND ')}
+    ORDER BY created_at DESC
+    LIMIT $${params.length + 1}::INTEGER
+  `;
+
+  params.push(safeLimit);
+
+  const rows = await query<DBMessage>(sql, params);
+  return rows.map(transformMessage);
+}
+
+// ============================================================================
+// Typing Indicators (Ephemeral)
+// ============================================================================
+
+/**
+ * Transform database row to TypingIndicator object
+ */
+function transformTypingIndicator(row: DBTypingIndicator): TypingIndicator {
+  return {
+    conversationId: row.conversation_id,
+    userId: row.user_id,
+    userName: row.user_name,
+    startedAt: new Date(row.started_at),
+    expiresAt: new Date(row.expires_at),
+  };
+}
+
+/**
+ * Set typing indicator for a user in a conversation
+ * Auto-expires after 5 seconds (handled by database)
+ *
+ * @param conversationId - Conversation UUID
+ * @param userId - User UUID
+ * @param userName - User display name
+ *
+ * @example
+ * await setTypingIndicator('conv-uuid', 'user-uuid', 'John Doe');
+ */
+export async function setTypingIndicator(
+  conversationId: string,
+  userId: string,
+  userName: string
+): Promise<void> {
+  const sql = `
+    INSERT INTO typing_indicators (conversation_id, user_id, user_name, started_at, expires_at)
+    VALUES ($1, $2, $3, NOW(), NOW() + INTERVAL '5 seconds')
+    ON CONFLICT (conversation_id, user_id)
+    DO UPDATE SET
+      started_at = NOW(),
+      expires_at = NOW() + INTERVAL '5 seconds',
+      user_name = EXCLUDED.user_name
+  `;
+
+  await execute(sql, [conversationId, userId, userName]);
+}
+
+/**
+ * Clear typing indicator for a user
+ *
+ * @param conversationId - Conversation UUID
+ * @param userId - User UUID
+ *
+ * @example
+ * await clearTypingIndicator('conv-uuid', 'user-uuid');
+ */
+export async function clearTypingIndicator(
+  conversationId: string,
+  userId: string
+): Promise<void> {
+  const sql = `
+    DELETE FROM typing_indicators
+    WHERE conversation_id = $1 AND user_id = $2
+  `;
+
+  await execute(sql, [conversationId, userId]);
+}
+
+/**
+ * Get active typing users in a conversation
+ * Automatically cleans up expired indicators
+ *
+ * @param conversationId - Conversation UUID
+ * @returns Array of active typing indicators
+ *
+ * @example
+ * const typing = await getTypingUsers('conv-uuid');
+ * console.log(`${typing.length} users are typing`);
+ */
+export async function getTypingUsers(conversationId: string): Promise<TypingIndicator[]> {
+  // Clean up expired indicators first
+  await execute('DELETE FROM typing_indicators WHERE expires_at < NOW()');
+
+  const sql = `
+    SELECT conversation_id, user_id, user_name, started_at, expires_at
+    FROM typing_indicators
+    WHERE conversation_id = $1
+      AND expires_at > NOW()
+    ORDER BY started_at ASC
+  `;
+
+  const rows = await query<DBTypingIndicator>(sql, [conversationId]);
+  return rows.map(transformTypingIndicator);
+}
+
+// ============================================================================
+// Read Tracking
+// ============================================================================
+
+/**
+ * Get total unread message count for a user across all conversations
+ * Uses database function for optimal performance
+ *
+ * @param userId - User UUID
+ * @returns Total unread count
+ *
+ * @example
+ * const unread = await getUnreadCount('user-uuid');
+ * console.log(`You have ${unread} unread messages`);
+ */
+export async function getUnreadCount(userId: string): Promise<number> {
+  const sql = `SELECT get_user_total_unread($1) as count`;
+  const rows = await query<{ count: number }>(sql, [userId]);
+  return rows[0]?.count || 0;
+}
+
+/**
+ * Get unread messages for a user in a conversation
+ * Returns messages created after user's last_read_at timestamp
+ *
+ * @param userId - User UUID
+ * @param conversationId - Conversation UUID
+ * @returns Array of unread messages
+ *
+ * @example
+ * const unread = await getUnreadMessages('user-uuid', 'conv-uuid');
+ */
+export async function getUnreadMessages(
+  userId: string,
+  conversationId: string
+): Promise<Message[]> {
+  const sql = `
+    SELECT
+      m.id, m.conversation_id, m.sender_type, m.sender_id, m.sender_name,
+      m.content, m.content_type, m.thread_id, m.reply_count, m.is_private,
+      m.mentions, m.attachments, m.external_id, m.external_status,
+      m.sentiment, m.intent, m.edited_at, m.deleted_at, m.created_at
+    FROM messages m
+    INNER JOIN conversation_participants cp
+      ON cp.conversation_id = m.conversation_id
+    WHERE cp.user_id = $1
+      AND cp.conversation_id = $2
+      AND m.deleted_at IS NULL
+      AND (
+        cp.last_read_at IS NULL
+        OR m.created_at > cp.last_read_at
+      )
+    ORDER BY m.created_at ASC
+  `;
+
+  const rows = await query<DBMessage>(sql, [userId, conversationId]);
+  return rows.map(transformMessage);
+}
+
+/**
+ * Mark conversation as read for a user
+ * Resets unread count and updates last_read_at timestamp
+ *
+ * @param conversationId - Conversation UUID
+ * @param userId - User UUID
+ * @param messageId - Optional: specific message to mark as read up to
+ *
+ * @example
+ * await markConversationRead('conv-uuid', 'user-uuid');
+ */
+export async function markConversationRead(
+  conversationId: string,
+  userId: string,
+  messageId?: string
+): Promise<void> {
+  const sql = `SELECT mark_conversation_read($1, $2, $3)`;
+  await execute(sql, [conversationId, userId, messageId || null]);
+}
+
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
+/**
+ * Get latest message for a conversation (for preview)
+ *
+ * @param conversationId - Conversation UUID
+ * @returns Latest message or null
+ *
+ * @example
+ * const latest = await getLatestMessage('conv-uuid');
+ */
+export async function getLatestMessage(conversationId: string): Promise<Message | null> {
+  const sql = `
+    SELECT
+      id, conversation_id, sender_type, sender_id, sender_name,
+      content, content_type, thread_id, reply_count, is_private,
+      mentions, attachments, external_id, external_status,
+      sentiment, intent, edited_at, deleted_at, created_at
+    FROM messages
+    WHERE conversation_id = $1
+      AND deleted_at IS NULL
+    ORDER BY created_at DESC
+    LIMIT 1
+  `;
+
+  const rows = await query<DBMessage>(sql, [conversationId]);
+  return rows.length > 0 ? transformMessage(rows[0]) : null;
+}
+
+/**
+ * Get messages with mentions for a specific user
+ *
+ * @param userId - User UUID
+ * @param options - Query options
+ * @returns Array of messages mentioning the user
+ *
+ * @example
+ * const mentions = await getMessagesMentioningUser('user-uuid', { limit: 10 });
+ */
+export async function getMessagesMentioningUser(
+  userId: string,
+  options: {
+    conversationId?: string;
+    unreadOnly?: boolean;
+    limit?: number;
+  } = {}
+): Promise<Message[]> {
+  const { conversationId, unreadOnly = false, limit = 50 } = options;
+  const safeLimit = Math.min(limit, 200);
+
+  const conditions: string[] = [
+    'deleted_at IS NULL',
+    '$1 = ANY(mentions)',
+  ];
+  const params: any[] = [userId];
+
+  if (conversationId) {
+    conditions.push(`conversation_id = $${params.length + 1}`);
+    params.push(conversationId);
+  }
+
+  if (unreadOnly) {
+    conditions.push(`
+      created_at > COALESCE(
+        (SELECT last_read_at FROM conversation_participants
+         WHERE user_id = $1 AND conversation_id = messages.conversation_id),
+        '1970-01-01'::timestamptz
+      )
+    `);
+  }
+
+  const sql = `
+    SELECT
+      id, conversation_id, sender_type, sender_id, sender_name,
+      content, content_type, thread_id, reply_count, is_private,
+      mentions, attachments, external_id, external_status,
+      sentiment, intent, edited_at, deleted_at, created_at
+    FROM messages
+    WHERE ${conditions.join(' AND ')}
+    ORDER BY created_at DESC
+    LIMIT $${params.length + 1}::INTEGER
+  `;
+
+  params.push(safeLimit);
+
+  const rows = await query<DBMessage>(sql, params);
+  return rows.map(transformMessage);
 }

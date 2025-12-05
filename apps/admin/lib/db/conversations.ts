@@ -1126,3 +1126,442 @@ export async function removeParticipant(
 
   await execute(sql, [conversationId, userId]);
 }
+
+/**
+ * Get participants for a conversation
+ *
+ * @param conversationId - Conversation UUID
+ * @returns List of participants
+ *
+ * @example
+ * const participants = await getParticipants('conversation-uuid');
+ */
+export async function getParticipants(conversationId: string): Promise<Participant[]> {
+  const sql = `
+    SELECT
+      id, conversation_id, user_id, contact_id, role,
+      joined_at, left_at, last_read_at, unread_count
+    FROM conversation_participants
+    WHERE conversation_id = $1
+      AND left_at IS NULL
+    ORDER BY joined_at ASC
+  `;
+
+  const rows = await query<DBParticipant>(sql, [conversationId]);
+  return rows.map(transformParticipant);
+}
+
+/**
+ * Mark conversation as read for a user (update last_read_at)
+ *
+ * @param conversationId - Conversation UUID
+ * @param userId - User UUID
+ * @param messageId - Optional last read message ID
+ *
+ * @example
+ * await markConversationRead('conv-uuid', 'user-uuid');
+ */
+export async function markConversationRead(
+  conversationId: string,
+  userId: string,
+  messageId?: string
+): Promise<void> {
+  const sql = `
+    UPDATE conversation_participants
+    SET
+      last_read_at = NOW(),
+      last_read_message_id = COALESCE($3, last_read_message_id),
+      unread_count = 0
+    WHERE conversation_id = $1 AND user_id = $2
+  `;
+
+  await execute(sql, [conversationId, userId, messageId || null]);
+}
+
+// ============================================================================
+// Team Channels
+// ============================================================================
+
+/**
+ * List team channels only
+ *
+ * @param options - Filter and pagination options
+ * @returns Team channels
+ *
+ * @example
+ * const channels = await getTeamChannels({ status: 'active' });
+ */
+export async function getTeamChannels(
+  options: Omit<ConversationListOptions, 'type'> = {}
+): Promise<ConversationListResult> {
+  return getAllConversations({
+    ...options,
+    type: 'team_channel',
+  });
+}
+
+/**
+ * Get team channel by slug
+ *
+ * @param slug - Channel slug
+ * @returns Channel or null if not found
+ *
+ * @example
+ * const general = await getTeamChannelBySlug('general');
+ */
+export async function getTeamChannelBySlug(slug: string): Promise<Conversation | null> {
+  return getConversationBySlug(slug);
+}
+
+/**
+ * Create a team channel with auto-generated slug
+ *
+ * @param data - Channel creation data
+ * @param createdBy - User ID creating the channel
+ * @returns Created channel
+ *
+ * @example
+ * const channel = await createTeamChannel({
+ *   title: 'Engineering',
+ *   description: 'Development team discussions',
+ *   isPrivate: true
+ * }, 'admin-uuid');
+ */
+export async function createTeamChannel(
+  data: {
+    title: string;
+    slug?: string;
+    description?: string;
+    isPrivate?: boolean;
+  },
+  createdBy: string
+): Promise<Conversation> {
+  // Generate slug from title if not provided
+  const slug =
+    data.slug ||
+    data.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+
+  return createConversation(
+    {
+      type: 'team_channel',
+      title: data.title,
+      slug,
+      description: data.description,
+      isPrivate: data.isPrivate || false,
+    },
+    createdBy
+  );
+}
+
+// ============================================================================
+// Direct Messages
+// ============================================================================
+
+/**
+ * Get direct messages for a user
+ *
+ * @param userId - Admin user UUID
+ * @returns User's DM conversations
+ *
+ * @example
+ * const dms = await getDirectMessages('user-uuid');
+ */
+export async function getDirectMessages(userId: string): Promise<ConversationListResult> {
+  return getConversationsByParticipant(userId, {
+    type: 'direct_message',
+  });
+}
+
+/**
+ * Find or create a direct message conversation between users
+ *
+ * @param userIds - Array of user UUIDs (2+ users)
+ * @param createdBy - User ID creating the DM
+ * @returns Existing or newly created DM conversation
+ *
+ * @example
+ * const dm = await findOrCreateDM(['user1-uuid', 'user2-uuid'], 'user1-uuid');
+ */
+export async function findOrCreateDM(
+  userIds: string[],
+  createdBy: string
+): Promise<Conversation> {
+  if (userIds.length < 2) {
+    throw new Error('DM requires at least 2 participants');
+  }
+
+  // Sort userIds for consistent lookup
+  const sortedUserIds = [...userIds].sort();
+
+  // Try to find existing DM with exact same participants
+  const findSql = `
+    SELECT c.id
+    FROM conversations c
+    WHERE c.type = 'direct_message'
+      AND c.id IN (
+        SELECT conversation_id
+        FROM conversation_participants
+        WHERE user_id = ANY($1)
+          AND left_at IS NULL
+        GROUP BY conversation_id
+        HAVING COUNT(DISTINCT user_id) = $2
+          AND ARRAY_AGG(user_id ORDER BY user_id) = $1
+      )
+    LIMIT 1
+  `;
+
+  const findResult = await query<{ id: string }>(findSql, [sortedUserIds, sortedUserIds.length]);
+
+  if (findResult.length > 0) {
+    // Found existing DM
+    const existingId = findResult[0].id;
+    return (await getConversationById(existingId))!;
+  }
+
+  // Create new DM conversation
+  const conversation = await createConversation(
+    {
+      type: 'direct_message',
+      status: 'active',
+    },
+    createdBy
+  );
+
+  // Add all participants
+  for (const userId of userIds) {
+    await addParticipant(conversation.id, userId, 'member');
+  }
+
+  // Fetch full conversation with participants
+  return (await getConversationById(conversation.id))!;
+}
+
+// ============================================================================
+// Internal Tickets
+// ============================================================================
+
+/**
+ * List internal tickets
+ *
+ * @param options - Filter and pagination options
+ * @returns Internal tickets
+ *
+ * @example
+ * const tickets = await getInternalTickets({
+ *   assignedTeam: 'dev',
+ *   status: 'open'
+ * });
+ */
+export async function getInternalTickets(
+  options: Omit<ConversationListOptions, 'type'> = {}
+): Promise<ConversationListResult> {
+  return getAllConversations({
+    ...options,
+    type: 'internal_ticket',
+  });
+}
+
+/**
+ * Create an internal ticket
+ * Auto-generates ticket number via DB trigger based on assigned_team
+ *
+ * @param data - Ticket creation data
+ * @param createdBy - User ID creating the ticket
+ * @returns Created ticket with auto-generated ticket number
+ *
+ * @example
+ * const ticket = await createInternalTicket({
+ *   title: 'Fix login bug',
+ *   assignedTeam: 'dev',
+ *   priority: 'high',
+ *   requesterId: 'user-uuid',
+ *   linkedConversationId: 'support-conv-uuid'
+ * }, 'user-uuid');
+ */
+export async function createInternalTicket(
+  data: {
+    title: string;
+    description?: string;
+    assignedTeam: AssignedTeam;
+    priority?: Priority;
+    requesterId: string;
+    linkedConversationId?: string;
+    metadata?: Record<string, unknown>;
+  },
+  createdBy: string
+): Promise<Conversation> {
+  // Note: ticket_number is auto-generated by DB trigger based on assigned_team
+  return createConversation(
+    {
+      type: 'internal_ticket',
+      title: data.title,
+      description: data.description,
+      assignedTeam: data.assignedTeam,
+      priority: data.priority || 'normal',
+      requesterId: data.requesterId,
+      linkedConversationId: data.linkedConversationId,
+      metadata: data.metadata,
+    },
+    createdBy
+  );
+}
+
+/**
+ * Archive a conversation (set is_archived = true or status = archived)
+ *
+ * @param id - Conversation UUID
+ * @returns Updated conversation or null if not found
+ *
+ * @example
+ * const archived = await archiveConversation('uuid-here');
+ */
+export async function archiveConversation(id: string): Promise<Conversation | null> {
+  const sql = `
+    UPDATE conversations
+    SET
+      is_archived = TRUE,
+      status = CASE
+        WHEN type IN ('team_channel', 'direct_message') THEN 'archived'
+        ELSE status
+      END,
+      updated_at = NOW()
+    WHERE id = $1
+    RETURNING id
+  `;
+
+  const rows = await query<{ id: string }>(sql, [id]);
+  if (rows.length === 0) return null;
+
+  return getConversationById(id);
+}
+
+// ============================================================================
+// Presence & Online Status
+// ============================================================================
+
+/**
+ * User presence status
+ */
+export type PresenceStatus = 'online' | 'away' | 'busy' | 'offline';
+
+/**
+ * User presence entity
+ */
+export interface UserPresence {
+  userId: string;
+  status: PresenceStatus;
+  statusText?: string;
+  lastSeenAt: string;
+  currentConversationId?: string;
+}
+
+/**
+ * Database row type for user_presence table
+ */
+interface DBUserPresence {
+  user_id: string;
+  status: PresenceStatus;
+  status_text: string | null;
+  last_seen_at: string;
+  current_conversation_id: string | null;
+  updated_at: string;
+}
+
+/**
+ * Transform presence database row to API object
+ */
+function transformUserPresence(row: DBUserPresence): UserPresence {
+  return {
+    userId: row.user_id,
+    status: row.status,
+    statusText: row.status_text || undefined,
+    lastSeenAt: row.last_seen_at,
+    currentConversationId: row.current_conversation_id || undefined,
+  };
+}
+
+/**
+ * Update user presence status
+ *
+ * @param userId - User UUID
+ * @param status - Presence status
+ * @param conversationId - Optional current conversation ID
+ *
+ * @example
+ * await updatePresence('user-uuid', 'online', 'conv-uuid');
+ */
+export async function updatePresence(
+  userId: string,
+  status: PresenceStatus,
+  conversationId?: string
+): Promise<void> {
+  const sql = `
+    INSERT INTO user_presence (user_id, status, current_conversation_id, last_seen_at)
+    VALUES ($1, $2, $3, NOW())
+    ON CONFLICT (user_id)
+    DO UPDATE SET
+      status = EXCLUDED.status,
+      current_conversation_id = EXCLUDED.current_conversation_id,
+      last_seen_at = NOW()
+  `;
+
+  await execute(sql, [userId, status, conversationId || null]);
+}
+
+/**
+ * Get online users (status 'online' or 'away')
+ *
+ * @returns List of online/away users with their presence info
+ *
+ * @example
+ * const onlineUsers = await getOnlineUsers();
+ */
+export async function getOnlineUsers(): Promise<UserPresence[]> {
+  const sql = `
+    SELECT *
+    FROM user_presence
+    WHERE status IN ('online', 'away')
+    ORDER BY last_seen_at DESC
+  `;
+
+  const rows = await query<DBUserPresence>(sql);
+  return rows.map(transformUserPresence);
+}
+
+// ============================================================================
+// Authorization Helpers
+// ============================================================================
+
+/**
+ * Check if a user is a participant in a conversation
+ *
+ * @param conversationId - Conversation UUID
+ * @param userId - User UUID
+ * @returns True if user is a participant, false otherwise
+ *
+ * @example
+ * const isParticipant = await isUserParticipant('conv-uuid', 'user-uuid');
+ * if (!isParticipant) {
+ *   return res.status(403).json({ error: 'Forbidden' });
+ * }
+ */
+export async function isUserParticipant(
+  conversationId: string,
+  userId: string
+): Promise<boolean> {
+  const sql = `
+    SELECT EXISTS (
+      SELECT 1
+      FROM conversation_participants
+      WHERE conversation_id = $1
+        AND user_id = $2
+        AND left_at IS NULL
+    ) as is_participant
+  `;
+
+  const rows = await query<{ is_participant: boolean }>(sql, [conversationId, userId]);
+  return rows.length > 0 && rows[0].is_participant;
+}

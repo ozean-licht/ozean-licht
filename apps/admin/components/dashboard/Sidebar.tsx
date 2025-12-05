@@ -25,6 +25,9 @@ import {
   FileText,
   Headphones,
   MessageSquare,
+  MessageCircle,
+  Hash,
+  Ticket,
   HelpCircle,
   BarChart3,
   Settings,
@@ -149,6 +152,26 @@ export default function Sidebar({
           label: 'Events',
           href: '/dashboard/calendar/events',
           icon: Calendar,
+        },
+      ],
+    },
+    {
+      title: 'Messages',
+      items: [
+        {
+          label: 'Channels',
+          href: '/dashboard/messages/channels',
+          icon: Hash,
+        },
+        {
+          label: 'Direct Messages',
+          href: '/dashboard/messages/dm',
+          icon: MessageCircle,
+        },
+        {
+          label: 'Internal Tickets',
+          href: '/dashboard/messages/tickets',
+          icon: Ticket,
         },
       ],
     },
