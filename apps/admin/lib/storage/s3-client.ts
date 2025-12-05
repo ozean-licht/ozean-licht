@@ -427,6 +427,14 @@ export class S3StorageClient {
   }
 
   /**
+   * Get the underlying S3Client instance
+   * Used for direct S3 operations that aren't wrapped by this class
+   */
+  getClient(): S3Client {
+    return this.client;
+  }
+
+  /**
    * Check storage service health
    */
   async checkHealth(): Promise<StorageHealthStatus> {

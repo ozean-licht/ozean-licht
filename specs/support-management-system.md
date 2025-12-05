@@ -1722,11 +1722,23 @@ Self-service knowledge base for customers.
 - [ ] @mentions route correctly
 - [ ] Quiet hours respected
 
-### Phase 8: File Handling
-- [ ] Files upload to MinIO
-- [ ] Thumbnails generated for images
-- [ ] Size limits enforced
-- [ ] Presigned URLs work
+### Phase 8: File Handling & Attachments ✅ COMPLETED (2025-12-05)
+- [x] Files upload to MinIO via presigned URLs
+- [x] Thumbnails generated for images (200x200, 400x400, 800x800)
+- [x] Size limits enforced (25MB files, 10MB images, 50MB total per message)
+- [x] Presigned URLs work (5 min upload, 1 hour download)
+- [x] Drag-and-drop file upload support
+- [x] Attachment preview components
+
+**Files Created:**
+- `lib/storage/messaging-config.ts` - Attachment configuration (size limits, MIME types, helpers)
+- `lib/storage/thumbnails.ts` - Thumbnail generation with sharp
+- `app/api/messaging/attachments/upload/route.ts` - Presigned URL generation endpoint
+- `app/api/messaging/attachments/[fileId]/confirm/route.ts` - Upload confirmation with thumbnails
+- `components/messaging/AttachmentPreview.tsx` - File attachment preview component
+- `components/messaging/MessageComposer.tsx` - Message composition with attachments
+- `components/messaging/FileDropzone.tsx` - Drag-and-drop file upload wrapper
+- `components/messaging/index.ts` - Component exports
 
 ### Phase 9: Unified Inbox
 - [ ] All types in one view
