@@ -1591,28 +1591,7 @@ cd shared/widget && pnpm build
 
 ---
 
-### Phase 11: AI Integration
-**Duration:** 4-5 days | **Priority:** High
-
-Integrate Claude for intelligent support assistance.
-
-**Capabilities:**
-- Response suggestions
-- Intent classification
-- Sentiment analysis
-- Smart routing
-- Knowledge article semantic search
-
-**Deliverables:**
-- Claude API integration
-- Suggestion panel in conversation view
-- Intent/sentiment badges
-- AI routing recommendations
-- Cost tracking and budgets
-
----
-
-### Phase 12: External Channels
+### Phase 11: External Channels
 **Duration:** 5-6 days | **Priority:** Medium
 
 Native WhatsApp Business and Telegram integration.
@@ -1626,7 +1605,7 @@ Native WhatsApp Business and Telegram integration.
 
 ---
 
-### Phase 13: Public Help Center
+### Phase 12: Public Help Center
 **Duration:** 3-4 days | **Priority:** Low
 
 Self-service knowledge base for customers.
@@ -1685,15 +1664,15 @@ Self-service knowledge base for customers.
 - Create embed code generator
 - Deploy widget.js to CDN
 
-### 7. Phase 11: AI Integration
-- Add Anthropic SDK
-- Build suggestion generation
-- Implement classification
-- Create cost tracking
-
-### 8. Phases 12-13: Channels + Help Center
+### 7. Phases 11-12: Channels + Help Center
 - WhatsApp/Telegram adapters
 - Public help center pages
+
+### Future: Phase 13 (AI Integration) - DEFERRED
+- Add Anthropic SDK (when ready)
+- Build suggestion generation
+- Implement classification
+- Cost tracking
 
 ---
 
@@ -1714,13 +1693,17 @@ Self-service knowledge base for customers.
 - `lib/db/participants.ts` - Membership management
 - `lib/db/internal-tickets.ts` - Ticket-specific operations
 
-### Phase 7: Real-Time + Notifications
+### Phase 7: Real-Time + Notifications (NOT IMPLEMENTED)
+**Status:** Pending - Using polling fallback (30s interval) until implemented
+
 - [ ] Messages appear instantly (<200ms)
 - [ ] Typing indicators work
 - [ ] Push notifications delivered
 - [ ] Email sent for offline users
 - [ ] @mentions route correctly
 - [ ] Quiet hours respected
+
+**Note:** Soketi server deployed at `realtime.ozean-licht.dev` but client integration not yet done. Currently using `useConversationPolling.ts` as temporary solution.
 
 ### Phase 8: File Handling & Attachments ✅ COMPLETED (2025-12-05)
 - [x] Files upload to MinIO via presigned URLs
@@ -1791,6 +1774,29 @@ Widget API Endpoints (`apps/admin/app/api/widget/`):
 
 Admin Components:
 - `components/support/WidgetEmbedGenerator.tsx` - Embed code generator UI
+
+---
+
+## Future Phases (Deferred)
+
+### Phase 11: AI Integration (DEFERRED)
+**Duration:** 4-5 days | **Priority:** Low | **Status:** Moved to future backlog
+
+Integrate Claude for intelligent support assistance. Deferred until core real-time messaging (Phase 7) is complete and stable.
+
+**Capabilities:**
+- Response suggestions
+- Intent classification
+- Sentiment analysis
+- Smart routing
+- Knowledge article semantic search
+
+**Deliverables:**
+- Claude API integration
+- Suggestion panel in conversation view
+- Intent/sentiment badges
+- AI routing recommendations
+- Cost tracking and budgets
 
 ---
 
@@ -1898,4 +1904,4 @@ pnpm add --filter shared-ui idb  # IndexedDB wrapper
 
 ---
 
-*Created: 2025-12-05 | Complexity: Complex | Type: Feature | Phases: 6-13 | Estimated: 30-38 days*
+*Created: 2025-12-05 | Complexity: Complex | Type: Feature | Phases: 6-12 (AI deferred) | Estimated: 25-32 days*
