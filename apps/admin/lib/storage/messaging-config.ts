@@ -87,7 +87,7 @@ export const ATTACHMENT_CONFIG = {
 
   // Presigned URL expiry times (in seconds)
   presignedUrls: {
-    uploadUrlExpiry: 5 * 60, // 5 minutes for upload URLs
+    uploadUrlExpiry: 15 * 60, // 15 minutes for upload URLs
     downloadUrlExpiry: 60 * 60, // 1 hour for download URLs
   },
 

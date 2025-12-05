@@ -26,3 +26,4 @@ export { default as QuickResponses } from './QuickResponses';
 export { default as ChannelConfigCard } from './ChannelConfigCard';
 export { default as ChannelSettingsModal } from './ChannelSettingsModal';
 export { default as WidgetCustomizer } from './WidgetCustomizer';
+export { WidgetEmbedGenerator } from './WidgetEmbedGenerator';

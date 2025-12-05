@@ -1757,11 +1757,40 @@ Self-service knowledge base for customers.
 - `app/dashboard/messages/MessagesPageClient.tsx` - Full unified inbox features
 - `app/api/messages/tickets/route.ts` - Internal tickets API
 
-### Phase 10: Widget
-- [ ] Anonymous chat works
-- [ ] Identified users verified
-- [ ] Offline messages queue
-- [ ] Embed code works
+### Phase 10: Chat Widget (Customer-Facing) ✅ COMPLETED (2025-12-05)
+- [x] Widget SDK with embeddable IIFE bundle
+- [x] Anonymous session management with localStorage
+- [x] Identified user verification with optional HMAC
+- [x] Offline message queue with IndexedDB persistence
+- [x] Real-time messaging via Soketi/Pusher
+- [x] Widget API endpoints for public conversations
+- [x] Embed code generator in admin settings
+
+**Files Created:**
+
+Widget Package (`shared/widget/`):
+- `package.json` - Vite-based IIFE bundle configuration
+- `vite.config.ts` - Build config for standalone widget.js
+- `src/types.ts` - Widget types (WidgetConfig, Message, Attachment, etc.)
+- `src/api.ts` - WidgetAPIClient for backend communication
+- `src/realtime.ts` - RealtimeClient for Soketi WebSocket
+- `src/offline-queue.ts` - OfflineQueue with IndexedDB persistence
+- `src/index.ts` - Main entry point with global SDK API
+- `src/components/Widget.tsx` - Main orchestrating component
+- `src/components/WidgetLauncher.tsx` - Floating action button
+- `src/components/WidgetFrame.tsx` - Chat window container
+- `src/components/MessageList.tsx` - Message display with auto-scroll
+- `src/components/MessageComposer.tsx` - Input with attachments
+
+Widget API Endpoints (`apps/admin/app/api/widget/`):
+- `conversations/route.ts` - Create/get widget conversations
+- `conversations/[id]/messages/route.ts` - Send/receive messages
+- `attachments/upload/route.ts` - Presigned upload URLs
+- `attachments/[fileId]/confirm/route.ts` - Confirm uploads
+- `identify/route.ts` - User identification with HMAC
+
+Admin Components:
+- `components/support/WidgetEmbedGenerator.tsx` - Embed code generator UI
 
 ---
 
