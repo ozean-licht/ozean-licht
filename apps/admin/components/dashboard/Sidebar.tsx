@@ -200,12 +200,6 @@ export default function Sidebar({
           icon: HelpCircle,
         },
         {
-          label: 'Help Center',
-          href: '/hilfe',
-          icon: ExternalLink,
-          badge: 'Public',
-        },
-        {
           label: 'Analytics',
           href: '/dashboard/support/analytics',
           icon: BarChart3,

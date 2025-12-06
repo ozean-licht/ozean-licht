@@ -3,6 +3,7 @@ import { Montserrat, Montserrat_Alternates, Cinzel, Cinzel_Decorative } from 'ne
 import './globals.css'
 import { ThemeProvider } from '@/lib/providers/ThemeProvider'
 import { ToastProvider } from '@/lib/providers/ToastProvider'
+import { SessionProvider } from '@/lib/providers/SessionProvider'
 
 // Configure Google Fonts
 const montserrat = Montserrat({
@@ -44,15 +45,17 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${montserrat.variable} ${montserratAlternates.variable} ${cinzel.variable} ${cinzelDecorative.variable} font-sans antialiased bg-[#00070F]`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem={true}
-          disableTransitionOnChange={false}
-        >
-          {children}
-          <ToastProvider />
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem={true}
+            disableTransitionOnChange={false}
+          >
+            {children}
+            <ToastProvider />
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   )

@@ -1,271 +1,155 @@
 /**
- * API: Single Knowledge Article Operations
- * GET /api/support/knowledge/[id] - Fetch article by ID
- * PATCH /api/support/knowledge/[id] - Update article
- * DELETE /api/support/knowledge/[id] - Archive article
+ * Knowledge Base Article API
+ * GET - Get single article
+ * PATCH - Update article
+ * DELETE - Delete article
  */
-
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/config';
 import {
   getArticleById,
   updateArticle,
-  archiveArticle,
+  deleteArticle,
+  publishArticle,
+  archiveArticle
 } from '@/lib/db/knowledge-articles';
-import type { ArticleStatus } from '@/types/support';
+import { z } from 'zod';
+import { validateUUID, parsePostgresError } from '@/lib/utils/validation';
 
-interface RouteParams {
+interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
-/**
- * GET /api/support/knowledge/[id]
- * Fetch a single article by ID
- */
+const updateArticleSchema = z.object({
+  title: z.string().min(1).max(255).optional(),
+  content: z.string().min(1).optional(),
+  summary: z.string().max(500).optional().nullable().transform(v => v ?? undefined),
+  category: z.string().max(100).optional().nullable().transform(v => v ?? undefined),
+  tags: z.array(z.string()).optional(),
+  language: z.string().optional(),
+  status: z.enum(['draft', 'published', 'archived']).optional(),
+});
+
 export async function GET(
   _request: NextRequest,
-  { params }: RouteParams
+  context: RouteContext
 ) {
-  // Auth check
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
-    const { id } = await params;
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    // Validate ID format (UUID)
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
-      return NextResponse.json(
-        { error: 'Invalid article ID format' },
-        { status: 400 }
-      );
+    const { id } = await context.params;
+
+    // Validate UUID
+    const validation = validateUUID(id, 'Article ID');
+    if (!validation.valid) {
+      return NextResponse.json({ error: validation.error!.message }, { status: validation.error!.status });
     }
 
     const article = await getArticleById(id);
 
     if (!article) {
-      return NextResponse.json(
-        { error: 'Article not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Article not found' }, { status: 404 });
     }
 
     return NextResponse.json({ article });
   } catch (error) {
-    console.error('[API] Failed to fetch knowledge article:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch article' },
-      { status: 500 }
-    );
+    console.error('Error fetching article:', error);
+    const { message, status } = parsePostgresError(error);
+    return NextResponse.json({ error: message }, { status });
   }
 }
 
-/**
- * PATCH /api/support/knowledge/[id]
- * Update an article by ID
- */
 export async function PATCH(
   request: NextRequest,
-  { params }: RouteParams
+  context: RouteContext
 ) {
-  // Auth check
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  // Role check - only admins can update articles
-  const allowedRoles = ['super_admin', 'ol_admin', 'ka_admin'];
-  if (!allowedRoles.includes(session.user.adminRole || '')) {
-    return NextResponse.json(
-      { error: 'Forbidden - Admin access required' },
-      { status: 403 }
-    );
-  }
-
   try {
-    const { id } = await params;
-
-    // Validate ID format (UUID)
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
-      return NextResponse.json(
-        { error: 'Invalid article ID format' },
-        { status: 400 }
-      );
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if article exists
-    const existing = await getArticleById(id);
-    if (!existing) {
-      return NextResponse.json(
-        { error: 'Article not found' },
-        { status: 404 }
-      );
+    const { id } = await context.params;
+
+    // Validate UUID
+    const validation = validateUUID(id, 'Article ID');
+    if (!validation.valid) {
+      return NextResponse.json({ error: validation.error!.message }, { status: validation.error!.status });
     }
 
     const body = await request.json();
+    const validated = updateArticleSchema.parse(body);
 
-    // Validate fields if provided
-    if (body.title !== undefined) {
-      if (typeof body.title !== 'string' || body.title.trim().length === 0) {
-        return NextResponse.json(
-          { error: 'Title must be a non-empty string' },
-          { status: 400 }
-        );
+    // Handle status changes with special functions
+    if (validated.status === 'published') {
+      const article = await publishArticle(id);
+      if (!article) {
+        return NextResponse.json({ error: 'Article not found' }, { status: 404 });
       }
-      body.title = body.title.trim();
-    }
-
-    if (body.content !== undefined) {
-      if (typeof body.content !== 'string' || body.content.trim().length === 0) {
-        return NextResponse.json(
-          { error: 'Content must be a non-empty string' },
-          { status: 400 }
-        );
+      // If there are other updates, apply them too
+      const { status, ...otherUpdates } = validated;
+      if (Object.keys(otherUpdates).length > 0) {
+        await updateArticle(id, otherUpdates);
       }
-      body.content = body.content.trim();
+      const updated = await getArticleById(id);
+      return NextResponse.json({ article: updated });
     }
 
-    if (body.summary !== undefined) {
-      if (typeof body.summary !== 'string') {
-        return NextResponse.json(
-          { error: 'Summary must be a string' },
-          { status: 400 }
-        );
+    if (validated.status === 'archived') {
+      const article = await archiveArticle(id);
+      if (!article) {
+        return NextResponse.json({ error: 'Article not found' }, { status: 404 });
       }
-      body.summary = body.summary.trim() || undefined;
+      return NextResponse.json({ article });
     }
 
-    if (body.category !== undefined) {
-      if (typeof body.category !== 'string') {
-        return NextResponse.json(
-          { error: 'Category must be a string' },
-          { status: 400 }
-        );
-      }
-      body.category = body.category.trim() || undefined;
-    }
-
-    if (body.tags !== undefined && !Array.isArray(body.tags)) {
-      return NextResponse.json(
-        { error: 'Tags must be an array of strings' },
-        { status: 400 }
-      );
-    }
-
-    if (body.language !== undefined && typeof body.language !== 'string') {
-      return NextResponse.json(
-        { error: 'Language must be a string' },
-        { status: 400 }
-      );
-    }
-
-    if (body.status !== undefined) {
-      const validStatuses: ArticleStatus[] = ['draft', 'published', 'archived'];
-      if (!validStatuses.includes(body.status)) {
-        return NextResponse.json(
-          { error: 'Invalid status value. Must be: draft, published, or archived' },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Update article
-    const article = await updateArticle(id, body);
-
+    const article = await updateArticle(id, validated);
     if (!article) {
-      return NextResponse.json(
-        { error: 'Failed to update article' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Article not found' }, { status: 404 });
     }
 
     return NextResponse.json({ article });
   } catch (error) {
-    console.error('[API] Failed to update knowledge article:', error);
-
-    // Handle duplicate slug errors
-    if (error instanceof Error && error.message.includes('duplicate key')) {
-      return NextResponse.json(
-        { error: 'An article with this title already exists (slug conflict)' },
-        { status: 409 }
-      );
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: 'Validation failed', details: error.errors }, { status: 400 });
     }
-
-    return NextResponse.json(
-      { error: 'Failed to update article' },
-      { status: 500 }
-    );
+    console.error('Error updating article:', error);
+    const { message, status } = parsePostgresError(error);
+    return NextResponse.json({ error: message }, { status });
   }
 }
 
-/**
- * DELETE /api/support/knowledge/[id]
- * Archive an article (soft delete - sets status to 'archived')
- */
 export async function DELETE(
   _request: NextRequest,
-  { params }: RouteParams
+  context: RouteContext
 ) {
-  // Auth check
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  // Role check - only admins can delete articles
-  const allowedRoles = ['super_admin', 'ol_admin', 'ka_admin'];
-  if (!allowedRoles.includes(session.user.adminRole || '')) {
-    return NextResponse.json(
-      { error: 'Forbidden - Admin access required' },
-      { status: 403 }
-    );
-  }
-
   try {
-    const { id } = await params;
-
-    // Validate ID format (UUID)
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
-      return NextResponse.json(
-        { error: 'Invalid article ID format' },
-        { status: 400 }
-      );
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if article exists
-    const existing = await getArticleById(id);
-    if (!existing) {
-      return NextResponse.json(
-        { error: 'Article not found' },
-        { status: 404 }
-      );
+    const { id } = await context.params;
+
+    // Validate UUID
+    const validation = validateUUID(id, 'Article ID');
+    if (!validation.valid) {
+      return NextResponse.json({ error: validation.error!.message }, { status: validation.error!.status });
     }
 
-    // Archive the article (soft delete)
-    const archived = await archiveArticle(id);
+    const deleted = await deleteArticle(id);
 
-    if (!archived) {
-      return NextResponse.json(
-        { error: 'Failed to archive article' },
-        { status: 500 }
-      );
+    if (!deleted) {
+      return NextResponse.json({ error: 'Article not found' }, { status: 404 });
     }
 
-    return NextResponse.json({
-      message: 'Article archived successfully',
-      article: archived,
-    });
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[API] Failed to archive knowledge article:', error);
-    return NextResponse.json(
-      { error: 'Failed to archive article' },
-      { status: 500 }
-    );
+    console.error('Error deleting article:', error);
+    const { message, status } = parsePostgresError(error);
+    return NextResponse.json({ error: message }, { status });
   }
 }

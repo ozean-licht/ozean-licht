@@ -63,11 +63,14 @@ export const config = {
     /*
      * Match all request paths except:
      * - api/auth (NextAuth endpoints)
+     * - api/public (Public API endpoints - no auth)
+     * - api/widget (Widget API endpoints - no auth)
+     * - hilfe (Public help center pages)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
      */
-    '/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api/auth|api/public|api/widget|hilfe|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

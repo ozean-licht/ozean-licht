@@ -1606,16 +1606,16 @@ Native WhatsApp Business and Telegram integration.
 ---
 
 ### Phase 12: Public Help Center
-**Duration:** 3-4 days | **Priority:** Low
+**Duration:** 3-4 days | **Priority:** Low | **Status:** Complete as of 2025-12-06
 
 Self-service knowledge base for customers.
 
 **Deliverables:**
-- Public /hilfe pages
-- Search with autocomplete
-- Article feedback
-- Contact widget escalation
-- SEO optimization
+- [x] Public /hilfe pages
+- [x] Search with autocomplete
+- [x] Article feedback
+- [x] Contact widget escalation
+- [x] SEO optimization (sitemap, robots.txt, meta tags)
 
 ---
 
@@ -1806,6 +1806,44 @@ Widget API Endpoints (`apps/admin/app/api/widget/`):
 
 Admin Components:
 - `components/support/WidgetEmbedGenerator.tsx` - Embed code generator UI
+
+### Phase 12: Public Help Center ✅ COMPLETED (2025-12-06)
+- [x] Public `/hilfe` pages accessible without authentication
+- [x] Search with autocomplete (debounced, 300ms)
+- [x] Article feedback (helpful/not helpful with optional text)
+- [x] Contact widget escalation integration
+- [x] SEO optimization (dynamic sitemap, robots.txt, OpenGraph meta tags)
+
+**Files Created:**
+
+Public Pages (`app/(public)/hilfe/`):
+- `layout.tsx` - Public layout with header/footer (no auth)
+- `page.tsx` - Main help center with search and category filtering
+- `[slug]/page.tsx` - Individual article page with SEO metadata
+- `[slug]/not-found.tsx` - 404 page for missing articles
+- `sitemap.ts` - Dynamic sitemap for all published articles
+- `robots.ts` - Robots.txt configuration
+
+Public API Routes (`app/api/public/hilfe/`):
+- `articles/route.ts` - List/search published articles
+- `articles/[slug]/route.ts` - Get single article by slug
+- `articles/[slug]/feedback/route.ts` - Submit article feedback
+- `categories/route.ts` - List all categories
+- `search/route.ts` - Search autocomplete endpoint
+
+Help Center Components (`components/hilfe/`):
+- `SearchBar.tsx` - Search with autocomplete dropdown
+- `ArticleCard.tsx` - Article list card component
+- `CategoryList.tsx` - Category sidebar navigation
+- `ArticleFeedback.tsx` - Helpful/not helpful feedback component
+- `ContactEscalation.tsx` - Contact support CTA with widget integration
+- `index.ts` - Component exports
+
+Database:
+- `migrations/028_article_feedback.sql` - Article feedback table
+
+Middleware:
+- Updated `middleware.ts` to exclude `/hilfe` and `/api/public` routes
 
 ---
 

@@ -130,10 +130,11 @@ export async function getAllArticles(options: ArticleListOptions = {}): Promise<
       ka.tags, ka.language, ka.status, ka.view_count, ka.helpful_count,
       ka.created_by, ka.published_at, ka.created_at, ka.updated_at,
       au.id as author_id,
-      au.name as author_name,
-      au.email as author_email
+      u.full_name as author_name,
+      u.email as author_email
     FROM knowledge_articles ka
     LEFT JOIN admin_users au ON ka.created_by = au.id
+    LEFT JOIN users u ON au.user_id = u.id
     ${whereClause}
     ORDER BY ka.created_at DESC
     LIMIT $${limitParamIndex} OFFSET $${offsetParamIndex}
@@ -161,10 +162,11 @@ export async function getArticleById(id: string): Promise<KnowledgeArticle | nul
       ka.tags, ka.language, ka.status, ka.view_count, ka.helpful_count,
       ka.created_by, ka.published_at, ka.created_at, ka.updated_at,
       au.id as author_id,
-      au.name as author_name,
-      au.email as author_email
+      u.full_name as author_name,
+      u.email as author_email
     FROM knowledge_articles ka
     LEFT JOIN admin_users au ON ka.created_by = au.id
+    LEFT JOIN users u ON au.user_id = u.id
     WHERE ka.id = $1
   `;
 
@@ -187,10 +189,11 @@ export async function getArticleBySlug(slug: string): Promise<KnowledgeArticle |
       ka.tags, ka.language, ka.status, ka.view_count, ka.helpful_count,
       ka.created_by, ka.published_at, ka.created_at, ka.updated_at,
       au.id as author_id,
-      au.name as author_name,
-      au.email as author_email
+      u.full_name as author_name,
+      u.email as author_email
     FROM knowledge_articles ka
     LEFT JOIN admin_users au ON ka.created_by = au.id
+    LEFT JOIN users u ON au.user_id = u.id
     WHERE ka.slug = $1
   `;
 
@@ -385,10 +388,11 @@ export async function searchArticles(
       ka.tags, ka.language, ka.status, ka.view_count, ka.helpful_count,
       ka.created_by, ka.published_at, ka.created_at, ka.updated_at,
       au.id as author_id,
-      au.name as author_name,
-      au.email as author_email
+      u.full_name as author_name,
+      u.email as author_email
     FROM knowledge_articles ka
     LEFT JOIN admin_users au ON ka.created_by = au.id
+    LEFT JOIN users u ON au.user_id = u.id
     WHERE (ka.title ILIKE $1 OR ka.content ILIKE $1)
     ORDER BY ka.view_count DESC, ka.created_at DESC
     LIMIT $2
@@ -413,10 +417,11 @@ export async function getArticlesByCategory(category: string): Promise<Knowledge
       ka.tags, ka.language, ka.status, ka.view_count, ka.helpful_count,
       ka.created_by, ka.published_at, ka.created_at, ka.updated_at,
       au.id as author_id,
-      au.name as author_name,
-      au.email as author_email
+      u.full_name as author_name,
+      u.email as author_email
     FROM knowledge_articles ka
     LEFT JOIN admin_users au ON ka.created_by = au.id
+    LEFT JOIN users u ON au.user_id = u.id
     WHERE ka.category = $1 AND ka.status = 'published'
     ORDER BY ka.view_count DESC, ka.created_at DESC
   `;
