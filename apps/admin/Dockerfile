@@ -63,10 +63,18 @@ ENV NEXTAUTH_URL=https://dashboard.ozean-licht.dev
 # Build the Next.js application
 RUN pnpm run build
 
+# Dereference symlinks in standalone output (pnpm uses symlinks that won't work in runner)
+# cp -rL follows symlinks and copies actual files
+RUN mkdir -p /app/standalone && \
+    cp -rL .next/standalone/. /app/standalone/ && \
+    cp -r .next/static /app/standalone/.next/static && \
+    cp -r public /app/standalone/public
+
 # ============================================================================
 # Runner stage - production image
 # ============================================================================
 FROM base AS runner
+WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -75,20 +83,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy built application from builder
-# NOTE: pnpm standalone uses symlinks pointing to ../../../node_modules/.pnpm/...
-# We must maintain the same directory structure so symlinks resolve correctly
-# Root node_modules (where pnpm stores packages)
-COPY --from=builder /app/node_modules /app/node_modules
-# Standalone output (contains server.js and symlinked node_modules)
-COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/standalone /app/apps/admin/.next/standalone
-# Static files
-COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/static /app/apps/admin/.next/standalone/.next/static
-# Public folder
-COPY --from=builder /app/apps/admin/public /app/apps/admin/.next/standalone/public
-
-# Set working directory to standalone output
-WORKDIR /app/apps/admin/.next/standalone
+# Copy dereferenced standalone output (no symlinks)
+COPY --from=builder --chown=nextjs:nodejs /app/standalone ./
 
 USER nextjs
 
