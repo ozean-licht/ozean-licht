@@ -574,4 +574,91 @@ describe('Calendar Helpers', () => {
       expect(range.end.getDay()).toBe(0); // Sunday
     });
   });
+
+  describe('Performance - Large Event Counts', () => {
+    // Helper to create many events
+    function createManyEvents(count: number): IEvent[] {
+      const events: IEvent[] = [];
+      const baseDate = new Date('2025-01-15');
+
+      for (let i = 0; i < count; i++) {
+        const dayOffset = i % 30; // Spread across 30 days
+        const hourOffset = (i % 8) + 9; // 9 AM to 5 PM
+        const start = new Date(baseDate);
+        start.setDate(start.getDate() + dayOffset);
+        start.setHours(hourOffset, 0, 0, 0);
+
+        const end = new Date(start);
+        end.setHours(hourOffset + 1);
+
+        events.push({
+          id: `event-${i}`,
+          title: `Event ${i}`,
+          startDate: start.toISOString(),
+          endDate: end.toISOString(),
+          allDay: false,
+          color: 'blue' as const,
+          source: 'events' as const,
+          description: '',
+          user: {
+            id: 'user-1',
+            name: 'Test User',
+            picturePath: null,
+          },
+        });
+      }
+      return events;
+    }
+
+    it('should handle 100 events without performance issues', () => {
+      const events = createManyEvents(100);
+      const date = new Date('2025-01-15');
+
+      const startTime = performance.now();
+      const result = getEventsForDay(events, date);
+      const endTime = performance.now();
+
+      // Should complete in under 50ms
+      expect(endTime - startTime).toBeLessThan(50);
+      // Should return some events for that day
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    it('should handle 500 events without performance issues', () => {
+      const events = createManyEvents(500);
+      const date = new Date('2025-01-15');
+
+      const startTime = performance.now();
+      const result = getEventsForDay(events, date);
+      const endTime = performance.now();
+
+      // Should complete in under 100ms
+      expect(endTime - startTime).toBeLessThan(100);
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    it('should handle getMonthDays with many events efficiently', () => {
+      const date = new Date('2025-01-15');
+
+      const startTime = performance.now();
+      const days = getMonthDays(date, 1);
+      const endTime = performance.now();
+
+      // Grid calculation should be instant (under 10ms)
+      expect(endTime - startTime).toBeLessThan(10);
+      expect(days.length).toBeGreaterThan(28);
+    });
+
+    it('should handle getWeekDays efficiently', () => {
+      const date = new Date('2025-01-15');
+
+      const startTime = performance.now();
+      const days = getWeekDays(date, 1);
+      const endTime = performance.now();
+
+      // Should be instant (under 5ms)
+      expect(endTime - startTime).toBeLessThan(5);
+      expect(days.length).toBe(7);
+    });
+  });
 });

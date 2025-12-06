@@ -17,7 +17,7 @@ import {
   transformEventsToEvent,
 } from '@/components/calendar/types';
 
-// MCP Gateway URL
+// MCP Gateway URL - uses localhost for local dev, service name in Docker (http://mcp-gateway:8100)
 const MCP_GATEWAY_URL = process.env.MCP_GATEWAY_URL || 'http://localhost:8100';
 
 // Zod schema for query parameter validation
@@ -40,55 +40,97 @@ const queryParamsSchema = z.object({
   ]).optional(),
 });
 
-interface AirtableResponse {
-  success: boolean;
-  data?: {
-    records: Array<AirtableConnectedCalendarRecord | AirtableEventsRecord>;
-    offset?: string;
-  };
-  error?: string;
-}
+// Zod schema for JSON-RPC 2.0 response validation
+const mcpJsonRpcResponseSchema = z.object({
+  jsonrpc: z.literal('2.0'),
+  id: z.number(),
+  result: z.object({
+    status: z.string(),
+    data: z.object({
+      records: z.array(z.any()), // Records will be typed after extraction
+      hasMore: z.boolean().optional(),
+    }).optional(),
+  }).optional(),
+  error: z.object({
+    code: z.number(),
+    message: z.string(),
+  }).optional(),
+});
+
+// Request ID counter for JSON-RPC correlation
+let requestIdCounter = 0;
 
 /**
- * Fetch records from Airtable via MCP Gateway
+ * Fetch records from Airtable via MCP Gateway using JSON-RPC 2.0
+ * Validates response structure and correlates request/response IDs
  */
 async function fetchAirtableRecords(
   tableName: string,
   filterFormula?: string,
   maxRecords: number = 100
 ): Promise<Array<AirtableConnectedCalendarRecord | AirtableEventsRecord>> {
+  const requestId = ++requestIdCounter;
+
   try {
-    const response = await fetch(`${MCP_GATEWAY_URL}/execute`, {
+    const response = await fetch(`${MCP_GATEWAY_URL}/mcp/rpc`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        service: 'airtable',
-        operation: 'read-records',
-        args: {
-          tableName,
-          maxRecords,
-          ...(filterFormula && { filterByFormula: filterFormula }),
+        jsonrpc: '2.0',
+        id: requestId,
+        method: 'mcp.execute',
+        params: {
+          service: 'airtable',
+          operation: 'read-records',
+          args: {
+            tableName,
+            ...(filterFormula && { filter: filterFormula }),
+          },
+          options: {
+            limit: maxRecords,
+          },
         },
       }),
     });
 
     if (!response.ok) {
-      console.error(`Airtable fetch failed for ${tableName}: ${response.statusText}`);
+      console.error(`[Calendar API] MCP Gateway HTTP error for ${tableName}: ${response.status} ${response.statusText}`);
       return [];
     }
 
-    const result: AirtableResponse = await response.json();
+    const rawResult = await response.json();
 
-    if (!result.success || !result.data?.records) {
-      console.error(`Airtable response error for ${tableName}:`, result.error);
+    // Validate JSON-RPC 2.0 response structure
+    const parseResult = mcpJsonRpcResponseSchema.safeParse(rawResult);
+    if (!parseResult.success) {
+      console.error(`[Calendar API] Invalid JSON-RPC response for ${tableName}:`, parseResult.error.format());
       return [];
     }
 
-    return result.data.records;
+    const result = parseResult.data;
+
+    // Validate request/response ID correlation
+    if (result.id !== requestId) {
+      console.warn(`[Calendar API] Response ID mismatch for ${tableName}: expected ${requestId}, got ${result.id}`);
+    }
+
+    // Check for JSON-RPC error
+    if (result.error) {
+      console.error(`[Calendar API] MCP error for ${tableName}:`, result.error.message, `(code: ${result.error.code})`);
+      return [];
+    }
+
+    // Validate records exist
+    if (!result.result?.data?.records) {
+      console.error(`[Calendar API] Missing records in response for ${tableName}`);
+      return [];
+    }
+
+    return result.result.data.records;
   } catch (error) {
-    console.error(`Error fetching from Airtable (${tableName}):`, error);
+    console.error(`[Calendar API] Network error fetching ${tableName}:`, error instanceof Error ? error.message : 'Unknown error');
     return [];
   }
 }
