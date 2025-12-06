@@ -17,6 +17,7 @@
 
 'use client';
 
+import React, { memo } from 'react';
 import type { IEvent } from './types';
 import { eventColorClasses, formatTime, isAllDayEvent } from './';
 import { cn } from '@/lib/utils';
@@ -33,13 +34,16 @@ interface EventCardProps {
 /**
  * EventCard component for displaying calendar events
  *
+ * Memoized for performance when rendering large numbers of events.
+ * Only re-renders when event data, variant, or style changes.
+ *
  * @param event - The event to display
  * @param variant - Display variant (default: 'default')
  * @param onClick - Optional click handler for opening event details
  * @param style - Optional inline styles for positioning
  * @param className - Additional CSS classes
  */
-export function EventCard({
+export const EventCard = memo(function EventCard({
   event,
   variant = 'default',
   onClick,
@@ -194,4 +198,7 @@ export function EventCard({
 
   // Fallback (should never reach here with proper TypeScript)
   return null;
-}
+});
+
+// Display name for debugging
+EventCard.displayName = 'EventCard';

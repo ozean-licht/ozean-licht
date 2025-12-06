@@ -389,6 +389,67 @@ export function getViewHeaderText(date: Date, view: TCalendarView): string {
   }
 }
 
+// ============================================================================
+// Performance Utilities
+// ============================================================================
+
+/**
+ * Maximum events to display per day in month view (prevents UI overflow)
+ */
+export const MAX_EVENTS_PER_DAY = 3;
+
+/**
+ * Maximum events to process before showing a warning
+ */
+export const MAX_TOTAL_EVENTS = 500;
+
+/**
+ * Limit events per day for better performance in dense calendars
+ * @param events - All events for a day
+ * @param maxVisible - Maximum number of visible events
+ * @returns Object with visible events and overflow count
+ */
+export function limitEventsPerDay(
+  events: IEvent[],
+  maxVisible: number = MAX_EVENTS_PER_DAY
+): { visible: IEvent[]; hiddenCount: number } {
+  if (events.length <= maxVisible) {
+    return { visible: events, hiddenCount: 0 };
+  }
+  return {
+    visible: events.slice(0, maxVisible),
+    hiddenCount: events.length - maxVisible,
+  };
+}
+
+/**
+ * Batch events by day for efficient rendering
+ * @param events - All events
+ * @param startDate - Start of range
+ * @param endDate - End of range
+ * @returns Map of date strings to event arrays
+ */
+export function batchEventsByDay(
+  events: IEvent[],
+  startDate: Date,
+  endDate: Date
+): Map<string, IEvent[]> {
+  const batchedEvents = new Map<string, IEvent[]>();
+  const filteredEvents = getEventsInRange(events, startDate, endDate);
+
+  filteredEvents.forEach((event) => {
+    const eventStart = parseISO(event.startDate);
+    const dateKey = format(eventStart, 'yyyy-MM-dd');
+
+    if (!batchedEvents.has(dateKey)) {
+      batchedEvents.set(dateKey, []);
+    }
+    batchedEvents.get(dateKey)!.push(event);
+  });
+
+  return batchedEvents;
+}
+
 // Re-export commonly used date-fns functions
 export {
   isToday,

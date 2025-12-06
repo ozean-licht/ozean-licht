@@ -88,6 +88,8 @@ interface CalendarContextValue extends CalendarState {
   navigate: (direction: 'prev' | 'next' | 'today') => void;
   refreshEvents: () => Promise<void>;
   dateRange: { start: Date; end: Date };
+  /** Raw events before user filtering - used for extracting unique users */
+  rawEvents: IEvent[];
 }
 
 // Create context
@@ -210,9 +212,19 @@ export function CalendarProvider({
     await fetchEvents();
   }, [fetchEvents]);
 
-  // Context value
+  // Filter events client-side by userId (since Airtable doesn't support this directly)
+  const filteredEvents = useMemo(() => {
+    if (!state.filters.userId) {
+      return state.events;
+    }
+    return state.events.filter((event) => event.user.id === state.filters.userId);
+  }, [state.events, state.filters.userId]);
+
+  // Context value - use filteredEvents instead of raw events
   const value: CalendarContextValue = {
     ...state,
+    events: filteredEvents, // Provide filtered events to consumers
+    rawEvents: state.events, // Provide raw events for user extraction
     setDate,
     setView,
     setFilters,

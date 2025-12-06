@@ -67,6 +67,11 @@ export {
   navigateDate,
   getViewDateRange,
   getViewHeaderText,
+  // Performance utilities
+  MAX_EVENTS_PER_DAY,
+  MAX_TOTAL_EVENTS,
+  limitEventsPerDay,
+  batchEventsByDay,
   // Re-exported date-fns functions
   isToday,
   isSameDay,
@@ -102,6 +107,8 @@ export { CalendarHeader } from './CalendarHeader';
 export { EventCard } from './EventCard';
 export { EventDialog } from './EventDialog';
 export { CalendarContainer } from './CalendarContainer';
+export { EventTypeFilter } from './EventTypeFilter';
+export { UserFilter } from './UserFilter';
 
 // ============================================================================
 // Views

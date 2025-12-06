@@ -9,20 +9,40 @@
  * - Previous/Next navigation arrows
  * - Dynamic date/period display based on current view
  * - View switcher tabs (Day | Week | Month | Year | Agenda)
+ * - User filter for filtering events by creator
+ * - Event type filter for filtering by event category
  * - Responsive design with mobile-friendly layout
  *
  * @module CalendarHeader
  */
 
+import { useMemo, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCalendar } from './CalendarContext';
 import { getViewHeaderText } from './helpers';
 import { viewLabels } from './config';
-import type { TCalendarView } from './types';
+import { UserFilter } from './UserFilter';
+import { EventTypeFilter } from './EventTypeFilter';
+import type { TCalendarView, IUser, TEventType } from './types';
 import { cn } from '@/lib/utils';
 
 const views: TCalendarView[] = ['day', 'week', 'month', 'year', 'agenda'];
+
+/**
+ * Extract unique users from events array
+ * @param events - Array of calendar events
+ * @returns Array of unique users
+ */
+function getUniqueUsers(events: { user: IUser }[]): IUser[] {
+  const userMap = new Map<string, IUser>();
+  events.forEach((event) => {
+    if (event.user && !userMap.has(event.user.id)) {
+      userMap.set(event.user.id, event.user);
+    }
+  });
+  return Array.from(userMap.values());
+}
 
 /**
  * Calendar Header Component
@@ -31,7 +51,7 @@ const views: TCalendarView[] = ['day', 'week', 'month', 'year', 'agenda'];
  * Integrates with CalendarContext for state management.
  *
  * Layout:
- * - Left: Today button + Prev/Next arrows
+ * - Left: Today button + Prev/Next arrows + Filters
  * - Center: Current date/period display
  * - Right: View switcher tabs
  *
@@ -46,8 +66,27 @@ const views: TCalendarView[] = ['day', 'week', 'month', 'year', 'agenda'];
  * ```
  */
 export function CalendarHeader() {
-  const { selectedDate, view, setView, navigate } = useCalendar();
+  const { selectedDate, view, setView, navigate, rawEvents, filters, setFilters, loading } = useCalendar();
   const headerText = getViewHeaderText(selectedDate, view);
+
+  // Extract unique users from rawEvents (unfiltered) for the user filter
+  const uniqueUsers = useMemo(() => getUniqueUsers(rawEvents), [rawEvents]);
+
+  // Handle user filter change
+  const handleUserSelect = useCallback(
+    (userId: string | undefined) => {
+      setFilters({ userId });
+    },
+    [setFilters]
+  );
+
+  // Handle event type filter change
+  const handleEventTypeSelect = useCallback(
+    (eventType: TEventType | undefined) => {
+      setFilters({ eventType });
+    },
+    [setFilters]
+  );
 
   return (
     <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
@@ -85,6 +124,21 @@ export function CalendarHeader() {
         >
           <ChevronRight className="w-5 h-5" />
         </Button>
+
+        {/* Filter controls - hidden on mobile */}
+        <div className="hidden md:flex items-center gap-2 ml-2">
+          <EventTypeFilter
+            selectedType={filters.eventType}
+            onSelect={handleEventTypeSelect}
+            isLoading={loading}
+          />
+          <UserFilter
+            users={uniqueUsers}
+            selectedUserId={filters.userId}
+            onSelect={handleUserSelect}
+            isLoading={loading}
+          />
+        </div>
       </div>
 
       {/* Center section: Current date/period display */}

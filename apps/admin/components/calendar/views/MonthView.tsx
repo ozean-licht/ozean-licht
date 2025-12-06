@@ -21,6 +21,7 @@ import {
   useCalendar,
   getMonthDays,
   getEventsForDay,
+  limitEventsPerDay,
   isToday,
   isSameMonth,
   isSameDay,
@@ -29,11 +30,6 @@ import {
   formatTime,
 } from '../';
 import type { IEvent } from '../types';
-
-/**
- * Maximum number of events to display before showing "+N more"
- */
-const MAX_VISIBLE_EVENTS = 3;
 
 /**
  * MonthView Component
@@ -112,8 +108,7 @@ export function MonthView() {
           const isCurrentDay = isToday(day);
           const isCurrentMonth = isSameMonth(day, selectedDate);
           const isSelected = isSameDay(day, selectedDate);
-          const visibleEvents = dayEvents.slice(0, MAX_VISIBLE_EVENTS);
-          const hiddenCount = Math.max(0, dayEvents.length - MAX_VISIBLE_EVENTS);
+          const { visible: visibleEvents, hiddenCount } = limitEventsPerDay(dayEvents);
 
           return (
             <div
