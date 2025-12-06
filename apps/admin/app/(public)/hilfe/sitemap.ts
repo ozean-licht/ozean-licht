@@ -5,6 +5,9 @@
 import { MetadataRoute } from 'next';
 import { getAllArticles, getCategories } from '@/lib/db/knowledge-articles';
 
+// Force dynamic rendering - sitemap needs database access
+export const dynamic = 'force-dynamic';
+
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://admin.ozean-licht.at';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
