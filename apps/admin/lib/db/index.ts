@@ -7,9 +7,11 @@
  * IMPORTANT: This is the correct pattern for application database access.
  * MCP Gateway is meant for AI agent tool access, NOT for application infrastructure.
  *
- * Environment Variables:
- *   - DATABASE_URL: Full connection string (preferred)
- *   - Or individual vars: POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DATABASE, POSTGRES_USER, POSTGRES_PASSWORD
+ * Environment Variables (checked in order):
+ *   - OZEAN_LICHT_DB_URL: Full connection string (preferred)
+ *   - OZEAN_LICHT_DATABASE_URL: Alias
+ *   - DATABASE_URL_OL: Legacy alias
+ *   - DATABASE_URL: Coolify default fallback
  */
 
 import { Pool, PoolConfig, QueryResult as PgQueryResult, PoolClient } from 'pg';
@@ -30,13 +32,15 @@ export interface QueryResult {
 // Parse DATABASE_URL or construct from individual env vars
 const getDatabaseConfig = (): PoolConfig => {
   // Check for ozean-licht content database URL (multiple possible env var names)
+  // Coolify sets DATABASE_URL, so include it as a fallback
   const databaseUrl = process.env.OZEAN_LICHT_DB_URL
     || process.env.OZEAN_LICHT_DATABASE_URL
-    || process.env.DATABASE_URL_OL;
+    || process.env.DATABASE_URL_OL
+    || process.env.DATABASE_URL;
 
   if (!databaseUrl) {
     throw new Error(
-      'Missing database configuration. Set OZEAN_LICHT_DB_URL environment variable.'
+      'Missing database configuration. Set OZEAN_LICHT_DB_URL or DATABASE_URL environment variable.'
     );
   }
 
