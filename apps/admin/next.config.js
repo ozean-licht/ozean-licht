@@ -55,6 +55,16 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'ol-public.fsn1.your-objectstorage.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.fsn1.your-objectstorage.com',
+        pathname: '/**',
+      },
     ],
   },
   async headers() {

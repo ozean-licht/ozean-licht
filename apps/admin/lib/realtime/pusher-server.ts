@@ -142,11 +142,14 @@ function getPusherInstance(): Pusher {
 }
 
 /**
- * Pusher server instance
+ * Pusher server instance (lazy getter)
  *
- * Use this for direct access to Pusher API methods
+ * Use this for direct access to Pusher API methods.
+ * The instance is created lazily on first access to avoid build-time errors.
  */
-export const pusherServer = getPusherInstance();
+export function getPusherServer(): Pusher {
+  return getPusherInstance();
+}
 
 /**
  * Trigger a single event on a channel

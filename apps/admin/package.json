@@ -4,9 +4,9 @@
   "description": "Admin Dashboard for Kids Ascension & Ozean Licht with NextAuth authentication",
   "private": true,
   "scripts": {
-    "dev": "next dev -p ${FRONTEND_PORT:-3000}",
+    "dev": "next dev -p ${FRONTEND_PORT:-9200}",
     "build": "next build",
-    "start": "next start -p ${FRONTEND_PORT:-3000}",
+    "start": "next start -p ${FRONTEND_PORT:-9200}",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "jest",
@@ -16,7 +16,7 @@
     "seed:test-admin": "ts-node scripts/seed-test-admin.ts",
     "clean": "rm -rf .next",
     "clean:force": "sudo rm -rf .next",
-    "dev:clean": "npm run clean:force && next dev -p ${FRONTEND_PORT:-3000}",
+    "dev:clean": "npm run clean:force && next dev -p ${FRONTEND_PORT:-9200}",
     "build:clean": "npm run clean:force && next build"
   },
   "dependencies": {
