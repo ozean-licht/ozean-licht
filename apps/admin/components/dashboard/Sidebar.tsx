@@ -31,7 +31,6 @@ import {
   HelpCircle,
   BarChart3,
   Settings,
-  ExternalLink,
 } from 'lucide-react';
 import { NavigationSection, UserEntity, EntityScope } from '@/types/navigation';
 import { canAccessRoute } from '@/lib/rbac/constants';

@@ -61,6 +61,7 @@ export async function GET(
 
     return NextResponse.json({ conversation });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to fetch conversation:', error);
     return NextResponse.json(
       { error: 'Failed to fetch conversation' },
@@ -220,6 +221,7 @@ export async function PATCH(
 
     return NextResponse.json({ conversation });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to update conversation:', error);
     return NextResponse.json(
       { error: 'Failed to update conversation' },
@@ -266,6 +268,7 @@ export async function DELETE(
 
     return NextResponse.json({ conversation });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to archive conversation:', error);
     return NextResponse.json(
       { error: 'Failed to archive conversation' },

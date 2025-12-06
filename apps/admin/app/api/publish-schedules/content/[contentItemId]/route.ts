@@ -30,6 +30,7 @@ export async function GET(
 
     return NextResponse.json({ schedules });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch schedules for content item:', error);
     return NextResponse.json(
       { error: 'Failed to fetch schedules for content item' },

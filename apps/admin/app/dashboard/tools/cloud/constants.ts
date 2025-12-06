@@ -40,6 +40,19 @@ export interface BucketInfo {
  */
 export const BUCKETS: BucketInfo[] = [
   {
+    name: 'ol-cloud',
+    displayName: 'Cloud',
+    description: 'General cloud storage for all files',
+    entityScope: 'ozean_licht',
+    icon: 'cloud',
+    access: 'team',
+    suggestedFolders: [
+      'gdrive-backup/',
+      'uploads/',
+      'shared/',
+    ],
+  },
+  {
     name: 'ol-videos',
     displayName: 'Videos',
     description: 'Video production files for cutters and editors',
@@ -115,9 +128,4 @@ export const BUCKETS: BucketInfo[] = [
 /**
  * Default bucket name
  */
-export const DEFAULT_BUCKET = 'ol-content';
-
-/**
- * Legacy bucket (for migration reference)
- */
-export const LEGACY_BUCKET = 'ol-cloud';
+export const DEFAULT_BUCKET = 'ol-cloud';

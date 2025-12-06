@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
     // 5. Return authentication signature
     return NextResponse.json(authResponse);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[Pusher Auth] Error authenticating channel:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -126,6 +127,7 @@ async function validateChannelAccess(
       const conversationId = channel.replace('private-conversation-', '');
       // Validate UUID format to prevent injection
       if (!isValidUUID(conversationId)) {
+        // eslint-disable-next-line no-console
         console.warn('[Pusher Auth] Invalid conversation ID format:', conversationId);
         return false;
       }
@@ -143,6 +145,7 @@ async function validateChannelAccess(
       const conversationId = channel.replace('presence-conversation-', '');
       // Validate UUID format to prevent injection
       if (!isValidUUID(conversationId)) {
+        // eslint-disable-next-line no-console
         console.warn('[Pusher Auth] Invalid conversation ID format:', conversationId);
         return false;
       }
@@ -150,10 +153,12 @@ async function validateChannelAccess(
     }
 
     // Unknown channel type - deny access
+    // eslint-disable-next-line no-console
     console.warn('[Pusher Auth] Unknown channel type:', channel);
     return false;
   } catch (error) {
     // Fail-closed: deny access on any error (database failure, etc.)
+    // eslint-disable-next-line no-console
     console.error('[Pusher Auth] Error validating channel access:', {
       channel,
       userId,

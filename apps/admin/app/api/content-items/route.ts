@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
       offset: searchParams.get('offset') ? parseInt(searchParams.get('offset')!) : 0,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch content items:', error);
     return NextResponse.json(
       { error: 'Failed to fetch content items' },
@@ -99,6 +100,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to create content item:', error);
     return NextResponse.json(
       { error: 'Failed to create content item' },

@@ -32,6 +32,7 @@ export async function GET(
     const comments = await getCommentsByEntity('project', id);
     return NextResponse.json({ comments });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch comments:', error);
     return NextResponse.json(
       { error: 'Failed to fetch comments' },
@@ -118,6 +119,7 @@ export async function POST(
 
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to create comment:', error);
     return NextResponse.json(
       { error: 'Failed to create comment' },

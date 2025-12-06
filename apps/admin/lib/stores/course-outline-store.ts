@@ -113,6 +113,7 @@ export const useCourseOutlineStore = create<CourseOutlineState>((set, get) => ({
       const freshModules: ModuleWithLessons[] = await response.json();
       set({ modules: freshModules });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Failed to refresh modules:', error);
       toast.error('Failed to refresh course outline');
       throw error;

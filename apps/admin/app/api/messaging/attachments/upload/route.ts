@@ -34,7 +34,7 @@ interface UploadRequestBody {
  */
 function sanitizeFilename(filename: string): string {
   // Remove path separators and null bytes
-  let sanitized = filename.replace(/[\/\\:\0]/g, '');
+  let sanitized = filename.replace(/[/\\:\0]/g, '');
 
   // Remove any leading/trailing dots and spaces
   sanitized = sanitized.replace(/^[.\s]+|[.\s]+$/g, '');
@@ -218,6 +218,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     // Log error server-side
+    // eslint-disable-next-line no-console
     console.error('[Attachments Upload API] Error:', error);
 
     // Return safe error message to client

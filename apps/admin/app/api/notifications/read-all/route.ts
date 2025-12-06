@@ -17,6 +17,7 @@ export async function POST(_request: NextRequest) {
     const count = await markAllAsRead(session.user.id);
     return NextResponse.json({ success: true, count });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to mark all notifications as read:', error);
     return NextResponse.json(
       { error: 'Failed to mark all notifications as read' },

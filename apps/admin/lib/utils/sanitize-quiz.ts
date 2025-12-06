@@ -2,7 +2,7 @@
  * Quiz Content Sanitization
  *
  * Sanitizes user-generated quiz content to prevent XSS attacks.
- * Uses isomorphic-dompurify for consistent sanitization on client and server.
+ * Uses regex-based sanitization to avoid jsdom dependency issues during build.
  *
  * SECURITY: All quiz fields that accept user input must be sanitized:
  * - Question text, hints, explanations
@@ -12,7 +12,6 @@
  * - Matching pair text
  */
 
-import DOMPurify from 'isomorphic-dompurify';
 import type {
   QuizData,
   QuizQuestion,
@@ -24,6 +23,8 @@ import type {
   BlankAnswer,
   MatchPair,
 } from '@/types/quiz';
+
+const QUIZ_ALLOWED_TAGS = ['b', 'i', 'em', 'strong', 'u', 'br', 'p', 'span', 'code', 'pre'];
 
 /**
  * Sanitize HTML content for quiz display
@@ -42,11 +43,24 @@ import type {
  * // Returns: '<p>Safe text</p>'
  */
 export function sanitizeQuizHtml(html: string): string {
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'u', 'br', 'p', 'span', 'code', 'pre'],
-    ALLOWED_ATTR: ['class'],
-    KEEP_CONTENT: true,
+  // Remove script tags and event handlers
+  let sanitized = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+    .replace(/on\w+\s*=\s*[^\s>]+/gi, '')
+    .replace(/javascript:/gi, '');
+
+  // Remove tags not in allowed list, keep content
+  const tagPattern = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;
+  sanitized = sanitized.replace(tagPattern, (match, tagName) => {
+    if (QUIZ_ALLOWED_TAGS.includes(tagName.toLowerCase())) {
+      // Only allow class attribute
+      return match.replace(/\s+(?!class=)[a-z-]+\s*=\s*["'][^"']*["']/gi, '');
+    }
+    return '';
   });
+
+  return sanitized;
 }
 
 /**
@@ -63,10 +77,8 @@ export function sanitizeQuizHtml(html: string): string {
  * // Returns: 'Hello world'
  */
 export function sanitizeQuizText(text: string): string {
-  return DOMPurify.sanitize(text, {
-    ALLOWED_TAGS: [],
-    KEEP_CONTENT: true,
-  });
+  // Remove all HTML tags but keep content
+  return text.replace(/<[^>]*>/g, '');
 }
 
 /**

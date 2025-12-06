@@ -43,6 +43,7 @@ export async function GET(
 
     return NextResponse.json({ contentItem });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch content item:', error);
     const { message, status } = parsePostgresError(error);
     return NextResponse.json({ error: message }, { status });
@@ -108,6 +109,7 @@ export async function PATCH(
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to update content item:', error);
     const { message, status } = parsePostgresError(error);
     return NextResponse.json({ error: message }, { status });
@@ -141,6 +143,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to delete content item:', error);
     const { message, status } = parsePostgresError(error);
     return NextResponse.json({ error: message }, { status });

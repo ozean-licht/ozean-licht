@@ -27,6 +27,7 @@ export async function GET(_request: NextRequest) {
 
     return NextResponse.json({ users: onlineUsers });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to fetch online users:', error);
     return NextResponse.json(
       { error: 'Failed to fetch online users' },
@@ -75,6 +76,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to update presence:', error);
     return NextResponse.json(
       { error: 'Failed to update presence' },

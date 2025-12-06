@@ -90,7 +90,7 @@ export async function PATCH(
         return NextResponse.json({ error: 'Article not found' }, { status: 404 });
       }
       // If there are other updates, apply them too
-      const { status, ...otherUpdates } = validated;
+      const { status: _status, ...otherUpdates } = validated;
       if (Object.keys(otherUpdates).length > 0) {
         await updateArticle(id, otherUpdates);
       }

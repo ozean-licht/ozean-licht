@@ -38,6 +38,7 @@ export async function GET(
       total: activities.length,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error fetching project activities:', error);
     return NextResponse.json(
       { error: 'Failed to fetch activities' },

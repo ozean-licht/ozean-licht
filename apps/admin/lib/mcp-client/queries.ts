@@ -105,7 +105,7 @@ export class MCPGatewayClientWithQueries extends MCPGatewayClient {
    */
   async updateAdminUser(id: string, data: UpdateAdminUserInput): Promise<AdminUser> {
     const updates: string[] = [];
-    const params: any[] = [];
+    const params: (string | boolean | Date | null)[] = [];
     let paramIndex = 1;
 
     if (data.adminRole !== undefined) {
@@ -158,7 +158,7 @@ export class MCPGatewayClientWithQueries extends MCPGatewayClient {
    */
   async listAdminUsers(filters?: AdminUserFilters): Promise<AdminUser[]> {
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: (string | boolean | null)[] = [];
     let paramIndex = 1;
 
     if (filters?.adminRole) {
@@ -312,7 +312,7 @@ export class MCPGatewayClientWithQueries extends MCPGatewayClient {
       FROM admin_permissions
     `;
 
-    const params: any[] = [];
+    const params: string[] = [];
 
     if (category) {
       sql += ' WHERE category = $1';
@@ -416,7 +416,7 @@ export class MCPGatewayClientWithQueries extends MCPGatewayClient {
    */
   async listAuditLogs(filters: AuditLogFilters): Promise<AdminAuditLog[]> {
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: (string | Date)[] = [];
     let paramIndex = 1;
 
     if (filters.adminUserId) {
@@ -598,7 +598,7 @@ export class MCPGatewayClientWithQueries extends MCPGatewayClient {
    */
   async listUsers(filters?: UserFilters): Promise<UserListResponse> {
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: (string | boolean)[] = [];
     let paramIndex = 1;
 
     // Build WHERE clause
@@ -779,12 +779,22 @@ export class MCPGatewayClientWithQueries extends MCPGatewayClient {
    * Map database row to User
    */
   private _mapUserWithEntities(row: UserWithEntitiesRow): User {
+    /**
+     * Type for entity data from JSON aggregation
+     */
+    interface EntityData {
+      id: string;
+      entity_id: string;
+      role: string;
+      created_at: string;
+    }
+
     // Parse aggregated entities JSON
     const entitiesArray = typeof row.entities === 'string'
-      ? JSON.parse(row.entities)
-      : row.entities;
+      ? JSON.parse(row.entities) as EntityData[]
+      : row.entities as EntityData[];
 
-    const entities: UserEntity[] = entitiesArray.map((e: any) => ({
+    const entities: UserEntity[] = entitiesArray.map((e) => ({
       id: e.id,
       userId: row.id,
       entityId: e.entity_id as EntityType,

@@ -59,6 +59,7 @@ function verifyWebhookSignature(payload: string, signature: string): boolean {
 
   // Validate hex format
   if (!/^[a-f0-9]{64}$/i.test(providedSignature)) {
+    // eslint-disable-next-line no-console
     console.error('[Encoding Webhook] Invalid signature format:', providedSignature);
     return false;
   }
@@ -71,6 +72,7 @@ function verifyWebhookSignature(payload: string, signature: string): boolean {
     );
   } catch (error) {
     // timingSafeEqual throws if buffers have different lengths
+    // eslint-disable-next-line no-console
     console.error('[Encoding Webhook] Signature comparison failed:', error);
     return false;
   }
@@ -89,6 +91,7 @@ export async function POST(request: NextRequest) {
     const signature = request.headers.get('x-webhook-signature');
 
     if (!signature) {
+      // eslint-disable-next-line no-console
       console.error('[Encoding Webhook] Missing X-Webhook-Signature header');
       return NextResponse.json(
         {
@@ -104,6 +107,7 @@ export async function POST(request: NextRequest) {
     try {
       isValid = verifyWebhookSignature(rawBody, signature);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('[Encoding Webhook] Signature verification error:', error);
       return NextResponse.json(
         {
@@ -115,6 +119,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!isValid) {
+      // eslint-disable-next-line no-console
       console.error('[Encoding Webhook] Invalid webhook signature');
       return NextResponse.json(
         {
@@ -132,6 +137,7 @@ export async function POST(request: NextRequest) {
       payload = encodingWebhookSchema.parse(parsedBody);
     } catch (error) {
       if (error instanceof ZodError) {
+        // eslint-disable-next-line no-console
         console.error('[Encoding Webhook] Validation failed:', error.flatten());
         return NextResponse.json(
           {
@@ -143,6 +149,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // eslint-disable-next-line no-console
       console.error('[Encoding Webhook] JSON parse error:', error);
       return NextResponse.json(
         {
@@ -156,6 +163,7 @@ export async function POST(request: NextRequest) {
     // Step 4: Verify job exists
     const job = await getEncodingJobById(payload.jobId);
     if (!job) {
+      // eslint-disable-next-line no-console
       console.error(`[Encoding Webhook] Job not found: ${payload.jobId}`);
       return NextResponse.json(
         {
@@ -168,6 +176,7 @@ export async function POST(request: NextRequest) {
 
     // Verify videoId matches
     if (job.videoId !== payload.videoId) {
+      // eslint-disable-next-line no-console
       console.error(
         `[Encoding Webhook] Video ID mismatch: job=${job.videoId}, payload=${payload.videoId}`
       );
@@ -181,14 +190,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 5: Process webhook based on status
-    console.log(
-      `[Encoding Webhook] Processing ${payload.status} for job ${payload.jobId} (video ${payload.videoId})`
-    );
-
     switch (payload.status) {
       case 'progress': {
         // Update job progress
         if (payload.progress === undefined) {
+          // eslint-disable-next-line no-console
           console.warn('[Encoding Webhook] Progress status without progress value');
           return NextResponse.json(
             {
@@ -201,10 +207,6 @@ export async function POST(request: NextRequest) {
 
         await updateJobProgress(payload.jobId, payload.progress);
 
-        console.log(
-          `[Encoding Webhook] Updated job ${payload.jobId} progress to ${payload.progress}%`
-        );
-
         return NextResponse.json({
           success: true,
           message: 'Progress updated',
@@ -216,6 +218,7 @@ export async function POST(request: NextRequest) {
       case 'completed': {
         // Validate required fields for completion
         if (!payload.outputUrl) {
+          // eslint-disable-next-line no-console
           console.error('[Encoding Webhook] Completed status without outputUrl');
           return NextResponse.json(
             {
@@ -227,6 +230,7 @@ export async function POST(request: NextRequest) {
         }
 
         if (!payload.renditions || payload.renditions.length === 0) {
+          // eslint-disable-next-line no-console
           console.warn('[Encoding Webhook] Completed status without renditions');
         }
 
@@ -241,6 +245,7 @@ export async function POST(request: NextRequest) {
         // Update video with new CDN URL and migration status
         const video = await getVideoById(payload.videoId);
         if (!video) {
+          // eslint-disable-next-line no-console
           console.error(`[Encoding Webhook] Video not found: ${payload.videoId}`);
           // Job is marked complete, but video update failed
           return NextResponse.json(
@@ -270,11 +275,6 @@ export async function POST(request: NextRequest) {
 
         await updateVideo(payload.videoId, videoUpdates);
 
-        console.log(
-          `[Encoding Webhook] Job ${payload.jobId} completed successfully. ` +
-          `Video ${payload.videoId} updated with CDN URL: ${payload.outputUrl}`
-        );
-
         return NextResponse.json({
           success: true,
           message: 'Encoding completed',
@@ -288,6 +288,7 @@ export async function POST(request: NextRequest) {
       case 'failed': {
         // Validate error information
         if (!payload.error) {
+          // eslint-disable-next-line no-console
           console.warn('[Encoding Webhook] Failed status without error details');
         }
 
@@ -297,6 +298,7 @@ export async function POST(request: NextRequest) {
         // Fail the job (will set up retry logic automatically)
         await failJob(payload.jobId, errorMessage, errorCode);
 
+        // eslint-disable-next-line no-console
         console.error(
           `[Encoding Webhook] Job ${payload.jobId} failed: [${errorCode}] ${errorMessage}`
         );
@@ -318,6 +320,7 @@ export async function POST(request: NextRequest) {
 
       default: {
         // Should never happen due to Zod validation
+        // eslint-disable-next-line no-console
         console.error(`[Encoding Webhook] Unknown status: ${payload.status}`);
         return NextResponse.json(
           {
@@ -330,6 +333,7 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     // Log unexpected errors
+    // eslint-disable-next-line no-console
     console.error('[Encoding Webhook] Unexpected error:', error);
 
     return NextResponse.json(

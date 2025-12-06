@@ -44,7 +44,7 @@ interface MigrationDashboardClientProps {
   // Future: Add props for initial data if needed
 }
 
-export function MigrationDashboardClient({}: MigrationDashboardClientProps) {
+export function MigrationDashboardClient(_props: MigrationDashboardClientProps) {
   const { toast } = useToast();
   const [videos, setVideos] = useState<Video[]>([]);
   const [filteredVideos, setFilteredVideos] = useState<Video[]>([]);

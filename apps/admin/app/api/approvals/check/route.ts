@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ canApprove });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to check approval permission:', error);
     return NextResponse.json(
       { error: 'Failed to check approval permission' },

@@ -30,6 +30,7 @@ export async function GET(
 
     return NextResponse.json(course);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error fetching course:', error);
     return NextResponse.json(
       { error: 'Failed to fetch course' },
@@ -84,6 +85,7 @@ export async function PATCH(
 
     return NextResponse.json(updated);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error updating course:', error);
     return NextResponse.json(
       { error: 'Failed to update course' },

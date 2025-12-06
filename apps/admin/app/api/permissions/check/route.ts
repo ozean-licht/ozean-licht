@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API /permissions/check] Error:', error);
     return NextResponse.json(
       { error: 'Failed to check permission' },

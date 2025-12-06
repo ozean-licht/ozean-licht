@@ -36,8 +36,6 @@ const updateProgressSchema = z.object({
   quizPassed: z.boolean().optional(),
 });
 
-type UpdateProgressInput = z.infer<typeof updateProgressSchema>;
-
 const enrollmentSchema = z.object({
   courseId: uuidSchema,
   expiresAt: z.string().datetime().optional(),
@@ -157,7 +155,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   let session: Awaited<ReturnType<typeof auth>> | undefined;
-  let body: any;
+  let body: Record<string, unknown>;
 
   try {
     session = await auth();

@@ -44,6 +44,7 @@ export async function GET(
 
     return NextResponse.json({ schedule });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch publish schedule:', error);
     return NextResponse.json(
       { error: 'Failed to fetch publish schedule' },
@@ -109,6 +110,7 @@ export async function PATCH(
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to update publish schedule:', error);
     return NextResponse.json(
       { error: 'Failed to update publish schedule' },
@@ -143,6 +145,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to delete publish schedule:', error);
     return NextResponse.json(
       { error: 'Failed to delete publish schedule' },

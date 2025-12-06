@@ -10,6 +10,7 @@ export async function GET() {
     const categories = await getCategories();
     return NextResponse.json({ categories });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error fetching categories:', error);
     return NextResponse.json(
       { error: 'Failed to fetch categories' },

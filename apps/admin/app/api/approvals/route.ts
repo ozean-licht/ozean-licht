@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ approvals });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch pending approvals:', error);
     return NextResponse.json(
       { error: 'Failed to fetch pending approvals' },
@@ -97,6 +98,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to request approval:', error);
     return NextResponse.json(
       { error: 'Failed to request approval' },

@@ -43,6 +43,7 @@ export async function GET(
 
     return NextResponse.json({ sprints });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch sprints:', error);
     return NextResponse.json(
       { error: 'Failed to fetch sprints' },
@@ -97,6 +98,7 @@ export async function POST(
 
     return NextResponse.json({ sprint }, { status: 201 });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to create sprint:', error);
     return NextResponse.json(
       { error: 'Failed to create sprint' },

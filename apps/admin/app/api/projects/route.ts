@@ -58,6 +58,7 @@ export async function GET(request: NextRequest) {
       stats,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch projects:', error);
     return NextResponse.json(
       { error: 'Failed to fetch projects' },
@@ -101,6 +102,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ project }, { status: 201 });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to create project:', error);
     return NextResponse.json(
       { error: 'Failed to create project' },

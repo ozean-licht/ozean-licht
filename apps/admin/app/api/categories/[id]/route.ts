@@ -45,6 +45,7 @@ export async function GET(
 
     return NextResponse.json({ category });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch category:', error);
     return NextResponse.json(
       { error: 'Failed to fetch category' },
@@ -111,6 +112,7 @@ export async function PATCH(
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to update category:', error);
     return NextResponse.json(
       { error: 'Failed to update category' },
@@ -147,6 +149,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to delete category:', error);
     return NextResponse.json(
       { error: 'Failed to delete category' },

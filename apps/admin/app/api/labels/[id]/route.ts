@@ -43,6 +43,7 @@ export async function GET(
 
     return NextResponse.json({ label });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch label:', error);
     const { message, status } = parsePostgresError(error);
     return NextResponse.json({ error: message }, { status });
@@ -96,6 +97,7 @@ export async function PATCH(
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to update label:', error);
     const { message, status } = parsePostgresError(error);
     return NextResponse.json({ error: message }, { status });
@@ -129,6 +131,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to delete label:', error);
     const { message, status } = parsePostgresError(error);
     return NextResponse.json({ error: message }, { status });

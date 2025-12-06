@@ -85,6 +85,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to reorder lessons:', error);
     return NextResponse.json(
       { error: 'Failed to reorder lessons' },

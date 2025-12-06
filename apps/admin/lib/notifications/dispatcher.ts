@@ -252,6 +252,7 @@ export async function dispatchNotification(
     result.success = true;
     return result;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[Notification Dispatcher] Failed to dispatch notification:', {
       userId: input.userId,
       type: input.type,
@@ -375,6 +376,7 @@ export async function dispatchBulkNotifications(
 
     return results;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[Notification Dispatcher] Failed to dispatch bulk notifications:', {
       count: inputs.length,
       error: error instanceof Error ? error.message : String(error),
@@ -489,6 +491,7 @@ async function sendRealtimeNotification(
 
     return result.success;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[Notification Dispatcher] Failed to send real-time notification:', {
       userId: input.userId,
       error: error instanceof Error ? error.message : String(error),

@@ -101,7 +101,7 @@ export default function QuizBuilder({
 
   // Handle saving a question (new or edited)
   const handleSaveQuestion = useCallback((question: QuizQuestion) => {
-    const existingIndex = value.questions.findIndex(q => q.id === question.id);
+    const existingIndex = value.questions.findIndex((q: QuizQuestion) => q.id === question.id);
 
     let newQuestions: QuizQuestion[];
     if (existingIndex >= 0) {
@@ -126,7 +126,7 @@ export default function QuizBuilder({
   const handleDeleteQuestion = useCallback((questionId: string) => {
     onChange({
       ...value,
-      questions: value.questions.filter(q => q.id !== questionId),
+      questions: value.questions.filter((q: QuizQuestion) => q.id !== questionId),
     });
   }, [value, onChange]);
 
@@ -147,8 +147,8 @@ export default function QuizBuilder({
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = value.questions.findIndex(q => q.id === active.id);
-      const newIndex = value.questions.findIndex(q => q.id === over.id);
+      const oldIndex = value.questions.findIndex((q: QuizQuestion) => q.id === active.id);
+      const newIndex = value.questions.findIndex((q: QuizQuestion) => q.id === over.id);
 
       onChange({
         ...value,
@@ -195,7 +195,7 @@ export default function QuizBuilder({
       </div>
 
       {/* Tabs */}
-      <CossUITabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)}>
+      <CossUITabs value={activeTab} onValueChange={(v: string) => setActiveTab(v as TabValue)}>
         <CossUITabsList className="grid w-full grid-cols-3">
           <CossUITabsTab value="questions" className="flex items-center gap-2">
             <ListChecks className="h-4 w-4" />
@@ -263,11 +263,11 @@ export default function QuizBuilder({
                 onDragEnd={handleDragEnd}
               >
                 <SortableContext
-                  items={value.questions.map(q => q.id)}
+                  items={value.questions.map((q: QuizQuestion) => q.id)}
                   strategy={verticalListSortingStrategy}
                 >
                   <div className="space-y-2">
-                    {value.questions.map((question, index) => (
+                    {value.questions.map((question: QuizQuestion, index: number) => (
                       <QuestionListItem
                         key={question.id}
                         question={question}
@@ -305,7 +305,7 @@ export default function QuizBuilder({
         <QuestionEditor
           question={editingQuestion}
           open={isEditorOpen}
-          onOpenChange={(open) => !open && handleCloseEditor()}
+          onOpenChange={(open: boolean) => !open && handleCloseEditor()}
           onSave={handleSaveQuestion}
           disabled={disabled}
         />

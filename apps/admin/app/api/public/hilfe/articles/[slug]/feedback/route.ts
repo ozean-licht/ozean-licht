@@ -228,6 +228,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         [article.id, helpful, feedback, sessionHash]
       ).catch((error) => {
         // Log error but don't fail the request if feedback table doesn't exist
+        // eslint-disable-next-line no-console
         console.error('Failed to store detailed feedback:', error);
       });
     } else {
@@ -241,6 +242,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         [article.id, helpful, sessionHash]
       ).catch((error) => {
         // Log error but don't fail the request
+        // eslint-disable-next-line no-console
         console.error('Failed to store feedback vote:', error);
       });
     }
@@ -266,6 +268,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
 
     // Handle unexpected errors
+    // eslint-disable-next-line no-console
     console.error('Error submitting feedback:', error);
     return NextResponse.json(
       { error: 'Failed to submit feedback. Please try again.' },

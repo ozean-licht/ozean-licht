@@ -89,9 +89,9 @@ export default function QuestionEditor({
         const mc = question as MultipleChoiceQuestion;
         if (mc.options.length < 2) {
           newErrors.options = 'At least 2 options are required';
-        } else if (!mc.options.some(o => o.isCorrect)) {
+        } else if (!mc.options.some((o: typeof mc.options[number]) => o.isCorrect)) {
           newErrors.options = 'At least one option must be correct';
-        } else if (mc.options.some(o => !o.text.trim())) {
+        } else if (mc.options.some((o: typeof mc.options[number]) => !o.text.trim())) {
           newErrors.options = 'All options must have text';
         }
         break;
@@ -100,7 +100,7 @@ export default function QuestionEditor({
         const fb = question as FillBlankQuestion;
         if (fb.blanks.length === 0) {
           newErrors.blanks = 'At least one blank is required';
-        } else if (fb.blanks.some(b => b.acceptedAnswers.length === 0 || !b.acceptedAnswers[0])) {
+        } else if (fb.blanks.some((b: typeof fb.blanks[number]) => b.acceptedAnswers.length === 0 || !b.acceptedAnswers[0])) {
           newErrors.blanks = 'Each blank must have at least one accepted answer';
         }
         break;
@@ -116,7 +116,7 @@ export default function QuestionEditor({
     field: K,
     value: QuizQuestion[K]
   ) => {
-    setQuestion(prev => ({
+    setQuestion((prev: QuizQuestion) => ({
       ...prev,
       [field]: value,
     }));
@@ -128,7 +128,7 @@ export default function QuestionEditor({
   ) => {
     const sanitized = sanitizeHtml(e.target.value);
     if (sanitized !== e.target.value) {
-      setQuestion(prev => ({
+      setQuestion((prev: QuizQuestion) => ({
         ...prev,
         [field]: sanitized,
       }));
@@ -137,7 +137,7 @@ export default function QuestionEditor({
 
   // Handle type-specific changes
   const handleTypeSpecificChange = useCallback((updates: Partial<QuizQuestion>) => {
-    setQuestion(prev => ({
+    setQuestion((prev: QuizQuestion) => ({
       ...prev,
       ...updates,
     } as QuizQuestion));
@@ -158,12 +158,13 @@ export default function QuestionEditor({
   // Get the title based on question type
   const getTitle = (): string => {
     const isNew = !initialQuestion.question;
-    const typeLabel = {
+    const typeLabels: Record<string, string> = {
       multiple_choice: 'Multiple Choice',
       true_false: 'True/False',
       fill_blank: 'Fill in the Blank',
       matching: 'Matching',
-    }[question.type];
+    };
+    const typeLabel = typeLabels[question.type];
     return `${isNew ? 'Add' : 'Edit'} ${typeLabel} Question`;
   };
 

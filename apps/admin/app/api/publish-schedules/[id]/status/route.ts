@@ -107,6 +107,7 @@ export async function PATCH(
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to update publish schedule status:', error);
     return NextResponse.json(
       { error: 'Failed to update publish schedule status' },

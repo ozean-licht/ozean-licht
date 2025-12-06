@@ -55,6 +55,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ labels });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch entity labels:', error);
     const { message, status } = parsePostgresError(error);
     return NextResponse.json({ error: message }, { status });
@@ -97,6 +98,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to add label to entity:', error);
     const { message, status } = parsePostgresError(error);
     return NextResponse.json({ error: message }, { status });
@@ -146,6 +148,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to remove label from entity:', error);
     const { message, status } = parsePostgresError(error);
     return NextResponse.json({ error: message }, { status });

@@ -121,6 +121,7 @@ export async function GET(request: NextRequest) {
       offset,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to fetch internal tickets:', error);
     return NextResponse.json(
       { error: 'Failed to fetch internal tickets' },
@@ -228,6 +229,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ conversation, ticket: conversation }, { status: 201 });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to create internal ticket:', error);
     return NextResponse.json(
       { error: 'Failed to create internal ticket' },

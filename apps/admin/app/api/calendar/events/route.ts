@@ -96,6 +96,7 @@ async function fetchAirtableRecords(
     });
 
     if (!response.ok) {
+      // eslint-disable-next-line no-console
       console.error(`[Calendar API] MCP Gateway HTTP error for ${tableName}: ${response.status} ${response.statusText}`);
       return [];
     }
@@ -105,6 +106,7 @@ async function fetchAirtableRecords(
     // Validate JSON-RPC 2.0 response structure
     const parseResult = mcpJsonRpcResponseSchema.safeParse(rawResult);
     if (!parseResult.success) {
+      // eslint-disable-next-line no-console
       console.error(`[Calendar API] Invalid JSON-RPC response for ${tableName}:`, parseResult.error.format());
       return [];
     }
@@ -113,23 +115,27 @@ async function fetchAirtableRecords(
 
     // Validate request/response ID correlation
     if (result.id !== requestId) {
+      // eslint-disable-next-line no-console
       console.warn(`[Calendar API] Response ID mismatch for ${tableName}: expected ${requestId}, got ${result.id}`);
     }
 
     // Check for JSON-RPC error
     if (result.error) {
+      // eslint-disable-next-line no-console
       console.error(`[Calendar API] MCP error for ${tableName}:`, result.error.message, `(code: ${result.error.code})`);
       return [];
     }
 
     // Validate records exist
     if (!result.result?.data?.records) {
+      // eslint-disable-next-line no-console
       console.error(`[Calendar API] Missing records in response for ${tableName}`);
       return [];
     }
 
     return result.result.data.records;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(`[Calendar API] Network error fetching ${tableName}:`, error instanceof Error ? error.message : 'Unknown error');
     return [];
   }
@@ -224,6 +230,7 @@ export async function GET(request: NextRequest) {
           try {
             return transformConnectedCalendarToEvent(record);
           } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error transforming connected_calendar record:', error);
             return null;
           }
@@ -259,6 +266,7 @@ export async function GET(request: NextRequest) {
           try {
             return transformEventsToEvent(record);
           } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Error transforming events record:', error);
             return null;
           }
@@ -287,6 +295,7 @@ export async function GET(request: NextRequest) {
 
     return response;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error fetching calendar events:', error);
     return NextResponse.json(
       {

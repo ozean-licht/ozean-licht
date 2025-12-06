@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ approvals });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch entity approvals:', error);
     return NextResponse.json(
       { error: 'Failed to fetch entity approvals' },

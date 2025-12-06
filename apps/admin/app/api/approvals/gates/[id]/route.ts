@@ -37,6 +37,7 @@ export async function GET(
 
     return NextResponse.json({ gate });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch approval gate:', error);
     return NextResponse.json(
       { error: 'Failed to fetch approval gate' },
@@ -88,6 +89,7 @@ export async function PATCH(
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to update approval gate:', error);
     return NextResponse.json(
       { error: 'Failed to update approval gate' },
@@ -118,6 +120,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to delete approval gate:', error);
     return NextResponse.json(
       { error: 'Failed to delete approval gate' },

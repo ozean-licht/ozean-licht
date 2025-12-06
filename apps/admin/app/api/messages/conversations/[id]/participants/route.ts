@@ -47,6 +47,7 @@ export async function GET(
 
     return NextResponse.json({ participants });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to fetch participants:', error);
     return NextResponse.json(
       { error: 'Failed to fetch participants' },
@@ -112,6 +113,7 @@ export async function POST(
 
     return NextResponse.json({ participant }, { status: 201 });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to add participant:', error);
     return NextResponse.json(
       { error: 'Failed to add participant' },
@@ -165,6 +167,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to remove participant:', error);
     return NextResponse.json(
       { error: 'Failed to remove participant' },

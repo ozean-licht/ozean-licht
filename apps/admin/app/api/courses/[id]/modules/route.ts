@@ -39,6 +39,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(result);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to list modules:', error);
     return NextResponse.json(
       { error: 'Failed to list modules' },
@@ -108,6 +109,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(createdModule, { status: 201 });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to create module:', error);
     return NextResponse.json(
       { error: 'Failed to create module' },

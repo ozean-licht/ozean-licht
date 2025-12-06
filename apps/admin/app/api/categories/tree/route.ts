@@ -23,6 +23,7 @@ export async function GET(_request: NextRequest) {
 
     return NextResponse.json({ tree });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch category tree:', error);
     return NextResponse.json(
       { error: 'Failed to fetch category tree' },

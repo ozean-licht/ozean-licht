@@ -69,6 +69,7 @@ export default async function ArticlePage({ params }: Props) {
   }
 
   // Track view (fire and forget)
+  // eslint-disable-next-line no-console
   incrementViewCount(article.id).catch(console.error);
 
   const formattedDate = new Date(article.publishedAt || article.createdAt).toLocaleDateString('de-DE', {

@@ -58,6 +58,7 @@ export async function GET(request: NextRequest) {
       offset,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to fetch direct messages:', error);
     return NextResponse.json(
       { error: 'Failed to fetch direct messages' },
@@ -131,6 +132,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ conversation }, { status: 201 });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to create DM:', error);
 
     // Handle specific error for insufficient participants

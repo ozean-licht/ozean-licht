@@ -113,6 +113,7 @@ export async function PATCH(
       warnings: validation.warnings,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API /admin-users/:id/permissions] Error:', error);
     return NextResponse.json(
       { error: 'Failed to update permissions' },

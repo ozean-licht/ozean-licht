@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ templates });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch checklist templates:', error);
     return NextResponse.json(
       { error: 'Failed to fetch checklist templates' },
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to create checklist template:', error);
     return NextResponse.json(
       { error: 'Failed to create checklist template' },

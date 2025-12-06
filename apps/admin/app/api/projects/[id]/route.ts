@@ -54,6 +54,7 @@ export async function GET(
 
     return NextResponse.json({ project, tasks });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch project:', error);
     return NextResponse.json(
       { error: 'Failed to fetch project' },
@@ -125,6 +126,7 @@ export async function PATCH(
 
     return NextResponse.json({ project });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to update project:', error);
     return NextResponse.json(
       { error: 'Failed to update project' },
@@ -161,6 +163,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to delete project:', error);
     return NextResponse.json(
       { error: 'Failed to delete project' },

@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    // eslint-disable-next-line no-console
     console.error('Failed to save push subscription:', error);
     return NextResponse.json(
       { error: 'Failed to save subscription' },
@@ -85,6 +86,7 @@ export async function DELETE(request: NextRequest) {
     await deletePushSubscription(session.user.id, endpoint);
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to delete push subscription:', error);
     return NextResponse.json(
       { error: 'Failed to delete subscription' },

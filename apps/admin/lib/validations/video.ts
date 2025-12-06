@@ -14,7 +14,6 @@
  */
 
 import { z } from 'zod';
-import DOMPurify from 'isomorphic-dompurify';
 
 // ================================================================
 // Sanitization Helpers
@@ -25,6 +24,7 @@ import DOMPurify from 'isomorphic-dompurify';
  *
  * Strips all HTML tags from the input while keeping the text content.
  * Use this for fields that should not contain any HTML formatting.
+ * Uses regex-based sanitization to avoid jsdom dependency issues during build.
  *
  * @param text - Raw text that may contain HTML
  * @returns Plain text with all HTML tags removed
@@ -34,10 +34,8 @@ import DOMPurify from 'isomorphic-dompurify';
  * // Returns: 'Hello world'
  */
 function sanitizeText(text: string): string {
-  return DOMPurify.sanitize(text, {
-    ALLOWED_TAGS: [],
-    KEEP_CONTENT: true,
-  });
+  // Remove all HTML tags but keep content
+  return text.replace(/<[^>]*>/g, '');
 }
 
 // ================================================================

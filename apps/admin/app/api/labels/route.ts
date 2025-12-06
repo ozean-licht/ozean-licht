@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ labels, total });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch labels:', error);
     const { message, status } = parsePostgresError(error);
     return NextResponse.json({ error: message }, { status });
@@ -77,6 +78,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to create label:', error);
     const { message, status } = parsePostgresError(error);
     return NextResponse.json({ error: message }, { status });

@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ course }, { status: 201 });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to create course:', error);
 
     // Handle unique constraint violation (duplicate slug)
@@ -120,6 +121,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to list courses:', error);
     return NextResponse.json(
       { error: 'Failed to list courses' },

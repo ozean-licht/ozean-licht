@@ -4,13 +4,20 @@
  */
 
 /**
+ * Additional error data that can be attached to MCP errors
+ */
+export interface MCPErrorData {
+  [key: string]: unknown;
+}
+
+/**
  * Base error class for MCP Gateway operations
  */
 export class MCPError extends Error {
   public readonly code: number;
-  public readonly data?: any;
+  public readonly data?: MCPErrorData;
 
-  constructor(code: number, message: string, data?: any) {
+  constructor(code: number, message: string, data?: MCPErrorData) {
     super(message);
     this.name = 'MCPError';
     this.code = code;
@@ -28,7 +35,7 @@ export class MCPError extends Error {
  * Thrown when request validation fails or bad parameters provided
  */
 export class MCPClientError extends MCPError {
-  constructor(message: string, data?: any) {
+  constructor(message: string, data?: MCPErrorData) {
     super(-32602, message, data);
     this.name = 'MCPClientError';
   }
@@ -40,21 +47,35 @@ export class MCPClientError extends MCPError {
  * Includes: connection errors, timeouts, query failures
  */
 export class MCPServerError extends MCPError {
-  constructor(message: string, data?: any) {
+  constructor(message: string, data?: MCPErrorData) {
     super(-32000, message, data);
     this.name = 'MCPServerError';
   }
 }
 
 /**
+ * Type guard to check if error has code and message properties
+ */
+function isErrorLike(error: unknown): error is { code: number; message: string; data?: MCPErrorData } {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    'message' in error &&
+    typeof (error as { code: unknown }).code === 'number' &&
+    typeof (error as { message: unknown }).message === 'string'
+  );
+}
+
+/**
  * Parse error from MCP Gateway response
  */
-export function parseError(error: any): MCPError {
+export function parseError(error: unknown): MCPError {
   if (error instanceof MCPError) {
     return error;
   }
 
-  if (error?.code && error?.message) {
+  if (isErrorLike(error)) {
     return new MCPError(error.code, error.message, error.data);
   }
 
@@ -62,5 +83,5 @@ export function parseError(error: any): MCPError {
     return new MCPServerError(error.message);
   }
 
-  return new MCPServerError('Unknown error', error);
+  return new MCPServerError('Unknown error', { originalError: error });
 }

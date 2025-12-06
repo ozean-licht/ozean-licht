@@ -104,6 +104,7 @@ export async function GET(request: NextRequest) {
       offset,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to fetch team channels:', error);
     return NextResponse.json(
       { error: 'Failed to fetch team channels' },
@@ -195,6 +196,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ channel }, { status: 201 });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to create team channel:', error);
 
     // Check for unique constraint violation on slug

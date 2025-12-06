@@ -116,6 +116,7 @@ export async function generateThumbnails(
       const imported: any = await import('sharp');
       sharpModule = imported.default || imported;
     } catch {
+      // eslint-disable-next-line no-console
       console.warn('Sharp is not available. Skipping thumbnail generation.');
       return undefined;
     }
@@ -170,6 +171,7 @@ export async function generateThumbnails(
         }
       } catch (sizeError) {
         // Log error but continue with other sizes
+        // eslint-disable-next-line no-console
         console.error(`Failed to generate ${size.name} thumbnail after retries:`, sizeError);
       }
     }
@@ -178,8 +180,10 @@ export async function generateThumbnails(
   } catch (error) {
     // Handle any unexpected errors gracefully
     if (error instanceof Error) {
+      // eslint-disable-next-line no-console
       console.error('Failed to generate thumbnails:', error.message);
     } else {
+      // eslint-disable-next-line no-console
       console.error('Failed to generate thumbnails: Unknown error');
     }
     return undefined;

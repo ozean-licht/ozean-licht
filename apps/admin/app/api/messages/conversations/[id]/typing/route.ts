@@ -48,6 +48,7 @@ export async function GET(
 
     return NextResponse.json({ typingUsers });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to fetch typing users:', error);
     return NextResponse.json(
       { error: 'Failed to fetch typing users' },
@@ -109,6 +110,7 @@ export async function POST(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to set typing indicator:', error);
     return NextResponse.json(
       { error: 'Failed to set typing indicator' },
@@ -147,6 +149,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to clear typing indicator:', error);
     return NextResponse.json(
       { error: 'Failed to clear typing indicator' },

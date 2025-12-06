@@ -148,8 +148,8 @@ export default function HealthDashboardPage() {
         {/* Cards skeleton */}
         <div className="space-y-6">
           <Skeleton className="h-6 w-48" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[1, 2].map((i) => (
               <Skeleton key={i} className="h-52 rounded-lg" />
             ))}
           </div>
@@ -171,7 +171,7 @@ export default function HealthDashboardPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h1 className="text-3xl font-sans font-medium text-white">
+            <h1 className="text-3xl font-decorative font-normal text-white">
               System Health
             </h1>
             <p className="text-[#C4C8D4] font-sans font-light">
@@ -238,10 +238,9 @@ export default function HealthDashboardPage() {
               <span className="w-1.5 h-6 bg-primary rounded-full" />
               PostgreSQL Databases
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <DatabaseHealthCard metrics={health.postgres.kidsAscension} />
               <DatabaseHealthCard metrics={health.postgres.ozeanLicht} />
-              <DatabaseHealthCard metrics={health.postgres.sharedUsers} />
             </div>
           </section>
 

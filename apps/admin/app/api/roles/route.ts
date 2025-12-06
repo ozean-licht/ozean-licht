@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ roles });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch project roles:', error);
     return NextResponse.json(
       { error: 'Failed to fetch project roles' },
@@ -76,6 +77,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to create project role:', error);
     return NextResponse.json(
       { error: 'Failed to create project role' },

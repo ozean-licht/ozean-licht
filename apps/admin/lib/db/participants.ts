@@ -215,7 +215,7 @@ export async function addParticipant(
 
   // Determine which unique constraint to use for UPSERT
   const conflictColumn = userId ? 'user_id' : 'contact_id';
-  const participantId = userId || contactId;
+  const _participantId = userId || contactId;
 
   const sql = `
     INSERT INTO conversation_participants (

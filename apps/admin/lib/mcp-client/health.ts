@@ -55,6 +55,24 @@ export async function checkGatewayReachable(baseUrl: string = 'http://localhost:
 }
 
 /**
+ * Catalog service entry from MCP Gateway
+ */
+interface CatalogService {
+  service: string;
+  description?: string;
+  operations?: string[];
+  status?: string;
+}
+
+/**
+ * Catalog response from MCP Gateway
+ */
+interface CatalogResponse {
+  version?: string;
+  services?: CatalogService[];
+}
+
+/**
  * Get MCP Gateway version and info
  * @param baseUrl MCP Gateway base URL
  * @returns Gateway version info
@@ -72,10 +90,10 @@ export async function getGatewayInfo(
       return null;
     }
 
-    const data = await response.json() as any;
+    const data = await response.json() as CatalogResponse;
     return {
       version: data.version || 'unknown',
-      services: data.services?.map((s: any) => s.service) || [],
+      services: data.services?.map((s) => s.service) || [],
     };
   } catch (error) {
     return null;
@@ -105,11 +123,11 @@ export async function checkDatabaseConnection(client: MCPGatewayClient): Promise
       latency: Date.now() - startTime,
       databaseVersion: version,
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       connected: false,
       latency: Date.now() - startTime,
-      error: error.message || 'Unknown error',
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }
@@ -208,6 +226,15 @@ export async function checkPostgresHealth(
 }
 
 /**
+ * Health response from MCP Gateway
+ */
+interface HealthResponse {
+  uptime?: number;
+  requestCount24h?: number;
+  status?: string;
+}
+
+/**
  * Check health of MCP Gateway with detailed metrics
  * @param baseUrl MCP Gateway base URL
  * @returns MCP Gateway health metrics
@@ -227,7 +254,7 @@ export async function checkMCPGatewayHealth(
       throw new Error('Gateway not healthy');
     }
 
-    const data = (await response.json()) as any;
+    const data = await response.json() as HealthResponse;
     const responseTime = Date.now() - startTime;
 
     // For now, use simple calculations for percentiles

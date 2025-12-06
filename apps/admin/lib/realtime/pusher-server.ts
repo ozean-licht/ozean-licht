@@ -41,11 +41,14 @@ async function streamToString(stream: ReadableStream<any>): Promise<string> {
   const reader = stream.getReader();
   const decoder = new TextDecoder();
   let result = '';
+  let done = false;
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    result += decoder.decode(value, { stream: true });
+  while (!done) {
+    const chunk = await reader.read();
+    done = chunk.done;
+    if (!done && chunk.value) {
+      result += decoder.decode(chunk.value, { stream: true });
+    }
   }
 
   result += decoder.decode(); // Flush any remaining bytes
@@ -122,7 +125,6 @@ function getPusherInstance(): Pusher {
       useTLS: config.useTLS,
       // Additional configuration for production
       cluster: '', // Not used with self-hosted Soketi
-      encrypted: config.useTLS,
     });
 
     // Log initialization in development

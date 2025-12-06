@@ -53,7 +53,7 @@ export default function FillBlankEditor({
   const handleRemoveBlank = useCallback((blankId: string) => {
     if (question.blanks.length <= QUIZ_LIMITS.MIN_BLANKS) return;
     onChange({
-      blanks: question.blanks.filter(b => b.id !== blankId),
+      blanks: question.blanks.filter((b: BlankAnswer) => b.id !== blankId),
     });
   }, [question.blanks, onChange]);
 
@@ -63,7 +63,7 @@ export default function FillBlankEditor({
     updates: Partial<BlankAnswer>
   ) => {
     onChange({
-      blanks: question.blanks.map(b =>
+      blanks: question.blanks.map((b: BlankAnswer) =>
         b.id === blankId ? { ...b, ...updates } : b
       ),
     });
@@ -71,7 +71,7 @@ export default function FillBlankEditor({
 
   // Update accepted answers (comma-separated)
   const handleAnswersChange = useCallback((blankId: string, value: string) => {
-    const answers = value.split(',').map(a => a.trim()).filter(Boolean);
+    const answers = value.split(',').map((a: string) => a.trim()).filter(Boolean);
     handleBlankChange(blankId, {
       acceptedAnswers: answers.length > 0 ? answers : [''],
     });
@@ -88,7 +88,7 @@ export default function FillBlankEditor({
   ) => {
     const sanitizedValue = sanitizeHtml(e.target.value);
     if (sanitizedValue !== e.target.value) {
-      const answers = sanitizedValue.split(',').map(a => a.trim()).filter(Boolean);
+      const answers = sanitizedValue.split(',').map((a: string) => a.trim()).filter(Boolean);
       handleBlankChange(blankId, {
         acceptedAnswers: answers.length > 0 ? answers : [''],
       });
@@ -106,7 +106,7 @@ export default function FillBlankEditor({
 
       {/* Blanks List */}
       <div className="space-y-3">
-        {question.blanks.map((blank, index) => (
+        {question.blanks.map((blank: BlankAnswer, index: number) => (
           <div
             key={blank.id}
             className="p-3 border rounded-lg bg-muted/20 space-y-3"

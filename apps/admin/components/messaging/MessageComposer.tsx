@@ -303,10 +303,6 @@ export default function MessageComposer({
 
       // Focus textarea
       textareaRef.current?.focus();
-    } catch (error) {
-      // Error handling is done by parent component
-      // Re-throw to let parent handle the error
-      throw error;
     } finally {
       setSending(false);
     }

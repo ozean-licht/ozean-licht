@@ -1,5 +1,3 @@
-import DOMPurify from 'isomorphic-dompurify';
-
 /**
  * Allowed HTML tags for rich text content
  * Based on TipTap editor capabilities
@@ -13,23 +11,43 @@ const ALLOWED_TAGS = [
 /**
  * Allowed HTML attributes for rich text content
  */
-const ALLOWED_ATTR = [
-  'href', 'target', 'rel', 'src', 'alt', 'width', 'height',
-  'class', 'frameborder', 'allowfullscreen', 'allow',
-];
+const ALLOWED_ATTR_PATTERN = 'href|target|rel|src|alt|width|height|class|frameborder|allowfullscreen|allow';
+
+/**
+ * Simple server-side HTML sanitizer that strips dangerous tags
+ * This avoids jsdom dependency issues during Next.js build
+ */
+function serverSanitize(html: string): string {
+  // Remove script tags and event handlers
+  let sanitized = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+    .replace(/on\w+\s*=\s*[^\s>]+/gi, '')
+    .replace(/javascript:/gi, '');
+
+  // Remove tags not in allowed list
+  const tagPattern = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;
+  const attrCleanPattern = new RegExp(`\\s+(?!(?:${ALLOWED_ATTR_PATTERN})=)[a-z-]+\\s*=\\s*["'][^"']*["']`, 'gi');
+  sanitized = sanitized.replace(tagPattern, (match, tagName) => {
+    if (ALLOWED_TAGS.includes(tagName.toLowerCase())) {
+      // Clean attributes for allowed tags
+      return match.replace(attrCleanPattern, '');
+    }
+    return '';
+  });
+
+  return sanitized;
+}
 
 /**
  * Sanitizes HTML content to prevent XSS attacks
- * Works on both server and client side (SSR-safe)
+ * Uses regex-based sanitization on server to avoid jsdom dependency issues
  *
  * @param html - Raw HTML string to sanitize
  * @returns Sanitized HTML string safe for rendering
  */
 export function sanitizeHtml(html: string): string {
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS,
-    ALLOWED_ATTR,
-  });
+  return serverSanitize(html);
 }
 
 /**

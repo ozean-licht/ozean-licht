@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to sync entity labels:', error);
     const { message, status } = parsePostgresError(error);
     return NextResponse.json({ error: message }, { status });

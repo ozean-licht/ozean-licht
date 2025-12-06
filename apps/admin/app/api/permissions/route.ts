@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
       total: filteredPermissions.length,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API /permissions] Error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch permissions' },

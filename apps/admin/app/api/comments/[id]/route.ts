@@ -47,6 +47,7 @@ export async function PATCH(
 
     return NextResponse.json({ comment });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to update comment:', error);
     return NextResponse.json(
       { error: 'Failed to update comment' },
@@ -85,6 +86,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to delete comment:', error);
     return NextResponse.json(
       { error: 'Failed to delete comment' },

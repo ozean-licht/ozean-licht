@@ -65,7 +65,7 @@ export function ExportAnalyticsButton({
 
     try {
       let url: string;
-      let fetchOptions: RequestInit = {};
+      const fetchOptions: RequestInit = {};
 
       switch (type) {
         case 'events':
@@ -253,7 +253,7 @@ function convertToCSV(data: any, type: ExportType): string {
       break;
 
     case 'progress':
-    default:
+    default: {
       // For summary, flatten the object
       const allKeys = Object.keys(items[0] || {});
       headers = allKeys;
@@ -262,6 +262,7 @@ function convertToCSV(data: any, type: ExportType): string {
         if (typeof value === 'object') return JSON.stringify(value);
         return String(value ?? '');
       });
+    }
   }
 
   // Build CSV with formula injection protection

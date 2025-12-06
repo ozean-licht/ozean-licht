@@ -37,6 +37,7 @@ export async function GET(
 
     return NextResponse.json({ approval });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch approval:', error);
     return NextResponse.json(
       { error: 'Failed to fetch approval' },
@@ -133,6 +134,7 @@ export async function PATCH(
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to decide approval:', error);
     return NextResponse.json(
       { error: 'Failed to decide approval' },

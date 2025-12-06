@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
       total: result.total,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error fetching public articles:', error);
     return NextResponse.json(
       { error: 'Failed to fetch articles' },

@@ -27,7 +27,7 @@ interface QuizSettingsProps {
 }
 
 interface SettingRowProps {
-  icon: typeof Target;
+  icon: React.ComponentType<{ className?: string }>;
   label: string;
   description: string;
   children: React.ReactNode;

@@ -108,7 +108,7 @@ export default function ChannelSettingsModal({
 
   const renderConfigFields = () => {
     switch (channel.channel) {
-      case 'web_widget':
+      case 'web_widget': {
         const webConfig = config as WebWidgetConfig;
         return (
           <div className="space-y-4">
@@ -143,8 +143,9 @@ export default function ChannelSettingsModal({
             </div>
           </div>
         );
+      }
 
-      case 'whatsapp':
+      case 'whatsapp': {
         const whatsappConfig = config as WhatsAppConfig;
         return (
           <div className="space-y-4">
@@ -182,8 +183,9 @@ export default function ChannelSettingsModal({
             </div>
           </div>
         );
+      }
 
-      case 'telegram':
+      case 'telegram': {
         const telegramConfig = config as TelegramConfig;
         return (
           <div className="space-y-4">
@@ -222,8 +224,9 @@ export default function ChannelSettingsModal({
             </div>
           </div>
         );
+      }
 
-      case 'email':
+      case 'email': {
         const emailConfig = config as EmailConfig;
         return (
           <div className="space-y-4">
@@ -257,6 +260,7 @@ export default function ChannelSettingsModal({
             </div>
           </div>
         );
+      }
     }
   };
 

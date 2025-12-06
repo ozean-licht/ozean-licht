@@ -264,6 +264,7 @@ export async function notifyMentionedUsers(
 
   // TODO: Import and use dispatchNotification when dispatcher is implemented
   // For now, log the notification intent for debugging
+  // eslint-disable-next-line no-console
   console.log('[Mentions] Would notify users:', {
     messageId: message.id,
     conversationId: message.conversationId,

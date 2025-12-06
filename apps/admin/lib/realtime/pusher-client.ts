@@ -97,6 +97,7 @@ export function getPusherClient(): Pusher {
     pusherClient.connection.bind('state_change', (states: { previous: string; current: string }) => {
       // Log in development
       if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
         console.log(`[Pusher] Connection state: ${states.previous} → ${states.current}`);
       }
 
@@ -107,6 +108,7 @@ export function getPusherClient(): Pusher {
     pusherClient.connection.bind('error', (err: Error) => {
       // Log in development
       if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
         console.error('[Pusher] Connection error:', err);
       }
 
@@ -157,6 +159,7 @@ export function disconnectPusher(): void {
     pusherClient = null;
 
     if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
       console.log('[Pusher] Client disconnected and cleaned up');
     }
   }

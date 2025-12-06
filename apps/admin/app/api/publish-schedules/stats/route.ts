@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ stats });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch publish statistics:', error);
     return NextResponse.json(
       { error: 'Failed to fetch publish statistics' },

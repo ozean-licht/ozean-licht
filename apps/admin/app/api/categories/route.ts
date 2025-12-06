@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
       total: categories.length,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch categories:', error);
     return NextResponse.json(
       { error: 'Failed to fetch categories' },
@@ -97,6 +98,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to create category:', error);
     return NextResponse.json(
       { error: 'Failed to create category' },

@@ -42,6 +42,7 @@ export async function GET() {
       totalPermissions: permissions.length,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API /permissions/matrix] Error:', error);
     return NextResponse.json(
       { error: 'Failed to generate permission matrix' },

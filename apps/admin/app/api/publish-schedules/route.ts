@@ -90,6 +90,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch publish schedules:', error);
     return NextResponse.json(
       { error: 'Failed to fetch publish schedules' },
@@ -141,6 +142,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to create publish schedule:', error);
     return NextResponse.json(
       { error: 'Failed to create publish schedule' },

@@ -84,7 +84,7 @@ async function validateWidgetAuth(
  */
 function sanitizeFilename(filename: string): string {
   // Remove path separators and null bytes
-  let sanitized = filename.replace(/[\/\\:\0]/g, '');
+  let sanitized = filename.replace(/[/\\:\0]/g, '');
 
   // Remove any leading/trailing dots and spaces
   sanitized = sanitized.replace(/^[.\s]+|[.\s]+$/g, '');

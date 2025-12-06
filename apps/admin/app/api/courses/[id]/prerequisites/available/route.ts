@@ -66,6 +66,7 @@ export async function GET(
 
     return NextResponse.json(availableLessons);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to get available prerequisites:', error);
     return NextResponse.json(
       { error: 'Failed to get available prerequisites' },

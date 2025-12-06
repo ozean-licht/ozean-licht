@@ -131,6 +131,7 @@ export async function GET(
       offset,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to fetch messages:', error);
     return NextResponse.json(
       { error: 'Failed to fetch messages' },
@@ -289,6 +290,7 @@ export async function POST(
 
     return NextResponse.json({ message }, { status: 201 });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to create message:', error);
     return NextResponse.json(
       { error: 'Failed to create message' },

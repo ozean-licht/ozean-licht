@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ results });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error searching articles:', error);
     return NextResponse.json(
       { error: 'Search failed' },

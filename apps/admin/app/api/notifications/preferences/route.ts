@@ -18,6 +18,7 @@ export async function GET(_request: NextRequest) {
     const preferences = await getOrCreatePreferences(session.user.id);
     return NextResponse.json({ preferences });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch notification preferences:', error);
     return NextResponse.json(
       { error: 'Failed to fetch notification preferences' },
@@ -60,6 +61,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ preferences });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to update notification preferences:', error);
     return NextResponse.json(
       { error: 'Failed to update notification preferences' },

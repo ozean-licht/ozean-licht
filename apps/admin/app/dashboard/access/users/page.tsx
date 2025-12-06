@@ -154,7 +154,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Users</h1>
+        <h1 className="text-3xl font-decorative font-normal tracking-tight text-white">Users</h1>
         <p className="text-muted-foreground">
           Manage users across Ozean Licht platform
         </p>

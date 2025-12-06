@@ -108,7 +108,7 @@ export default function PermissionsPage() {
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-medium tracking-tight text-white">Permissions</h1>
+          <h1 className="text-3xl font-decorative font-normal tracking-tight text-white">Permissions</h1>
           <p className="text-[#C4C8D4] font-light">
             Configure what each role can access across the platform
           </p>

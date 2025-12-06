@@ -648,7 +648,12 @@ export class ProjectQueries {
    * Update task status
    */
   async updateTaskStatus(id: string, status: string): Promise<Task> {
-    return this.updateTask(id, { status: status as any });
+    // Validate status is a valid TaskStatus
+    const validStatuses: Task['status'][] = ['backlog', 'todo', 'in_progress', 'review', 'done', 'blocked', 'cancelled'];
+    const taskStatus = validStatuses.includes(status as Task['status'])
+      ? (status as Task['status'])
+      : 'todo';
+    return this.updateTask(id, { status: taskStatus });
   }
 
   /**

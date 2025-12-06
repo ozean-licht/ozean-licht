@@ -56,7 +56,7 @@ export default function QuizPreview({ quiz }: QuizPreviewProps) {
     let correct = 0;
     const total = questions.length;
 
-    questions.forEach(q => {
+    questions.forEach((q: typeof questions[number]) => {
       const answer = answers[q.id];
       if (!answer) return;
 
@@ -64,7 +64,7 @@ export default function QuizPreview({ quiz }: QuizPreviewProps) {
         case 'multiple_choice': {
           const mc = q as MultipleChoiceQuestion;
           const selected = answer.answer as string[];
-          const correctIds = mc.options.filter(o => o.isCorrect).map(o => o.id);
+          const correctIds = mc.options.filter((o: typeof mc.options[number]) => o.isCorrect).map((o: typeof mc.options[number]) => o.id);
           if (
             selected.length === correctIds.length &&
             selected.every(id => correctIds.includes(id))
@@ -83,9 +83,9 @@ export default function QuizPreview({ quiz }: QuizPreviewProps) {
         case 'fill_blank': {
           const fb = q as FillBlankQuestion;
           const userAnswers = answer.answer as Record<string, string>;
-          const allCorrect = fb.blanks.every(blank => {
+          const allCorrect = fb.blanks.every((blank: typeof fb.blanks[number]) => {
             const userAnswer = userAnswers[blank.id] || '';
-            return blank.acceptedAnswers.some(accepted => {
+            return blank.acceptedAnswers.some((accepted: string) => {
               if (blank.caseSensitive) {
                 return userAnswer === accepted;
               }
@@ -311,7 +311,7 @@ function MultipleChoicePreview({
   if (question.allowMultiple) {
     return (
       <div className="space-y-2">
-        {question.options.map(option => (
+        {question.options.map((option: typeof question.options[number]) => (
           <label
             key={option.id}
             className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50"
@@ -332,7 +332,7 @@ function MultipleChoicePreview({
 
   return (
     <div className="space-y-2">
-      {question.options.map(option => (
+      {question.options.map((option: typeof question.options[number]) => (
         <label
           key={option.id}
           className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
@@ -421,7 +421,7 @@ function FillBlankPreview({
 
   return (
     <div className="space-y-3">
-      {question.blanks.map((blank, index) => (
+      {question.blanks.map((blank: typeof question.blanks[number], index: number) => (
         <div key={blank.id} className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Blank {index + 1}:</span>
           <CossUIInput

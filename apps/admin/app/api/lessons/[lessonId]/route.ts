@@ -41,6 +41,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(lesson);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to get lesson:', error);
     return NextResponse.json(
       { error: 'Failed to get lesson' },
@@ -183,6 +184,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(updatedLesson);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to update lesson:', error);
     return NextResponse.json(
       { error: 'Failed to update lesson' },
@@ -224,6 +226,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to delete lesson:', error);
     return NextResponse.json(
       { error: 'Failed to delete lesson' },

@@ -143,6 +143,7 @@ export async function POST(
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        // eslint-disable-next-line no-console
         console.error('[Attachment Confirm] Thumbnail generation failed:', errorMessage);
         thumbnailWarning = `Thumbnail generation failed: ${errorMessage}`;
       }
@@ -169,6 +170,7 @@ export async function POST(
       ...(thumbnailWarning && { warning: thumbnailWarning }),
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[Attachment Confirm] Error:', error);
 
     // Return appropriate error message

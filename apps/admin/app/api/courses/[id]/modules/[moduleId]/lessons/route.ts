@@ -44,6 +44,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(result);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to list lessons:', error);
     return NextResponse.json(
       { error: 'Failed to list lessons' },
@@ -179,6 +180,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(lesson, { status: 201 });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to create lesson:', error);
     return NextResponse.json(
       { error: 'Failed to create lesson' },

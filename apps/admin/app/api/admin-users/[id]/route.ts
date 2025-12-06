@@ -71,6 +71,7 @@ export async function PATCH(
   } catch (error) {
     // Log error for server-side debugging
     if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
       console.error('[API] Update admin user error:', error);
     }
 
@@ -112,6 +113,7 @@ export async function GET(
   } catch (error) {
     // Log error for server-side debugging
     if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
       console.error('[API] Get admin user error:', error);
     }
     return NextResponse.json(

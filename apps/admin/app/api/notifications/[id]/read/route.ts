@@ -31,6 +31,7 @@ export async function POST(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to mark notification as read:', error);
     return NextResponse.json(
       { error: 'Failed to mark notification as read' },

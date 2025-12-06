@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ contentTypes });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch content types:', error);
     return NextResponse.json(
       { error: 'Failed to fetch content types' },
@@ -78,6 +79,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line no-console
     console.error('Failed to create content type:', error);
     return NextResponse.json(
       { error: 'Failed to create content type' },

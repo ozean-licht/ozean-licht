@@ -36,6 +36,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(courseModule);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to get module:', error);
     return NextResponse.json(
       { error: 'Failed to get module' },
@@ -109,6 +110,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(updatedModule);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to update module:', error);
     return NextResponse.json(
       { error: 'Failed to update module' },
@@ -150,6 +152,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to delete module:', error);
     return NextResponse.json(
       { error: 'Failed to delete module' },

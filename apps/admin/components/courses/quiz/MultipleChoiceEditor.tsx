@@ -55,7 +55,7 @@ export default function MultipleChoiceEditor({
   const handleRemoveOption = useCallback((optionId: string) => {
     if (question.options.length <= QUIZ_LIMITS.MIN_OPTIONS) return;
     onChange({
-      options: question.options.filter(o => o.id !== optionId),
+      options: question.options.filter((o: QuizOption) => o.id !== optionId),
     });
   }, [question.options, onChange]);
 
@@ -65,7 +65,7 @@ export default function MultipleChoiceEditor({
     updates: Partial<QuizOption>
   ) => {
     onChange({
-      options: question.options.map(o =>
+      options: question.options.map((o: QuizOption) =>
         o.id === optionId ? { ...o, ...updates } : o
       ),
     });
@@ -79,7 +79,7 @@ export default function MultipleChoiceEditor({
     } else {
       // Single select: make this the only correct answer
       onChange({
-        options: question.options.map(o => ({
+        options: question.options.map((o: QuizOption) => ({
           ...o,
           isCorrect: o.id === optionId ? isCorrect : false,
         })),
@@ -91,10 +91,10 @@ export default function MultipleChoiceEditor({
   const handleAllowMultipleChange = useCallback((allowMultiple: boolean) => {
     if (!allowMultiple) {
       // Switching to single select: keep only first correct answer
-      const firstCorrectIndex = question.options.findIndex(o => o.isCorrect);
+      const firstCorrectIndex = question.options.findIndex((o: QuizOption) => o.isCorrect);
       onChange({
         allowMultiple,
-        options: question.options.map((o, i) => ({
+        options: question.options.map((o: QuizOption, i: number) => ({
           ...o,
           isCorrect: i === firstCorrectIndex,
         })),
@@ -135,7 +135,7 @@ export default function MultipleChoiceEditor({
 
       {/* Options List */}
       <div className="space-y-2">
-        {question.options.map((option, index) => (
+        {question.options.map((option: QuizOption, index: number) => (
           <div
             key={option.id}
             className="flex items-start gap-2 p-2 border rounded-lg bg-muted/20"

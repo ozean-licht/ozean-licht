@@ -54,6 +54,7 @@ export async function GET(
 
     return NextResponse.json(prerequisites);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to get prerequisites:', error);
     return NextResponse.json(
       { error: 'Failed to get prerequisites' },
@@ -118,6 +119,7 @@ export async function PUT(
 
     return NextResponse.json(result);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to set prerequisites:', error);
 
     // Handle circular dependency error
@@ -192,6 +194,7 @@ export async function POST(
 
     return NextResponse.json(prerequisite, { status: 201 });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to create prerequisite:', error);
 
     // Handle circular dependency error

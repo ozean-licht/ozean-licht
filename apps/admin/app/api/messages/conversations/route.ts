@@ -169,6 +169,7 @@ export async function GET(request: NextRequest) {
       offset,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to fetch conversations:', error);
     return NextResponse.json(
       { error: 'Failed to fetch conversations' },
@@ -303,6 +304,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ conversation }, { status: 201 });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[API] Failed to create conversation:', error);
     return NextResponse.json(
       { error: 'Failed to create conversation' },

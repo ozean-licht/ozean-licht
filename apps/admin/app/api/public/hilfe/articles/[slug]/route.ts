@@ -30,10 +30,12 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
     }
 
     // Track view count (fire and forget)
+    // eslint-disable-next-line no-console
     incrementViewCount(article.id).catch(console.error);
 
     return NextResponse.json({ article });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error fetching article:', error);
     return NextResponse.json(
       { error: 'Failed to fetch article' },

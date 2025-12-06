@@ -65,6 +65,7 @@ export async function GET(
 
     return NextResponse.json(schedule);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to get drip schedule:', error);
     return NextResponse.json(
       { error: 'Failed to get drip schedule' },
@@ -146,6 +147,7 @@ export async function PUT(
 
     return NextResponse.json(schedule);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to set drip schedule:', error);
     return NextResponse.json(
       { error: 'Failed to set drip schedule' },
@@ -193,6 +195,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to delete drip schedule:', error);
     return NextResponse.json(
       { error: 'Failed to delete drip schedule' },

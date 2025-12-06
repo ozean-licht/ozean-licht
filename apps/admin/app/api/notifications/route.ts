@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/config';
-import { getNotifications } from '@/lib/db/notifications';
+import { getNotifications, NotificationType } from '@/lib/db/notifications';
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -23,13 +23,14 @@ export async function GET(request: NextRequest) {
     const result = await getNotifications({
       userId: session.user.id,
       unreadOnly,
-      type: type as any,
+      type: type as NotificationType | undefined,
       limit,
       offset,
     });
 
     return NextResponse.json(result);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to fetch notifications:', error);
     return NextResponse.json(
       { error: 'Failed to fetch notifications' },
