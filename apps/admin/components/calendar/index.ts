@@ -94,3 +94,20 @@ export {
   useCalendarNavigation,
   CalendarContext,
 } from './CalendarContext';
+
+// ============================================================================
+// Components
+// ============================================================================
+export { CalendarHeader } from './CalendarHeader';
+export { EventCard } from './EventCard';
+export { EventDialog } from './EventDialog';
+export { CalendarContainer } from './CalendarContainer';
+
+// ============================================================================
+// Views
+// ============================================================================
+export { MonthView } from './views/MonthView';
+export { WeekView } from './views/WeekView';
+export { DayView } from './views/DayView';
+export { YearView } from './views/YearView';
+export { AgendaView } from './views/AgendaView';

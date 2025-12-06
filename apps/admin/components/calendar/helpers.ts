@@ -344,13 +344,14 @@ export function getViewDateRange(
         start: startOfWeek(date, { weekStartsOn }),
         end: endOfWeek(date, { weekStartsOn }),
       };
-    case 'month':
+    case 'month': {
       const monthStart = startOfMonth(date);
       const monthEnd = endOfMonth(date);
       return {
         start: startOfWeek(monthStart, { weekStartsOn }),
         end: endOfWeek(monthEnd, { weekStartsOn }),
       };
+    }
     case 'year':
       return { start: startOfYear(date), end: endOfYear(date) };
     case 'agenda':
@@ -369,13 +370,14 @@ export function getViewHeaderText(date: Date, view: TCalendarView): string {
   switch (view) {
     case 'day':
       return formatDate(date, 'EEEE, dd. MMMM yyyy');
-    case 'week':
+    case 'week': {
       const weekStart = startOfWeek(date, { weekStartsOn: 1 });
       const weekEnd = endOfWeek(date, { weekStartsOn: 1 });
       if (isSameMonth(weekStart, weekEnd)) {
         return `${formatDate(weekStart, 'dd.')} - ${formatDate(weekEnd, 'dd. MMMM yyyy')}`;
       }
       return `${formatDate(weekStart, 'dd. MMM')} - ${formatDate(weekEnd, 'dd. MMM yyyy')}`;
+    }
     case 'month':
       return formatDate(date, 'MMMM yyyy');
     case 'year':

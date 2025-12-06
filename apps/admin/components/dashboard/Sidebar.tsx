@@ -31,6 +31,7 @@ import {
   HelpCircle,
   BarChart3,
   Settings,
+  ExternalLink,
 } from 'lucide-react';
 import { NavigationSection, UserEntity, EntityScope } from '@/types/navigation';
 import { canAccessRoute } from '@/lib/rbac/constants';
@@ -149,9 +150,14 @@ export default function Sidebar({
       title: 'Calendar',
       items: [
         {
-          label: 'Events',
-          href: '/dashboard/calendar/events',
+          label: 'Kalender',
+          href: '/dashboard/calendar',
           icon: Calendar,
+        },
+        {
+          label: 'Events Liste',
+          href: '/dashboard/calendar/events',
+          icon: ListTodo,
         },
       ],
     },
@@ -192,6 +198,12 @@ export default function Sidebar({
           label: 'Knowledge Base',
           href: '/dashboard/support/knowledge',
           icon: HelpCircle,
+        },
+        {
+          label: 'Help Center',
+          href: '/hilfe',
+          icon: ExternalLink,
+          badge: 'Public',
         },
         {
           label: 'Analytics',
