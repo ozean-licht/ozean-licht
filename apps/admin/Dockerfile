@@ -77,6 +77,9 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 # Copy built application from builder
+# NOTE: pnpm standalone output uses symlinks that point to ../../../node_modules/.pnpm/...
+# We need to copy the root node_modules so those symlinks resolve correctly
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/admin/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/static ./.next/static
