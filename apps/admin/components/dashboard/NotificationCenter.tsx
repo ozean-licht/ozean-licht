@@ -9,6 +9,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import {
   Popover,
   PopoverContent,
@@ -29,6 +30,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Notification, NotificationType } from '@/types/projects';
+import { useUserNotifications, type NotificationData } from '@/hooks/usePusher';
 
 interface NotificationCenterProps {
   initialUnreadCount?: number;
@@ -71,6 +73,7 @@ function formatTimeAgo(dateString: string): string {
 
 export function NotificationCenter({ initialUnreadCount = 0 }: NotificationCenterProps) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
@@ -95,6 +98,34 @@ export function NotificationCenter({ initialUnreadCount = 0 }: NotificationCente
     }
   }, []);
 
+  // Subscribe to real-time notifications via WebSocket
+  useUserNotifications(
+    session?.user?.id || '',
+    useCallback((notification: NotificationData) => {
+      // Convert NotificationData to Notification format
+      const newNotification: Notification = {
+        id: notification.id,
+        userId: notification.userId,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message || undefined,
+        link: notification.link || undefined,
+        isRead: false,
+        createdAt: notification.createdAt,
+        entityType: notification.entityType || undefined,
+        entityId: notification.entityId || undefined,
+        actorId: notification.actorId || undefined,
+        metadata: notification.metadata || undefined,
+      };
+
+      // Add to the top of the notification list
+      setNotifications((prev) => [newNotification, ...prev]);
+
+      // Increment unread count
+      setUnreadCount((prev) => prev + 1);
+    }, [])
+  );
+
   // Fetch on open
   useEffect(() => {
     if (isOpen) {
@@ -102,7 +133,7 @@ export function NotificationCenter({ initialUnreadCount = 0 }: NotificationCente
     }
   }, [isOpen, fetchNotifications]);
 
-  // Poll for new notifications every 2 minutes (reduced from 30s to minimize server load)
+  // Poll for new notifications every 5 minutes as fallback (real-time updates handle most cases)
   useEffect(() => {
     const fetchUnreadCount = async () => {
       try {
@@ -116,7 +147,7 @@ export function NotificationCenter({ initialUnreadCount = 0 }: NotificationCente
       }
     };
 
-    const interval = setInterval(fetchUnreadCount, 120000); // 2 minutes
+    const interval = setInterval(fetchUnreadCount, 300000); // 5 minutes
     return () => clearInterval(interval);
   }, []);
 
