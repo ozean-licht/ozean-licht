@@ -64,8 +64,11 @@ ENV NEXTAUTH_URL=https://dashboard.ozean-licht.dev
 RUN pnpm run build
 
 # Dereference symlinks in standalone output (pnpm uses symlinks that won't work in runner)
-# cp -rL follows symlinks and copies actual files
-RUN mkdir -p /app/standalone && \
+# The symlinks point to ../../../node_modules/.pnpm/... which from /app/apps/admin
+# resolves to /app/apps/node_modules - we need to create that symlink first
+RUN mkdir -p /app/apps && \
+    ln -s /app/node_modules /app/apps/node_modules && \
+    mkdir -p /app/standalone && \
     cp -rL .next/standalone/. /app/standalone/ && \
     cp -r .next/static /app/standalone/.next/static && \
     cp -r public /app/standalone/public
