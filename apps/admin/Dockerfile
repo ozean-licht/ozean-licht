@@ -67,7 +67,6 @@ RUN pnpm run build
 # Runner stage - production image
 # ============================================================================
 FROM base AS runner
-WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -77,12 +76,19 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 # Copy built application from builder
-# NOTE: pnpm standalone output uses symlinks that point to ../../../node_modules/.pnpm/...
-# We need to copy the root node_modules so those symlinks resolve correctly
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/admin/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/static ./.next/static
+# NOTE: pnpm standalone uses symlinks pointing to ../../../node_modules/.pnpm/...
+# We must maintain the same directory structure so symlinks resolve correctly
+# Root node_modules (where pnpm stores packages)
+COPY --from=builder /app/node_modules /app/node_modules
+# Standalone output (contains server.js and symlinked node_modules)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/standalone /app/apps/admin/.next/standalone
+# Static files
+COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/static /app/apps/admin/.next/standalone/.next/static
+# Public folder
+COPY --from=builder /app/apps/admin/public /app/apps/admin/.next/standalone/public
+
+# Set working directory to standalone output
+WORKDIR /app/apps/admin/.next/standalone
 
 USER nextjs
 
